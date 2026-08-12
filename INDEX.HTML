@@ -1,0 +1,570 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>TCL Comercio Web 2026 — Panel Máster & Vitrina Digital</title>
+
+    <!-- TAILWIND CSS & FONT-AWESOME -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+
+    <!-- FIREBASE COMPAT SDKs -->
+    <script src="https://www.gstatic.com/firebasejs/10.8.0/firebase-app-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/10.8.0/firebase-firestore-compat.js"></script>
+
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght=400;500;600;700;800;900&display=swap');
+        body { font-family: 'Plus Jakarta Sans', sans-serif; background-color: #f8fafc; color: #0f172a; overflow-x: hidden; }
+        .no-scrollbar::-webkit-scrollbar { display: none; }
+        .no-scrollbar { -ms-overflow-style: none; scrollbar-width: none; }
+        .card-light { background: #ffffff; border: 1px solid #e2e8f0; border-radius: 1.25rem; box-shadow: 0 4px 10px -1px rgba(0, 0, 0, 0.04); }
+        .input-clean { width: 100%; background-color: #ffffff; border: 1px solid #cbd5e1; padding: 0.65rem 0.85rem; border-radius: 0.75rem; color: #0f172a; font-weight: 700; outline: none; font-size: 0.8rem; }
+        .input-clean:focus { border-color: #2563eb; ring: 2px #2563eb; }
+        .btn-brand { background: linear-gradient(to right, #2563eb, #1d4ed8); color: white; font-weight: 800; font-size: 0.75rem; padding: 0.75rem 1.25rem; border-radius: 0.75rem; text-transform: uppercase; letter-spacing: 0.05em; transition: all 0.2s; cursor: pointer; }
+        .btn-brand:hover { opacity: 0.95; }
+        .pildora-dias { padding: 0.6rem 1rem; border-radius: 0.75rem; font-size: 0.75rem; font-weight: 800; border: 1px solid #cbd5e1; background: #ffffff; color: #475569; transition: all 0.2s; cursor: pointer; text-transform: uppercase; }
+        .pildora-dias-active { background: #2563eb !important; color: #ffffff !important; border-color: #1d4ed8 !important; box-shadow: 0 4px 10px rgba(37, 99, 235, 0.25); }
+    </style>
+</head>
+<body class="min-h-screen flex flex-col bg-slate-50">
+
+    <!-- 1. LOGIN ACCESO PRINCIPAL -->
+    <div id="vista-login" class="min-h-screen flex items-center justify-center p-4">
+        <div class="w-full max-w-md card-light p-6 space-y-6">
+            <div class="text-center space-y-2">
+                <div class="w-14 h-14 bg-blue-50 text-blue-600 rounded-2xl flex items-center justify-center mx-auto text-2xl border border-blue-100 shadow-sm">
+                    <i class="fa-solid fa-store"></i>
+                </div>
+                <h2 class="font-black text-xl text-slate-900 tracking-tight uppercase">TCL COMERCIO WEB</h2>
+                <p class="text-slate-500 text-xs font-medium">Plataforma Ágil de Inventario y Catálogo Web</p>
+            </div>
+
+            <form onsubmit="event.preventDefault(); window.procesarLoginUnificado();" class="space-y-4 text-xs font-bold">
+                <div>
+                    <label class="text-[10px] text-slate-500 uppercase block mb-1">Usuario de Acceso</label>
+                    <input type="text" id="login-user-field" class="input-clean font-mono" placeholder="Usuario / Nombre de Comercio" value="tucocel">
+                </div>
+                <div>
+                    <label class="text-[10px] text-slate-500 uppercase block mb-1">Contraseña de Seguridad</label>
+                    <input type="password" id="login-pass-field" class="input-clean font-mono" placeholder="••••••••" value="Razu2020.">
+                </div>
+                <button type="submit" class="btn-brand w-full py-3.5 shadow-md">Ingresar al Sistema 🔒</button>
+            </form>
+
+            <div class="text-center pt-2">
+                <p class="text-[10px] text-slate-400 font-mono uppercase tracking-widest">Infraestructura respaldada por Tucocel C.A.</p>
+            </div>
+        </div>
+    </div>
+
+    <!-- 2. PANEL DE CONTROL MÁSTER -->
+    <div id="vista-master-admin" class="hidden min-h-screen p-4 sm:p-8 max-w-7xl mx-auto space-y-6">
+        <div class="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4 border-b border-slate-200 pb-5">
+            <div>
+                <span class="bg-blue-50 text-blue-700 border border-blue-200 text-[10px] font-bold tracking-widest uppercase px-3 py-1 rounded-full inline-flex items-center gap-1.5 shadow-sm font-mono">
+                    <i class="fa-solid fa-user-shield"></i> Centro de Mando Desarrollador
+                </span>
+                <h1 class="text-2xl sm:text-3xl font-black tracking-tight text-slate-900 mt-2 flex items-center gap-2">
+                    TCL COMERCIO WEB — MÁSTER <span class="text-amber-500">⚡</span>
+                </h1>
+            </div>
+            <button onclick="window.cerrarSesionCompleta()" class="bg-white hover:bg-slate-100 text-slate-700 px-4 py-2.5 rounded-xl border border-slate-300 text-xs font-bold uppercase flex items-center gap-2 shadow-sm">
+                <i class="fa-solid fa-right-from-bracket text-red-500"></i> Cerrar Sesión
+            </button>
+        </div>
+
+        <div class="flex flex-col sm:flex-row gap-3">
+            <button onclick="window.abrirModalConfigurarEntornoSaaS('NUEVO')" class="btn-brand w-full sm:w-auto py-3.5 px-6 font-black text-xs flex items-center justify-center gap-2 shadow-md">
+                <i class="fa-solid fa-plus text-sm"></i> <span>REGISTRAR NUEVA SUCURSAL / COMERCIO</span>
+            </button>
+
+            <!-- BOTÓN DE PURGA / LIMPIEZA DE BASE DE DATOS -->
+            <button onclick="window.purgarBaseDeDatosCompleta()" class="bg-red-50 hover:bg-red-100 text-red-700 border border-red-200 w-full sm:w-auto py-3.5 px-6 font-black text-xs rounded-xl flex items-center justify-center gap-2 shadow-sm uppercase">
+                <i class="fa-solid fa-trash-can text-red-600"></i> <span>PURGAR TODOS LOS CLIENTES</span>
+            </button>
+        </div>
+
+        <div class="grid grid-cols-1 sm:grid-cols-3 gap-4">
+            <div class="card-light p-5 space-y-1">
+                <span class="text-[10px] font-black text-slate-400 uppercase font-mono tracking-wider block">Clientes Activos</span>
+                <div class="flex items-baseline gap-2">
+                    <span id="master-count-clientes" class="text-3xl font-black text-blue-600 font-mono">0</span>
+                    <span class="text-[10px] text-emerald-600 font-bold uppercase flex items-center gap-1"><span class="w-2 h-2 rounded-full bg-emerald-500 animate-pulse"></span> Servidor Firebase Online</span>
+                </div>
+            </div>
+
+            <div class="card-light p-4 space-y-1">
+                <span class="text-[10px] font-black text-slate-400 uppercase font-mono tracking-wider block">🇨🇴 Tasa USDT / Pesos</span>
+                <input type="number" id="master-tasa-cop" value="3600" class="input-clean font-mono text-base font-black text-blue-600">
+            </div>
+
+            <div class="card-light p-4 space-y-1">
+                <span class="text-[10px] font-black text-slate-400 uppercase font-mono tracking-wider block">🇻🇪 Tasa Paridad Bs</span>
+                <input type="number" step="0.1" id="master-tasa-bs" value="3.3" class="input-clean font-mono text-base font-black text-emerald-600">
+            </div>
+        </div>
+
+        <div class="card-light p-5 space-y-4 border-blue-200">
+            <h3 class="text-xs font-black text-slate-500 uppercase tracking-wider flex items-center gap-2">
+                <i class="fa-solid fa-grip text-blue-600"></i> Central de Accesos y Gestión
+            </h3>
+            
+            <div class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-4 gap-3">
+                <button onclick="window.abrirModalBaseClientes('ACTIVOS')" class="bg-slate-900 hover:bg-slate-800 text-white p-4 rounded-2xl flex flex-col items-center justify-center gap-2 transition-all shadow-md">
+                    <i class="fa-solid fa-store text-2xl text-blue-400"></i>
+                    <span class="font-black text-xs uppercase tracking-wider">Base Clientes (<span id="cnt-badge-activos">0</span>)</span>
+                </button>
+
+                <button onclick="window.abrirModalBaseClientes('INACTIVOS')" class="bg-slate-900 hover:bg-slate-800 text-white p-4 rounded-2xl flex flex-col items-center justify-center gap-2 transition-all shadow-md">
+                    <i class="fa-solid fa-box-archive text-2xl text-red-400"></i>
+                    <span class="font-black text-xs uppercase tracking-wider">Bóveda Inactivos (<span id="cnt-badge-inactivos">0</span>)</span>
+                </button>
+
+                <button onclick="alert('Módulo Tarifas SaaS')" class="bg-slate-900 hover:bg-slate-800 text-white p-4 rounded-2xl flex flex-col items-center justify-center gap-2 transition-all shadow-md">
+                    <i class="fa-solid fa-tags text-2xl text-amber-400"></i>
+                    <span class="font-black text-xs uppercase tracking-wider">Tarifas SaaS</span>
+                </button>
+
+                <button onclick="alert('Módulo Propuesta Comercial')" class="bg-gradient-to-r from-blue-600 to-purple-600 text-white p-4 rounded-2xl flex flex-col items-center justify-center gap-2 transition-all shadow-md">
+                    <i class="fa-solid fa-paper-plane text-2xl text-white"></i>
+                    <span class="font-black text-xs uppercase tracking-wider">Enviar Propuesta</span>
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <!-- MODAL CONFIGURAR ENTORNO SAAS -->
+    <div id="modal-configurar-entorno-saas" class="fixed inset-0 bg-slate-900/80 backdrop-blur-md z-50 p-4 flex items-center justify-center hidden">
+        <div class="bg-white border border-slate-200 w-full max-w-lg rounded-3xl overflow-hidden shadow-2xl flex flex-col max-h-[90vh]">
+            <div class="bg-slate-900 px-5 py-4 text-white flex justify-between items-center shrink-0">
+                <div class="flex items-center gap-2">
+                    <i class="fa-solid fa-store text-blue-400"></i>
+                    <h3 id="modal-saas-titulo" class="font-black text-xs uppercase tracking-wider">CONFIGURAR ENTORNO SAAS</h3>
+                </div>
+                <button onclick="document.getElementById('modal-configurar-entorno-saas').classList.add('hidden')" class="text-slate-400 hover:text-white"><i class="fa-solid fa-xmark text-sm"></i></button>
+            </div>
+
+            <div class="p-5 overflow-y-auto space-y-4 text-xs font-bold text-slate-800 no-scrollbar">
+                <input type="hidden" id="saas-editing-id" value="">
+
+                <div class="space-y-3">
+                    <div>
+                        <label class="text-[10px] text-slate-500 uppercase block mb-1">Nombre Comercial / Sucursal *</label>
+                        <input type="text" id="saas-input-nombre" onkeyup="window.actualizarSlugEnTiempoReal()" placeholder="Ej: Bodega Don Luis" class="input-clean">
+                    </div>
+                    <div>
+                        <label class="text-[10px] text-slate-500 uppercase block mb-1">WhatsApp de Contacto *</label>
+                        <input type="tel" id="saas-input-wa" placeholder="04147357549" class="input-clean font-mono">
+                    </div>
+                    <div class="grid grid-cols-1 sm:grid-cols-2 gap-3">
+                        <div>
+                            <label class="text-[10px] text-slate-500 uppercase block mb-1">Usuario ID *</label>
+                            <input type="text" id="saas-input-user" placeholder="demo" class="input-clean font-mono">
+                        </div>
+                        <div>
+                            <label class="text-[10px] text-slate-500 uppercase block mb-1">Clave de Acceso *</label>
+                            <input type="password" id="saas-input-pass" placeholder="••••••" class="input-clean font-mono">
+                        </div>
+                    </div>
+                </div>
+
+                <div class="bg-slate-50 p-4 rounded-2xl border border-slate-200 space-y-3">
+                    <label class="text-[10px] font-black text-amber-600 uppercase tracking-wider block">COBERTURA DE SUSCRIPCIÓN</label>
+                    <div class="grid grid-cols-2 sm:grid-cols-4 gap-2">
+                        <button type="button" onclick="window.seleccionarPildoraDias(30)" id="pildora-30" class="pildora-dias">30 Días</button>
+                        <button type="button" onclick="window.seleccionarPildoraDias(90)" id="pildora-90" class="pildora-dias">90 Días</button>
+                        <button type="button" onclick="window.seleccionarPildoraDias(180)" id="pildora-180" class="pildora-dias">180 Días</button>
+                        <button type="button" onclick="window.seleccionarPildoraDias(365)" id="pildora-365" class="pildora-dias pildora-dias-active">365 Días</button>
+                    </div>
+                    <div id="lbl-display-dias-seleccionados" class="bg-white p-2.5 rounded-xl border border-slate-200 text-center font-black text-sm text-slate-900 font-mono shadow-sm">
+                        365 Días
+                    </div>
+                </div>
+
+                <div class="bg-slate-50 p-4 rounded-2xl border border-slate-200 space-y-3">
+                    <div class="flex gap-2">
+                        <input type="text" id="saas-link-generado" readonly value="" class="input-clean font-mono text-blue-600 bg-white">
+                        <button onclick="window.copiarLinkClienteGenerated()" class="bg-slate-900 hover:bg-slate-800 text-white px-4 rounded-xl font-bold uppercase text-xs shrink-0">
+                            <i class="fa-solid fa-copy"></i> Copiar
+                        </button>
+                    </div>
+                </div>
+            </div>
+
+            <div class="bg-slate-100 p-4 border-t border-slate-200 grid grid-cols-2 gap-3 shrink-0">
+                <button onclick="document.getElementById('modal-configurar-entorno-saas').classList.add('hidden')" class="bg-slate-300 text-slate-800 font-black py-3 rounded-xl uppercase text-xs">
+                    CANCELAR
+                </button>
+                <button onclick="window.guardarCambiosEntornoSaaS()" class="bg-amber-500 hover:bg-amber-400 text-slate-950 font-black py-3 rounded-xl uppercase text-xs shadow">
+                    GUARDAR EN FIREBASE ☁️
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <!-- MODAL BASE CLIENTES -->
+    <div id="modal-base-clientes" class="fixed inset-0 bg-slate-900/80 backdrop-blur-md z-50 p-4 flex items-center justify-center hidden">
+        <div class="bg-white border border-slate-200 w-full max-w-3xl rounded-3xl overflow-hidden shadow-2xl flex flex-col max-h-[85vh]">
+            <div class="bg-slate-900 px-5 py-4 text-white flex justify-between items-center shrink-0">
+                <h3 id="lbl-titulo-modal-clientes" class="font-black text-xs uppercase tracking-wider flex items-center gap-2">
+                    <i class="fa-solid fa-store text-blue-400"></i> Base de Clientes
+                </h3>
+                <button onclick="document.getElementById('modal-base-clientes').classList.add('hidden')" class="text-slate-400 hover:text-white"><i class="fa-solid fa-xmark text-sm"></i></button>
+            </div>
+
+            <div class="p-4 bg-slate-100 border-b border-slate-200">
+                <input type="text" id="busqueda-modal-cliente" onkeyup="window.renderizarListaClientesModal()" placeholder="🔍 Buscar por nombre de comercio o usuario..." class="input-clean">
+            </div>
+
+            <div class="p-5 overflow-y-auto space-y-3 no-scrollbar flex-grow">
+                <div id="lista-clientes-modal" class="grid grid-cols-1 sm:grid-cols-2 gap-3"></div>
+            </div>
+        </div>
+    </div>
+
+    <!-- VITRINA DIGITAL CLIENTE -->
+    <div id="vista-tienda-comercio" class="hidden min-h-screen flex flex-col">
+        <div id="banner-modo-soporte-master" class="bg-amber-500 text-slate-950 font-black text-[10.5px] py-1.5 px-4 text-center uppercase tracking-wider flex justify-between items-center hidden">
+            <span>⚡ MODO SOPORTE TÉCNICO MÁSTER CONECTADO 'EN CALIENTE'</span>
+            <button onclick="window.regresarAlPanelMaster()" class="bg-slate-950 text-white px-2.5 py-0.5 rounded-lg text-[9px] font-bold uppercase hover:bg-slate-800 transition-all">
+                Volver al Panel Máster
+            </button>
+        </div>
+
+        <header class="bg-white border-b border-slate-200 p-4 sticky top-0 z-30 shadow-sm">
+            <div class="max-w-5xl mx-auto flex justify-between items-center">
+                <div class="flex items-center gap-3">
+                    <div class="w-10 h-10 bg-blue-600 text-white rounded-xl flex items-center justify-center text-lg font-black shadow-sm">
+                        <i class="fa-solid fa-shop"></i>
+                    </div>
+                    <div>
+                        <h1 id="header-shop-title" class="font-black text-base text-slate-900 uppercase tracking-tight">Cargando Tienda...</h1>
+                        <p id="header-shop-sub" class="text-[10px] text-slate-500 font-medium">Catálogo Digital Oficial</p>
+                    </div>
+                </div>
+
+                <button onclick="window.cerrarSesionCompleta()" class="bg-slate-100 text-slate-700 px-3 py-2 rounded-xl text-xs font-bold uppercase">
+                    Salir
+                </button>
+            </div>
+        </header>
+
+        <main class="max-w-5xl mx-auto w-full p-4 flex-grow space-y-6">
+            <div class="border-b border-slate-200 pb-2">
+                <h2 class="text-xs font-black uppercase text-slate-500 tracking-wider">Productos en Vitrina</h2>
+            </div>
+            <div id="grid-productos-tienda" class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-4"></div>
+        </main>
+    </div>
+
+    <!-- PANTALLA BLOQUEO LINK INACTIVO -->
+    <div id="vista-bloqueo-link" class="hidden min-h-screen flex items-center justify-center p-4 bg-slate-100">
+        <div class="w-full max-w-md card-light p-6 text-center space-y-4 border-red-200">
+            <div class="w-16 h-16 bg-red-50 text-red-600 rounded-full flex items-center justify-center mx-auto text-3xl border border-red-100">
+                <i class="fa-solid fa-link-slash"></i>
+            </div>
+            <h2 class="font-black text-lg text-slate-900 uppercase">Enlace Inactivo / Suspendido</h2>
+            <p class="text-slate-600 text-xs leading-relaxed font-medium">
+                Este catálogo no está disponible actualmente. Contacte al soporte máster para reactivar el servicio.
+            </p>
+            <button onclick="window.open('https://api.whatsapp.com/send?phone=584147357549&text=Hola,%20deseo%20reactivar%20mi%20tienda%20comercial', '_blank')" class="btn-brand w-full py-3.5 text-xs flex items-center justify-center gap-2 shadow-md">
+                <i class="fa-brands fa-whatsapp text-base"></i> Contactar Soporte
+            </button>
+        </div>
+    </div>
+
+    <!-- FIREBASE INITIALIZATION & LÓGICA DE CONTROL -->
+    <script>
+        const firebaseConfig = {
+            authDomain: "tucocel-vitrina.firebaseapp.com",
+            projectId: "tucocel-vitrina",
+            storageBucket: "tucocel-vitrina.appspot.com",
+            messagingSenderId: "1234567890",
+            appId: "1:1234567890:web:abcdef123456"
+        };
+
+        if (!firebase.apps.length) {
+            firebase.initializeApp(firebaseConfig);
+        }
+        window.db = firebase.firestore();
+
+        window.dbClientesSaaS = [];
+        window.esMasterLogueado = false;
+        window.diasSuscripcionSeleccionados = 365;
+        window.tipoVistaModalActual = 'ACTIVOS';
+
+        window.getBaseAppUrl = function() {
+            return window.location.origin + window.location.pathname;
+        };
+
+        window.cargarClientesDesdeFirebase = async function() {
+            try {
+                const snap = await window.db.collection('tcl_saas_data').get();
+                window.dbClientesSaaS = [];
+                snap.forEach(doc => {
+                    window.dbClientesSaaS.push({ id: doc.id, ...doc.data() });
+                });
+                window.recalcularTotalesYBadgesComercios();
+            } catch(e) {
+                console.error("Error al cargar clientes de Firebase:", e);
+            }
+        };
+
+        window.abrirModalBaseClientes = function(tipo) {
+            window.tipoVistaModalActual = tipo;
+            const titulo = document.getElementById('lbl-titulo-modal-clientes');
+            if (tipo === 'INACTIVOS') {
+                titulo.innerHTML = `<i class="fa-solid fa-box-archive text-red-400"></i> Bóveda de Clientes Inactivos`;
+            } else {
+                titulo.innerHTML = `<i class="fa-solid fa-store text-blue-400"></i> Base de Clientes Activos`;
+            }
+            window.renderizarListaClientesModal();
+            document.getElementById('modal-base-clientes').classList.remove('hidden');
+        };
+
+        // RENDERIZADO CORREGIDO Y TOLERANTE A PROPIEDADES DE FIREBASE
+        window.renderizarListaClientesModal = function() {
+            const container = document.getElementById('lista-clientes-modal');
+            if (!container) return;
+
+            const busqueda = (document.getElementById('busqueda-modal-cliente')?.value || '').toLowerCase().trim();
+            
+            const filtrados = window.dbClientesSaaS.filter(c => {
+                const estatusCliente = c.estatus ? c.estatus.toUpperCase() : 'ACTIVO';
+                const coincideTipo = estatusCliente === window.tipoVistaModalActual;
+                
+                const nombreStr = (c.nombre || '').toLowerCase();
+                const userStr = (c.user || '').toLowerCase();
+                const coincideTexto = nombreStr.includes(busqueda) || userStr.includes(busqueda);
+                
+                return coincideTipo && coincideTexto;
+            });
+
+            if (filtrados.length === 0) {
+                container.innerHTML = `<div class="col-span-1 sm:col-span-2 py-8 text-center text-slate-400 text-xs italic">No hay comercios registrados en esta sección.</div>`;
+                return;
+            }
+
+            container.innerHTML = filtrados.map(c => `
+                <div class="card-light p-4 space-y-2 border-slate-200 shadow-sm">
+                    <div class="flex justify-between items-start">
+                        <div>
+                            <h4 class="font-black text-slate-900 text-sm uppercase">${c.nombre || 'SIN NOMBRE'}</h4>
+                            <span class="text-[9.5px] text-blue-600 font-mono font-bold block">Slug: ?tienda=${c.slug || ''}</span>
+                        </div>
+                        <span class="${(c.estatus || 'ACTIVO') === 'ACTIVO' ? 'bg-blue-50 text-blue-700 border-blue-200' : 'bg-red-50 text-red-700 border-red-200'} border text-[9px] font-black uppercase px-2 py-0.5 rounded-md">
+                            ${c.dias || 365} Días
+                        </span>
+                    </div>
+                    <div class="text-[10px] text-slate-600 font-mono space-y-0.5">
+                        <p>📞 WA: ${c.wa || 'N/A'}</p>
+                        <p>🔑 User: ${c.user || 'N/A'} | Pass: ${c.pass || '••••••'}</p>
+                    </div>
+                    <div class="grid grid-cols-2 gap-2 pt-2 border-t border-slate-100">
+                        <button onclick="window.editarClienteDirectoDesdeModal('${c.id}')" class="bg-slate-100 hover:bg-slate-200 text-slate-700 font-bold text-xs py-2 rounded-xl uppercase border border-slate-300 transition-all">
+                            ⚙️ Editar
+                        </button>
+                        <button onclick="window.entrarEnCalienteCliente('${c.id}')" class="bg-slate-900 hover:bg-slate-800 text-white font-bold text-xs py-2 rounded-xl flex items-center justify-center gap-1 shadow-sm transition-all">
+                            <i class="fa-solid fa-right-to-bracket text-amber-400"></i> Entrar
+                        </button>
+                    </div>
+                </div>
+            `).join('');
+        };
+
+        window.editarClienteDirectoDesdeModal = function(id) {
+            const cliente = window.dbClientesSaaS.find(c => c.id === id);
+            if (!cliente) return;
+
+            document.getElementById('modal-base-clientes').classList.add('hidden');
+            document.getElementById('saas-editing-id').value = cliente.id;
+            document.getElementById('modal-saas-titulo').innerText = `EDITAR: ${(cliente.nombre || '').toUpperCase()}`;
+            document.getElementById('saas-input-nombre').value = cliente.nombre || '';
+            document.getElementById('saas-input-wa').value = cliente.wa || '';
+            document.getElementById('saas-input-user').value = cliente.user || '';
+            document.getElementById('saas-input-pass').value = cliente.pass || '';
+            document.getElementById('saas-link-generado').value = `${window.getBaseAppUrl()}?tienda=${cliente.slug}`;
+
+            window.seleccionarPildoraDias(cliente.dias || 365);
+            document.getElementById('modal-configurar-entorno-saas').classList.remove('hidden');
+        };
+
+        window.entrarEnCalienteCliente = function(id) {
+            const cliente = window.dbClientesSaaS.find(c => c.id === id);
+            if (!cliente) return;
+
+            document.getElementById('modal-base-clientes').classList.add('hidden');
+            document.getElementById('vista-master-admin').classList.add('hidden');
+            document.getElementById('header-shop-title').innerText = cliente.nombre;
+            document.getElementById('vista-tienda-comercio').classList.remove('hidden');
+            document.getElementById('banner-modo-soporte-master').classList.remove('hidden');
+        };
+
+        window.regresarAlPanelMaster = function() {
+            document.getElementById('vista-tienda-comercio').classList.add('hidden');
+            document.getElementById('banner-modo-soporte-master').classList.add('hidden');
+            document.getElementById('vista-master-admin').classList.remove('hidden');
+        };
+
+        // FUNCIÓN DE PURGA COMPLETA DE CLIENTES EN FIREBASE
+        window.purgarBaseDeDatosCompleta = async function() {
+            if (!confirm("🔥 ¿Está seguro de ELIMINAR TODOS LOS CLIENTES de Firebase? La base de datos quedará completamente limpia en cero.")) return;
+
+            try {
+                const snap = await window.db.collection('tcl_saas_data').get();
+                const batch = window.db.batch();
+
+                snap.forEach(doc => {
+                    batch.delete(doc.ref);
+                });
+
+                await batch.commit();
+                alert("🗑️ Se han eliminado todos los clientes de Firebase. La base de datos ha sido limpiada con éxito.");
+                await window.cargarClientesDesdeFirebase();
+            } catch(e) {
+                console.error("Error al purgar la base de datos:", e);
+                alert("❌ Ocurrió un error al intentar eliminar los registros.");
+            }
+        };
+
+        window.actualizarSlugEnTiempoReal = function() {
+            const nombre = document.getElementById('saas-input-nombre').value.trim();
+            const slug = nombre.toLowerCase().replace(/[^a-z0-9]/g, '');
+            document.getElementById('saas-link-generado').value = slug ? `${window.getBaseAppUrl()}?tienda=${slug}` : `${window.getBaseAppUrl()}?...`;
+        };
+
+        window.copiarLinkClienteGenerated = function() {
+            const linkInput = document.getElementById('saas-link-generado');
+            if (!linkInput || !linkInput.value) return;
+            navigator.clipboard.writeText(linkInput.value).then(() => alert("📋 Link copiado: " + linkInput.value));
+        };
+
+        window.evaluarRutaDirecta = async function() {
+            const params = new URLSearchParams(window.location.search);
+            const tiendaSlug = params.get('tienda');
+
+            await window.cargarClientesDesdeFirebase();
+
+            if (tiendaSlug) {
+                const cliente = window.dbClientesSaaS.find(c => c.slug === tiendaSlug);
+                if (cliente) {
+                    if (cliente.estatus === 'INACTIVO') {
+                        document.getElementById('vista-login').classList.add('hidden');
+                        document.getElementById('vista-bloqueo-link').classList.remove('hidden');
+                        return;
+                    }
+                    document.getElementById('header-shop-title').innerText = cliente.nombre;
+                    document.getElementById('vista-login').classList.add('hidden');
+                    document.getElementById('vista-tienda-comercio').classList.remove('hidden');
+                } else {
+                    alert("⚠️ La tienda especificada no existe.");
+                }
+            }
+        };
+
+        window.procesarLoginUnificado = function() {
+            const usr = document.getElementById('login-user-field').value.trim();
+            const pass = document.getElementById('login-pass-field').value.trim();
+
+            if (usr === 'tucocel' && pass === 'Razu2020.') {
+                window.esMasterLogueado = true;
+                document.getElementById('vista-login').classList.add('hidden');
+                document.getElementById('vista-master-admin').classList.remove('hidden');
+                return;
+            }
+
+            const encontrado = window.dbClientesSaaS.find(c => c.user === usr && c.pass === pass);
+            if (encontrado) {
+                if (encontrado.estatus === 'INACTIVO') {
+                    document.getElementById('vista-login').classList.add('hidden');
+                    document.getElementById('vista-bloqueo-link').classList.remove('hidden');
+                    return;
+                }
+                document.getElementById('header-shop-title').innerText = encontrado.nombre;
+                document.getElementById('vista-login').classList.add('hidden');
+                document.getElementById('vista-tienda-comercio').classList.remove('hidden');
+                return;
+            }
+
+            alert("⚠️ Credenciales incorrectas.");
+        };
+
+        window.guardarCambiosEntornoSaaS = async function() {
+            const idEdit = document.getElementById('saas-editing-id').value;
+            const nombre = document.getElementById('saas-input-nombre').value.trim();
+            const wa = document.getElementById('saas-input-wa').value.trim();
+            const user = document.getElementById('saas-input-user').value.trim();
+            const pass = document.getElementById('saas-input-pass').value.trim();
+            const dias = window.diasSuscripcionSeleccionados;
+
+            if (!nombre || !wa || !user || !pass) {
+                alert("⚠️ Rellene todos los campos obligatorios.");
+                return;
+            }
+
+            const slug = nombre.toLowerCase().replace(/[^a-z0-9]/g, '');
+            const docId = idEdit || 'cli_' + Date.now();
+
+            const clienteData = {
+                nombre, wa, user, pass, slug, dias,
+                estatus: 'ACTIVO',
+                updatedAt: Date.now()
+            };
+
+            try {
+                await window.db.collection('tcl_saas_data').doc(docId).set(clienteData, { merge: true });
+                alert("🚀 Comercio guardado exitosamente en Firebase.");
+                document.getElementById('modal-configurar-entorno-saas').classList.add('hidden');
+                await window.cargarClientesDesdeFirebase();
+            } catch(e) {
+                console.error("Error guardando en Firebase:", e);
+                alert("❌ Error guardando los datos.");
+            }
+        };
+
+        window.recalcularTotalesYBadgesComercios = function() {
+            const activos = window.dbClientesSaaS.filter(c => (c.estatus || 'ACTIVO') === 'ACTIVO').length;
+            const inactivos = window.dbClientesSaaS.filter(c => c.estatus === 'INACTIVO').length;
+
+            document.getElementById('master-count-clientes').innerText = activos;
+            document.getElementById('cnt-badge-activos').innerText = activos;
+            document.getElementById('cnt-badge-inactivos').innerText = inactivos;
+        };
+
+        window.seleccionarPildoraDias = function(dias) {
+            window.diasSuscripcionSeleccionados = dias;
+            [30, 90, 180, 365].forEach(d => {
+                const btn = document.getElementById(`pildora-${d}`);
+                if (btn) btn.className = d === dias ? 'pildora-dias pildora-dias-active' : 'pildora-dias';
+            });
+            document.getElementById('lbl-display-dias-seleccionados').innerText = `${dias} Días`;
+        };
+
+        window.abrirModalConfigurarEntornoSaaS = function(modo) {
+            if (modo === 'NUEVO') {
+                document.getElementById('saas-editing-id').value = '';
+                document.getElementById('saas-input-nombre').value = '';
+                document.getElementById('saas-input-wa').value = '';
+                document.getElementById('saas-input-user').value = '';
+                document.getElementById('saas-input-pass').value = '';
+                document.getElementById('saas-link-generado').value = `${window.getBaseAppUrl()}?...`;
+                window.seleccionarPildoraDias(365);
+            }
+            document.getElementById('modal-configurar-entorno-saas').classList.remove('hidden');
+        };
+
+        window.cerrarSesionCompleta = function() {
+            window.esMasterLogueado = false;
+            document.getElementById('vista-master-admin').classList.add('hidden');
+            document.getElementById('vista-tienda-comercio').classList.add('hidden');
+            document.getElementById('vista-bloqueo-link').classList.add('hidden');
+            document.getElementById('vista-login').classList.remove('hidden');
+        };
+
+        window.addEventListener('DOMContentLoaded', () => {
+            window.evaluarRutaDirecta();
+        });
+    </script>
+</body>
+</html>
