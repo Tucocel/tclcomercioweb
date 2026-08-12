@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>TCL Comercio Web 2026 — Panel Máster & Vitrina Digital</title>
+    <title>TCL Comercio Web 2026 — Plataforma Multi-Cliente</title>
 
     <!-- TAILWIND CSS & FONT-AWESOME -->
     <script src="https://cdn.tailwindcss.com"></script>
@@ -29,28 +29,7 @@
 </head>
 <body class="min-h-screen flex flex-col bg-slate-50">
 
-    <!-- CAJA NEGRA DIAGNÓSTICO FLOTANTE -->
-    <div id="diagnostico-master-flotante" class="fixed bottom-6 right-4 z-[10005]">
-        <button onclick="window.toggleConsolaDiagnosticoInterna()" class="w-12 h-12 bg-slate-900 border border-slate-700 text-white rounded-full flex items-center justify-center shadow-2xl text-lg hover:border-blue-500 transition-all">
-            <i class="fa-solid fa-terminal"></i>
-        </button>
-    </div>
-
-    <!-- MODAL CAJA NEGRA -->
-    <div id="modal-consola-diagnostico" class="fixed inset-0 bg-slate-900/80 backdrop-blur-sm z-[10000] p-4 flex items-center justify-center hidden">
-        <div class="bg-white border border-slate-200 w-full max-w-md h-[75vh] rounded-3xl overflow-hidden shadow-2xl flex flex-col">
-            <div class="bg-slate-900 px-4 py-3 text-blue-400 flex justify-between items-center font-bold text-xs uppercase tracking-wide">
-                <span><i class="fa-solid fa-bug mr-1"></i> Caja Negra TCL Comercio Web</span>
-                <button onclick="window.toggleConsolaDiagnosticoInterna()" class="text-slate-400 hover:text-white"><i class="fa-solid fa-xmark text-sm"></i></button>
-            </div>
-            <div id="logs-diagnostico-box" class="p-4 flex-grow overflow-y-auto font-mono text-[10px] text-slate-700 space-y-2 no-scrollbar bg-slate-50">
-                <p class="text-emerald-600">[OK] Consola de monitoreo inicializada.</p>
-                <p class="text-slate-500">[INFO] Conectado a Firebase Firestore: tucocel-vitrina.</p>
-            </div>
-        </div>
-    </div>
-
-    <!-- 1. LOGIN ACCESO UNIFICADO -->
+    <!-- LOGIN PRINCIPAL -->
     <div id="vista-login" class="min-h-screen flex items-center justify-center p-4">
         <div class="w-full max-w-md card-light p-6 space-y-6">
             <div class="text-center space-y-2">
@@ -58,7 +37,7 @@
                     <i class="fa-solid fa-store"></i>
                 </div>
                 <h2 class="font-black text-xl text-slate-900 tracking-tight uppercase">TCL COMERCIO WEB</h2>
-                <p class="text-slate-500 text-xs font-medium">Plataforma Ágil de Inventario y Catálogo Web</p>
+                <p class="text-slate-500 text-xs font-medium">Plataforma Multi-Perfil SaaS 2026</p>
             </div>
 
             <form onsubmit="event.preventDefault(); window.procesarLoginUnificado();" class="space-y-4 text-xs font-bold">
@@ -79,7 +58,7 @@
         </div>
     </div>
 
-    <!-- 2. PANEL DE CONTROL MÁSTER -->
+    <!-- PANEL DE CONTROL MÁSTER -->
     <div id="vista-master-admin" class="hidden min-h-screen p-4 sm:p-8 max-w-7xl mx-auto space-y-6">
         <div class="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4 border-b border-slate-200 pb-5">
             <div>
@@ -97,7 +76,7 @@
 
         <div class="flex flex-col sm:flex-row gap-3">
             <button onclick="window.abrirModalConfigurarEntornoSaaS('NUEVO')" class="btn-brand w-full sm:w-auto py-3.5 px-6 font-black text-xs flex items-center justify-center gap-2 shadow-md">
-                <i class="fa-solid fa-plus text-sm"></i> <span>REGISTRAR NUEVA SUCURSAL / COMERCIO</span>
+                <i class="fa-solid fa-plus text-sm"></i> <span>CREAR NUEVA CUENTA DE CLIENTE</span>
             </button>
             <button onclick="window.purgarBaseDeDatosCompleta()" class="bg-red-50 hover:bg-red-100 text-red-700 border border-red-200 w-full sm:w-auto py-3.5 px-6 font-black text-xs rounded-xl flex items-center justify-center gap-2 shadow-sm uppercase">
                 <i class="fa-solid fa-trash-can text-red-600"></i> <span>PURGAR TODOS LOS CLIENTES</span>
@@ -106,60 +85,50 @@
 
         <div class="grid grid-cols-1 sm:grid-cols-3 gap-4">
             <div class="card-light p-5 space-y-1">
-                <span class="text-[10px] font-black text-slate-400 uppercase font-mono tracking-wider block">Clientes Activos</span>
+                <span class="text-[10px] font-black text-slate-400 uppercase font-mono tracking-wider block">Cuentas Registradas</span>
                 <div class="flex items-baseline gap-2">
                     <span id="master-count-clientes" class="text-3xl font-black text-blue-600 font-mono">0</span>
-                    <span class="text-[10px] text-emerald-600 font-bold uppercase flex items-center gap-1"><span class="w-2 h-2 rounded-full bg-emerald-500 animate-pulse"></span> Firebase Conectado</span>
+                    <span class="text-[10px] text-emerald-600 font-bold uppercase flex items-center gap-1"><span class="w-2 h-2 rounded-full bg-emerald-500 animate-pulse"></span> Servidor Firebase Online</span>
                 </div>
             </div>
 
             <div class="card-light p-4 space-y-1">
-                <span class="text-[10px] font-black text-slate-400 uppercase font-mono tracking-wider block">🇨🇴 Tasa USDT / Pesos</span>
+                <span class="text-[10px] font-black text-slate-400 uppercase font-mono tracking-wider block">🇨🇴 Tasa USDT / Pesos Base</span>
                 <input type="number" id="master-tasa-cop" value="3600" class="input-clean font-mono text-base font-black text-blue-600">
             </div>
 
             <div class="card-light p-4 space-y-1">
-                <span class="text-[10px] font-black text-slate-400 uppercase font-mono tracking-wider block">🇻🇪 Tasa Paridad Bs</span>
-                <input type="number" step="0.1" id="master-tasa-bs" value="3.3" class="input-clean font-mono text-base font-black text-emerald-600">
+                <span class="text-[10px] font-black text-slate-400 uppercase font-mono tracking-wider block">🇻🇪 Tasa BCV / Bolívares Base</span>
+                <input type="number" step="0.1" id="master-tasa-bs" value="36.50" class="input-clean font-mono text-base font-black text-emerald-600">
             </div>
         </div>
 
         <div class="card-light p-5 space-y-4 border-blue-200">
             <h3 class="text-xs font-black text-slate-500 uppercase tracking-wider flex items-center gap-2">
-                <i class="fa-solid fa-grip text-blue-600"></i> Central de Accesos y Gestión
+                <i class="fa-solid fa-grip text-blue-600"></i> Central de Accesos a Cuentas
             </h3>
             
-            <div class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-4 gap-3">
+            <div class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-3">
                 <button onclick="window.abrirModalBaseClientes('ACTIVOS')" class="bg-slate-900 hover:bg-slate-800 text-white p-4 rounded-2xl flex flex-col items-center justify-center gap-2 transition-all shadow-md">
-                    <i class="fa-solid fa-store text-2xl text-blue-400"></i>
-                    <span class="font-black text-xs uppercase tracking-wider">Base Clientes (<span id="cnt-badge-activos">0</span>)</span>
+                    <i class="fa-solid fa-users text-2xl text-blue-400"></i>
+                    <span class="font-black text-xs uppercase tracking-wider">Base de Cuentas (<span id="cnt-badge-activos">0</span>)</span>
                 </button>
 
                 <button onclick="window.abrirModalBaseClientes('INACTIVOS')" class="bg-slate-900 hover:bg-slate-800 text-white p-4 rounded-2xl flex flex-col items-center justify-center gap-2 transition-all shadow-md">
                     <i class="fa-solid fa-box-archive text-2xl text-red-400"></i>
-                    <span class="font-black text-xs uppercase tracking-wider">Bóveda Inactivos (<span id="cnt-badge-inactivos">0</span>)</span>
-                </button>
-
-                <button onclick="alert('Módulo Tarifas SaaS')" class="bg-slate-900 hover:bg-slate-800 text-white p-4 rounded-2xl flex flex-col items-center justify-center gap-2 transition-all shadow-md">
-                    <i class="fa-solid fa-tags text-2xl text-amber-400"></i>
-                    <span class="font-black text-xs uppercase tracking-wider">Tarifas SaaS</span>
-                </button>
-
-                <button onclick="alert('Propuesta Comercial')" class="bg-gradient-to-r from-blue-600 to-purple-600 text-white p-4 rounded-2xl flex flex-col items-center justify-center gap-2 transition-all shadow-md">
-                    <i class="fa-solid fa-paper-plane text-2xl text-white"></i>
-                    <span class="font-black text-xs uppercase tracking-wider">Enviar Propuesta</span>
+                    <span class="font-black text-xs uppercase tracking-wider">Cuentas Inactivas (<span id="cnt-badge-inactivos">0</span>)</span>
                 </button>
             </div>
         </div>
     </div>
 
-    <!-- MODAL CONFIGURAR Y CREAR CLIENTE SAAS -->
+    <!-- MODAL REGISTRO Y CONFIGURACIÓN DE CUENTA DE CLIENTE -->
     <div id="modal-configurar-entorno-saas" class="fixed inset-0 bg-slate-900/80 backdrop-blur-md z-50 p-4 flex items-center justify-center hidden">
         <div class="bg-white border border-slate-200 w-full max-w-lg rounded-3xl overflow-hidden shadow-2xl flex flex-col max-h-[90vh]">
             <div class="bg-slate-900 px-5 py-4 text-white flex justify-between items-center shrink-0">
                 <div class="flex items-center gap-2">
-                    <i class="fa-solid fa-store text-blue-400"></i>
-                    <h3 id="modal-saas-titulo" class="font-black text-xs uppercase tracking-wider">CONFIGURAR COMERCIO</h3>
+                    <i class="fa-solid fa-user-plus text-blue-400"></i>
+                    <h3 id="modal-saas-titulo" class="font-black text-xs uppercase tracking-wider">CREAR NUEVA CUENTA DE CLIENTE</h3>
                 </div>
                 <button onclick="document.getElementById('modal-configurar-entorno-saas').classList.add('hidden')" class="text-slate-400 hover:text-white"><i class="fa-solid fa-xmark text-sm"></i></button>
             </div>
@@ -169,27 +138,27 @@
 
                 <div class="space-y-3">
                     <div>
-                        <label class="text-[10px] text-slate-500 uppercase block mb-1">Nombre Comercial / Sucursal *</label>
-                        <input type="text" id="saas-input-nombre" onkeyup="window.actualizarSlugEnTiempoReal()" placeholder="Ej: Bodega Don Luis" class="input-clean">
+                        <label class="text-[10px] text-slate-500 uppercase block mb-1">Nombre del Comercio / Comercio *</label>
+                        <input type="text" id="saas-input-nombre" onkeyup="window.actualizarSlugEnTiempoReal()" placeholder="Ej: Comercio Don Luis" class="input-clean">
                     </div>
                     <div>
-                        <label class="text-[10px] text-slate-500 uppercase block mb-1">WhatsApp de Contacto *</label>
+                        <label class="text-[10px] text-slate-500 uppercase block mb-1">WhatsApp del Cliente *</label>
                         <input type="tel" id="saas-input-wa" placeholder="04147357549" class="input-clean font-mono">
                     </div>
                     <div class="grid grid-cols-1 sm:grid-cols-2 gap-3">
                         <div>
-                            <label class="text-[10px] text-slate-500 uppercase block mb-1">Usuario ID *</label>
-                            <input type="text" id="saas-input-user" placeholder="bodegadonluis" class="input-clean font-mono">
+                            <label class="text-[10px] text-slate-500 uppercase block mb-1">Usuario de Acceso *</label>
+                            <input type="text" id="saas-input-user" placeholder="comerciodonluis" class="input-clean font-mono">
                         </div>
                         <div>
-                            <label class="text-[10px] text-slate-500 uppercase block mb-1">Clave de Acceso *</label>
+                            <label class="text-[10px] text-slate-500 uppercase block mb-1">Contraseña de Acceso *</label>
                             <input type="password" id="saas-input-pass" placeholder="••••••" class="input-clean font-mono">
                         </div>
                     </div>
                 </div>
 
                 <div class="bg-slate-50 p-4 rounded-2xl border border-slate-200 space-y-3">
-                    <label class="text-[10px] font-black text-amber-600 uppercase tracking-wider block">COBERTURA DE SUSCRIPCIÓN</label>
+                    <label class="text-[10px] font-black text-amber-600 uppercase tracking-wider block">TIEMPO DE SUSCRIPCIÓN</label>
                     <div class="grid grid-cols-2 sm:grid-cols-4 gap-2">
                         <button type="button" onclick="window.seleccionarPildoraDias(30)" id="pildora-30" class="pildora-dias">30 Días</button>
                         <button type="button" onclick="window.seleccionarPildoraDias(90)" id="pildora-90" class="pildora-dias">90 Días</button>
@@ -211,7 +180,7 @@
 
                     <div class="grid grid-cols-2 gap-2">
                         <button onclick="window.enviarNotificacionWhatsApp('activacion')" class="bg-blue-600 hover:bg-blue-500 text-white font-black py-2.5 rounded-xl uppercase text-xs shadow">
-                            ENVIAR ACTIVACIÓN
+                            ENVIAR CREDENTIONALES
                         </button>
                         <button onclick="window.enviarNotificacionWhatsApp('renovacion')" class="bg-emerald-600 hover:bg-emerald-500 text-white font-black py-2.5 rounded-xl uppercase text-xs shadow">
                             ENVIAR RENOVACIÓN
@@ -222,27 +191,27 @@
 
             <div class="bg-slate-100 p-4 border-t border-slate-200 grid grid-cols-2 gap-3 shrink-0">
                 <button onclick="window.solicitarOpcionesEliminarPerfil()" class="bg-red-600 hover:bg-red-500 text-white font-black py-3 rounded-xl uppercase text-xs shadow">
-                    ELIMINAR PERFIL
+                    ELIMINAR CUENTA
                 </button>
                 <button onclick="window.guardarCambiosEntornoSaaS()" class="bg-amber-500 hover:bg-amber-400 text-slate-950 font-black py-3 rounded-xl uppercase text-xs shadow">
-                    GUARDAR EN FIREBASE ☁️
+                    CREAR CUENTA Y GUARDAR ☁️
                 </button>
             </div>
         </div>
     </div>
 
-    <!-- MODAL BASE DE CLIENTES -->
+    <!-- MODAL LISTA DE CUENTAS DE CLIENTES -->
     <div id="modal-base-clientes" class="fixed inset-0 bg-slate-900/80 backdrop-blur-md z-50 p-4 flex items-center justify-center hidden">
         <div class="bg-white border border-slate-200 w-full max-w-3xl rounded-3xl overflow-hidden shadow-2xl flex flex-col max-h-[85vh]">
             <div class="bg-slate-900 px-5 py-4 text-white flex justify-between items-center shrink-0">
                 <h3 id="lbl-titulo-modal-clientes" class="font-black text-xs uppercase tracking-wider flex items-center gap-2">
-                    <i class="fa-solid fa-store text-blue-400"></i> Base de Clientes
+                    <i class="fa-solid fa-users text-blue-400"></i> Cuentas Creadas
                 </h3>
                 <button onclick="document.getElementById('modal-base-clientes').classList.add('hidden')" class="text-slate-400 hover:text-white"><i class="fa-solid fa-xmark text-sm"></i></button>
             </div>
 
             <div class="p-4 bg-slate-100 border-b border-slate-200">
-                <input type="text" id="busqueda-modal-cliente" onkeyup="window.renderizarListaClientesModal()" placeholder="🔍 Buscar por nombre de comercio o usuario..." class="input-clean">
+                <input type="text" id="busqueda-modal-cliente" onkeyup="window.renderizarListaClientesModal()" placeholder="🔍 Buscar cuenta de cliente..." class="input-clean">
             </div>
 
             <div class="p-5 overflow-y-auto space-y-3 no-scrollbar flex-grow">
@@ -251,10 +220,10 @@
         </div>
     </div>
 
-    <!-- 3. VITRINA DIGITAL CLIENTE & CONFIGURACIÓN EN CALIENTE -->
+    <!-- 3. ESPACIO INDIVIDUAL DE CADA CLIENTE (PERFIL AISLADO) -->
     <div id="vista-tienda-comercio" class="hidden min-h-screen flex flex-col">
         <div id="banner-modo-soporte-master" class="bg-amber-500 text-slate-950 font-black text-[10.5px] py-1.5 px-4 text-center uppercase tracking-wider flex justify-between items-center hidden">
-            <span>⚡ MODO SOPORTE TÉCNICO MÁSTER CONECTADO 'EN CALIENTE'</span>
+            <span>⚡ MODO SOPORTE TÉCNICO MÁSTER — AUDITANDO CUENTA EN CALIENTE</span>
             <button onclick="window.regresarAlPanelMaster()" class="bg-slate-950 text-white px-2.5 py-0.5 rounded-lg text-[9px] font-bold uppercase hover:bg-slate-800 transition-all">
                 Volver al Panel Máster
             </button>
@@ -267,103 +236,68 @@
                         <i class="fa-solid fa-shop"></i>
                     </div>
                     <div>
-                        <h1 id="header-shop-title" class="font-black text-base text-slate-900 uppercase tracking-tight">Bodega Don Luis</h1>
-                        <p id="header-shop-sub" class="text-[10px] text-slate-500 font-medium">Catálogo Digital Oficial</p>
+                        <h1 id="header-shop-title" class="font-black text-base text-slate-900 uppercase tracking-tight">Cargando Comercio...</h1>
+                        <p id="header-shop-sub" class="text-[10px] text-slate-500 font-medium">Catálogo Web Exclusivo del Cliente</p>
                     </div>
                 </div>
 
-                <button onclick="window.togglePanelGestionOculto()" class="bg-slate-100 hover:bg-slate-200 text-slate-700 px-3 py-2 rounded-xl text-xs font-bold uppercase flex items-center gap-2 border border-slate-300">
-                    <i class="fa-solid fa-sliders text-blue-600"></i> <span class="hidden sm:inline">Ajustes / Tasas</span>
-                </button>
+                <div class="flex gap-2">
+                    <button onclick="window.togglePanelGestionOculto()" class="bg-slate-100 hover:bg-slate-200 text-slate-700 px-3 py-2 rounded-xl text-xs font-bold uppercase flex items-center gap-2 border border-slate-300">
+                        <i class="fa-solid fa-sliders text-blue-600"></i> <span class="hidden sm:inline">Configurar Perfil / Tasas</span>
+                    </button>
+                    <button onclick="window.cerrarSesionCompleta()" class="bg-red-50 text-red-600 px-3 py-2 rounded-xl text-xs font-bold uppercase border border-red-200">
+                        Salir
+                    </button>
+                </div>
             </div>
         </header>
 
-        <!-- PANEL DE CONFIGURACIÓN Y TASAS DEL CLIENTE -->
+        <!-- PANEL DE CONTROL PRIVADO DEL CLIENTE -->
         <div id="panel-gestion-privado" class="bg-slate-900 text-white p-5 border-b border-slate-800 space-y-4 hidden transition-all">
             <div class="max-w-5xl mx-auto space-y-4">
                 <div class="flex justify-between items-center border-b border-slate-800 pb-2">
                     <h3 class="font-black text-xs uppercase text-amber-400 tracking-wider flex items-center gap-2">
-                        <i class="fa-solid fa-gear"></i> Ajustes Privados del Negocio & Tasas de Cambio
+                        <i class="fa-solid fa-gear"></i> Ajustes de Tasas y Carga de Productos del Cliente
                     </h3>
                     <button onclick="window.togglePanelGestionOculto()" class="text-slate-400 hover:text-white"><i class="fa-solid fa-xmark text-sm"></i></button>
                 </div>
 
-                <div class="grid grid-cols-1 sm:grid-cols-3 gap-3">
+                <div class="grid grid-cols-1 sm:grid-cols-2 gap-3">
                     <div class="bg-slate-950 p-3 rounded-2xl border border-slate-800 space-y-1">
-                        <label class="text-[10px] text-amber-400 font-bold uppercase block">Tasa Pesos (COP por 1 USD)</label>
-                        <input type="number" id="privado-tasa-cop" value="3600" onchange="window.actualizarTasasPrivadas()" class="w-full bg-slate-900 text-white font-mono font-black p-2 rounded-xl text-xs border border-slate-700">
+                        <label class="text-[10px] text-amber-400 font-bold uppercase block">Tasa Pesos de este Comercio (COP por 1 USD)</label>
+                        <input type="number" id="privado-tasa-cop" value="3600" class="w-full bg-slate-900 text-white font-mono font-black p-2 rounded-xl text-xs border border-slate-700">
                     </div>
                     <div class="bg-slate-950 p-3 rounded-2xl border border-slate-800 space-y-1">
-                        <label class="text-[10px] text-emerald-400 font-bold uppercase block">Tasa BCV (Bs por 1 USD)</label>
-                        <input type="number" step="0.01" id="privado-tasa-bcv" value="36.50" onchange="window.actualizarTasasPrivadas()" class="w-full bg-slate-900 text-white font-mono font-black p-2 rounded-xl text-xs border border-slate-700">
-                    </div>
-                    <div class="bg-slate-950 p-3 rounded-2xl border border-slate-800 space-y-1">
-                        <label class="text-[10px] text-blue-400 font-bold uppercase block">Tasa Paridad (Bs por 1,000 COP)</label>
-                        <input type="number" step="0.1" id="privado-tasa-paridad" value="3.3" onchange="window.actualizarTasasPrivadas()" class="w-full bg-slate-900 text-white font-mono font-black p-2 rounded-xl text-xs border border-slate-700">
+                        <label class="text-[10px] text-emerald-400 font-bold uppercase block">Tasa Bolívares de este Comercio (Bs por 1 USD)</label>
+                        <input type="number" step="0.01" id="privado-tasa-bcv" value="36.50" class="w-full bg-slate-900 text-white font-mono font-black p-2 rounded-xl text-xs border border-slate-700">
                     </div>
                 </div>
-            </div>
-        </div>
 
-        <main class="max-w-5xl mx-auto w-full p-4 flex-grow space-y-6 pb-28">
-            <div class="flex justify-between items-center border-b border-slate-200 pb-2">
-                <h2 class="text-xs font-black uppercase text-slate-500 tracking-wider">Productos en Vitrina</h2>
-                <span class="text-[10px] text-slate-400 font-mono">Precios calculados al instante</span>
-            </div>
-
-            <div id="grid-productos-tienda" class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-4">
-                <div class="card-light p-4 space-y-3 flex flex-col justify-between hover:border-blue-300 transition-all">
-                    <div class="space-y-2">
-                        <div class="w-full h-36 bg-slate-100 rounded-2xl overflow-hidden flex items-center justify-center text-slate-400 text-3xl">
-                            <i class="fa-solid fa-box-open"></i>
-                        </div>
-                        <h3 class="font-black text-slate-900 text-sm uppercase">Harina PAN Premium 1kg</h3>
-                        <p class="text-[10px] text-slate-500">Harina de maíz blanco precocida.</p>
-                    </div>
-
-                    <div class="space-y-3 pt-2 border-t border-slate-100">
-                        <div class="font-mono text-xs space-y-0.5">
-                            <div class="text-blue-600 font-black text-sm">$1.00 USD</div>
-                            <div class="text-slate-600 font-bold text-[10px]">3.600 COP</div>
-                            <div class="text-slate-500 font-bold text-[10px]">36.50 Bs</div>
-                        </div>
-                        <button onclick="window.agregarAlCarrito('Harina PAN Premium 1kg', 1.00)" class="btn-brand w-full py-2.5 text-xs flex items-center justify-center gap-1.5">
-                            <i class="fa-solid fa-cart-plus"></i> Agregar al Carrito
+                <!-- CARGA DE PRODUCTO NUEVO EN BLANCO PARA EL CLIENTE -->
+                <div class="bg-slate-950 p-4 rounded-2xl border border-slate-800 space-y-3">
+                    <h4 class="text-xs font-black text-blue-400 uppercase tracking-wider">➕ Cargar Producto a Mi Tienda</h4>
+                    <div class="grid grid-cols-1 sm:grid-cols-3 gap-2">
+                        <input type="text" id="nuevo-prod-nombre" placeholder="Nombre del producto..." class="bg-slate-900 border border-slate-700 p-2 rounded-xl text-xs text-white">
+                        <input type="number" id="nuevo-prod-precio" placeholder="Precio Base USD" class="bg-slate-900 border border-slate-700 p-2 rounded-xl text-xs text-white font-mono">
+                        <button onclick="window.guardarProductoIndividualCliente()" class="bg-blue-600 hover:bg-blue-500 text-white font-black px-4 py-2 rounded-xl uppercase text-xs">
+                            Guardar Producto
                         </button>
                     </div>
                 </div>
             </div>
-        </main>
-
-        <div class="fixed bottom-4 left-4 right-4 max-w-3xl mx-auto z-40 flex gap-2">
-            <button onclick="window.openWhatsAppDirectQuery()" class="bg-white border border-emerald-500 text-emerald-600 px-4 rounded-2xl font-bold text-xs flex items-center gap-2 shadow-lg hover:bg-emerald-50">
-                <i class="fa-brands fa-whatsapp text-lg"></i> <span class="hidden sm:inline">Consultar / Preguntar</span>
-            </button>
-
-            <button onclick="alert('Pedido enviado a WhatsApp')" class="flex-grow bg-emerald-600 hover:bg-emerald-500 text-white p-3.5 rounded-2xl shadow-xl flex items-center justify-between font-black text-xs transition-all active:scale-[0.98]">
-                <div class="flex items-center gap-2">
-                    <i class="fa-solid fa-basket-shopping text-base"></i>
-                    <span id="lbl-cart-count">0 ítems agregados</span>
-                </div>
-                <span id="lbl-cart-total" class="text-sm font-extrabold font-mono">$0.00 USD ➔</span>
-            </button>
         </div>
-    </div>
 
-    <!-- PANTALLA BLOQUEO LINK INACTIVO -->
-    <div id="vista-bloqueo-link" class="hidden min-h-screen flex items-center justify-center p-4 bg-slate-100">
-        <div class="w-full max-w-md card-light p-6 text-center space-y-4 border-red-200">
-            <div class="w-16 h-16 bg-red-50 text-red-600 rounded-full flex items-center justify-center mx-auto text-3xl border border-red-100">
-                <i class="fa-solid fa-link-slash"></i>
+        <!-- VITRINA DEL CLIENTE -->
+        <main class="max-w-5xl mx-auto w-full p-4 flex-grow space-y-6 pb-28">
+            <div class="flex justify-between items-center border-b border-slate-200 pb-2">
+                <h2 class="text-xs font-black uppercase text-slate-500 tracking-wider">Productos en Mi Tienda</h2>
+                <span class="text-[10px] text-slate-400 font-mono">Espacio Aislado en la Nube</span>
             </div>
-            <h2 class="font-black text-lg text-slate-900 uppercase">Enlace Inactivo / Suspendido</h2>
-            <p class="text-slate-600 text-xs leading-relaxed font-medium">
-                Este catálogo no se encuentra activo. Contacte al soporte máster para reactivar su membresía.
-            </p>
-            <button onclick="window.open('https://api.whatsapp.com/send?phone=584147357549&text=Hola,%20deseo%20reactivar%20mi%20tienda%20comercial', '_blank')" class="btn-brand w-full py-3.5 text-xs flex items-center justify-center gap-2 shadow-md">
-                <i class="fa-brands fa-whatsapp text-base"></i> Contactar Soporte
-            </button>
-        </div>
+
+            <div id="grid-productos-tienda" class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-4">
+                <!-- Se dibuja en blanco hasta que el cliente o el máster agregue productos -->
+            </div>
+        </main>
     </div>
 
     <!-- INICIALIZACIÓN FIREBASE Y CONTROL JS -->
@@ -385,7 +319,7 @@
         window.esMasterLogueado = false;
         window.diasSuscripcionSeleccionados = 365;
         window.tipoVistaModalActual = 'ACTIVOS';
-        window.tasasConfig = { cop: 3600, bcv: 36.50, paridad: 3.3 };
+        window.clienteActivoActual = null;
 
         window.getBaseAppUrl = function() {
             return window.location.origin + window.location.pathname;
@@ -406,12 +340,6 @@
 
         window.abrirModalBaseClientes = function(tipo) {
             window.tipoVistaModalActual = tipo;
-            const titulo = document.getElementById('lbl-titulo-modal-clientes');
-            if (tipo === 'INACTIVOS') {
-                titulo.innerHTML = `<i class="fa-solid fa-box-archive text-red-400"></i> Bóveda de Clientes Inactivos`;
-            } else {
-                titulo.innerHTML = `<i class="fa-solid fa-store text-blue-400"></i> Base de Clientes Activos`;
-            }
             window.renderizarListaClientesModal();
             document.getElementById('modal-base-clientes').classList.remove('hidden');
         };
@@ -428,13 +356,11 @@
                 
                 const nombreStr = (c.nombre || '').toLowerCase();
                 const userStr = (c.user || '').toLowerCase();
-                const coincideTexto = nombreStr.includes(busqueda) || userStr.includes(busqueda);
-                
-                return coincideTipo && coincideTexto;
+                return coincideTipo && (nombreStr.includes(busqueda) || userStr.includes(busqueda));
             });
 
             if (filtrados.length === 0) {
-                container.innerHTML = `<div class="col-span-1 sm:col-span-2 py-8 text-center text-slate-400 text-xs italic">No hay comercios registrados en esta sección.</div>`;
+                container.innerHTML = `<div class="col-span-1 sm:col-span-2 py-8 text-center text-slate-400 text-xs italic">No hay cuentas registradas en esta sección.</div>`;
                 return;
             }
 
@@ -443,9 +369,9 @@
                     <div class="flex justify-between items-start">
                         <div>
                             <h4 class="font-black text-slate-900 text-sm uppercase">${c.nombre || 'SIN NOMBRE'}</h4>
-                            <span class="text-[9.5px] text-blue-600 font-mono font-bold block">Slug: ?tienda=${c.slug || ''}</span>
+                            <span class="text-[9.5px] text-blue-600 font-mono font-bold block">Enlace: ?tienda=${c.slug || ''}</span>
                         </div>
-                        <span class="${(c.estatus || 'ACTIVO') === 'ACTIVO' ? 'bg-blue-50 text-blue-700 border-blue-200' : 'bg-red-50 text-red-700 border-red-200'} border text-[9px] font-black uppercase px-2 py-0.5 rounded-md">
+                        <span class="bg-blue-50 text-blue-700 border border-blue-200 text-[9px] font-black uppercase px-2 py-0.5 rounded-md">
                             ${c.dias || 365} Días
                         </span>
                     </div>
@@ -454,10 +380,10 @@
                         <p>🔑 User: ${c.user || 'N/A'} | Pass: ${c.pass || '••••••'}</p>
                     </div>
                     <div class="grid grid-cols-2 gap-2 pt-2 border-t border-slate-100">
-                        <button onclick="window.editarClienteDirectoDesdeModal('${c.id}')" class="bg-slate-100 hover:bg-slate-200 text-slate-700 font-bold text-xs py-2 rounded-xl uppercase border border-slate-300 transition-all">
+                        <button onclick="window.editarClienteDirectoDesdeModal('${c.id}')" class="bg-slate-100 hover:bg-slate-200 text-slate-700 font-bold text-xs py-2 rounded-xl uppercase border border-slate-300">
                             ⚙️ Editar
                         </button>
-                        <button onclick="window.entrarEnCalienteCliente('${c.id}')" class="bg-slate-900 hover:bg-slate-800 text-white font-bold text-xs py-2 rounded-xl flex items-center justify-center gap-1 shadow-sm transition-all">
+                        <button onclick="window.entrarEnCalienteCliente('${c.id}')" class="bg-slate-900 hover:bg-slate-800 text-white font-bold text-xs py-2 rounded-xl flex items-center justify-center gap-1 shadow-sm">
                             <i class="fa-solid fa-right-to-bracket text-amber-400"></i> Entrar
                         </button>
                     </div>
@@ -465,162 +391,91 @@
             `).join('');
         };
 
-        window.editarClienteDirectoDesdeModal = function(id) {
+        window.entrarEnCalienteCliente = async function(id) {
             const cliente = window.dbClientesSaaS.find(c => c.id === id);
             if (!cliente) return;
 
-            document.getElementById('modal-base-clientes').classList.add('hidden');
-            document.getElementById('saas-editing-id').value = cliente.id;
-            document.getElementById('modal-saas-titulo').innerText = `EDITAR: ${(cliente.nombre || '').toUpperCase()}`;
-            document.getElementById('saas-input-nombre').value = cliente.nombre || '';
-            document.getElementById('saas-input-wa').value = cliente.wa || '';
-            document.getElementById('saas-input-user').value = cliente.user || '';
-            document.getElementById('saas-input-pass').value = cliente.pass || '';
-            document.getElementById('saas-link-generado').value = `${window.getBaseAppUrl()}?tienda=${cliente.slug}`;
-
-            window.seleccionarPildoraDias(cliente.dias || 365);
-            document.getElementById('modal-configurar-entorno-saas').classList.remove('hidden');
-        };
-
-        window.entrarEnCalienteCliente = function(id) {
-            const cliente = window.dbClientesSaaS.find(c => c.id === id);
-            if (!cliente) return;
+            window.clienteActivoActual = cliente;
 
             document.getElementById('modal-base-clientes').classList.add('hidden');
             document.getElementById('vista-master-admin').classList.add('hidden');
             document.getElementById('header-shop-title').innerText = cliente.nombre;
             document.getElementById('vista-tienda-comercio').classList.remove('hidden');
             document.getElementById('banner-modo-soporte-master').classList.remove('hidden');
+
+            // Cargar productos AISLADOS de este cliente desde Firestore
+            await window.cargarProductosIndividualesCliente(cliente.slug);
+        };
+
+        window.cargarProductosIndividualesCliente = async function(slug) {
+            const container = document.getElementById('grid-productos-tienda');
+            container.innerHTML = `<div class="col-span-3 text-center text-slate-400 py-8 text-xs font-mono">Cargando la tienda de este cliente desde la nube...</div>`;
+
+            try {
+                const docSnap = await window.db.collection('tcl_custom_shop').doc(slug).get();
+                if (docSnap.exists && docSnap.data().productos && docSnap.data().productos.length > 0) {
+                    const productos = docSnap.data().productos;
+                    const tasaCOP = parseFloat(document.getElementById('privado-tasa-cop').value) || 3600;
+                    const tasaBCV = parseFloat(document.getElementById('privado-tasa-bcv').value) || 36.50;
+
+                    container.innerHTML = productos.map(p => `
+                        <div class="card-light p-4 space-y-3 flex flex-col justify-between">
+                            <div class="space-y-2">
+                                <h3 class="font-black text-slate-900 text-sm uppercase">${p.nombre}</h3>
+                            </div>
+                            <div class="font-mono text-xs space-y-0.5 border-t border-slate-100 pt-2">
+                                <div class="text-blue-600 font-black text-sm">$${parseFloat(p.precio).toFixed(2)} USD</div>
+                                <div class="text-slate-600 font-bold text-[10px]">${(p.precio * tasaCOP).toLocaleString()} COP</div>
+                                <div class="text-slate-500 font-bold text-[10px]">${(p.precio * tasaBCV).toFixed(2)} Bs</div>
+                            </div>
+                        </div>
+                    `).join('');
+                } else {
+                    container.innerHTML = `<div class="col-span-3 text-center text-slate-400 py-12 text-xs font-mono">Esta cuenta está totalmente en cero. Agregue productos desde el panel de ajustes.</div>`;
+                }
+            } catch(e) {
+                console.error("Error cargando productos:", e);
+            }
+        };
+
+        window.guardarProductoIndividualCliente = async function() {
+            if (!window.clienteActivoActual) return;
+
+            const nombre = document.getElementById('nuevo-prod-nombre').value.trim();
+            const precio = parseFloat(document.getElementById('nuevo-prod-precio').value) || 0;
+
+            if (!nombre || precio <= 0) {
+                alert("⚠️ Escriba el nombre y precio del producto.");
+                return;
+            }
+
+            const slug = window.clienteActivoActual.slug;
+            const refDoc = window.db.collection('tcl_custom_shop').doc(slug);
+
+            try {
+                const docSnap = await refDoc.get();
+                let productos = [];
+                if (docSnap.exists && docSnap.data().productos) {
+                    productos = docSnap.data().productos;
+                }
+
+                productos.push({ id: Date.now(), nombre, precio });
+                await refDoc.set({ productos }, { merge: true });
+
+                alert("✨ Producto guardado en la cuenta de este cliente.");
+                document.getElementById('nuevo-prod-nombre').value = '';
+                document.getElementById('nuevo-prod-precio').value = '';
+                
+                await window.cargarProductosIndividualesCliente(slug);
+            } catch(e) {
+                console.error("Error guardando producto:", e);
+            }
         };
 
         window.regresarAlPanelMaster = function() {
             document.getElementById('vista-tienda-comercio').classList.add('hidden');
             document.getElementById('banner-modo-soporte-master').classList.add('hidden');
             document.getElementById('vista-master-admin').classList.remove('hidden');
-        };
-
-        window.solicitarOpcionesEliminarPerfil = async function() {
-            const idEdit = document.getElementById('saas-editing-id').value;
-            if (!idEdit) return;
-
-            if (confirm("🔥 ¿Desea eliminar definitivamente esta cuenta de la base de datos de Firebase?")) {
-                try {
-                    await window.db.collection('tcl_saas_data').doc(idEdit).delete();
-                    alert("🗑️ Cliente eliminado por completo.");
-                    document.getElementById('modal-configurar-entorno-saas').classList.add('hidden');
-                    await window.cargarClientesDesdeFirebase();
-                } catch(e) {
-                    alert("❌ Error al eliminar cliente.");
-                }
-            }
-        };
-
-        window.purgarBaseDeDatosCompleta = async function() {
-            if (!confirm("🔥 ¿Está seguro de ELIMINAR TODOS LOS CLIENTES de Firebase?")) return;
-
-            try {
-                const snap = await window.db.collection('tcl_saas_data').get();
-                const batch = window.db.batch();
-                snap.forEach(doc => batch.delete(doc.ref));
-                await batch.commit();
-
-                alert("🗑️ Base de datos purgada por completo.");
-                await window.cargarClientesDesdeFirebase();
-            } catch(e) {
-                alert("❌ Error purgando base de datos.");
-            }
-        };
-
-        window.actualizarSlugEnTiempoReal = function() {
-            const nombre = document.getElementById('saas-input-nombre').value.trim();
-            const slug = nombre.toLowerCase().replace(/[^a-z0-9]/g, '');
-            document.getElementById('saas-link-generado').value = slug ? `${window.getBaseAppUrl()}?tienda=${slug}` : `${window.getBaseAppUrl()}?...`;
-        };
-
-        window.copiarLinkClienteGenerated = function() {
-            const linkInput = document.getElementById('saas-link-generado');
-            if (!linkInput || !linkInput.value) return;
-            navigator.clipboard.writeText(linkInput.value).then(() => alert("📋 Link copiado: " + linkInput.value));
-        };
-
-        window.enviarNotificacionWhatsApp = function(tipo) {
-            const nombre = document.getElementById('saas-input-nombre').value.trim() || 'Comercio';
-            const wa = document.getElementById('saas-input-wa').value.trim();
-            const usr = document.getElementById('saas-input-user').value.trim();
-            const pass = document.getElementById('saas-input-pass').value.trim();
-            const dias = window.diasSuscripcionSeleccionados;
-            const slug = nombre.toLowerCase().replace(/[^a-z0-9]/g, '');
-
-            if (!wa) { alert("⚠️ Ingrese el número de WhatsApp."); return; }
-
-            let msg = "";
-            if (tipo === 'activacion') {
-                msg = `🚀 *¡BIENVENIDO A TCL COMERCIO WEB!*\n\n`;
-                msg += `Estimado cliente, sus credenciales son:\n\n`;
-                msg += `🏪 *Comercio:* ${nombre}\n`;
-                msg += `🔗 *Tienda:* ${window.getBaseAppUrl()}?tienda=${slug}\n`;
-                msg += `🔑 *Usuario:* ${usr} | *Clave:* ${pass}\n`;
-                msg += `⏳ *Suscripción:* ${dias} Días\n\n`;
-                msg += `_Ingrese a su enlace para configurar sus tasas e inventario._`;
-            } else {
-                msg = `🔄 *RENOVACIÓN DE SERVICIO — TCL COMERCIO WEB*\n\n`;
-                msg += `Estimado cliente, su suscripción ha sido renovada:\n\n`;
-                msg += `🏪 *Comercio:* ${nombre}\n`;
-                msg += `⏳ *Nueva Cobertura:* ${dias} Días\n`;
-                msg += `🔗 *Enlace Activo:* ${window.getBaseAppUrl()}?tienda=${slug}\n`;
-            }
-
-            window.open(`https://api.whatsapp.com/send?phone=${wa}&text=${encodeURIComponent(msg)}`, '_blank');
-        };
-
-        window.evaluarRutaDirecta = async function() {
-            const params = new URLSearchParams(window.location.search);
-            const tiendaSlug = params.get('tienda');
-
-            await window.cargarClientesDesdeFirebase();
-
-            if (tiendaSlug) {
-                const cliente = window.dbClientesSaaS.find(c => c.slug === tiendaSlug);
-                if (cliente) {
-                    if (cliente.estatus === 'INACTIVO') {
-                        document.getElementById('vista-login').classList.add('hidden');
-                        document.getElementById('vista-bloqueo-link').classList.remove('hidden');
-                        return;
-                    }
-                    document.getElementById('header-shop-title').innerText = cliente.nombre;
-                    document.getElementById('vista-login').classList.add('hidden');
-                    document.getElementById('vista-tienda-comercio').classList.remove('hidden');
-                } else {
-                    alert("⚠️ La tienda especificada no existe.");
-                }
-            }
-        };
-
-        window.procesarLoginUnificado = function() {
-            const usr = document.getElementById('login-user-field').value.trim();
-            const pass = document.getElementById('login-pass-field').value.trim();
-
-            if (usr === 'tucocel' && pass === 'Razu2020.') {
-                window.esMasterLogueado = true;
-                document.getElementById('vista-login').classList.add('hidden');
-                document.getElementById('vista-master-admin').classList.remove('hidden');
-                return;
-            }
-
-            const encontrado = window.dbClientesSaaS.find(c => c.user === usr && c.pass === pass);
-            if (encontrado) {
-                if (encontrado.estatus === 'INACTIVO') {
-                    document.getElementById('vista-login').classList.add('hidden');
-                    document.getElementById('vista-bloqueo-link').classList.remove('hidden');
-                    return;
-                }
-                document.getElementById('header-shop-title').innerText = encontrado.nombre;
-                document.getElementById('vista-login').classList.add('hidden');
-                document.getElementById('vista-tienda-comercio').classList.remove('hidden');
-                return;
-            }
-
-            alert("⚠️ Credenciales incorrectas.");
         };
 
         window.guardarCambiosEntornoSaaS = async function() {
@@ -632,7 +487,7 @@
             const dias = window.diasSuscripcionSeleccionados;
 
             if (!nombre || !wa || !user || !pass) {
-                alert("⚠️ Rellene todos los campos obligatorios.");
+                alert("⚠️ Complete todos los campos requeridos.");
                 return;
             }
 
@@ -646,13 +501,21 @@
             };
 
             try {
+                // 1. Guardar credenciales de acceso del cliente
                 await window.db.collection('tcl_saas_data').doc(docId).set(clienteData, { merge: true });
-                alert("🚀 Comercio guardado exitosamente en Firebase.");
+
+                // 2. Crear su documento individual totalmente en cero para sus productos
+                await window.db.collection('tcl_custom_shop').doc(slug).set({
+                    nombreComercio: nombre,
+                    productos: []
+                }, { merge: true });
+
+                alert("🚀 Cuenta del cliente creada exitosamente en Firebase en cero.");
                 document.getElementById('modal-configurar-entorno-saas').classList.add('hidden');
                 await window.cargarClientesDesdeFirebase();
             } catch(e) {
                 console.error("Error guardando en Firebase:", e);
-                alert("❌ Error guardando los datos.");
+                alert("❌ Error creando la cuenta en la nube.");
             }
         };
 
@@ -663,6 +526,18 @@
             document.getElementById('master-count-clientes').innerText = activos;
             document.getElementById('cnt-badge-activos').innerText = activos;
             document.getElementById('cnt-badge-inactivos').innerText = inactivos;
+        };
+
+        window.actualizarSlugEnTiempoReal = function() {
+            const nombre = document.getElementById('saas-input-nombre').value.trim();
+            const slug = nombre.toLowerCase().replace(/[^a-z0-9]/g, '');
+            document.getElementById('saas-link-generado').value = slug ? `${window.getBaseAppUrl()}?tienda=${slug}` : `${window.getBaseAppUrl()}?...`;
+        };
+
+        window.copiarLinkClienteGenerated = function() {
+            const linkInput = document.getElementById('saas-link-generado');
+            if (!linkInput || !linkInput.value) return;
+            navigator.clipboard.writeText(linkInput.value).then(() => alert("📋 Link copiado: " + linkInput.value));
         };
 
         window.seleccionarPildoraDias = function(dias) {
@@ -687,27 +562,67 @@
             document.getElementById('modal-configurar-entorno-saas').classList.remove('hidden');
         };
 
-        window.togglePanelGestionOculto = function() {
-            document.getElementById('panel-gestion-privado').classList.toggle('hidden');
+        window.evaluarRutaDirecta = async function() {
+            const params = new URLSearchParams(window.location.search);
+            const tiendaSlug = params.get('tienda');
+
+            await window.cargarClientesDesdeFirebase();
+
+            if (tiendaSlug) {
+                const cliente = window.dbClientesSaaS.find(c => c.slug === tiendaSlug);
+                if (cliente) {
+                    window.entrarEnCalienteCliente(cliente.id);
+                } else {
+                    alert("⚠️ La cuenta especificada no existe.");
+                }
+            }
         };
 
-        window.actualizarTasasPrivadas = function() {
-            window.tasasConfig.cop = parseFloat(document.getElementById('privado-tasa-cop').value) || 3600;
-            window.tasasConfig.bcv = parseFloat(document.getElementById('privado-tasa-bcv').value) || 36.50;
-            window.tasasConfig.paridad = parseFloat(document.getElementById('privado-tasa-paridad').value) || 3.3;
-            alert("✅ Tasas actualizadas.");
+        window.procesarLoginUnificado = function() {
+            const usr = document.getElementById('login-user-field').value.trim();
+            const pass = document.getElementById('login-pass-field').value.trim();
+
+            if (usr === 'tucocel' && pass === 'Razu2020.') {
+                window.esMasterLogueado = true;
+                document.getElementById('vista-login').classList.add('hidden');
+                document.getElementById('vista-master-admin').classList.remove('hidden');
+                return;
+            }
+
+            const encontrado = window.dbClientesSaaS.find(c => c.user === usr && c.pass === pass);
+            if (encontrado) {
+                window.entrarEnCalienteCliente(encontrado.id);
+                return;
+            }
+
+            alert("⚠️ Credenciales incorrectas.");
+        };
+
+        window.purgarBaseDeDatosCompleta = async function() {
+            if (!confirm("🔥 ¿Está seguro de ELIMINAR TODAS LAS CUENTAS de Firebase?")) return;
+
+            try {
+                const snap = await window.db.collection('tcl_saas_data').get();
+                const batch = window.db.batch();
+                snap.forEach(doc => batch.delete(doc.ref));
+                await batch.commit();
+
+                alert("🗑️ Servidor purgado por completo.");
+                await window.cargarClientesDesdeFirebase();
+            } catch(e) {
+                alert("❌ Error al purgar.");
+            }
+        };
+
+        window.togglePanelGestionOculto = function() {
+            document.getElementById('panel-gestion-privado').classList.toggle('hidden');
         };
 
         window.cerrarSesionCompleta = function() {
             window.esMasterLogueado = false;
             document.getElementById('vista-master-admin').classList.add('hidden');
             document.getElementById('vista-tienda-comercio').classList.add('hidden');
-            document.getElementById('vista-bloqueo-link').classList.add('hidden');
             document.getElementById('vista-login').classList.remove('hidden');
-        };
-
-        window.toggleConsolaDiagnosticoInterna = function() {
-            document.getElementById('modal-consola-diagnostico').classList.toggle('hidden');
         };
 
         window.addEventListener('DOMContentLoaded', () => {
