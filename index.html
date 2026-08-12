@@ -29,7 +29,28 @@
 </head>
 <body class="min-h-screen flex flex-col bg-slate-50">
 
-    <!-- 1. LOGIN ACCESO PRINCIPAL -->
+    <!-- CAJA NEGRA DIAGNÓSTICO FLOTANTE -->
+    <div id="diagnostico-master-flotante" class="fixed bottom-6 right-4 z-[10005]">
+        <button onclick="window.toggleConsolaDiagnosticoInterna()" class="w-12 h-12 bg-slate-900 border border-slate-700 text-white rounded-full flex items-center justify-center shadow-2xl text-lg hover:border-blue-500 transition-all">
+            <i class="fa-solid fa-terminal"></i>
+        </button>
+    </div>
+
+    <!-- MODAL CAJA NEGRA -->
+    <div id="modal-consola-diagnostico" class="fixed inset-0 bg-slate-900/80 backdrop-blur-sm z-[10000] p-4 flex items-center justify-center hidden">
+        <div class="bg-white border border-slate-200 w-full max-w-md h-[75vh] rounded-3xl overflow-hidden shadow-2xl flex flex-col">
+            <div class="bg-slate-900 px-4 py-3 text-blue-400 flex justify-between items-center font-bold text-xs uppercase tracking-wide">
+                <span><i class="fa-solid fa-bug mr-1"></i> Caja Negra TCL Comercio Web</span>
+                <button onclick="window.toggleConsolaDiagnosticoInterna()" class="text-slate-400 hover:text-white"><i class="fa-solid fa-xmark text-sm"></i></button>
+            </div>
+            <div id="logs-diagnostico-box" class="p-4 flex-grow overflow-y-auto font-mono text-[10px] text-slate-700 space-y-2 no-scrollbar bg-slate-50">
+                <p class="text-emerald-600">[OK] Consola de monitoreo inicializada.</p>
+                <p class="text-slate-500">[INFO] Conectado a Firebase Firestore: tucocel-vitrina.</p>
+            </div>
+        </div>
+    </div>
+
+    <!-- 1. LOGIN ACCESO UNIFICADO -->
     <div id="vista-login" class="min-h-screen flex items-center justify-center p-4">
         <div class="w-full max-w-md card-light p-6 space-y-6">
             <div class="text-center space-y-2">
@@ -78,8 +99,6 @@
             <button onclick="window.abrirModalConfigurarEntornoSaaS('NUEVO')" class="btn-brand w-full sm:w-auto py-3.5 px-6 font-black text-xs flex items-center justify-center gap-2 shadow-md">
                 <i class="fa-solid fa-plus text-sm"></i> <span>REGISTRAR NUEVA SUCURSAL / COMERCIO</span>
             </button>
-
-            <!-- BOTÓN DE PURGA / LIMPIEZA DE BASE DE DATOS -->
             <button onclick="window.purgarBaseDeDatosCompleta()" class="bg-red-50 hover:bg-red-100 text-red-700 border border-red-200 w-full sm:w-auto py-3.5 px-6 font-black text-xs rounded-xl flex items-center justify-center gap-2 shadow-sm uppercase">
                 <i class="fa-solid fa-trash-can text-red-600"></i> <span>PURGAR TODOS LOS CLIENTES</span>
             </button>
@@ -90,7 +109,7 @@
                 <span class="text-[10px] font-black text-slate-400 uppercase font-mono tracking-wider block">Clientes Activos</span>
                 <div class="flex items-baseline gap-2">
                     <span id="master-count-clientes" class="text-3xl font-black text-blue-600 font-mono">0</span>
-                    <span class="text-[10px] text-emerald-600 font-bold uppercase flex items-center gap-1"><span class="w-2 h-2 rounded-full bg-emerald-500 animate-pulse"></span> Servidor Firebase Online</span>
+                    <span class="text-[10px] text-emerald-600 font-bold uppercase flex items-center gap-1"><span class="w-2 h-2 rounded-full bg-emerald-500 animate-pulse"></span> Firebase Conectado</span>
                 </div>
             </div>
 
@@ -121,12 +140,12 @@
                     <span class="font-black text-xs uppercase tracking-wider">Bóveda Inactivos (<span id="cnt-badge-inactivos">0</span>)</span>
                 </button>
 
-                <button onclick="alert('Módulo Tarifas SaaS')" class="bg-slate-900 hover:bg-slate-800 text-white p-4 rounded-2xl flex flex-col items-center justify-center gap-2 transition-all shadow-md">
+                <button onclick="alert('Tarifas SaaS')" class="bg-slate-900 hover:bg-slate-800 text-white p-4 rounded-2xl flex flex-col items-center justify-center gap-2 transition-all shadow-md">
                     <i class="fa-solid fa-tags text-2xl text-amber-400"></i>
                     <span class="font-black text-xs uppercase tracking-wider">Tarifas SaaS</span>
                 </button>
 
-                <button onclick="alert('Módulo Propuesta Comercial')" class="bg-gradient-to-r from-blue-600 to-purple-600 text-white p-4 rounded-2xl flex flex-col items-center justify-center gap-2 transition-all shadow-md">
+                <button onclick="alert('Propuesta Comercial')" class="bg-gradient-to-r from-blue-600 to-purple-600 text-white p-4 rounded-2xl flex flex-col items-center justify-center gap-2 transition-all shadow-md">
                     <i class="fa-solid fa-paper-plane text-2xl text-white"></i>
                     <span class="font-black text-xs uppercase tracking-wider">Enviar Propuesta</span>
                 </button>
@@ -134,13 +153,13 @@
         </div>
     </div>
 
-    <!-- MODAL CONFIGURAR ENTORNO SAAS -->
+    <!-- MODAL CONFIGURAR Y CREAR CLIENTE SAAS -->
     <div id="modal-configurar-entorno-saas" class="fixed inset-0 bg-slate-900/80 backdrop-blur-md z-50 p-4 flex items-center justify-center hidden">
         <div class="bg-white border border-slate-200 w-full max-w-lg rounded-3xl overflow-hidden shadow-2xl flex flex-col max-h-[90vh]">
             <div class="bg-slate-900 px-5 py-4 text-white flex justify-between items-center shrink-0">
                 <div class="flex items-center gap-2">
                     <i class="fa-solid fa-store text-blue-400"></i>
-                    <h3 id="modal-saas-titulo" class="font-black text-xs uppercase tracking-wider">CONFIGURAR ENTORNO SAAS</h3>
+                    <h3 id="modal-saas-titulo" class="font-black text-xs uppercase tracking-wider">CONFIGURAR COMERCIO</h3>
                 </div>
                 <button onclick="document.getElementById('modal-configurar-entorno-saas').classList.add('hidden')" class="text-slate-400 hover:text-white"><i class="fa-solid fa-xmark text-sm"></i></button>
             </div>
@@ -160,7 +179,7 @@
                     <div class="grid grid-cols-1 sm:grid-cols-2 gap-3">
                         <div>
                             <label class="text-[10px] text-slate-500 uppercase block mb-1">Usuario ID *</label>
-                            <input type="text" id="saas-input-user" placeholder="demo" class="input-clean font-mono">
+                            <input type="text" id="saas-input-user" placeholder="bodegadonluis" class="input-clean font-mono">
                         </div>
                         <div>
                             <label class="text-[10px] text-slate-500 uppercase block mb-1">Clave de Acceso *</label>
@@ -189,12 +208,21 @@
                             <i class="fa-solid fa-copy"></i> Copiar
                         </button>
                     </div>
+
+                    <div class="grid grid-cols-2 gap-2">
+                        <button onclick="window.enviarNotificacionWhatsApp('activacion')" class="bg-blue-600 hover:bg-blue-500 text-white font-black py-2.5 rounded-xl uppercase text-xs shadow">
+                            ENVIAR ACTIVACIÓN
+                        </button>
+                        <button onclick="window.enviarNotificacionWhatsApp('renovacion')" class="bg-emerald-600 hover:bg-emerald-500 text-white font-black py-2.5 rounded-xl uppercase text-xs shadow">
+                            ENVIAR RENOVACIÓN
+                        </button>
+                    </div>
                 </div>
             </div>
 
             <div class="bg-slate-100 p-4 border-t border-slate-200 grid grid-cols-2 gap-3 shrink-0">
-                <button onclick="document.getElementById('modal-configurar-entorno-saas').classList.add('hidden')" class="bg-slate-300 text-slate-800 font-black py-3 rounded-xl uppercase text-xs">
-                    CANCELAR
+                <button onclick="window.solicitarOpcionesEliminarPerfil()" class="bg-red-600 hover:bg-red-500 text-white font-black py-3 rounded-xl uppercase text-xs shadow">
+                    ELIMINAR PERFIL
                 </button>
                 <button onclick="window.guardarCambiosEntornoSaaS()" class="bg-amber-500 hover:bg-amber-400 text-slate-950 font-black py-3 rounded-xl uppercase text-xs shadow">
                     GUARDAR EN FIREBASE ☁️
@@ -203,7 +231,7 @@
         </div>
     </div>
 
-    <!-- MODAL BASE CLIENTES -->
+    <!-- MODAL BASE DE CLIENTES -->
     <div id="modal-base-clientes" class="fixed inset-0 bg-slate-900/80 backdrop-blur-md z-50 p-4 flex items-center justify-center hidden">
         <div class="bg-white border border-slate-200 w-full max-w-3xl rounded-3xl overflow-hidden shadow-2xl flex flex-col max-h-[85vh]">
             <div class="bg-slate-900 px-5 py-4 text-white flex justify-between items-center shrink-0">
@@ -223,7 +251,7 @@
         </div>
     </div>
 
-    <!-- VITRINA DIGITAL CLIENTE -->
+    <!-- 3. VITRINA DIGITAL CLIENTE & CONFIGURACIÓN EN CALIENTE -->
     <div id="vista-tienda-comercio" class="hidden min-h-screen flex flex-col">
         <div id="banner-modo-soporte-master" class="bg-amber-500 text-slate-950 font-black text-[10.5px] py-1.5 px-4 text-center uppercase tracking-wider flex justify-between items-center hidden">
             <span>⚡ MODO SOPORTE TÉCNICO MÁSTER CONECTADO 'EN CALIENTE'</span>
@@ -239,23 +267,87 @@
                         <i class="fa-solid fa-shop"></i>
                     </div>
                     <div>
-                        <h1 id="header-shop-title" class="font-black text-base text-slate-900 uppercase tracking-tight">Cargando Tienda...</h1>
+                        <h1 id="header-shop-title" class="font-black text-base text-slate-900 uppercase tracking-tight">Bodega Don Luis</h1>
                         <p id="header-shop-sub" class="text-[10px] text-slate-500 font-medium">Catálogo Digital Oficial</p>
                     </div>
                 </div>
 
-                <button onclick="window.cerrarSesionCompleta()" class="bg-slate-100 text-slate-700 px-3 py-2 rounded-xl text-xs font-bold uppercase">
-                    Salir
+                <button onclick="window.togglePanelGestionOculto()" class="bg-slate-100 hover:bg-slate-200 text-slate-700 px-3 py-2 rounded-xl text-xs font-bold uppercase flex items-center gap-2 border border-slate-300">
+                    <i class="fa-solid fa-sliders text-blue-600"></i> <span class="hidden sm:inline">Ajustes / Tasas</span>
                 </button>
             </div>
         </header>
 
-        <main class="max-w-5xl mx-auto w-full p-4 flex-grow space-y-6">
-            <div class="border-b border-slate-200 pb-2">
-                <h2 class="text-xs font-black uppercase text-slate-500 tracking-wider">Productos en Vitrina</h2>
+        <!-- PANEL DE CONFIGURACIÓN Y TASAS DEL CLIENTE -->
+        <div id="panel-gestion-privado" class="bg-slate-900 text-white p-5 border-b border-slate-800 space-y-4 hidden transition-all">
+            <div class="max-w-5xl mx-auto space-y-4">
+                <div class="flex justify-between items-center border-b border-slate-800 pb-2">
+                    <h3 class="font-black text-xs uppercase text-amber-400 tracking-wider flex items-center gap-2">
+                        <i class="fa-solid fa-gear"></i> Ajustes Privados del Negocio & Tasas de Cambio
+                    </h3>
+                    <button onclick="window.togglePanelGestionOculto()" class="text-slate-400 hover:text-white"><i class="fa-solid fa-xmark text-sm"></i></button>
+                </div>
+
+                <div class="grid grid-cols-1 sm:grid-cols-3 gap-3">
+                    <div class="bg-slate-950 p-3 rounded-2xl border border-slate-800 space-y-1">
+                        <label class="text-[10px] text-amber-400 font-bold uppercase block">Tasa Pesos (COP por 1 USD)</label>
+                        <input type="number" id="privado-tasa-cop" value="3600" onchange="window.actualizarTasasPrivadas()" class="w-full bg-slate-900 text-white font-mono font-black p-2 rounded-xl text-xs border border-slate-700">
+                    </div>
+                    <div class="bg-slate-950 p-3 rounded-2xl border border-slate-800 space-y-1">
+                        <label class="text-[10px] text-emerald-400 font-bold uppercase block">Tasa BCV (Bs por 1 USD)</label>
+                        <input type="number" step="0.01" id="privado-tasa-bcv" value="36.50" onchange="window.actualizarTasasPrivadas()" class="w-full bg-slate-900 text-white font-mono font-black p-2 rounded-xl text-xs border border-slate-700">
+                    </div>
+                    <div class="bg-slate-950 p-3 rounded-2xl border border-slate-800 space-y-1">
+                        <label class="text-[10px] text-blue-400 font-bold uppercase block">Tasa Paridad (Bs por 1,000 COP)</label>
+                        <input type="number" step="0.1" id="privado-tasa-paridad" value="3.3" onchange="window.actualizarTasasPrivadas()" class="w-full bg-slate-900 text-white font-mono font-black p-2 rounded-xl text-xs border border-slate-700">
+                    </div>
+                </div>
             </div>
-            <div id="grid-productos-tienda" class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-4"></div>
+        </div>
+
+        <main class="max-w-5xl mx-auto w-full p-4 flex-grow space-y-6 pb-28">
+            <div class="flex justify-between items-center border-b border-slate-200 pb-2">
+                <h2 class="text-xs font-black uppercase text-slate-500 tracking-wider">Productos en Vitrina</h2>
+                <span class="text-[10px] text-slate-400 font-mono">Precios calculados al instante</span>
+            </div>
+
+            <div id="grid-productos-tienda" class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-4">
+                <div class="card-light p-4 space-y-3 flex flex-col justify-between hover:border-blue-300 transition-all">
+                    <div class="space-y-2">
+                        <div class="w-full h-36 bg-slate-100 rounded-2xl overflow-hidden flex items-center justify-center text-slate-400 text-3xl">
+                            <i class="fa-solid fa-box-open"></i>
+                        </div>
+                        <h3 class="font-black text-slate-900 text-sm uppercase">Harina PAN Premium 1kg</h3>
+                        <p class="text-[10px] text-slate-500">Harina de maíz blanco precocida.</p>
+                    </div>
+
+                    <div class="space-y-3 pt-2 border-t border-slate-100">
+                        <div class="font-mono text-xs space-y-0.5">
+                            <div class="text-blue-600 font-black text-sm">$1.00 USD</div>
+                            <div class="text-slate-600 font-bold text-[10px]">3.600 COP</div>
+                            <div class="text-slate-500 font-bold text-[10px]">36.50 Bs</div>
+                        </div>
+                        <button onclick="window.agregarAlCarrito('Harina PAN Premium 1kg', 1.00)" class="btn-brand w-full py-2.5 text-xs flex items-center justify-center gap-1.5">
+                            <i class="fa-solid fa-cart-plus"></i> Agregar al Carrito
+                        </button>
+                    </div>
+                </div>
+            </div>
         </main>
+
+        <div class="fixed bottom-4 left-4 right-4 max-w-3xl mx-auto z-40 flex gap-2">
+            <button onclick="window.openWhatsAppDirectQuery()" class="bg-white border border-emerald-500 text-emerald-600 px-4 rounded-2xl font-bold text-xs flex items-center gap-2 shadow-lg hover:bg-emerald-50">
+                <i class="fa-brands fa-whatsapp text-lg"></i> <span class="hidden sm:inline">Consultar / Preguntar</span>
+            </button>
+
+            <button onclick="alert('Pedido enviado a WhatsApp')" class="flex-grow bg-emerald-600 hover:bg-emerald-500 text-white p-3.5 rounded-2xl shadow-xl flex items-center justify-between font-black text-xs transition-all active:scale-[0.98]">
+                <div class="flex items-center gap-2">
+                    <i class="fa-solid fa-basket-shopping text-base"></i>
+                    <span id="lbl-cart-count">0 ítems agregados</span>
+                </div>
+                <span id="lbl-cart-total" class="text-sm font-extrabold font-mono">$0.00 USD ➔</span>
+            </button>
+        </div>
     </div>
 
     <!-- PANTALLA BLOQUEO LINK INACTIVO -->
@@ -266,7 +358,7 @@
             </div>
             <h2 class="font-black text-lg text-slate-900 uppercase">Enlace Inactivo / Suspendido</h2>
             <p class="text-slate-600 text-xs leading-relaxed font-medium">
-                Este catálogo no está disponible actualmente. Contacte al soporte máster para reactivar el servicio.
+                Este catálogo no se encuentra activo. Contacte al soporte máster para reactivar su membresía.
             </p>
             <button onclick="window.open('https://api.whatsapp.com/send?phone=584147357549&text=Hola,%20deseo%20reactivar%20mi%20tienda%20comercial', '_blank')" class="btn-brand w-full py-3.5 text-xs flex items-center justify-center gap-2 shadow-md">
                 <i class="fa-brands fa-whatsapp text-base"></i> Contactar Soporte
@@ -274,7 +366,7 @@
         </div>
     </div>
 
-    <!-- FIREBASE INITIALIZATION & LÓGICA DE CONTROL -->
+    <!-- INICIALIZACIÓN FIREBASE Y CONTROL JS -->
     <script>
         const firebaseConfig = {
             authDomain: "tucocel-vitrina.firebaseapp.com",
@@ -293,6 +385,7 @@
         window.esMasterLogueado = false;
         window.diasSuscripcionSeleccionados = 365;
         window.tipoVistaModalActual = 'ACTIVOS';
+        window.tasasConfig = { cop: 3600, bcv: 36.50, paridad: 3.3 };
 
         window.getBaseAppUrl = function() {
             return window.location.origin + window.location.pathname;
@@ -323,7 +416,6 @@
             document.getElementById('modal-base-clientes').classList.remove('hidden');
         };
 
-        // RENDERIZADO CORREGIDO Y TOLERANTE A PROPIEDADES DE FIREBASE
         window.renderizarListaClientesModal = function() {
             const container = document.getElementById('lista-clientes-modal');
             if (!container) return;
@@ -407,24 +499,35 @@
             document.getElementById('vista-master-admin').classList.remove('hidden');
         };
 
-        // FUNCIÓN DE PURGA COMPLETA DE CLIENTES EN FIREBASE
+        window.solicitarOpcionesEliminarPerfil = async function() {
+            const idEdit = document.getElementById('saas-editing-id').value;
+            if (!idEdit) return;
+
+            if (confirm("🔥 ¿Desea eliminar definitivamente esta cuenta de la base de datos de Firebase?")) {
+                try {
+                    await window.db.collection('tcl_saas_data').doc(idEdit).delete();
+                    alert("🗑️ Cliente eliminado por completo.");
+                    document.getElementById('modal-configurar-entorno-saas').classList.add('hidden');
+                    await window.cargarClientesDesdeFirebase();
+                } catch(e) {
+                    alert("❌ Error al eliminar cliente.");
+                }
+            }
+        };
+
         window.purgarBaseDeDatosCompleta = async function() {
-            if (!confirm("🔥 ¿Está seguro de ELIMINAR TODOS LOS CLIENTES de Firebase? La base de datos quedará completamente limpia en cero.")) return;
+            if (!confirm("🔥 ¿Está seguro de ELIMINAR TODOS LOS CLIENTES de Firebase?")) return;
 
             try {
                 const snap = await window.db.collection('tcl_saas_data').get();
                 const batch = window.db.batch();
-
-                snap.forEach(doc => {
-                    batch.delete(doc.ref);
-                });
-
+                snap.forEach(doc => batch.delete(doc.ref));
                 await batch.commit();
-                alert("🗑️ Se han eliminado todos los clientes de Firebase. La base de datos ha sido limpiada con éxito.");
+
+                alert("🗑️ Base de datos purgada por completo.");
                 await window.cargarClientesDesdeFirebase();
             } catch(e) {
-                console.error("Error al purgar la base de datos:", e);
-                alert("❌ Ocurrió un error al intentar eliminar los registros.");
+                alert("❌ Error purgando base de datos.");
             }
         };
 
@@ -438,6 +541,36 @@
             const linkInput = document.getElementById('saas-link-generado');
             if (!linkInput || !linkInput.value) return;
             navigator.clipboard.writeText(linkInput.value).then(() => alert("📋 Link copiado: " + linkInput.value));
+        };
+
+        window.enviarNotificacionWhatsApp = function(tipo) {
+            const nombre = document.getElementById('saas-input-nombre').value.trim() || 'Comercio';
+            const wa = document.getElementById('saas-input-wa').value.trim();
+            const usr = document.getElementById('saas-input-user').value.trim();
+            const pass = document.getElementById('saas-input-pass').value.trim();
+            const dias = window.diasSuscripcionSeleccionados;
+            const slug = nombre.toLowerCase().replace(/[^a-z0-9]/g, '');
+
+            if (!wa) { alert("⚠️ Ingrese el número de WhatsApp."); return; }
+
+            let msg = "";
+            if (tipo === 'activacion') {
+                msg = `🚀 *¡BIENVENIDO A TCL COMERCIO WEB!*\n\n`;
+                msg += `Estimado cliente, sus credenciales son:\n\n`;
+                msg += `🏪 *Comercio:* ${nombre}\n`;
+                msg += `🔗 *Tienda:* ${window.getBaseAppUrl()}?tienda=${slug}\n`;
+                msg += `🔑 *Usuario:* ${usr} | *Clave:* ${pass}\n`;
+                msg += `⏳ *Suscripción:* ${dias} Días\n\n`;
+                msg += `_Ingrese a su enlace para configurar sus tasas e inventario._`;
+            } else {
+                msg = `🔄 *RENOVACIÓN DE SERVICIO — TCL COMERCIO WEB*\n\n`;
+                msg += `Estimado cliente, su suscripción ha sido renovada:\n\n`;
+                msg += `🏪 *Comercio:* ${nombre}\n`;
+                msg += `⏳ *Nueva Cobertura:* ${dias} Días\n`;
+                msg += `🔗 *Enlace Activo:* ${window.getBaseAppUrl()}?tienda=${slug}\n`;
+            }
+
+            window.open(`https://api.whatsapp.com/send?phone=${wa}&text=${encodeURIComponent(msg)}`, '_blank');
         };
 
         window.evaluarRutaDirecta = async function() {
@@ -554,12 +687,27 @@
             document.getElementById('modal-configurar-entorno-saas').classList.remove('hidden');
         };
 
+        window.togglePanelGestionOculto = function() {
+            document.getElementById('panel-gestion-privado').classList.toggle('hidden');
+        };
+
+        window.actualizarTasasPrivadas = function() {
+            window.tasasConfig.cop = parseFloat(document.getElementById('privado-tasa-cop').value) || 3600;
+            window.tasasConfig.bcv = parseFloat(document.getElementById('privado-tasa-bcv').value) || 36.50;
+            window.tasasConfig.paridad = parseFloat(document.getElementById('privado-tasa-paridad').value) || 3.3;
+            alert("✅ Tasas actualizadas.");
+        };
+
         window.cerrarSesionCompleta = function() {
             window.esMasterLogueado = false;
             document.getElementById('vista-master-admin').classList.add('hidden');
             document.getElementById('vista-tienda-comercio').classList.add('hidden');
             document.getElementById('vista-bloqueo-link').classList.add('hidden');
             document.getElementById('vista-login').classList.remove('hidden');
+        };
+
+        window.toggleConsolaDiagnosticoInterna = function() {
+            document.getElementById('modal-consola-diagnostico').classList.toggle('hidden');
         };
 
         window.addEventListener('DOMContentLoaded', () => {
