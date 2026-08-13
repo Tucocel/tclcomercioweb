@@ -106,7 +106,7 @@
             </h3>
             
             <div class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-3">
-                <button onclick="window.abrirModalBaseClientes('ACTIVOS')" class="bg-slate-900 hover:bg-slate-800 text-white p-4 rounded-2xl flex flex-col items-center justify-center gap-2 transition-all shadow-md">
+                <button onclick="window.abrirModalBaseClientes()" class="bg-slate-900 hover:bg-slate-800 text-white p-4 rounded-2xl flex flex-col items-center justify-center gap-2 transition-all shadow-md">
                     <i class="fa-solid fa-users text-2xl text-blue-400"></i>
                     <span class="font-black text-xs uppercase tracking-wider">Base de Clientes (<span id="cnt-badge-activos">0</span>)</span>
                 </button>
@@ -114,7 +114,7 @@
         </div>
     </div>
 
-    <!-- MODAL MÁSTER: CREACIÓN SENCILLA DE CLIENTE (SÓLO NOMBRE Y WHATSAPP) -->
+    <!-- MODAL MÁSTER: CREACIÓN SENCILLA DE CLIENTE -->
     <div id="modal-configurar-entorno-saas" class="fixed inset-0 bg-slate-900/80 backdrop-blur-md z-50 p-4 flex items-center justify-center hidden">
         <div class="bg-white border border-slate-200 w-full max-w-lg rounded-3xl overflow-hidden shadow-2xl flex flex-col max-h-[90vh]">
             <div class="bg-slate-900 px-5 py-4 text-white flex justify-between items-center shrink-0">
@@ -160,7 +160,7 @@
                         </button>
                     </div>
 
-                    <button onclick="window.enviarNotificacionWhatsApp('activacion')" class="w-full bg-blue-600 hover:bg-blue-500 text-white font-black py-2.5 rounded-xl uppercase text-xs shadow">
+                    <button onclick="window.enviarNotificacionWhatsApp()" class="w-full bg-blue-600 hover:bg-blue-500 text-white font-black py-2.5 rounded-xl uppercase text-xs shadow">
                         ENVIAR CREDENCIALES A WHATSAPP
                     </button>
                 </div>
@@ -343,7 +343,6 @@
         window.dbClientesSaaS = [];
         window.esMasterLogueado = false;
         window.diasSuscripcionSeleccionados = 365;
-        window.tipoVistaModalActual = 'ACTIVOS';
         window.clienteActivoActual = null;
 
         window.getBaseAppUrl = function() {
@@ -363,12 +362,12 @@
             }
         };
 
-        window.abrirModalBaseClientes = function(tipo) {
-            window.tipoVistaModalActual = tipo;
+        window.abrirModalBaseClientes = function() {
             window.renderizarListaClientesModal();
             document.getElementById('modal-base-clientes').classList.remove('hidden');
         };
 
+        // RENDERIZADO GARANTIZADO DE LA LISTA DE CLIENTES
         window.renderizarListaClientesModal = function() {
             const container = document.getElementById('lista-clientes-modal');
             if (!container) return;
@@ -376,12 +375,9 @@
             const busqueda = (document.getElementById('busqueda-modal-cliente')?.value || '').toLowerCase().trim();
             
             const filtrados = window.dbClientesSaaS.filter(c => {
-                const estatusCliente = c.estatus ? c.estatus.toUpperCase() : 'ACTIVO';
-                const coincideTipo = estatusCliente === window.tipoVistaModalActual;
-                
                 const nombreStr = (c.nombre || '').toLowerCase();
                 const userStr = (c.user || '').toLowerCase();
-                return coincideTipo && (nombreStr.includes(busqueda) || userStr.includes(busqueda));
+                return nombreStr.includes(busqueda) || userStr.includes(busqueda);
             });
 
             if (filtrados.length === 0) {
@@ -417,6 +413,21 @@
             `).join('');
         };
 
+        window.editarClienteDirectoDesdeModal = function(id) {
+            const cliente = window.dbClientesSaaS.find(c => c.id === id);
+            if (!cliente) return;
+
+            document.getElementById('modal-base-clientes').classList.add('hidden');
+            document.getElementById('saas-editing-id').value = cliente.id;
+            document.getElementById('modal-saas-titulo').innerText = `EDITAR: ${(cliente.nombre || '').toUpperCase()}`;
+            document.getElementById('saas-input-nombre').value = cliente.nombre || '';
+            document.getElementById('saas-input-wa').value = cliente.wa || '';
+            document.getElementById('saas-link-generado').value = `${window.getBaseAppUrl()}?tienda=${cliente.slug}`;
+
+            window.seleccionarPildoraDias(cliente.dias || 365);
+            document.getElementById('modal-configurar-entorno-saas').classList.remove('hidden');
+        };
+
         window.entrarEnCalienteCliente = async function(id) {
             const cliente = window.dbClientesSaaS.find(c => c.id === id);
             if (!cliente) return;
@@ -427,14 +438,11 @@
             document.getElementById('vista-master-admin').classList.add('hidden');
             document.getElementById('vista-login').classList.add('hidden');
 
-            // Verificar si el cliente ya firmó el contrato digital
             if (!cliente.contratoFirmado && !window.esMasterLogueado) {
                 document.getElementById('vista-contrato-cliente').classList.remove('hidden');
             } else {
-                document.getElementById('header-shop-title').innerText = cliente.nombre;
-                if (cliente.empresaInfo && cliente.empresaInfo.direccion) {
-                    document.getElementById('header-shop-sub').innerText = cliente.empresaInfo.direccion;
-                }
+                document.getElementById('header-shop-title').innerText = cliente.empresaInfo?.razonSocial || cliente.nombre;
+                document.getElementById('header-shop-sub').innerText = cliente.empresaInfo?.direccion || "Catálogo Web Exclusivo";
                 document.getElementById('vista-tienda-comercio').classList.remove('hidden');
                 if (window.esMasterLogueado) {
                     document.getElementById('banner-modo-soporte-master').classList.remove('hidden');
@@ -574,7 +582,7 @@
                     productos: []
                 }, { merge: true });
 
-                alert("🚀 Cliente registrado con éxito. Se habilitó su espacio en blanco.");
+                alert("🚀 Cliente registrado con éxito.");
                 document.getElementById('modal-configurar-entorno-saas').classList.add('hidden');
                 await window.cargarClientesDesdeFirebase();
             } catch(e) {
@@ -582,7 +590,7 @@
             }
         };
 
-        window.enviarNotificacionWhatsApp = function(tipo) {
+        window.enviarNotificacionWhatsApp = function() {
             const nombre = document.getElementById('saas-input-nombre').value.trim() || 'Comercio';
             const wa = document.getElementById('saas-input-wa').value.trim();
             const slug = nombre.toLowerCase().replace(/[^a-z0-9]/g, '');
@@ -614,12 +622,9 @@
         };
 
         window.recalcularTotalesYBadgesComercios = function() {
-            const activos = window.dbClientesSaaS.filter(c => (c.estatus || 'ACTIVO') === 'ACTIVO').length;
-            const inactivos = window.dbClientesSaaS.filter(c => c.estatus === 'INACTIVO').length;
-
-            document.getElementById('master-count-clientes').innerText = activos;
-            document.getElementById('cnt-badge-activos').innerText = activos;
-            document.getElementById('cnt-badge-inactivos').innerText = inactivos;
+            const total = window.dbClientesSaaS.length;
+            document.getElementById('master-count-clientes').innerText = total;
+            document.getElementById('cnt-badge-activos').innerText = total;
         };
 
         window.seleccionarPildoraDias = function(dias) {
