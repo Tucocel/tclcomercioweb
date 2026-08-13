@@ -2,36 +2,38 @@
 <html lang="es">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>TCL Comercio Web 2026 — Panel Máster & Vitrina Digital</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>TCL Sistema Comercio — Panel Máster 2026</title>
 
     <!-- TAILWIND CSS & FONT-AWESOME -->
     <script src="https://cdn.tailwindcss.com"></script>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
 
-    <!-- FIREBASE COMPAT SDKs -->
+    <!-- FIREBASE COMPAT -->
     <script src="https://www.gstatic.com/firebasejs/10.8.0/firebase-app-compat.js"></script>
     <script src="https://www.gstatic.com/firebasejs/10.8.0/firebase-firestore-compat.js"></script>
 
     <style>
         @import url('https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght=400;500;600;700;800;900&display=swap');
-        body { font-family: 'Plus Jakarta Sans', sans-serif; background-color: #f8fafc; color: #0f172a; overflow-x: hidden; }
+        body { font-family: 'Plus Jakarta Sans', sans-serif; background-color: #f8fafc; color: #0f172a; overflow-x: hidden; width: 100%; }
         .no-scrollbar::-webkit-scrollbar { display: none; }
         .no-scrollbar { -ms-overflow-style: none; scrollbar-width: none; }
-        .card-light { background: #ffffff; border: 1px solid #e2e8f0; border-radius: 1.25rem; box-shadow: 0 4px 10px -1px rgba(0, 0, 0, 0.04); }
-        .input-clean { width: 100%; background-color: #ffffff; border: 1px solid #cbd5e1; padding: 0.65rem 0.85rem; border-radius: 0.75rem; color: #0f172a; font-weight: 700; outline: none; font-size: 0.8rem; }
+        .card-light { background: #ffffff; border: 1px solid #e2e8f0; border-radius: 1.25rem; box-shadow: 0 4px 10px -1px rgba(0, 0, 0, 0.04); max-width: 100%; box-sizing: border-box; }
+        .input-clean { width: 100%; background-color: #ffffff; border: 1px solid #cbd5e1; padding: 0.65rem 0.85rem; border-radius: 0.75rem; color: #0f172a; font-weight: 700; outline: none; font-size: 0.8rem; box-sizing: border-box; }
         .input-clean:focus { border-color: #2563eb; ring: 2px #2563eb; }
-        .btn-brand { background: linear-gradient(to right, #2563eb, #1d4ed8); color: white; font-weight: 800; font-size: 0.75rem; padding: 0.75rem 1.25rem; border-radius: 0.75rem; text-transform: uppercase; letter-spacing: 0.05em; transition: all 0.2s; cursor: pointer; }
+        .btn-brand { background: linear-gradient(to right, #2563eb, #1d4ed8); color: white; font-weight: 800; font-size: 0.75rem; padding: 0.75rem 1rem; border-radius: 0.75rem; text-transform: uppercase; letter-spacing: 0.05em; transition: all 0.2s; cursor: pointer; text-align: center; }
         .btn-brand:hover { opacity: 0.95; }
-        .pildora-dias { padding: 0.6rem 1rem; border-radius: 0.75rem; font-size: 0.75rem; font-weight: 800; border: 1px solid #cbd5e1; background: #ffffff; color: #475569; transition: all 0.2s; cursor: pointer; text-transform: uppercase; }
+        
+        .pildora-dias { padding: 0.6rem 0.8rem; border-radius: 0.75rem; font-size: 0.75rem; font-weight: 800; border: 1px solid #cbd5e1; background: #ffffff; color: #475569; transition: all 0.2s; cursor: pointer; text-transform: uppercase; }
         .pildora-dias-active { background: #2563eb !important; color: #ffffff !important; border-color: #1d4ed8 !important; box-shadow: 0 4px 10px rgba(37, 99, 235, 0.25); }
     </style>
 </head>
-<body class="min-h-screen flex flex-col bg-slate-50">
+<body class="min-h-screen flex flex-col bg-slate-50 w-full overflow-x-hidden">
 
-    <!-- CAJA NEGRA DIAGNÓSTICO FLOTANTE -->
-    <div id="diagnostico-master-flotante" class="fixed bottom-6 right-4 z-[10005]">
-        <button onclick="window.toggleConsolaDiagnosticoInterna()" class="w-12 h-12 bg-slate-900 border border-slate-700 text-white rounded-full flex items-center justify-center shadow-2xl text-lg hover:border-blue-500 transition-all">
+    <!-- CAJA NEGRA DE DIAGNÓSTICO FLOTANTE -->
+    <div id="diagnostico-master-flotante" class="fixed bottom-20 right-4 z-[10005] flex flex-col items-center gap-1 hidden select-none">
+        <div id="badge-contador-errores" class="bg-red-600 text-white font-black text-[10px] px-2 py-0.5 rounded-full shadow-lg border border-red-400 animate-bounce hidden">0</div>
+        <button id="btn-consola-flotante" onclick="window.toggleConsolaDiagnosticoInterna()" class="w-12 h-12 bg-slate-900 border border-slate-700 text-white rounded-full flex items-center justify-center shadow-2xl text-lg hover:border-blue-500 transition-all cursor-grab active:cursor-grabbing">
             <i class="fa-solid fa-terminal"></i>
         </button>
     </div>
@@ -40,24 +42,31 @@
     <div id="modal-consola-diagnostico" class="fixed inset-0 bg-slate-900/80 backdrop-blur-sm z-[10000] p-4 flex items-center justify-center hidden">
         <div class="bg-white border border-slate-200 w-full max-w-md h-[75vh] rounded-3xl overflow-hidden shadow-2xl flex flex-col">
             <div class="bg-slate-900 px-4 py-3 text-blue-400 flex justify-between items-center font-bold text-xs uppercase tracking-wide">
-                <span><i class="fa-solid fa-bug mr-1"></i> Caja Negra TCL Comercio Web</span>
+                <span><i class="fa-solid fa-bug mr-1"></i> Caja Negra de Diagnóstico TCL</span>
                 <button onclick="window.toggleConsolaDiagnosticoInterna()" class="text-slate-400 hover:text-white"><i class="fa-solid fa-xmark text-sm"></i></button>
             </div>
             <div id="logs-diagnostico-box" class="p-4 flex-grow overflow-y-auto font-mono text-[10px] text-slate-700 space-y-2 no-scrollbar bg-slate-50">
                 <p class="text-emerald-600">[OK] Consola de monitoreo inicializada.</p>
-                <p class="text-slate-500">[INFO] Conectado a Firebase Firestore: tucocel-vitrina.</p>
+                <p id="log-status-master" class="text-slate-500">[INFO] Inicie sesión como Máster 'tucocel' para desplegar controles avanzados.</p>
+            </div>
+            
+            <div id="box-controles-descarga-segura" class="bg-slate-100 p-2.5 border-t border-slate-200 grid grid-cols-2 sm:grid-cols-4 gap-1.5 hidden">
+                <button onclick="window.copiarCodigoTextoPuroConsola()" class="bg-amber-500 text-slate-950 px-2 py-2 rounded-xl text-[10px] font-black uppercase truncate"><i class="fa-solid fa-copy mr-1"></i> Copiar</button>
+                <button onclick="window.descargarMasaMadre()" class="bg-blue-600 text-white px-2 py-2 rounded-xl text-[10px] font-bold uppercase truncate"><i class="fa-solid fa-download mr-1"></i> Código</button>
+                <button onclick="window.descargarReporteErroresIndex()" class="bg-slate-800 text-white px-2 py-2 rounded-xl text-[10px] font-bold uppercase truncate">Reporte</button>
+                <button onclick="window.limpiarHistorialErroresPermanente()" class="bg-white text-red-600 border border-red-200 px-2 py-2 rounded-xl text-[10px] font-bold uppercase truncate">Limpiar</button>
             </div>
         </div>
     </div>
 
-    <!-- 1. LOGIN ACCESO UNIFICADO -->
-    <div id="vista-login" class="min-h-screen flex items-center justify-center p-4">
+    <!-- 1. LOGIN ACCESO PRINCIPAL -->
+    <div id="vista-login" class="min-h-screen flex items-center justify-center p-4 w-full">
         <div class="w-full max-w-md card-light p-6 space-y-6">
             <div class="text-center space-y-2">
                 <div class="w-14 h-14 bg-blue-50 text-blue-600 rounded-2xl flex items-center justify-center mx-auto text-2xl border border-blue-100 shadow-sm">
                     <i class="fa-solid fa-store"></i>
                 </div>
-                <h2 class="font-black text-xl text-slate-900 tracking-tight uppercase">TCL COMERCIO WEB</h2>
+                <h2 class="font-black text-xl text-slate-900 tracking-tight uppercase">TCL SISTEMA COMERCIO</h2>
                 <p class="text-slate-500 text-xs font-medium">Plataforma Ágil de Inventario y Catálogo Web</p>
             </div>
 
@@ -80,14 +89,14 @@
     </div>
 
     <!-- 2. PANEL DE CONTROL MÁSTER -->
-    <div id="vista-master-admin" class="hidden min-h-screen p-4 sm:p-8 max-w-7xl mx-auto space-y-6">
+    <div id="vista-master-admin" class="hidden min-h-screen p-4 sm:p-8 max-w-7xl mx-auto space-y-6 w-full">
         <div class="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4 border-b border-slate-200 pb-5">
             <div>
                 <span class="bg-blue-50 text-blue-700 border border-blue-200 text-[10px] font-bold tracking-widest uppercase px-3 py-1 rounded-full inline-flex items-center gap-1.5 shadow-sm font-mono">
-                    <i class="fa-solid fa-user-shield"></i> Centro de Mando Desarrollador
+                    <i class="fa-solid fa-user-shield"></i> Centro de Mando desarrollador
                 </span>
                 <h1 class="text-2xl sm:text-3xl font-black tracking-tight text-slate-900 mt-2 flex items-center gap-2">
-                    TCL COMERCIO WEB — MÁSTER <span class="text-amber-500">⚡</span>
+                    TCL SISTEMA COMERCIO — MÁSTER <span class="text-amber-500">⚡</span>
                 </h1>
             </div>
             <button onclick="window.cerrarSesionCompleta()" class="bg-white hover:bg-slate-100 text-slate-700 px-4 py-2.5 rounded-xl border border-slate-300 text-xs font-bold uppercase flex items-center gap-2 shadow-sm">
@@ -95,32 +104,27 @@
             </button>
         </div>
 
-        <div class="flex flex-col sm:flex-row gap-3">
-            <button onclick="window.abrirModalConfigurarEntornoSaaS('NUEVO')" class="btn-brand w-full sm:w-auto py-3.5 px-6 font-black text-xs flex items-center justify-center gap-2 shadow-md">
-                <i class="fa-solid fa-plus text-sm"></i> <span>REGISTRAR NUEVA SUCURSAL / COMERCIO</span>
-            </button>
-            <button onclick="window.purgarBaseDeDatosCompleta()" class="bg-red-50 hover:bg-red-100 text-red-700 border border-red-200 w-full sm:w-auto py-3.5 px-6 font-black text-xs rounded-xl flex items-center justify-center gap-2 shadow-sm uppercase">
-                <i class="fa-solid fa-trash-can text-red-600"></i> <span>PURGAR TODOS LOS CLIENTES</span>
-            </button>
-        </div>
+        <button onclick="window.abrirModalConfigurarEntornoSaaS('NUEVO')" class="btn-brand w-full sm:w-auto py-3.5 px-6 font-black text-xs flex items-center justify-center gap-2 shadow-md">
+            <i class="fa-solid fa-plus text-sm"></i> <span>REGISTRAR NUEVA SUCURSAL / COMERCIO</span>
+        </button>
 
         <div class="grid grid-cols-1 sm:grid-cols-3 gap-4">
             <div class="card-light p-5 space-y-1">
                 <span class="text-[10px] font-black text-slate-400 uppercase font-mono tracking-wider block">Clientes Activos</span>
                 <div class="flex items-baseline gap-2">
                     <span id="master-count-clientes" class="text-3xl font-black text-blue-600 font-mono">0</span>
-                    <span class="text-[10px] text-emerald-600 font-bold uppercase flex items-center gap-1"><span class="w-2 h-2 rounded-full bg-emerald-500 animate-pulse"></span> Firebase Conectado</span>
+                    <span class="text-[10px] text-emerald-600 font-bold uppercase flex items-center gap-1"><span class="w-2 h-2 rounded-full bg-emerald-500 animate-pulse"></span> Almacenamiento Activo</span>
                 </div>
             </div>
 
             <div class="card-light p-4 space-y-1">
                 <span class="text-[10px] font-black text-slate-400 uppercase font-mono tracking-wider block">🇨🇴 Tasa USDT / Pesos</span>
-                <input type="number" id="master-tasa-cop" value="3600" class="input-clean font-mono text-base font-black text-blue-600">
+                <input type="number" id="master-tasa-cop" value="3600" onkeyup="window.recalcularTarifasSaasCalculadora()" onchange="window.recalcularTarifasSaasCalculadora()" class="input-clean font-mono text-base font-black text-blue-600">
             </div>
 
             <div class="card-light p-4 space-y-1">
                 <span class="text-[10px] font-black text-slate-400 uppercase font-mono tracking-wider block">🇻🇪 Tasa Paridad Bs</span>
-                <input type="number" step="0.1" id="master-tasa-bs" value="3.3" class="input-clean font-mono text-base font-black text-emerald-600">
+                <input type="number" step="0.1" id="master-tasa-bs" value="3.3" onkeyup="window.recalcularTarifasSaasCalculadora()" onchange="window.recalcularTarifasSaasCalculadora()" class="input-clean font-mono text-base font-black text-emerald-600">
             </div>
         </div>
 
@@ -135,17 +139,17 @@
                     <span class="font-black text-xs uppercase tracking-wider">Base Clientes (<span id="cnt-badge-activos">0</span>)</span>
                 </button>
 
-                <button onclick="window.abrirModalBaseClientes('INACTIVOS')" class="bg-slate-900 hover:bg-slate-800 text-white p-4 rounded-2xl flex flex-col items-center justify-center gap-2 transition-all shadow-md">
+                <button onclick="window.abrirModalBaseClientes('INACTIVOS')" class="bg-slate-900 hover:bg-slate-800 text-white p-4 rounded-2xl flex flex-col items-center justify-center gap-2 transition-all shadow-md relative">
                     <i class="fa-solid fa-box-archive text-2xl text-red-400"></i>
                     <span class="font-black text-xs uppercase tracking-wider">Bóveda Inactivos (<span id="cnt-badge-inactivos">0</span>)</span>
                 </button>
 
-                <button onclick="alert('Tarifas SaaS')" class="bg-slate-900 hover:bg-slate-800 text-white p-4 rounded-2xl flex flex-col items-center justify-center gap-2 transition-all shadow-md">
+                <button onclick="window.abrirModalTarifasSaas()" class="bg-slate-900 hover:bg-slate-800 text-white p-4 rounded-2xl flex flex-col items-center justify-center gap-2 transition-all shadow-md">
                     <i class="fa-solid fa-tags text-2xl text-amber-400"></i>
                     <span class="font-black text-xs uppercase tracking-wider">Tarifas SaaS</span>
                 </button>
 
-                <button onclick="alert('Propuesta Comercial')" class="bg-gradient-to-r from-blue-600 to-purple-600 text-white p-4 rounded-2xl flex flex-col items-center justify-center gap-2 transition-all shadow-md">
+                <button onclick="alert('Enviar Propuesta Comercial')" class="bg-gradient-to-r from-blue-600 to-purple-600 text-white p-4 rounded-2xl flex flex-col items-center justify-center gap-2 transition-all shadow-md">
                     <i class="fa-solid fa-paper-plane text-2xl text-white"></i>
                     <span class="font-black text-xs uppercase tracking-wider">Enviar Propuesta</span>
                 </button>
@@ -153,13 +157,13 @@
         </div>
     </div>
 
-    <!-- MODAL CONFIGURAR Y CREAR CLIENTE SAAS -->
+    <!-- MODAL CONFIGURAR ENTORNO SAAS -->
     <div id="modal-configurar-entorno-saas" class="fixed inset-0 bg-slate-900/80 backdrop-blur-md z-50 p-4 flex items-center justify-center hidden">
         <div class="bg-white border border-slate-200 w-full max-w-lg rounded-3xl overflow-hidden shadow-2xl flex flex-col max-h-[90vh]">
             <div class="bg-slate-900 px-5 py-4 text-white flex justify-between items-center shrink-0">
                 <div class="flex items-center gap-2">
                     <i class="fa-solid fa-store text-blue-400"></i>
-                    <h3 id="modal-saas-titulo" class="font-black text-xs uppercase tracking-wider">CONFIGURAR COMERCIO</h3>
+                    <h3 id="modal-saas-titulo" class="font-black text-xs uppercase tracking-wider">CONFIGURAR ENTORNO SAAS</h3>
                 </div>
                 <button onclick="document.getElementById('modal-configurar-entorno-saas').classList.add('hidden')" class="text-slate-400 hover:text-white"><i class="fa-solid fa-xmark text-sm"></i></button>
             </div>
@@ -170,20 +174,24 @@
                 <div class="space-y-3">
                     <div>
                         <label class="text-[10px] text-slate-500 uppercase block mb-1">Nombre Comercial / Sucursal *</label>
-                        <input type="text" id="saas-input-nombre" onkeyup="window.actualizarSlugEnTiempoReal()" placeholder="Ej: Bodega Don Luis" class="input-clean">
+                        <input type="text" id="saas-input-nombre" onkeyup="window.actualizarSlugEnTiempoReal()" placeholder="Ej: Tucocel C.A." class="input-clean">
+                    </div>
+                    <div>
+                        <label class="text-[10px] text-slate-500 uppercase block mb-1">Responsable / Titular *</label>
+                        <input type="text" id="saas-input-responsable" placeholder="Ej: Marta Silva" class="input-clean">
                     </div>
                     <div>
                         <label class="text-[10px] text-slate-500 uppercase block mb-1">WhatsApp de Contacto *</label>
-                        <input type="tel" id="saas-input-wa" placeholder="04147357549" class="input-clean font-mono">
+                        <input type="tel" id="saas-input-wa" placeholder="0424-1234567" class="input-clean font-mono">
                     </div>
                     <div class="grid grid-cols-1 sm:grid-cols-2 gap-3">
                         <div>
                             <label class="text-[10px] text-slate-500 uppercase block mb-1">Usuario ID *</label>
-                            <input type="text" id="saas-input-user" placeholder="bodegadonluis" class="input-clean font-mono">
+                            <input type="text" id="saas-input-user" placeholder="demo" class="input-clean font-mono">
                         </div>
                         <div>
                             <label class="text-[10px] text-slate-500 uppercase block mb-1">Clave de Acceso *</label>
-                            <input type="password" id="saas-input-pass" placeholder="••••••" class="input-clean font-mono">
+                            <input type="password" id="saas-input-pass" placeholder="••••••••" class="input-clean font-mono">
                         </div>
                     </div>
                 </div>
@@ -193,17 +201,17 @@
                     <div class="grid grid-cols-2 sm:grid-cols-4 gap-2">
                         <button type="button" onclick="window.seleccionarPildoraDias(30)" id="pildora-30" class="pildora-dias">30 Días</button>
                         <button type="button" onclick="window.seleccionarPildoraDias(90)" id="pildora-90" class="pildora-dias">90 Días</button>
-                        <button type="button" onclick="window.seleccionarPildoraDias(180)" id="pildora-180" class="pildora-dias">180 Días</button>
-                        <button type="button" onclick="window.seleccionarPildoraDias(365)" id="pildora-365" class="pildora-dias pildora-dias-active">365 Días</button>
+                        <button type="button" onclick="window.seleccionarPildoraDias(180)" id="pildora-180" class="pildora-dias pildora-dias-active">180 Días</button>
+                        <button type="button" onclick="window.seleccionarPildoraDias(365)" id="pildora-365" class="pildora-dias">365 Días</button>
                     </div>
                     <div id="lbl-display-dias-seleccionados" class="bg-white p-2.5 rounded-xl border border-slate-200 text-center font-black text-sm text-slate-900 font-mono shadow-sm">
-                        365 Días
+                        180 Días
                     </div>
                 </div>
 
                 <div class="bg-slate-50 p-4 rounded-2xl border border-slate-200 space-y-3">
                     <div class="flex gap-2">
-                        <input type="text" id="saas-link-generado" readonly value="" class="input-clean font-mono text-blue-600 bg-white">
+                        <input type="text" id="saas-link-generado" readonly value="https://tcl.com/tucocel" class="input-clean font-mono text-blue-600 bg-white">
                         <button onclick="window.copiarLinkClienteGenerated()" class="bg-slate-900 hover:bg-slate-800 text-white px-4 rounded-xl font-bold uppercase text-xs shrink-0">
                             <i class="fa-solid fa-copy"></i> Copiar
                         </button>
@@ -225,18 +233,18 @@
                     ELIMINAR PERFIL
                 </button>
                 <button onclick="window.guardarCambiosEntornoSaaS()" class="bg-amber-500 hover:bg-amber-400 text-slate-950 font-black py-3 rounded-xl uppercase text-xs shadow">
-                    GUARDAR EN FIREBASE ☁️
+                    GUARDAR CAMBIOS
                 </button>
             </div>
         </div>
     </div>
 
-    <!-- MODAL BASE DE CLIENTES -->
+    <!-- MODAL BASE CLIENTES -->
     <div id="modal-base-clientes" class="fixed inset-0 bg-slate-900/80 backdrop-blur-md z-50 p-4 flex items-center justify-center hidden">
-        <div class="bg-white border border-slate-200 w-full max-w-3xl rounded-3xl overflow-hidden shadow-2xl flex flex-col max-h-[85vh]">
+        <div class="bg-white border border-slate-200 w-full max-w-2xl rounded-3xl overflow-hidden shadow-2xl flex flex-col max-h-[85vh]">
             <div class="bg-slate-900 px-5 py-4 text-white flex justify-between items-center shrink-0">
                 <h3 id="lbl-titulo-modal-clientes" class="font-black text-xs uppercase tracking-wider flex items-center gap-2">
-                    <i class="fa-solid fa-store text-blue-400"></i> Base de Clientes
+                    <i class="fa-solid fa-store text-blue-400"></i> BASE DE CLIENTES ACTIVOS
                 </h3>
                 <button onclick="document.getElementById('modal-base-clientes').classList.add('hidden')" class="text-slate-400 hover:text-white"><i class="fa-solid fa-xmark text-sm"></i></button>
             </div>
@@ -246,223 +254,848 @@
             </div>
 
             <div class="p-5 overflow-y-auto space-y-3 no-scrollbar flex-grow">
-                <div id="lista-clientes-modal" class="grid grid-cols-1 sm:grid-cols-2 gap-3"></div>
+                <div id="lista-clientes-modal" class="grid grid-cols-1 sm:grid-cols-2 gap-3">
+                    <!-- Inyección dinámica -->
+                </div>
             </div>
         </div>
     </div>
 
-    <!-- 3. VITRINA DIGITAL CLIENTE & CONFIGURACIÓN EN CALIENTE -->
-    <div id="vista-tienda-comercio" class="hidden min-h-screen flex flex-col">
-        <div id="banner-modo-soporte-master" class="bg-amber-500 text-slate-950 font-black text-[10.5px] py-1.5 px-4 text-center uppercase tracking-wider flex justify-between items-center hidden">
-            <span>⚡ MODO SOPORTE TÉCNICO MÁSTER CONECTADO 'EN CALIENTE'</span>
-            <button onclick="window.regresarAlPanelMaster()" class="bg-slate-950 text-white px-2.5 py-0.5 rounded-lg text-[9px] font-bold uppercase hover:bg-slate-800 transition-all">
-                Volver al Panel Máster
-            </button>
-        </div>
+    <!-- MODAL TARIFAS SAAS -->
+    <div id="modal-tarifas-saas" class="fixed inset-0 bg-slate-900/80 backdrop-blur-md z-50 p-4 flex items-center justify-center hidden">
+        <div class="bg-white border border-slate-200 w-full max-w-xl rounded-3xl overflow-hidden shadow-2xl flex flex-col">
+            <div class="bg-slate-900 px-5 py-4 text-white flex justify-between items-center shrink-0">
+                <h3 class="font-black text-xs uppercase tracking-wider flex items-center gap-2">
+                    <i class="fa-solid fa-tags text-amber-400"></i> Tarifas SaaS Editables (USDT) & Calculadora
+                </h3>
+                <button onclick="document.getElementById('modal-tarifas-saas').classList.add('hidden')" class="text-slate-400 hover:text-white"><i class="fa-solid fa-xmark text-sm"></i></button>
+            </div>
 
-        <header class="bg-white border-b border-slate-200 p-4 sticky top-0 z-30 shadow-sm">
-            <div class="max-w-5xl mx-auto flex justify-between items-center">
-                <div class="flex items-center gap-3">
-                    <div class="w-10 h-10 bg-blue-600 text-white rounded-xl flex items-center justify-center text-lg font-black shadow-sm">
-                        <i class="fa-solid fa-shop"></i>
+            <div class="p-5 overflow-y-auto space-y-4 no-scrollbar text-xs font-bold text-slate-800">
+                <div class="grid grid-cols-2 gap-3 font-mono">
+                    <div class="bg-slate-50 p-3.5 rounded-2xl border border-slate-200 space-y-2">
+                        <span class="text-slate-500 uppercase block text-[9.5px]">Plan 30 Días</span>
+                        <div class="flex items-center gap-1">
+                            <span class="text-slate-900 font-black">$</span>
+                            <input type="number" id="input-tarifas-30" value="25" onkeyup="window.recalcularTarifasSaasCalculadora()" onchange="window.recalcularTarifasSaasCalculadora()" class="input-clean font-black text-slate-900 text-sm">
+                            <span class="text-slate-500 font-bold text-[10px]">USDT</span>
+                        </div>
+                        <div id="tarifa-calc-30" class="text-[10px] text-blue-600 font-bold pt-1 border-t border-slate-200">0 COP | 0 Bs</div>
                     </div>
-                    <div>
-                        <h1 id="header-shop-title" class="font-black text-base text-slate-900 uppercase tracking-tight">Bodega Don Luis</h1>
-                        <p id="header-shop-sub" class="text-[10px] text-slate-500 font-medium">Catálogo Digital Oficial</p>
+
+                    <div class="bg-slate-50 p-3.5 rounded-2xl border border-slate-200 space-y-2">
+                        <span class="text-slate-500 uppercase block text-[9.5px]">Plan 90 Días</span>
+                        <div class="flex items-center gap-1">
+                            <span class="text-slate-900 font-black">$</span>
+                            <input type="number" id="input-tarifas-90" value="60" onkeyup="window.recalcularTarifasSaasCalculadora()" onchange="window.recalcularTarifasSaasCalculadora()" class="input-clean font-black text-slate-900 text-sm">
+                            <span class="text-slate-500 font-bold text-[10px]">USDT</span>
+                        </div>
+                        <div id="tarifa-calc-90" class="text-[10px] text-blue-600 font-bold pt-1 border-t border-slate-200">0 COP | 0 Bs</div>
+                    </div>
+
+                    <div class="bg-slate-50 p-3.5 rounded-2xl border border-slate-200 space-y-2">
+                        <span class="text-slate-500 uppercase block text-[9.5px]">Plan 180 Días</span>
+                        <div class="flex items-center gap-1">
+                            <span class="text-slate-900 font-black">$</span>
+                            <input type="number" id="input-tarifas-180" value="90" onkeyup="window.recalcularTarifasSaasCalculadora()" onchange="window.recalcularTarifasSaasCalculadora()" class="input-clean font-black text-slate-900 text-sm">
+                            <span class="text-slate-500 font-bold text-[10px]">USDT</span>
+                        </div>
+                        <div id="tarifa-calc-180" class="text-[10px] text-blue-600 font-bold pt-1 border-t border-slate-200">0 COP | 0 Bs</div>
+                    </div>
+
+                    <div class="bg-slate-50 p-3.5 rounded-2xl border border-blue-200 space-y-2">
+                        <span class="text-blue-600 uppercase block text-[9.5px]">Plan 365 Días (Año)</span>
+                        <div class="flex items-center gap-1">
+                            <span class="text-blue-600 font-black">$</span>
+                            <input type="number" id="input-tarifas-365" value="160" onkeyup="window.recalcularTarifasSaasCalculadora()" onchange="window.recalcularTarifasSaasCalculadora()" class="input-clean font-black text-blue-600 text-sm">
+                            <span class="text-blue-600 font-bold text-[10px]">USDT</span>
+                        </div>
+                        <div id="tarifa-calc-365" class="text-[10px] text-blue-600 font-bold pt-1 border-t border-blue-200">0 COP | 0 Bs</div>
                     </div>
                 </div>
 
-                <button onclick="window.togglePanelGestionOculto()" class="bg-slate-100 hover:bg-slate-200 text-slate-700 px-3 py-2 rounded-xl text-xs font-bold uppercase flex items-center gap-2 border border-slate-300">
-                    <i class="fa-solid fa-sliders text-blue-600"></i> <span class="hidden sm:inline">Ajustes / Tasas</span>
+                <button onclick="window.guardarNuevasTarifasSaas()" class="btn-brand w-full py-3.5 text-xs shadow-md">
+                    Guardar Tarifas Editadas 🔒
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <!-- 3. PANEL DE ADMINISTRACIÓN PRIVADO DEL CLIENTE -->
+    <div id="vista-panel-cliente-privado" class="hidden min-h-screen p-3 sm:p-6 max-w-6xl mx-auto space-y-4 bg-slate-100 w-full overflow-x-hidden">
+        <div class="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-3 border-b border-slate-300 pb-3 w-full">
+            <div class="flex items-center gap-2.5 w-full sm:w-auto">
+                <div class="w-10 h-10 sm:w-12 sm:h-12 bg-blue-600 text-white rounded-2xl flex items-center justify-center text-lg sm:text-xl font-black shadow-sm shrink-0">
+                    <i class="fa-solid fa-store"></i>
+                </div>
+                <div class="min-w-0 flex-1">
+                    <span class="text-[9px] sm:text-[10px] text-blue-600 font-bold uppercase tracking-wider font-mono block">Panel de Control Comercial</span>
+                    <h1 id="client-panel-title" class="text-sm sm:text-2xl font-black text-slate-900 uppercase truncate">Tucocel C.A.</h1>
+                </div>
+            </div>
+            <div class="flex items-center gap-2 w-full sm:w-auto">
+                <button onclick="window.verVitrinaComoCliente()" class="bg-blue-600 hover:bg-blue-500 text-white px-3 py-2 sm:px-4 sm:py-2.5 rounded-xl font-bold text-[11px] sm:text-xs uppercase shadow flex items-center justify-center gap-1.5 flex-grow sm:flex-grow-0">
+                    <i class="fa-solid fa-eye"></i> <span class="truncate">Ver Mi Vitrina Web</span>
+                </button>
+                <button onclick="window.cerrarSesionCompleta()" class="bg-white hover:bg-slate-200 text-slate-700 px-3 py-2 sm:px-4 sm:py-2.5 rounded-xl border border-slate-300 font-bold text-[11px] sm:text-xs uppercase shadow shrink-0">
+                    Salir
+                </button>
+            </div>
+        </div>
+
+        <!-- CÁPSULA RESTAURADA DE ESTADO DE SUSCRIPCIÓN Y CUENTA REGRESIVA -->
+        <div class="card-light p-4 bg-white border border-blue-200 space-y-2 w-full shadow-sm">
+            <div class="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-3">
+                <div class="space-y-1">
+                    <span class="text-[10px] text-slate-400 font-mono font-bold uppercase tracking-widest block">Estado del Servicio SaaS</span>
+                    <div class="flex items-center gap-2">
+                        <span id="client-panel-plan-badge" class="bg-purple-100 text-purple-800 border border-purple-200 font-black text-xs px-3 py-1 rounded-xl uppercase">
+                            PLAN CONTRATADO: 180 DÍAS (6 MESES)
+                        </span>
+                        <span class="w-2.5 h-2.5 rounded-full bg-emerald-500 animate-pulse"></span>
+                    </div>
+                </div>
+                <div class="bg-emerald-50 border border-emerald-200 px-4 py-2.5 rounded-2xl text-emerald-800 font-mono font-black text-xs sm:text-sm shadow-sm flex items-center gap-2">
+                    <i class="fa-solid fa-hourglass-half text-emerald-600"></i>
+                    <span>Tiempo Restante: <span id="client-panel-dias-cuenta" class="text-emerald-600 font-black">180 Días</span></span>
+                </div>
+            </div>
+        </div>
+
+        <div class="grid grid-cols-1 md:grid-cols-3 gap-3 sm:gap-4 w-full">
+            <div class="card-light p-3.5 sm:p-5 space-y-3 col-span-1 md:col-span-2 w-full">
+                <h3 class="text-xs font-black uppercase text-slate-700 tracking-wider flex items-center gap-2">
+                    <i class="fa-solid fa-plus-circle text-blue-600"></i> Registrar / Editar Producto
+                </h3>
+
+                <div class="space-y-3 font-bold text-xs w-full">
+                    <input type="hidden" id="inv-edit-id" value="">
+                    <input type="hidden" id="inv-input-foto-base64" value="">
+
+                    <div class="bg-slate-50 p-2.5 sm:p-3 rounded-2xl border border-slate-200 flex flex-col sm:flex-row items-center gap-2.5 w-full">
+                        <div id="box-preview-foto" class="w-16 h-16 sm:w-20 sm:h-20 bg-slate-200 rounded-xl flex items-center justify-center text-slate-400 text-xl overflow-hidden shrink-0 border border-slate-300">
+                            <i class="fa-solid fa-image"></i>
+                        </div>
+                        <div class="space-y-1 text-center sm:text-left w-full flex-grow">
+                            <span class="text-[9.5px] text-slate-500 uppercase block font-mono">Foto del Producto (Optimizada)</span>
+                            <input type="file" id="input-archivo-foto" accept="image/*" capture="environment" class="hidden" onchange="window.procesarYComprimirImagen(this)">
+                            <button type="button" onclick="document.getElementById('input-archivo-foto').click()" class="bg-slate-900 hover:bg-slate-800 text-white px-3 py-2 rounded-xl text-[10px] font-black uppercase flex items-center justify-center gap-2 w-full sm:w-auto shadow">
+                                <i class="fa-solid fa-camera"></i> Tomar Foto o Galería
+                            </button>
+                        </div>
+                    </div>
+
+                    <div>
+                        <label class="text-[10px] text-slate-500 uppercase block mb-1">Nombre del Producto *</label>
+                        <input type="text" id="inv-input-nombre" placeholder="Ej: Harina PAN 1kg, Filtro Aceite..." class="input-clean">
+                    </div>
+                    
+                    <div class="grid grid-cols-1 sm:grid-cols-3 gap-2 w-full">
+                        <div>
+                            <label class="text-[10px] text-slate-500 uppercase block mb-1">Precio Costo ($) *</label>
+                            <input type="number" step="0.01" id="inv-input-costo" placeholder="0.80" class="input-clean font-mono text-slate-700">
+                        </div>
+                        <div>
+                            <label class="text-[10px] text-slate-500 uppercase block mb-1">Precio Venta ($) *</label>
+                            <input type="number" step="0.01" id="inv-input-venta" placeholder="1.20" class="input-clean font-mono text-blue-600">
+                        </div>
+                        <div>
+                            <label class="text-[10px] text-slate-500 uppercase block mb-1">Stock Disponible *</label>
+                            <input type="number" id="inv-input-stock" placeholder="20" class="input-clean font-mono">
+                        </div>
+                    </div>
+
+                    <div>
+                        <label class="text-[10px] text-slate-500 uppercase block mb-1">Descripción Breve / Compatibilidad</label>
+                        <input type="text" id="inv-input-desc" placeholder="Ej: Aplicación para carros, repuesto original..." class="input-clean">
+                    </div>
+
+                    <div class="flex gap-2 pt-1 w-full">
+                        <button onclick="window.guardarProductoInventario()" class="btn-brand w-full py-3 text-xs shadow">
+                            💾 Guardar Producto en Sistema
+                        </button>
+                    </div>
+                </div>
+            </div>
+
+            <div class="card-light p-3.5 sm:p-5 space-y-3 w-full">
+                <h3 class="text-xs font-black uppercase text-slate-700 tracking-wider flex items-center gap-2">
+                    <i class="fa-solid fa-sliders text-amber-500"></i> Divisas y Paridades
+                </h3>
+
+                <div class="space-y-3 text-xs font-bold w-full">
+                    <div class="bg-slate-50 p-2.5 rounded-2xl border border-slate-200 space-y-2 w-full">
+                        <span class="text-[9.5px] text-slate-400 uppercase font-mono block">Tasas Locales del Día</span>
+                        <div class="flex justify-between items-center gap-2">
+                            <span class="text-[10.5px] text-slate-600 truncate">🇨🇴 Tasa Pesos (COP):</span>
+                            <input type="number" id="inv-tasa-cop" value="3600" onkeyup="window.actualizarConfiguracionMonedasCliente()" class="input-clean w-20 font-mono text-center py-1">
+                        </div>
+                        <div class="flex justify-between items-center gap-2">
+                            <span class="text-[10.5px] text-slate-600 truncate">🇻🇪 Tasa Bolívares (Bs):</span>
+                            <input type="number" step="0.1" id="inv-tasa-bs" value="36.50" onkeyup="window.actualizarConfiguracionMonedasCliente()" class="input-clean w-20 font-mono text-center py-1">
+                        </div>
+                    </div>
+
+                    <div class="bg-slate-50 p-2.5 rounded-2xl border border-slate-200 space-y-2 w-full">
+                        <span class="text-[9.5px] text-slate-400 uppercase font-mono block">Monedas Activas en Vitrina</span>
+                        <label class="flex items-center gap-2 cursor-pointer text-[11px]">
+                            <input type="checkbox" id="chk-show-usd" checked onchange="window.actualizarConfiguracionMonedasCliente()" class="w-4 h-4 rounded text-blue-600">
+                            <span>Mostrar Dólares ($ USD)</span>
+                        </label>
+                        <label class="flex items-center gap-2 cursor-pointer text-[11px]">
+                            <input type="checkbox" id="chk-show-cop" checked onchange="window.actualizarConfiguracionMonedasCliente()" class="w-4 h-4 rounded text-blue-600">
+                            <span>Mostrar Pesos (COP)</span>
+                        </label>
+                        <label class="flex items-center gap-2 cursor-pointer text-[11px]">
+                            <input type="checkbox" id="chk-show-bs" checked onchange="window.actualizarConfiguracionMonedasCliente()" class="w-4 h-4 rounded text-blue-600">
+                            <span>Mostrar Bolívares (Bs.)</span>
+                        </label>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="card-light p-4 bg-gradient-to-r from-slate-900 to-slate-800 text-white space-y-2 w-full shadow-lg">
+            <div class="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-3">
+                <div>
+                    <span class="text-[10px] text-blue-400 font-mono font-bold uppercase tracking-widest block">Módulo de Consulta & Gestión</span>
+                    <h3 class="text-sm sm:text-base font-black uppercase flex items-center gap-2">
+                        <i class="fa-solid fa-boxes-stacked text-amber-400"></i> Inventario Completo de Productos
+                    </h3>
+                    <p class="text-[11px] text-slate-300 font-medium">Buscador avanzado en tiempo real.</p>
+                </div>
+                <button onclick="window.abrirModalInventarioCompleto()" class="bg-blue-600 hover:bg-blue-500 text-white font-black text-xs px-5 py-3 rounded-xl uppercase tracking-wider shadow-md w-full sm:w-auto shrink-0 flex items-center justify-center gap-2">
+                    <i class="fa-solid fa-magnifying-glass"></i> Abrir Bóveda (<span id="cnt-total-inv-badge">0</span>)
+                </button>
+            </div>
+        </div>
+
+        <div class="card-light p-3.5 sm:p-5 space-y-3 border-emerald-200 w-full">
+            <h3 class="text-xs font-black uppercase text-slate-700 tracking-wider flex items-center gap-2">
+                <i class="fa-solid fa-chart-line text-emerald-600"></i> Sala de Reportes y Estimación de Ganancias
+            </h3>
+
+            <div class="grid grid-cols-1 sm:grid-cols-3 gap-2 sm:gap-3 font-mono text-center w-full">
+                <div class="bg-slate-50 p-2.5 rounded-2xl border border-slate-200">
+                    <span class="text-[9px] text-slate-400 uppercase font-bold block">Valor Total Inventario (Costo)</span>
+                    <span id="rpt-total-costo" class="text-sm sm:text-lg font-black text-slate-800">$0.00 USD</span>
+                </div>
+                <div class="bg-slate-50 p-2.5 rounded-2xl border border-slate-200">
+                    <span class="text-[9px] text-slate-400 uppercase font-bold block">Valor Total Inventario (Venta)</span>
+                    <span id="rpt-total-venta" class="text-sm sm:text-lg font-black text-blue-600">$0.00 USD</span>
+                </div>
+                <div class="bg-emerald-50 p-2.5 rounded-2xl border border-emerald-200">
+                    <span class="text-[9px] text-emerald-700 uppercase font-bold block">Ganancia Proyectada Neta</span>
+                    <span id="rpt-ganancia-neta" class="text-sm sm:text-lg font-black text-emerald-600">$0.00 USD</span>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- MODAL INVENTARIO CON TARJETAS VERTICALES MÓVILES (CERO SCROLL HORIZONTAL) -->
+    <div id="modal-inventario-completo" class="fixed inset-0 bg-slate-900/80 backdrop-blur-md z-50 p-2 sm:p-4 flex items-center justify-center hidden">
+        <div class="bg-white border border-slate-200 w-full max-w-4xl rounded-3xl overflow-hidden shadow-2xl flex flex-col h-[90vh]">
+            <div class="bg-slate-900 px-4 py-3.5 text-white flex justify-between items-center shrink-0">
+                <h3 class="font-black text-xs sm:text-sm uppercase tracking-wider flex items-center gap-2">
+                    <i class="fa-solid fa-boxes-stacked text-amber-400"></i> Inventario General & Búsqueda
+                </h3>
+                <button onclick="document.getElementById('modal-inventario-completo').classList.add('hidden')" class="text-slate-400 hover:text-white p-1"><i class="fa-solid fa-xmark text-base"></i></button>
+            </div>
+
+            <div class="p-3 bg-slate-100 border-b border-slate-200 shrink-0">
+                <div class="relative">
+                    <i class="fa-solid fa-magnifying-glass absolute left-3.5 top-3 text-slate-400 text-xs"></i>
+                    <input type="text" id="busqueda-inventario-input" onkeyup="window.renderizarTablaModalInventario()" placeholder="Escriba para buscar: harina, aceite, filtro, guaya..." class="input-clean pl-9 bg-white font-mono text-xs">
+                </div>
+            </div>
+
+            <!-- CONTENEDOR DE TARJETAS VERTICALES -->
+            <div class="p-3 sm:p-5 overflow-y-auto no-scrollbar flex-grow space-y-3">
+                <div id="contenedor-tarjetas-inventario" class="grid grid-cols-1 sm:grid-cols-2 gap-3">
+                    <!-- Inyección dinámica de tarjetas de producto -->
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- SUB-MODAL DE EDICIÓN RÁPIDA (DIRECTO SIN SALIR DEL INVENTARIO) -->
+    <div id="submodal-edicion-rapida" class="fixed inset-0 bg-slate-950/80 backdrop-blur-md z-[60] p-4 flex items-center justify-center hidden">
+        <div class="bg-white border border-slate-200 w-full max-w-md rounded-3xl overflow-hidden shadow-2xl p-5 space-y-4 font-bold text-xs">
+            <div class="flex justify-between items-center border-b border-slate-100 pb-3">
+                <h3 class="font-black text-slate-900 uppercase text-xs flex items-center gap-2">
+                    <i class="fa-solid fa-pen-to-square text-blue-600"></i> Edición Rápida de Producto
+                </h3>
+                <button onclick="document.getElementById('submodal-edicion-rapida').classList.add('hidden')" class="text-slate-400 hover:text-slate-700"><i class="fa-solid fa-xmark text-sm"></i></button>
+            </div>
+
+            <input type="hidden" id="sub-edit-id" value="">
+            <div>
+                <label class="text-[10px] text-slate-500 uppercase block mb-1">Nombre del Producto *</label>
+                <input type="text" id="sub-input-nombre" class="input-clean">
+            </div>
+
+            <div class="grid grid-cols-3 gap-2">
+                <div>
+                    <label class="text-[10px] text-slate-500 uppercase block mb-1">P. Costo ($)</label>
+                    <input type="number" step="0.01" id="sub-input-costo" class="input-clean font-mono">
+                </div>
+                <div>
+                    <label class="text-[10px] text-slate-500 uppercase block mb-1">P. Venta ($)</label>
+                    <input type="number" step="0.01" id="sub-input-venta" class="input-clean font-mono text-blue-600">
+                </div>
+                <div>
+                    <label class="text-[10px] text-slate-500 uppercase block mb-1">Stock</label>
+                    <input type="number" id="sub-input-stock" class="input-clean font-mono">
+                </div>
+            </div>
+
+            <div>
+                <label class="text-[10px] text-slate-500 uppercase block mb-1">Descripción Breve</label>
+                <input type="text" id="sub-input-desc" class="input-clean">
+            </div>
+
+            <div class="grid grid-cols-2 gap-2 pt-2">
+                <button onclick="document.getElementById('submodal-edicion-rapida').classList.add('hidden')" class="bg-slate-100 hover:bg-slate-200 text-slate-700 py-3 rounded-xl uppercase text-xs">Cancelar</button>
+                <button onclick="window.guardarEdicionRapidaSubmodal()" class="btn-brand py-3 text-xs shadow-md">💾 Guardar Cambios</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- 4. VITRINA DIGITAL PÚBLICA -->
+    <div id="vista-tienda-comercio" class="hidden min-h-screen flex flex-col bg-slate-50 w-full">
+        <!-- CABECERA DE LA VITRINA - PRIORIDAD RAZÓN SOCIAL COMPLETA -->
+        <header class="bg-white border-b border-slate-200 p-3 sm:p-4 sticky top-0 z-30 shadow-sm w-full">
+            <div class="max-w-5xl mx-auto flex justify-between items-center gap-3 w-full">
+                <div class="flex items-center gap-3 min-w-0 flex-1">
+                    <div class="w-10 h-10 sm:w-11 sm:h-11 bg-blue-600 text-white rounded-2xl flex items-center justify-center text-lg sm:text-xl font-black shadow-sm shrink-0">
+                        <i class="fa-solid fa-shop"></i>
+                    </div>
+                    <div class="min-w-0 flex-1">
+                        <h1 id="header-shop-title" class="font-black text-sm sm:text-lg text-slate-900 uppercase tracking-tight truncate">TUCOCEL C.A.</h1>
+                        <p id="header-shop-sub" class="text-[10px] sm:text-[11px] text-slate-500 font-medium truncate">Cordero — Táchira | WhatsApp: 0424-1234567</p>
+                    </div>
+                </div>
+
+                <button onclick="window.solicitarAccesoPanelGestionProtegido()" class="w-9 h-9 sm:w-10 sm:h-10 bg-slate-100 hover:bg-slate-200 text-slate-700 rounded-xl flex items-center justify-center border border-slate-300 shrink-0 transition-all active:scale-95 shadow-sm">
+                    <i class="fa-solid fa-user-lock text-sm"></i>
                 </button>
             </div>
         </header>
 
-        <!-- PANEL DE CONFIGURACIÓN Y TASAS DEL CLIENTE -->
-        <div id="panel-gestion-privado" class="bg-slate-900 text-white p-5 border-b border-slate-800 space-y-4 hidden transition-all">
-            <div class="max-w-5xl mx-auto space-y-4">
-                <div class="flex justify-between items-center border-b border-slate-800 pb-2">
-                    <h3 class="font-black text-xs uppercase text-amber-400 tracking-wider flex items-center gap-2">
-                        <i class="fa-solid fa-gear"></i> Ajustes Privados del Negocio & Tasas de Cambio
-                    </h3>
-                    <button onclick="window.togglePanelGestionOculto()" class="text-slate-400 hover:text-white"><i class="fa-solid fa-xmark text-sm"></i></button>
-                </div>
-
-                <div class="grid grid-cols-1 sm:grid-cols-3 gap-3">
-                    <div class="bg-slate-950 p-3 rounded-2xl border border-slate-800 space-y-1">
-                        <label class="text-[10px] text-amber-400 font-bold uppercase block">Tasa Pesos (COP por 1 USD)</label>
-                        <input type="number" id="privado-tasa-cop" value="3600" onchange="window.actualizarTasasPrivadas()" class="w-full bg-slate-900 text-white font-mono font-black p-2 rounded-xl text-xs border border-slate-700">
-                    </div>
-                    <div class="bg-slate-950 p-3 rounded-2xl border border-slate-800 space-y-1">
-                        <label class="text-[10px] text-emerald-400 font-bold uppercase block">Tasa BCV (Bs por 1 USD)</label>
-                        <input type="number" step="0.01" id="privado-tasa-bcv" value="36.50" onchange="window.actualizarTasasPrivadas()" class="w-full bg-slate-900 text-white font-mono font-black p-2 rounded-xl text-xs border border-slate-700">
-                    </div>
-                    <div class="bg-slate-950 p-3 rounded-2xl border border-slate-800 space-y-1">
-                        <label class="text-[10px] text-blue-400 font-bold uppercase block">Tasa Paridad (Bs por 1,000 COP)</label>
-                        <input type="number" step="0.1" id="privado-tasa-paridad" value="3.3" onchange="window.actualizarTasasPrivadas()" class="w-full bg-slate-900 text-white font-mono font-black p-2 rounded-xl text-xs border border-slate-700">
-                    </div>
-                </div>
-            </div>
-        </div>
-
-        <main class="max-w-5xl mx-auto w-full p-4 flex-grow space-y-6 pb-28">
+        <main class="max-w-5xl mx-auto w-full p-3 sm:p-4 flex-grow space-y-4 sm:space-y-6 pb-28">
             <div class="flex justify-between items-center border-b border-slate-200 pb-2">
                 <h2 class="text-xs font-black uppercase text-slate-500 tracking-wider">Productos en Vitrina</h2>
-                <span class="text-[10px] text-slate-400 font-mono">Precios calculados al instante</span>
+                <span class="text-[9px] text-slate-400 font-mono">Precios en tiempo real</span>
             </div>
 
-            <div id="grid-productos-tienda" class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-4">
-                <div class="card-light p-4 space-y-3 flex flex-col justify-between hover:border-blue-300 transition-all">
-                    <div class="space-y-2">
-                        <div class="w-full h-36 bg-slate-100 rounded-2xl overflow-hidden flex items-center justify-center text-slate-400 text-3xl">
-                            <i class="fa-solid fa-box-open"></i>
-                        </div>
-                        <h3 class="font-black text-slate-900 text-sm uppercase">Harina PAN Premium 1kg</h3>
-                        <p class="text-[10px] text-slate-500">Harina de maíz blanco precocida.</p>
-                    </div>
-
-                    <div class="space-y-3 pt-2 border-t border-slate-100">
-                        <div class="font-mono text-xs space-y-0.5">
-                            <div class="text-blue-600 font-black text-sm">$1.00 USD</div>
-                            <div class="text-slate-600 font-bold text-[10px]">3.600 COP</div>
-                            <div class="text-slate-500 font-bold text-[10px]">36.50 Bs</div>
-                        </div>
-                        <button onclick="window.agregarAlCarrito('Harina PAN Premium 1kg', 1.00)" class="btn-brand w-full py-2.5 text-xs flex items-center justify-center gap-1.5">
-                            <i class="fa-solid fa-cart-plus"></i> Agregar al Carrito
-                        </button>
-                    </div>
-                </div>
+            <!-- GRID ADAPTATIVO: 2 POR FILA EN MÓVIL, 4 EN COMPUTADORA -->
+            <div id="grid-productos-tienda" class="grid grid-cols-2 md:grid-cols-4 gap-2.5 sm:gap-4 w-full">
+                <!-- Se inyecta dinámicamente -->
             </div>
         </main>
 
-        <div class="fixed bottom-4 left-4 right-4 max-w-3xl mx-auto z-40 flex gap-2">
-            <button onclick="window.openWhatsAppDirectQuery()" class="bg-white border border-emerald-500 text-emerald-600 px-4 rounded-2xl font-bold text-xs flex items-center gap-2 shadow-lg hover:bg-emerald-50">
-                <i class="fa-brands fa-whatsapp text-lg"></i> <span class="hidden sm:inline">Consultar / Preguntar</span>
+        <!-- BARRA INFERIOR FLOTANTE DE VITRINA (WHATSAPP + CARRITO REINSTALADOS) -->
+        <div class="fixed bottom-4 left-3 right-3 max-w-xl mx-auto z-40 flex items-center gap-2 sm:gap-3">
+            <button onclick="window.openWhatsAppDirectQuery()" class="w-12 h-12 sm:w-14 sm:h-14 bg-white border-2 border-emerald-500 text-emerald-600 rounded-2xl flex items-center justify-center shadow-lg hover:bg-emerald-50 shrink-0 transition-all active:scale-95">
+                <i class="fa-brands fa-whatsapp text-2xl sm:text-3xl"></i>
             </button>
 
-            <button onclick="alert('Pedido enviado a WhatsApp')" class="flex-grow bg-emerald-600 hover:bg-emerald-500 text-white p-3.5 rounded-2xl shadow-xl flex items-center justify-between font-black text-xs transition-all active:scale-[0.98]">
-                <div class="flex items-center gap-2">
-                    <i class="fa-solid fa-basket-shopping text-base"></i>
-                    <span id="lbl-cart-count">0 ítems agregados</span>
+            <button onclick="window.abrirModalCarritoCheckout()" class="flex-grow bg-emerald-600 hover:bg-emerald-500 text-white p-3.5 sm:p-4 rounded-2xl shadow-xl flex items-center justify-between font-black text-xs transition-all active:scale-95">
+                <div class="flex items-center gap-2 min-w-0">
+                    <i class="fa-solid fa-basket-shopping text-sm sm:text-base shrink-0"></i>
+                    <span id="lbl-cart-count" class="truncate text-[11px] sm:text-xs">0 ítems agregados</span>
                 </div>
-                <span id="lbl-cart-total" class="text-sm font-extrabold font-mono">$0.00 USD ➔</span>
+                <span id="lbl-cart-total" class="text-xs sm:text-sm font-extrabold font-mono shrink-0">$0.00 USD</span>
             </button>
         </div>
     </div>
 
-    <!-- PANTALLA BLOQUEO LINK INACTIVO -->
-    <div id="vista-bloqueo-link" class="hidden min-h-screen flex items-center justify-center p-4 bg-slate-100">
-        <div class="w-full max-w-md card-light p-6 text-center space-y-4 border-red-200">
-            <div class="w-16 h-16 bg-red-50 text-red-600 rounded-full flex items-center justify-center mx-auto text-3xl border border-red-100">
-                <i class="fa-solid fa-link-slash"></i>
+    <!-- MODAL LOGIN FORMAL CLIENTE -->
+    <div id="modal-auth-panel-privado" class="fixed inset-0 bg-slate-900/80 backdrop-blur-md z-50 p-4 flex items-center justify-center hidden">
+        <div class="bg-white border border-slate-200 w-full max-w-sm rounded-3xl overflow-hidden shadow-2xl p-5 sm:p-6 space-y-4">
+            <div class="text-center space-y-1">
+                <div class="w-12 h-12 bg-blue-50 text-blue-600 rounded-2xl flex items-center justify-center mx-auto text-xl border border-blue-100">
+                    <i class="fa-solid fa-user-shield"></i>
+                </div>
+                <h3 class="font-black text-slate-900 text-sm uppercase">Identificación de Comercio</h3>
+                <p class="text-slate-500 text-[11px]">Ingrese credenciales de negocio o clave Máster.</p>
             </div>
-            <h2 class="font-black text-lg text-slate-900 uppercase">Enlace Inactivo / Suspendido</h2>
-            <p class="text-slate-600 text-xs leading-relaxed font-medium">
-                Este catálogo no se encuentra activo. Contacte al soporte máster para reactivar su membresía.
-            </p>
-            <button onclick="window.open('https://api.whatsapp.com/send?phone=584147357549&text=Hola,%20deseo%20reactivar%20mi%20tienda%20comercial', '_blank')" class="btn-brand w-full py-3.5 text-xs flex items-center justify-center gap-2 shadow-md">
-                <i class="fa-brands fa-whatsapp text-base"></i> Contactar Soporte
-            </button>
+
+            <form onsubmit="event.preventDefault(); window.validarCredencialesGestionComercio();" class="space-y-3 font-bold text-xs">
+                <div>
+                    <label class="text-[10px] text-slate-500 uppercase block mb-1">Usuario ID *</label>
+                    <input type="text" id="auth-user-gestion" required placeholder="Ej: tucocel" class="input-clean font-mono">
+                </div>
+                <div>
+                    <label class="text-[10px] text-slate-500 uppercase block mb-1">Contraseña de Seguridad *</label>
+                    <input type="password" id="auth-pass-gestion" required placeholder="••••••••" class="input-clean font-mono">
+                </div>
+                <button type="submit" class="btn-brand w-full py-3.5 shadow-md">Ingresar al Panel Privado 🔒</button>
+                <button type="button" onclick="document.getElementById('modal-auth-panel-privado').classList.add('hidden')" class="w-full text-center text-xs text-slate-400 hover:text-slate-600 pt-1">Cancelar / Volver a Vitrina</button>
+            </form>
         </div>
     </div>
 
-    <!-- INICIALIZACIÓN FIREBASE Y CONTROL JS -->
+    <!-- SCRIPT GENERAL RESTAURADO Y COMPLETO -->
     <script>
+        // CONFIGURACIÓN DE GOOGLE FIREBASE
         const firebaseConfig = {
+            apiKey: "AIzaSy_CONFIGURAR_API_KEY",
             authDomain: "tucocel-vitrina.firebaseapp.com",
             projectId: "tucocel-vitrina",
             storageBucket: "tucocel-vitrina.appspot.com",
             messagingSenderId: "1234567890",
-            appId: "1:1234567890:web:abcdef123456"
+            appId: "1:1234567890:web:abcdef"
         };
 
-        if (!firebase.apps.length) {
-            firebase.initializeApp(firebaseConfig);
-        }
-        window.db = firebase.firestore();
-
-        window.dbClientesSaaS = [];
-        window.esMasterLogueado = false;
-        window.diasSuscripcionSeleccionados = 365;
-        window.tipoVistaModalActual = 'ACTIVOS';
-        window.tasasConfig = { cop: 3600, bcv: 36.50, paridad: 3.3 };
-
-        window.getBaseAppUrl = function() {
-            return window.location.origin + window.location.pathname;
-        };
-
-        window.cargarClientesDesdeFirebase = async function() {
+        if (typeof firebase !== 'undefined' && firebase.initializeApp) {
             try {
-                const snap = await window.db.collection('tcl_saas_data').get();
-                window.dbClientesSaaS = [];
-                snap.forEach(doc => {
-                    window.dbClientesSaaS.push({ id: doc.id, ...doc.data() });
-                });
-                window.recalcularTotalesYBadgesComercios();
-            } catch(e) {
-                console.error("Error al cargar clientes de Firebase:", e);
-            }
-        };
+                firebase.initializeApp(firebaseConfig);
+                window.dbNube = firebase.firestore();
+            } catch(e) { console.log("Modo offline / local reactivado."); }
+        }
 
-        window.abrirModalBaseClientes = function(tipo) {
-            window.tipoVistaModalActual = tipo;
-            const titulo = document.getElementById('lbl-titulo-modal-clientes');
-            if (tipo === 'INACTIVOS') {
-                titulo.innerHTML = `<i class="fa-solid fa-box-archive text-red-400"></i> Bóveda de Clientes Inactivos`;
-            } else {
-                titulo.innerHTML = `<i class="fa-solid fa-store text-blue-400"></i> Base de Clientes Activos`;
-            }
-            window.renderizarListaClientesModal();
-            document.getElementById('modal-base-clientes').classList.remove('hidden');
-        };
+        window.STORAGE_KEY = 'tcl_master_db_2026';
+        window.STORAGE_KEY_INV = 'tcl_inventario_db_2026';
 
-        window.renderizarListaClientesModal = function() {
-            const container = document.getElementById('lista-clientes-modal');
+        // RENDER DE TARJETAS VERTICALES DE INVENTARIO PRIVADO (CLARIDAD TOTAL)
+        window.renderizarTablaModalInventario = function() {
+            const container = document.getElementById('contenedor-tarjetas-inventario');
+            const busqueda = (document.getElementById('busqueda-inventario-input').value || '').toLowerCase().trim();
             if (!container) return;
 
-            const busqueda = (document.getElementById('busqueda-modal-cliente')?.value || '').toLowerCase().trim();
-            
+            const filtrados = window.dbInventario.filter(p => !busqueda || p.nombre.toLowerCase().includes(busqueda) || (p.desc && p.desc.toLowerCase().includes(busqueda)));
+
+            if (filtrados.length === 0) {
+                container.innerHTML = `<div class="col-span-1 sm:col-span-2 py-8 text-center text-slate-400 font-bold text-xs">No se encontraron productos coincidentes.</div>`;
+                return;
+            }
+
+            container.innerHTML = filtrados.map(p => {
+                const costo = p.precioCosto || 0;
+                const venta = p.precioVenta || p.precioUSD || 0;
+                const margen = venta - costo;
+                const disponible = (p.stock || 0) > 0;
+
+                return `
+                    <div class="card-light p-4 space-y-3 border-slate-200 shadow-sm relative w-full">
+                        <div class="flex items-center gap-3">
+                            <div class="w-12 h-12 rounded-xl bg-slate-100 flex items-center justify-center text-slate-400 overflow-hidden shrink-0 border">
+                                ${p.foto ? `<img src="${p.foto}" class="w-full h-full object-cover">` : `<i class="fa-solid fa-box text-base"></i>`}
+                            </div>
+                            <div class="min-w-0 flex-1">
+                                <h4 class="font-black text-slate-900 text-xs sm:text-sm uppercase truncate">${p.nombre}</h4>
+                                <p class="text-[10px] text-slate-500 truncate">${p.desc || 'Sin descripción'}</p>
+                            </div>
+                            <span class="${disponible ? 'bg-emerald-50 text-emerald-700 border-emerald-200' : 'bg-red-50 text-red-700 border-red-200'} border px-2 py-1 rounded-lg text-[9.5px] font-black shrink-0 font-mono">
+                                ${disponible ? `${p.stock} Unidades` : 'Agotado'}
+                            </span>
+                        </div>
+
+                        <div class="bg-slate-50 p-2.5 rounded-xl border border-slate-200 grid grid-cols-3 gap-2 text-center font-mono text-[10px]">
+                            <div>
+                                <span class="text-slate-400 font-bold block">Precio Costo</span>
+                                <span class="text-slate-800 font-black text-xs">$${costo.toFixed(2)} USD</span>
+                            </div>
+                            <div>
+                                <span class="text-slate-400 font-bold block">Precio Venta</span>
+                                <span class="text-blue-600 font-black text-xs">$${venta.toFixed(2)} USD</span>
+                            </div>
+                            <div>
+                                <span class="text-slate-400 font-bold block">Ganancia</span>
+                                <span class="text-emerald-600 font-black text-xs">+$${margen.toFixed(2)}</span>
+                            </div>
+                        </div>
+
+                        <div class="grid grid-cols-3 gap-1.5 pt-1">
+                            <button onclick="window.sumarStockRapido('${p.id}')" class="bg-emerald-100 hover:bg-emerald-200 text-emerald-800 font-black py-2 rounded-xl text-[10px] font-mono">+ Stock</button>
+                            <button onclick="window.abrirSubmodalEdicion('${p.id}')" class="bg-slate-100 hover:bg-slate-200 text-slate-700 font-black py-2 rounded-xl text-[10px] flex items-center justify-center gap-1">
+                                <i class="fa-solid fa-pen text-[9px]"></i> Editar
+                            </button>
+                            <button onclick="window.eliminarProductoInventario('${p.id}')" class="bg-red-100 hover:bg-red-200 text-red-700 font-black py-2 rounded-xl text-[10px] flex items-center justify-center gap-1">
+                                <i class="fa-solid fa-trash text-[9px]"></i> Eliminar
+                            </button>
+                        </div>
+                    </div>
+                `;
+            }).join('');
+        };
+
+        // SUB-MODAL DE EDICIÓN RÁPIDA (DIRECTO EN EL INVENTARIO)
+        window.abrirSubmodalEdicion = function(id) {
+            const prod = window.dbInventario.find(p => p.id === id);
+            if (!prod) return;
+
+            document.getElementById('sub-edit-id').value = prod.id;
+            document.getElementById('sub-input-nombre').value = prod.nombre;
+            document.getElementById('sub-input-costo').value = prod.precioCosto || 0;
+            document.getElementById('sub-input-venta').value = prod.precioVenta || prod.precioUSD || 0;
+            document.getElementById('sub-input-stock').value = prod.stock || 0;
+            document.getElementById('sub-input-desc').value = prod.desc || '';
+
+            document.getElementById('submodal-edicion-rapida').classList.remove('hidden');
+        };
+
+        window.guardarEdicionRapidaSubmodal = function() {
+            const id = document.getElementById('sub-edit-id').value;
+            const nombre = document.getElementById('sub-input-nombre').value.trim();
+            const precioCosto = parseFloat(document.getElementById('sub-input-costo').value) || 0;
+            const precioVenta = parseFloat(document.getElementById('sub-input-venta').value) || 0;
+            const stock = parseInt(document.getElementById('sub-input-stock').value) || 0;
+            const desc = document.getElementById('sub-input-desc').value.trim();
+
+            if (!nombre || precioVenta <= 0) {
+                alert("⚠️ Ingrese un nombre válido y precio de venta.");
+                return;
+            }
+
+            const idx = window.dbInventario.findIndex(p => p.id === id);
+            if (idx !== -1) {
+                window.dbInventario[idx] = { ...window.dbInventario[idx], nombre, precioCosto, precioVenta, stock, desc };
+                window.guardarInventarioEnStorage();
+                window.renderizarTablaModalInventario();
+                window.recalcularReportesGanancias();
+                document.getElementById('submodal-edicion-rapida').classList.add('hidden');
+                alert("✨ Producto actualizado directamente.");
+            }
+        };
+
+        // RENDERIZADO VITRINA CON CUADRÍCULA 2 (MÓVIL) Y 4 (PC) + TARJETA "PRÓXIMAMENTE"
+        window.renderizarProductosVitrina = function() {
+            const grid = document.getElementById('grid-productos-tienda');
+            if (!grid) return;
+
+            let htmlProductos = '';
+
+            if (window.dbInventario.length === 0) {
+                htmlProductos = `<div class="col-span-2 md:col-span-4 py-12 text-center text-slate-400 font-bold text-xs">No hay productos en la vitrina por los momentos.</div>`;
+            } else {
+                htmlProductos = window.dbInventario.map(p => {
+                    const venta = p.precioVenta || p.precioUSD || 0;
+                    const cop = venta * window.tasasConfig.cop;
+                    const bs = venta * window.tasasConfig.bcv;
+                    const disponible = (p.stock || 0) > 0;
+
+                    return `
+                        <div class="card-light p-2.5 sm:p-3.5 space-y-2 flex flex-col justify-between hover:border-blue-300 transition-all w-full">
+                            <div class="space-y-1.5">
+                                <div class="w-full h-28 sm:h-36 bg-slate-100 rounded-2xl overflow-hidden flex items-center justify-center text-slate-400 text-2xl relative">
+                                    ${p.foto ? `<img src="${p.foto}" class="w-full h-full object-cover">` : `<i class="fa-solid fa-box-open"></i>`}
+                                    ${!disponible ? `<span class="absolute top-1.5 right-1.5 bg-red-600 text-white font-black text-[8px] sm:text-[9px] px-1.5 py-0.5 rounded-lg uppercase shadow">Agotado</span>` : `<span class="absolute top-1.5 right-1.5 bg-emerald-600 text-white font-black text-[8px] sm:text-[9px] px-1.5 py-0.5 rounded-lg uppercase font-mono shadow">${p.stock} Disponibles</span>`}
+                                </div>
+                                <h3 class="font-black text-slate-900 text-[11px] sm:text-xs uppercase truncate">${p.nombre}</h3>
+                                <p class="text-[9px] sm:text-[10px] text-slate-500 leading-tight line-clamp-2">${p.desc || ''}</p>
+                            </div>
+
+                            <div class="space-y-2 pt-1.5 border-t border-slate-100 font-mono">
+                                <div class="text-[11px] sm:text-xs space-y-0.5">
+                                    ${window.monedasVisibles.usd ? `<div class="text-blue-600 font-black text-xs sm:text-sm">$${venta.toFixed(2)} USD</div>` : ''}
+                                    ${window.monedasVisibles.cop ? `<div class="text-slate-600 font-bold text-[9.5px]">${window.formatearMiles(cop)} COP</div>` : ''}
+                                    ${window.monedasVisibles.bs ? `<div class="text-slate-500 font-bold text-[9.5px]">${bs.toFixed(2)} Bs</div>` : ''}
+                                </div>
+
+                                ${disponible ? `
+                                    <button onclick="window.agregarAlCarrito('${p.nombre}', ${venta})" class="btn-brand w-full py-2 sm:py-2.5 text-[9.5px] sm:text-xs flex items-center justify-center gap-1 shadow-sm">
+                                        <i class="fa-solid fa-cart-plus"></i> AGREGAR
+                                    </button>
+                                ` : `
+                                    <div class="w-full bg-slate-100 text-red-600 font-black py-2 rounded-xl text-[9px] text-center border border-red-200 uppercase">
+                                        ⚠️ NO DISPONIBLE
+                                    </div>
+                                `}
+                            </div>
+                        </div>
+                    `;
+                }).join('');
+
+                // AUTOGENERACIÓN DE TARJETA "PRÓXIMAMENTE NUEVO PRODUCTO AQUÍ"
+                const tarjetaProximamente = `
+                    <div class="border-2 border-dashed border-slate-300 rounded-3xl p-3 sm:p-4 flex flex-col items-center justify-center text-center space-y-2 bg-slate-50/50 hover:bg-slate-100/50 transition-all min-h-[220px]">
+                        <div class="w-10 h-10 rounded-full bg-blue-50 text-blue-600 flex items-center justify-center text-lg border border-blue-100">
+                            <i class="fa-solid fa-plus"></i>
+                        </div>
+                        <div class="space-y-0.5">
+                            <span class="font-black text-slate-800 text-[10px] sm:text-xs uppercase block">Próximamente Nuevo Producto Aquí</span>
+                            <span class="text-[9px] text-slate-400 block font-medium">Catálogo en permanente actualización.</span>
+                        </div>
+                    </div>
+                `;
+
+                htmlProductos += tarjetaProximamente;
+            }
+
+            grid.innerHTML = htmlProductos;
+        };
+
+        // TARJETA DE CLIENTE MODAL
+        window.renderizarListaClientesModal = function() {
+            const container = document.getElementById('lista-clientes-modal');
+            const busquedaInput = document.getElementById('busqueda-modal-cliente');
+            const busqueda = busquedaInput ? busquedaInput.value.trim().toLowerCase() : '';
+            const targetEstatus = window.tipoVistaModalActual === 'INACTIVOS' ? 'INACTIVO' : 'ACTIVO';
+
             const filtrados = window.dbClientesSaaS.filter(c => {
-                const estatusCliente = c.estatus ? c.estatus.toUpperCase() : 'ACTIVO';
-                const coincideTipo = estatusCliente === window.tipoVistaModalActual;
-                
-                const nombreStr = (c.nombre || '').toLowerCase();
-                const userStr = (c.user || '').toLowerCase();
-                const coincideTexto = nombreStr.includes(busqueda) || userStr.includes(busqueda);
-                
-                return coincideTipo && coincideTexto;
+                const estatusCoincide = (c.estatus || 'ACTIVO') === targetEstatus;
+                const textoCoincide = !busqueda || (c.nombre && c.nombre.toLowerCase().includes(busqueda)) || (c.user && c.user.toLowerCase().includes(busqueda));
+                return estatusCoincide && textoCoincide;
             });
 
             if (filtrados.length === 0) {
-                container.innerHTML = `<div class="col-span-1 sm:col-span-2 py-8 text-center text-slate-400 text-xs italic">No hay comercios registrados en esta sección.</div>`;
+                container.innerHTML = `<div class="col-span-1 sm:col-span-2 py-8 text-center text-slate-400 text-xs italic font-medium">No hay comercios registrados en esta sección.</div>`;
                 return;
             }
 
             container.innerHTML = filtrados.map(c => `
-                <div class="card-light p-4 space-y-2 border-slate-200 shadow-sm">
-                    <div class="flex justify-between items-start">
-                        <div>
-                            <h4 class="font-black text-slate-900 text-sm uppercase">${c.nombre || 'SIN NOMBRE'}</h4>
-                            <span class="text-[9.5px] text-blue-600 font-mono font-bold block">Slug: ?tienda=${c.slug || ''}</span>
+                <div class="card-light p-5 space-y-3 border-slate-200 shadow-sm relative w-full">
+                    <div class="flex justify-between items-start gap-2">
+                        <div class="min-w-0">
+                            <h4 class="font-black text-slate-900 text-sm uppercase tracking-tight truncate">${c.nombre}</h4>
+                            <span class="text-[10.5px] text-blue-600 font-mono font-bold block truncate">Enlace: /${c.slug}</span>
                         </div>
-                        <span class="${(c.estatus || 'ACTIVO') === 'ACTIVO' ? 'bg-blue-50 text-blue-700 border-blue-200' : 'bg-red-50 text-red-700 border-red-200'} border text-[9px] font-black uppercase px-2 py-0.5 rounded-md">
-                            ${c.dias || 365} Días
+                        <span class="bg-purple-50 text-purple-700 border border-purple-200 text-[10px] font-black uppercase px-2.5 py-1 rounded-lg shrink-0">
+                            ${window.obtenerFormatoPlanText(c.dias)}
                         </span>
                     </div>
-                    <div class="text-[10px] text-slate-600 font-mono space-y-0.5">
-                        <p>📞 WA: ${c.wa || 'N/A'}</p>
-                        <p>🔑 User: ${c.user || 'N/A'} | Pass: ${c.pass || '••••••'}</p>
+                    
+                    <div class="border-t border-slate-100 pt-2 space-y-1 text-xs font-mono text-slate-700">
+                        ${c.responsable ? `<div class="flex items-center gap-2 truncate"><span>👤</span><span>Responsable: <strong class="text-slate-900">${c.responsable}</strong></span></div>` : ''}
+                        <div class="flex items-center gap-2 truncate">
+                            <span>📞</span>
+                            <span>WA: ${c.wa || '0424-1234567'}</span>
+                        </div>
+                        <div class="flex items-center gap-2 truncate">
+                            <span>⏳</span>
+                            <span>Tiempo Restante: <strong class="text-emerald-600 font-bold">${c.dias || 180} Días</strong></span>
+                        </div>
                     </div>
+
                     <div class="grid grid-cols-2 gap-2 pt-2 border-t border-slate-100">
-                        <button onclick="window.editarClienteDirectoDesdeModal('${c.id}')" class="bg-slate-100 hover:bg-slate-200 text-slate-700 font-bold text-xs py-2 rounded-xl uppercase border border-slate-300 transition-all">
-                            ⚙️ Editar
+                        <button onclick="window.editarClienteDirectoDesdeModal('${c.id}')" class="bg-slate-100 hover:bg-slate-200 text-slate-700 font-black text-xs py-2.5 rounded-xl uppercase border border-slate-300 transition-all flex items-center justify-center gap-1.5">
+                            <i class="fa-solid fa-gear text-slate-500"></i> EDITAR
                         </button>
-                        <button onclick="window.entrarEnCalienteCliente('${c.id}')" class="bg-slate-900 hover:bg-slate-800 text-white font-bold text-xs py-2 rounded-xl flex items-center justify-center gap-1 shadow-sm transition-all">
-                            <i class="fa-solid fa-right-to-bracket text-amber-400"></i> Entrar
-                        </button>
+                        
+                        ${c.estatus === 'ACTIVO' ? `
+                            <button onclick="window.entrarEnCalienteCliente('${c.slug}', '${c.nombre}')" class="bg-slate-950 hover:bg-slate-800 text-white font-black text-xs py-2.5 rounded-xl flex items-center justify-center gap-1.5 shadow-md transition-all">
+                                <i class="fa-solid fa-right-to-bracket text-amber-400"></i> Entrar
+                            </button>
+                        ` : `
+                            <button onclick="window.reactivarClienteDesdePapelera('${c.id}')" class="bg-emerald-600 hover:bg-emerald-500 text-white font-black text-xs py-2.5 rounded-xl flex items-center justify-center gap-1.5 shadow-md transition-all">
+                                <i class="fa-solid fa-rotate-left"></i> Reactivar
+                            </button>
+                        `}
                     </div>
                 </div>
             `).join('');
+        };
+
+        window.abrirModalBaseClientes = function(tipo) {
+            window.tipoVistaModalActual = tipo;
+            const busquedaInput = document.getElementById('busqueda-modal-cliente');
+            if (busquedaInput) busquedaInput.value = '';
+
+            const titulo = document.getElementById('lbl-titulo-modal-clientes');
+            if (tipo === 'INACTIVOS') {
+                titulo.innerHTML = `<i class="fa-solid fa-box-archive text-red-400"></i> BÓVEDA DE CLIENTES INACTIVOS`;
+            } else {
+                titulo.innerHTML = `<i class="fa-solid fa-store text-blue-400"></i> BASE DE CLIENTES ACTIVOS`;
+            }
+
+            window.renderizarListaClientesModal();
+            document.getElementById('modal-base-clientes').classList.remove('hidden');
+        };
+
+        window.abrirModalConfigurarEntornoSaaS = function(modo) {
+            if (modo === 'NUEVO') {
+                document.getElementById('saas-editing-id').value = '';
+                document.getElementById('modal-saas-titulo').innerText = 'REGISTRAR NUEVO COMERCIO';
+                document.getElementById('saas-input-nombre').value = '';
+                document.getElementById('saas-input-responsable').value = '';
+                document.getElementById('saas-input-wa').value = '';
+                document.getElementById('saas-input-user').value = '';
+                document.getElementById('saas-input-pass').value = '';
+                document.getElementById('saas-link-generado').value = 'https://tcl.com/...';
+                window.seleccionarPildoraDias(180);
+            }
+            document.getElementById('modal-configurar-entorno-saas').classList.remove('hidden');
+        };
+
+        window.abrirModalTarifasSaas = function() {
+            document.getElementById('modal-tarifas-saas').classList.remove('hidden');
+        };
+
+        window.cargarClientesDesdeStorage = function() {
+            const guardados = localStorage.getItem(window.STORAGE_KEY);
+            if (guardados) {
+                try { window.dbClientesSaaS = JSON.parse(guardados); } catch(e) { window.dbClientesSaaS = []; }
+            } else {
+                window.dbClientesSaaS = [
+                    { id: 'cli_001', nombre: 'TUCOCEL C.A.', responsable: 'Marta Silva', wa: '0424-1234567', user: 'tucocel', pass: '123456', slug: 'tucocel', dias: 180, estatus: 'ACTIVO' }
+                ];
+                window.guardarClientesEnStorage();
+            }
+        };
+
+        window.guardarClientesEnStorage = function() {
+            localStorage.setItem(window.STORAGE_KEY, JSON.stringify(window.dbClientesSaaS));
+        };
+
+        window.cargarClientesDesdeStorage();
+
+        window.cargarInventarioDesdeStorage = function() {
+            const guardados = localStorage.getItem(window.STORAGE_KEY_INV);
+            if (guardados) {
+                try { window.dbInventario = JSON.parse(guardados); } catch(e) { window.dbInventario = []; }
+            } else {
+                window.dbInventario = [
+                    { id: 'p1', nombre: 'ACEITE VEGETAL 1L', desc: 'Aceite comestible vegetal de soya.', precioCosto: 1.80, precioVenta: 2.50, stock: 15, foto: '' },
+                    { id: 'p2', nombre: 'HARINA PAN 1KG', desc: 'Harina precocida de maíz blanco.', precioCosto: 0.85, precioVenta: 1.10, stock: 0, foto: '' }
+                ];
+                window.guardarInventarioEnStorage();
+            }
+        };
+
+        window.guardarInventarioEnStorage = function() {
+            localStorage.setItem(window.STORAGE_KEY_INV, JSON.stringify(window.dbInventario));
+        };
+
+        window.cargarInventarioDesdeStorage();
+
+        window.esMasterLogueado = false;
+        window.clienteActivoSesion = null;
+        window.diasSuscripcionSeleccionados = 180;
+        window.contadorErroresConsola = 0;
+        window.tipoVistaModalActual = 'ACTIVOS';
+        window.carritoTienda = [];
+        window.monedasVisibles = { usd: true, cop: true, bs: true };
+        window.tasasConfig = { cop: 3600, bcv: 36.50, paridad: 3.3 };
+
+        window.formatearMiles = function(val) {
+            return Math.round(val || 0).toString().replace(/\B(?=(\d{3})+(?!\d))/g, ".");
+        };
+
+        window.obtenerFormatoPlanText = function(dias) {
+            if (dias >= 365) return '1 AÑO';
+            if (dias >= 180) return '6 MESES';
+            if (dias >= 90) return '3 MESES';
+            return `${dias} DÍAS`;
+        };
+
+        window.procesarYComprimirImagen = function(input) {
+            if (!input.files || !input.files[0]) return;
+            const file = input.files[0];
+            const reader = new FileReader();
+            reader.onload = function(e) {
+                const img = new Image();
+                img.onload = function() {
+                    const canvas = document.createElement('canvas');
+                    const MAX_WIDTH = 500, MAX_HEIGHT = 500;
+                    let width = img.width, height = img.height;
+                    if (width > height) { if (width > MAX_WIDTH) { height *= MAX_WIDTH / width; width = MAX_WIDTH; } }
+                    else { if (height > MAX_HEIGHT) { width *= MAX_HEIGHT / height; height = MAX_HEIGHT; } }
+                    canvas.width = width; canvas.height = height;
+                    const ctx = canvas.getContext('2d');
+                    ctx.drawImage(img, 0, 0, width, height);
+                    const base64Optimizado = canvas.toDataURL('image/jpeg', 0.65);
+                    document.getElementById('inv-input-foto-base64').value = base64Optimizado;
+                    document.getElementById('box-preview-foto').innerHTML = `<img src="${base64Optimizado}" class="w-full h-full object-cover">`;
+                };
+                img.src = e.target.result;
+            };
+            reader.readAsDataURL(file);
+        };
+
+        // MANEJO DEL CARRITO Y WHATSAPP
+        window.agregarAlCarrito = function(nombre, precioUSD) {
+            window.carritoTienda.push({ nombre, precioUSD });
+            window.actualizarResumenCarrito();
+        };
+
+        window.actualizarResumenCarrito = function() {
+            const total = window.carritoTienda.reduce((acc, p) => acc + p.precioUSD, 0);
+            const cnt = window.carritoTienda.length;
+
+            const lblCount = document.getElementById('lbl-cart-count');
+            const lblTotal = document.getElementById('lbl-cart-total');
+
+            if (lblCount) lblCount.innerText = `${cnt} ítem${cnt !== 1 ? 's' : ''} agregado${cnt !== 1 ? 's' : ''}`;
+            if (lblTotal) lblTotal.innerText = `$${total.toFixed(2)} USD`;
+        };
+
+        window.openWhatsAppDirectQuery = function() {
+            const phone = "584241234567";
+            const text = encodeURIComponent("¡Hola! Quisiera consultar disponibilidad de productos.");
+            window.open(`https://wa.me/${phone}?text=${text}`, '_blank');
+        };
+
+        window.abrirModalCarritoCheckout = function() {
+            if (window.carritoTienda.length === 0) {
+                alert("🛒 El carrito está vacío. Agregue productos para realizar un pedido.");
+                return;
+            }
+            let mensaje = "🛒 *NUEVO PEDIDO DE COMPRA*\n\n";
+            window.carritoTienda.forEach((item, idx) => {
+                mensaje += `${idx + 1}. ${item.nombre} — $${item.precioUSD.toFixed(2)} USD\n`;
+            });
+            const total = window.carritoTienda.reduce((acc, p) => acc + p.precioUSD, 0);
+            mensaje += `\n💰 *Total:* $${total.toFixed(2)} USD`;
+
+            const phone = "584241234567";
+            window.open(`https://wa.me/${phone}?text=${encodeURIComponent(mensaje)}`, '_blank');
+        };
+
+        window.solicitarAccesoPanelGestionProtegido = function() {
+            document.getElementById('auth-user-gestion').value = '';
+            document.getElementById('auth-pass-gestion').value = '';
+            document.getElementById('modal-auth-panel-privado').classList.remove('hidden');
+        };
+
+        window.validarCredencialesGestionComercio = function() {
+            const userIngresado = document.getElementById('auth-user-gestion').value.trim();
+            const passIngresada = document.getElementById('auth-pass-gestion').value.trim();
+
+            if (userIngresado === 'tucocel' && passIngresada === 'Razu2020.') {
+                document.getElementById('modal-auth-panel-privado').classList.add('hidden');
+                window.abrirPanelClientePrivadoDirecto();
+                return;
+            }
+
+            const cliente = window.dbClientesSaaS.find(c => c.user === userIngresado && c.pass === passIngresada);
+            if (cliente) {
+                window.clienteActivoSesion = cliente;
+                document.getElementById('modal-auth-panel-privado').classList.add('hidden');
+                window.abrirPanelClientePrivadoDirecto();
+            } else {
+                alert("⚠️ Usuario ID o Contraseña incorrectos.");
+            }
+        };
+
+        window.abrirPanelClientePrivadoDirecto = function() {
+            const cliente = window.clienteActivoSesion || window.dbClientesSaaS[0];
+            document.getElementById('client-panel-title').innerText = cliente ? cliente.nombre : 'TUCOCEL C.A.';
+            
+            // Actualización de plan y cuenta regresiva en el panel
+            const dias = cliente ? (cliente.dias || 180) : 180;
+            document.getElementById('client-panel-plan-badge').innerText = `PLAN CONTRATADO: ${window.obtenerFormatoPlanText(dias)} (${dias} DÍAS)`;
+            document.getElementById('client-panel-dias-cuenta').innerText = `${dias} Días`;
+
+            document.getElementById('vista-tienda-comercio').classList.add('hidden');
+            document.getElementById('vista-panel-cliente-privado').classList.remove('hidden');
+            window.actualizarBadgeTotalInventario();
+            window.recalcularReportesGanancias();
+        };
+
+        window.verVitrinaComoCliente = function() {
+            document.getElementById('vista-panel-cliente-privado').classList.add('hidden');
+            document.getElementById('vista-tienda-comercio').classList.remove('hidden');
+            window.renderizarProductosVitrina();
+        };
+
+        window.entrarEnCalienteCliente = function(slug, nombreLocal) {
+            document.getElementById('header-shop-title').innerText = nombreLocal;
+            document.getElementById('modal-base-clientes').classList.add('hidden');
+            document.getElementById('vista-master-admin').classList.add('hidden');
+            document.getElementById('vista-tienda-comercio').classList.remove('hidden');
+            window.renderizarProductosVitrina();
         };
 
         window.editarClienteDirectoDesdeModal = function(id) {
@@ -471,129 +1104,124 @@
 
             document.getElementById('modal-base-clientes').classList.add('hidden');
             document.getElementById('saas-editing-id').value = cliente.id;
-            document.getElementById('modal-saas-titulo').innerText = `EDITAR: ${(cliente.nombre || '').toUpperCase()}`;
-            document.getElementById('saas-input-nombre').value = cliente.nombre || '';
-            document.getElementById('saas-input-wa').value = cliente.wa || '';
-            document.getElementById('saas-input-user').value = cliente.user || '';
-            document.getElementById('saas-input-pass').value = cliente.pass || '';
-            document.getElementById('saas-link-generado').value = `${window.getBaseAppUrl()}?tienda=${cliente.slug}`;
+            document.getElementById('modal-saas-titulo').innerText = `EDITAR: ${cliente.nombre.toUpperCase()}`;
+            document.getElementById('saas-input-nombre').value = cliente.nombre;
+            document.getElementById('saas-input-responsable').value = cliente.responsable || '';
+            document.getElementById('saas-input-wa').value = cliente.wa;
+            document.getElementById('saas-input-user').value = cliente.user;
+            document.getElementById('saas-input-pass').value = cliente.pass;
+            document.getElementById('saas-link-generado').value = `https://tcl.com/${cliente.slug}`;
 
-            window.seleccionarPildoraDias(cliente.dias || 365);
+            window.seleccionarPildoraDias(cliente.dias);
             document.getElementById('modal-configurar-entorno-saas').classList.remove('hidden');
         };
 
-        window.entrarEnCalienteCliente = function(id) {
-            const cliente = window.dbClientesSaaS.find(c => c.id === id);
-            if (!cliente) return;
+        window.actualizarConfiguracionMonedasCliente = function() {
+            window.monedasVisibles.usd = document.getElementById('chk-show-usd').checked;
+            window.monedasVisibles.cop = document.getElementById('chk-show-cop').checked;
+            window.monedasVisibles.bs = document.getElementById('chk-show-bs').checked;
 
-            document.getElementById('modal-base-clientes').classList.add('hidden');
-            document.getElementById('vista-master-admin').classList.add('hidden');
-            document.getElementById('header-shop-title').innerText = cliente.nombre;
-            document.getElementById('vista-tienda-comercio').classList.remove('hidden');
-            document.getElementById('banner-modo-soporte-master').classList.remove('hidden');
+            const copVal = parseFloat(document.getElementById('inv-tasa-cop').value) || 3600;
+            const bsVal = parseFloat(document.getElementById('inv-tasa-bs').value) || 36.50;
+
+            window.tasasConfig.cop = copVal;
+            window.tasasConfig.bcv = bsVal;
         };
 
-        window.regresarAlPanelMaster = function() {
-            document.getElementById('vista-tienda-comercio').classList.add('hidden');
-            document.getElementById('banner-modo-soporte-master').classList.add('hidden');
-            document.getElementById('vista-master-admin').classList.remove('hidden');
-        };
+        window.guardarProductoInventario = function() {
+            const idEdit = document.getElementById('inv-edit-id').value;
+            const nombre = document.getElementById('inv-input-nombre').value.trim();
+            const precioCosto = parseFloat(document.getElementById('inv-input-costo').value) || 0;
+            const precioVenta = parseFloat(document.getElementById('inv-input-venta').value) || 0;
+            const stock = parseInt(document.getElementById('inv-input-stock').value) || 0;
+            const desc = document.getElementById('inv-input-desc').value.trim() || 'Sin descripción';
+            const foto = document.getElementById('inv-input-foto-base64').value || '';
 
-        window.solicitarOpcionesEliminarPerfil = async function() {
-            const idEdit = document.getElementById('saas-editing-id').value;
-            if (!idEdit) return;
+            if (!nombre || precioVenta <= 0) {
+                alert("⚠️ Ingrese un nombre válido y un precio de venta mayor a 0.");
+                return;
+            }
 
-            if (confirm("🔥 ¿Desea eliminar definitivamente esta cuenta de la base de datos de Firebase?")) {
-                try {
-                    await window.db.collection('tcl_saas_data').doc(idEdit).delete();
-                    alert("🗑️ Cliente eliminado por completo.");
-                    document.getElementById('modal-configurar-entorno-saas').classList.add('hidden');
-                    await window.cargarClientesDesdeFirebase();
-                } catch(e) {
-                    alert("❌ Error al eliminar cliente.");
+            if (idEdit) {
+                const idx = window.dbInventario.findIndex(p => p.id === idEdit);
+                if (idx !== -1) {
+                    window.dbInventario[idx] = { ...window.dbInventario[idx], nombre, desc, precioCosto, precioVenta, stock, foto: foto || window.dbInventario[idx].foto || '' };
                 }
-            }
-        };
-
-        window.purgarBaseDeDatosCompleta = async function() {
-            if (!confirm("🔥 ¿Está seguro de ELIMINAR TODOS LOS CLIENTES de Firebase?")) return;
-
-            try {
-                const snap = await window.db.collection('tcl_saas_data').get();
-                const batch = window.db.batch();
-                snap.forEach(doc => batch.delete(doc.ref));
-                await batch.commit();
-
-                alert("🗑️ Base de datos purgada por completo.");
-                await window.cargarClientesDesdeFirebase();
-            } catch(e) {
-                alert("❌ Error purgando base de datos.");
-            }
-        };
-
-        window.actualizarSlugEnTiempoReal = function() {
-            const nombre = document.getElementById('saas-input-nombre').value.trim();
-            const slug = nombre.toLowerCase().replace(/[^a-z0-9]/g, '');
-            document.getElementById('saas-link-generado').value = slug ? `${window.getBaseAppUrl()}?tienda=${slug}` : `${window.getBaseAppUrl()}?...`;
-        };
-
-        window.copiarLinkClienteGenerated = function() {
-            const linkInput = document.getElementById('saas-link-generado');
-            if (!linkInput || !linkInput.value) return;
-            navigator.clipboard.writeText(linkInput.value).then(() => alert("📋 Link copiado: " + linkInput.value));
-        };
-
-        window.enviarNotificacionWhatsApp = function(tipo) {
-            const nombre = document.getElementById('saas-input-nombre').value.trim() || 'Comercio';
-            const wa = document.getElementById('saas-input-wa').value.trim();
-            const usr = document.getElementById('saas-input-user').value.trim();
-            const pass = document.getElementById('saas-input-pass').value.trim();
-            const dias = window.diasSuscripcionSeleccionados;
-            const slug = nombre.toLowerCase().replace(/[^a-z0-9]/g, '');
-
-            if (!wa) { alert("⚠️ Ingrese el número de WhatsApp."); return; }
-
-            let msg = "";
-            if (tipo === 'activacion') {
-                msg = `🚀 *¡BIENVENIDO A TCL COMERCIO WEB!*\n\n`;
-                msg += `Estimado cliente, sus credenciales son:\n\n`;
-                msg += `🏪 *Comercio:* ${nombre}\n`;
-                msg += `🔗 *Tienda:* ${window.getBaseAppUrl()}?tienda=${slug}\n`;
-                msg += `🔑 *Usuario:* ${usr} | *Clave:* ${pass}\n`;
-                msg += `⏳ *Suscripción:* ${dias} Días\n\n`;
-                msg += `_Ingrese a su enlace para configurar sus tasas e inventario._`;
+                alert("✨ Producto actualizado en inventario.");
             } else {
-                msg = `🔄 *RENOVACIÓN DE SERVICIO — TCL COMERCIO WEB*\n\n`;
-                msg += `Estimado cliente, su suscripción ha sido renovada:\n\n`;
-                msg += `🏪 *Comercio:* ${nombre}\n`;
-                msg += `⏳ *Nueva Cobertura:* ${dias} Días\n`;
-                msg += `🔗 *Enlace Activo:* ${window.getBaseAppUrl()}?tienda=${slug}\n`;
+                const nuevo = { id: 'p_' + Date.now(), nombre, desc, precioCosto, precioVenta, stock, foto };
+                window.dbInventario.push(nuevo);
+                alert("✅ Producto agregado al inventario.");
             }
 
-            window.open(`https://api.whatsapp.com/send?phone=${wa}&text=${encodeURIComponent(msg)}`, '_blank');
+            window.guardarInventarioEnStorage();
+            document.getElementById('inv-edit-id').value = '';
+            document.getElementById('inv-input-foto-base64').value = '';
+            document.getElementById('box-preview-foto').innerHTML = `<i class="fa-solid fa-image"></i>`;
+            document.getElementById('inv-input-nombre').value = '';
+            document.getElementById('inv-input-costo').value = '';
+            document.getElementById('inv-input-venta').value = '';
+            document.getElementById('inv-input-stock').value = '';
+            document.getElementById('inv-input-desc').value = '';
+
+            window.actualizarBadgeTotalInventario();
+            window.recalcularReportesGanancias();
         };
 
-        window.evaluarRutaDirecta = async function() {
-            const params = new URLSearchParams(window.location.search);
-            const tiendaSlug = params.get('tienda');
+        window.actualizarBadgeTotalInventario = function() {
+            const el = document.getElementById('cnt-total-inv-badge');
+            if(el) el.innerText = window.dbInventario.length;
+        };
 
-            await window.cargarClientesDesdeFirebase();
+        window.abrirModalInventarioCompleto = function() {
+            document.getElementById('busqueda-inventario-input').value = '';
+            window.renderizarTablaModalInventario();
+            document.getElementById('modal-inventario-completo').classList.remove('hidden');
+        };
 
-            if (tiendaSlug) {
-                const cliente = window.dbClientesSaaS.find(c => c.slug === tiendaSlug);
-                if (cliente) {
-                    if (cliente.estatus === 'INACTIVO') {
-                        document.getElementById('vista-login').classList.add('hidden');
-                        document.getElementById('vista-bloqueo-link').classList.remove('hidden');
-                        return;
-                    }
-                    document.getElementById('header-shop-title').innerText = cliente.nombre;
-                    document.getElementById('vista-login').classList.add('hidden');
-                    document.getElementById('vista-tienda-comercio').classList.remove('hidden');
-                } else {
-                    alert("⚠️ La tienda especificada no existe.");
-                }
+        window.eliminarProductoInventario = function(id) {
+            if (!confirm("⚠️ ¿Desea eliminar este producto del inventario?")) return;
+            window.dbInventario = window.dbInventario.filter(p => p.id !== id);
+            window.guardarInventarioEnStorage();
+            window.renderizarTablaModalInventario();
+            window.actualizarBadgeTotalInventario();
+            window.recalcularReportesGanancias();
+        };
+
+        window.sumarStockRapido = function(id) {
+            const prod = window.dbInventario.find(p => p.id === id);
+            if (!prod) return;
+            const cant = parseInt(prompt(`Sumar unidades a "${prod.nombre}":`, "10")) || 0;
+            if (cant > 0) {
+                prod.stock = (prod.stock || 0) + cant;
+                window.guardarInventarioEnStorage();
+                window.renderizarTablaModalInventario();
+                window.recalcularReportesGanancias();
             }
+        };
+
+        window.recalcularReportesGanancias = function() {
+            let totalCosto = 0, totalVenta = 0;
+            window.dbInventario.forEach(p => {
+                const costo = p.precioCosto || 0;
+                const venta = p.precioVenta || p.precioUSD || 0;
+                const stk = p.stock || 0;
+                totalCosto += (costo * stk);
+                totalVenta += (venta * stk);
+            });
+
+            const gananciaNeta = totalVenta - totalCosto;
+            document.getElementById('rpt-total-costo').innerText = `$${totalCosto.toFixed(2)} USD`;
+            document.getElementById('rpt-total-venta').innerText = `$${totalVenta.toFixed(2)} USD`;
+            document.getElementById('rpt-ganancia-neta').innerText = `$${gananciaNeta.toFixed(2)} USD`;
+        };
+
+        window.recalcularTotalesYBadgesComercios = function() {
+            const activos = window.dbClientesSaaS.filter(c => c.estatus === 'ACTIVO').length;
+            const inactivos = window.dbClientesSaaS.filter(c => c.estatus === 'INACTIVO').length;
+            document.getElementById('master-count-clientes').innerText = activos;
+            document.getElementById('cnt-badge-activos').innerText = activos;
+            document.getElementById('cnt-badge-inactivos').innerText = inactivos;
         };
 
         window.procesarLoginUnificado = function() {
@@ -604,114 +1232,55 @@
                 window.esMasterLogueado = true;
                 document.getElementById('vista-login').classList.add('hidden');
                 document.getElementById('vista-master-admin').classList.remove('hidden');
+                document.getElementById('diagnostico-master-flotante').classList.remove('hidden');
+                document.getElementById('box-controles-descarga-segura').classList.remove('hidden');
+                document.getElementById('log-status-master').innerText = "[SUCCESS] Sesión 'tucocel' autenticada. Caja Negra activa.";
+                window.recalcularTotalesYBadgesComercios();
                 return;
             }
 
             const encontrado = window.dbClientesSaaS.find(c => c.user === usr && c.pass === pass);
             if (encontrado) {
-                if (encontrado.estatus === 'INACTIVO') {
-                    document.getElementById('vista-login').classList.add('hidden');
-                    document.getElementById('vista-bloqueo-link').classList.remove('hidden');
-                    return;
-                }
-                document.getElementById('header-shop-title').innerText = encontrado.nombre;
+                window.clienteActivoSesion = encontrado;
                 document.getElementById('vista-login').classList.add('hidden');
-                document.getElementById('vista-tienda-comercio').classList.remove('hidden');
+                window.abrirPanelClientePrivadoDirecto();
                 return;
             }
 
-            alert("⚠️ Credenciales incorrectas.");
-        };
-
-        window.guardarCambiosEntornoSaaS = async function() {
-            const idEdit = document.getElementById('saas-editing-id').value;
-            const nombre = document.getElementById('saas-input-nombre').value.trim();
-            const wa = document.getElementById('saas-input-wa').value.trim();
-            const user = document.getElementById('saas-input-user').value.trim();
-            const pass = document.getElementById('saas-input-pass').value.trim();
-            const dias = window.diasSuscripcionSeleccionados;
-
-            if (!nombre || !wa || !user || !pass) {
-                alert("⚠️ Rellene todos los campos obligatorios.");
-                return;
-            }
-
-            const slug = nombre.toLowerCase().replace(/[^a-z0-9]/g, '');
-            const docId = idEdit || 'cli_' + Date.now();
-
-            const clienteData = {
-                nombre, wa, user, pass, slug, dias,
-                estatus: 'ACTIVO',
-                updatedAt: Date.now()
-            };
-
-            try {
-                await window.db.collection('tcl_saas_data').doc(docId).set(clienteData, { merge: true });
-                alert("🚀 Comercio guardado exitosamente en Firebase.");
-                document.getElementById('modal-configurar-entorno-saas').classList.add('hidden');
-                await window.cargarClientesDesdeFirebase();
-            } catch(e) {
-                console.error("Error guardando en Firebase:", e);
-                alert("❌ Error guardando los datos.");
-            }
-        };
-
-        window.recalcularTotalesYBadgesComercios = function() {
-            const activos = window.dbClientesSaaS.filter(c => (c.estatus || 'ACTIVO') === 'ACTIVO').length;
-            const inactivos = window.dbClientesSaaS.filter(c => c.estatus === 'INACTIVO').length;
-
-            document.getElementById('master-count-clientes').innerText = activos;
-            document.getElementById('cnt-badge-activos').innerText = activos;
-            document.getElementById('cnt-badge-inactivos').innerText = inactivos;
-        };
-
-        window.seleccionarPildoraDias = function(dias) {
-            window.diasSuscripcionSeleccionados = dias;
-            [30, 90, 180, 365].forEach(d => {
-                const btn = document.getElementById(`pildora-${d}`);
-                if (btn) btn.className = d === dias ? 'pildora-dias pildora-dias-active' : 'pildora-dias';
-            });
-            document.getElementById('lbl-display-dias-seleccionados').innerText = `${dias} Días`;
-        };
-
-        window.abrirModalConfigurarEntornoSaaS = function(modo) {
-            if (modo === 'NUEVO') {
-                document.getElementById('saas-editing-id').value = '';
-                document.getElementById('saas-input-nombre').value = '';
-                document.getElementById('saas-input-wa').value = '';
-                document.getElementById('saas-input-user').value = '';
-                document.getElementById('saas-input-pass').value = '';
-                document.getElementById('saas-link-generado').value = `${window.getBaseAppUrl()}?...`;
-                window.seleccionarPildoraDias(365);
-            }
-            document.getElementById('modal-configurar-entorno-saas').classList.remove('hidden');
-        };
-
-        window.togglePanelGestionOculto = function() {
-            document.getElementById('panel-gestion-privado').classList.toggle('hidden');
-        };
-
-        window.actualizarTasasPrivadas = function() {
-            window.tasasConfig.cop = parseFloat(document.getElementById('privado-tasa-cop').value) || 3600;
-            window.tasasConfig.bcv = parseFloat(document.getElementById('privado-tasa-bcv').value) || 36.50;
-            window.tasasConfig.paridad = parseFloat(document.getElementById('privado-tasa-paridad').value) || 3.3;
-            alert("✅ Tasas actualizadas.");
+            alert("⚠️ Credenciales inválidas.");
         };
 
         window.cerrarSesionCompleta = function() {
             window.esMasterLogueado = false;
+            window.clienteActivoSesion = null;
             document.getElementById('vista-master-admin').classList.add('hidden');
+            document.getElementById('vista-panel-cliente-privado').classList.add('hidden');
             document.getElementById('vista-tienda-comercio').classList.add('hidden');
-            document.getElementById('vista-bloqueo-link').classList.add('hidden');
             document.getElementById('vista-login').classList.remove('hidden');
         };
 
-        window.toggleConsolaDiagnosticoInterna = function() {
-            document.getElementById('modal-consola-diagnostico').classList.toggle('hidden');
+        window.toggleConsolaDiagnosticoInterna = function() { document.getElementById('modal-consola-diagnostico').classList.toggle('hidden'); };
+        window.copiarCodigoTextoPuroConsola = function() { navigator.clipboard.writeText(document.documentElement.outerHTML); alert("📋 Código copiado."); };
+        window.descargarMasaMadre = function() {
+            const blob = new Blob([document.documentElement.outerHTML], { type: 'text/html' });
+            const link = document.createElement('a'); link.href = URL.createObjectURL(blob); link.download = 'index.html'; link.click();
+        };
+        window.descargarReporteErroresIndex = function() {
+            const blob = new Blob(["[OK] Ejecución limpia."], { type: 'text/plain' });
+            const link = document.createElement('a'); link.href = URL.createObjectURL(blob); link.download = 'reporte_errores.txt'; link.click();
+        };
+        window.limpiarHistorialErroresPermanente = function() { 
+            document.getElementById('logs-diagnostico-box').innerHTML = `<p class="text-emerald-600">[OK] Consola limpia.</p>`;
+            document.getElementById('badge-contador-errores').classList.add('hidden');
+            window.contadorErroresConsola = 0;
         };
 
-        window.addEventListener('DOMContentLoaded', () => {
-            window.evaluarRutaDirecta();
+        window.addEventListener('error', function(e) {
+            window.contadorErroresConsola++;
+            const badge = document.getElementById('badge-contador-errores');
+            if (badge) { badge.innerText = window.contadorErroresConsola; badge.classList.remove('hidden'); }
+            const box = document.getElementById('logs-diagnostico-box');
+            if(box) box.innerHTML += `<p class="text-red-600 font-bold">[ERROR] ${e.message} (Línea: ${e.lineno})</p>`;
         });
     </script>
 </body>
