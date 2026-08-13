@@ -37,7 +37,7 @@
                     <i class="fa-solid fa-store"></i>
                 </div>
                 <h2 class="font-black text-xl text-slate-900 tracking-tight uppercase">TCL COMERCIO WEB</h2>
-                <p class="text-slate-500 text-xs font-medium">Plataforma Ágil de Catálogo y Comercio Web</p>
+                <p class="text-slate-500 text-xs font-medium">Plataforma Multi-Perfil SaaS 2026</p>
             </div>
 
             <form onsubmit="event.preventDefault(); window.procesarLoginUnificado();" class="space-y-4 text-xs font-bold">
@@ -76,13 +76,16 @@
 
         <div class="flex flex-col sm:flex-row gap-3">
             <button onclick="window.abrirModalConfigurarEntornoSaaS('NUEVO')" class="btn-brand w-full sm:w-auto py-3.5 px-6 font-black text-xs flex items-center justify-center gap-2 shadow-md">
-                <i class="fa-solid fa-plus text-sm"></i> <span>REGISTRAR NUEVO COMERCIO</span>
+                <i class="fa-solid fa-plus text-sm"></i> <span>CREAR NUEVA CUENTA DE CLIENTE</span>
+            </button>
+            <button onclick="window.purgarBaseDeDatosCompleta()" class="bg-red-50 hover:bg-red-100 text-red-700 border border-red-200 w-full sm:w-auto py-3.5 px-6 font-black text-xs rounded-xl flex items-center justify-center gap-2 shadow-sm uppercase">
+                <i class="fa-solid fa-trash-can text-red-600"></i> <span>PURGAR TODOS LOS CLIENTES</span>
             </button>
         </div>
 
         <div class="grid grid-cols-1 sm:grid-cols-3 gap-4">
             <div class="card-light p-5 space-y-1">
-                <span class="text-[10px] font-black text-slate-400 uppercase font-mono tracking-wider block">Clientes Activos</span>
+                <span class="text-[10px] font-black text-slate-400 uppercase font-mono tracking-wider block">Cuentas Registradas</span>
                 <div class="flex items-baseline gap-2">
                     <span id="master-count-clientes" class="text-3xl font-black text-blue-600 font-mono">0</span>
                     <span class="text-[10px] text-emerald-600 font-bold uppercase flex items-center gap-1"><span class="w-2 h-2 rounded-full bg-emerald-500 animate-pulse"></span> Servidor Firebase Online</span>
@@ -102,25 +105,30 @@
 
         <div class="card-light p-5 space-y-4 border-blue-200">
             <h3 class="text-xs font-black text-slate-500 uppercase tracking-wider flex items-center gap-2">
-                <i class="fa-solid fa-grip text-blue-600"></i> Central de Accesos y Gestión
+                <i class="fa-solid fa-grip text-blue-600"></i> Central de Accesos a Cuentas
             </h3>
             
             <div class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-3">
-                <button onclick="window.abrirModalBaseClientes()" class="bg-slate-900 hover:bg-slate-800 text-white p-4 rounded-2xl flex flex-col items-center justify-center gap-2 transition-all shadow-md">
+                <button onclick="window.abrirModalBaseClientes('ACTIVOS')" class="bg-slate-900 hover:bg-slate-800 text-white p-4 rounded-2xl flex flex-col items-center justify-center gap-2 transition-all shadow-md">
                     <i class="fa-solid fa-users text-2xl text-blue-400"></i>
-                    <span class="font-black text-xs uppercase tracking-wider">Base de Clientes (<span id="cnt-badge-activos">0</span>)</span>
+                    <span class="font-black text-xs uppercase tracking-wider">Base de Cuentas (<span id="cnt-badge-activos">0</span>)</span>
+                </button>
+
+                <button onclick="window.abrirModalBaseClientes('INACTIVOS')" class="bg-slate-900 hover:bg-slate-800 text-white p-4 rounded-2xl flex flex-col items-center justify-center gap-2 transition-all shadow-md">
+                    <i class="fa-solid fa-box-archive text-2xl text-red-400"></i>
+                    <span class="font-black text-xs uppercase tracking-wider">Cuentas Inactivas (<span id="cnt-badge-inactivos">0</span>)</span>
                 </button>
             </div>
         </div>
     </div>
 
-    <!-- MODAL MÁSTER: CREACIÓN SENCILLA DE CLIENTE -->
+    <!-- MODAL REGISTRO Y CONFIGURACIÓN DE CUENTA DE CLIENTE -->
     <div id="modal-configurar-entorno-saas" class="fixed inset-0 bg-slate-900/80 backdrop-blur-md z-50 p-4 flex items-center justify-center hidden">
         <div class="bg-white border border-slate-200 w-full max-w-lg rounded-3xl overflow-hidden shadow-2xl flex flex-col max-h-[90vh]">
             <div class="bg-slate-900 px-5 py-4 text-white flex justify-between items-center shrink-0">
                 <div class="flex items-center gap-2">
                     <i class="fa-solid fa-user-plus text-blue-400"></i>
-                    <h3 id="modal-saas-titulo" class="font-black text-xs uppercase tracking-wider">REGISTRAR NUEVO CLIENTE</h3>
+                    <h3 id="modal-saas-titulo" class="font-black text-xs uppercase tracking-wider">CREAR NUEVA CUENTA DE CLIENTE</h3>
                 </div>
                 <button onclick="document.getElementById('modal-configurar-entorno-saas').classList.add('hidden')" class="text-slate-400 hover:text-white"><i class="fa-solid fa-xmark text-sm"></i></button>
             </div>
@@ -130,17 +138,27 @@
 
                 <div class="space-y-3">
                     <div>
-                        <label class="text-[10px] text-slate-500 uppercase block mb-1">1. Nombre del Comercio / Cliente *</label>
-                        <input type="text" id="saas-input-nombre" onkeyup="window.actualizarSlugEnTiempoReal()" placeholder="Ej: Zapatería Gran Parada" class="input-clean">
+                        <label class="text-[10px] text-slate-500 uppercase block mb-1">Nombre del Comercio / Comercio *</label>
+                        <input type="text" id="saas-input-nombre" onkeyup="window.actualizarSlugEnTiempoReal()" placeholder="Ej: Comercio Don Luis" class="input-clean">
                     </div>
                     <div>
-                        <label class="text-[10px] text-slate-500 uppercase block mb-1">2. Número de Teléfono / WhatsApp *</label>
-                        <input type="tel" id="saas-input-wa" placeholder="Ej: 04147357549" class="input-clean font-mono">
+                        <label class="text-[10px] text-slate-500 uppercase block mb-1">WhatsApp del Cliente *</label>
+                        <input type="tel" id="saas-input-wa" placeholder="04147357549" class="input-clean font-mono">
+                    </div>
+                    <div class="grid grid-cols-1 sm:grid-cols-2 gap-3">
+                        <div>
+                            <label class="text-[10px] text-slate-500 uppercase block mb-1">Usuario de Acceso *</label>
+                            <input type="text" id="saas-input-user" placeholder="comerciodonluis" class="input-clean font-mono">
+                        </div>
+                        <div>
+                            <label class="text-[10px] text-slate-500 uppercase block mb-1">Contraseña de Acceso *</label>
+                            <input type="password" id="saas-input-pass" placeholder="••••••" class="input-clean font-mono">
+                        </div>
                     </div>
                 </div>
 
                 <div class="bg-slate-50 p-4 rounded-2xl border border-slate-200 space-y-3">
-                    <label class="text-[10px] font-black text-amber-600 uppercase tracking-wider block">COBERTURA DE SUSCRIPCIÓN</label>
+                    <label class="text-[10px] font-black text-amber-600 uppercase tracking-wider block">TIEMPO DE SUSCRIPCIÓN</label>
                     <div class="grid grid-cols-2 sm:grid-cols-4 gap-2">
                         <button type="button" onclick="window.seleccionarPildoraDias(30)" id="pildora-30" class="pildora-dias">30 Días</button>
                         <button type="button" onclick="window.seleccionarPildoraDias(90)" id="pildora-90" class="pildora-dias">90 Días</button>
@@ -160,35 +178,40 @@
                         </button>
                     </div>
 
-                    <button onclick="window.enviarNotificacionWhatsApp()" class="w-full bg-blue-600 hover:bg-blue-500 text-white font-black py-2.5 rounded-xl uppercase text-xs shadow">
-                        ENVIAR CREDENCIALES A WHATSAPP
-                    </button>
+                    <div class="grid grid-cols-2 gap-2">
+                        <button onclick="window.enviarNotificacionWhatsApp('activacion')" class="bg-blue-600 hover:bg-blue-500 text-white font-black py-2.5 rounded-xl uppercase text-xs shadow">
+                            ENVIAR CREDENTIONALES
+                        </button>
+                        <button onclick="window.enviarNotificacionWhatsApp('renovacion')" class="bg-emerald-600 hover:bg-emerald-500 text-white font-black py-2.5 rounded-xl uppercase text-xs shadow">
+                            ENVIAR RENOVACIÓN
+                        </button>
+                    </div>
                 </div>
             </div>
 
-            <div class="bg-slate-100 p-4 border-t border-slate-200 flex justify-end gap-3 shrink-0">
-                <button onclick="document.getElementById('modal-configurar-entorno-saas').classList.add('hidden')" class="bg-slate-300 text-slate-800 font-black py-3 px-6 rounded-xl uppercase text-xs">
-                    CANCELAR
+            <div class="bg-slate-100 p-4 border-t border-slate-200 grid grid-cols-2 gap-3 shrink-0">
+                <button onclick="window.solicitarOpcionesEliminarPerfil()" class="bg-red-600 hover:bg-red-500 text-white font-black py-3 rounded-xl uppercase text-xs shadow">
+                    ELIMINAR CUENTA
                 </button>
-                <button onclick="window.guardarCambiosEntornoSaaS()" class="bg-amber-500 hover:bg-amber-400 text-slate-950 font-black py-3 px-6 rounded-xl uppercase text-xs shadow">
-                    CREAR Y GUARDAR ☁️
+                <button onclick="window.guardarCambiosEntornoSaaS()" class="bg-amber-500 hover:bg-amber-400 text-slate-950 font-black py-3 rounded-xl uppercase text-xs shadow">
+                    CREAR CUENTA Y GUARDAR ☁️
                 </button>
             </div>
         </div>
     </div>
 
-    <!-- MODAL LISTA DE CLIENTES -->
+    <!-- MODAL LISTA DE CUENTAS DE CLIENTES -->
     <div id="modal-base-clientes" class="fixed inset-0 bg-slate-900/80 backdrop-blur-md z-50 p-4 flex items-center justify-center hidden">
         <div class="bg-white border border-slate-200 w-full max-w-3xl rounded-3xl overflow-hidden shadow-2xl flex flex-col max-h-[85vh]">
             <div class="bg-slate-900 px-5 py-4 text-white flex justify-between items-center shrink-0">
-                <h3 class="font-black text-xs uppercase tracking-wider flex items-center gap-2">
-                    <i class="fa-solid fa-users text-blue-400"></i> Base de Clientes
+                <h3 id="lbl-titulo-modal-clientes" class="font-black text-xs uppercase tracking-wider flex items-center gap-2">
+                    <i class="fa-solid fa-users text-blue-400"></i> Cuentas Creadas
                 </h3>
                 <button onclick="document.getElementById('modal-base-clientes').classList.add('hidden')" class="text-slate-400 hover:text-white"><i class="fa-solid fa-xmark text-sm"></i></button>
             </div>
 
             <div class="p-4 bg-slate-100 border-b border-slate-200">
-                <input type="text" id="busqueda-modal-cliente" onkeyup="window.renderizarListaClientesModal()" placeholder="🔍 Buscar por nombre de comercio o usuario..." class="input-clean">
+                <input type="text" id="busqueda-modal-cliente" onkeyup="window.renderizarListaClientesModal()" placeholder="🔍 Buscar cuenta de cliente..." class="input-clean">
             </div>
 
             <div class="p-5 overflow-y-auto space-y-3 no-scrollbar flex-grow">
@@ -197,55 +220,7 @@
         </div>
     </div>
 
-    <!-- PRIMER INGRESO DEL CLIENTE: CONTRATO DIGITAL & FORMULARIO KYC/EMPRESA -->
-    <div id="vista-contrato-cliente" class="hidden min-h-screen p-4 flex items-center justify-center my-8">
-        <div class="w-full max-w-2xl card-light p-6 sm:p-8 space-y-6 border-blue-200">
-            <div class="border-b border-slate-200 pb-4 text-center space-y-2">
-                <span class="bg-purple-50 text-purple-700 border border-purple-200 text-[10px] font-black tracking-widest uppercase px-4 py-1.5 rounded-full inline-block font-mono">
-                    CONTRATO DIGITAL DE LICENCIA SAAS 2026
-                </span>
-                <h1 class="font-black text-2xl text-slate-900 tracking-tight uppercase">TCL COMERCIO WEB</h1>
-                <p class="text-slate-500 text-xs font-medium">Aceptación de Políticas & Registro de la Empresa</p>
-            </div>
-
-            <!-- TÉRMINOS Y POLÍTICAS RESUMIDAS -->
-            <div class="bg-slate-50 p-4 rounded-2xl border border-slate-200 text-slate-600 text-xs space-y-2.5 leading-relaxed text-justify max-h-40 overflow-y-auto font-medium">
-                <p><strong class="text-slate-900 uppercase">PRIMERA: ALQUILER DE SOFTWARE SAAS.</strong> El cliente adquiere una licencia privada, temporal y revocable para operar la vitrina digital de TCL Comercio Web.</p>
-                <p><strong class="text-slate-900 uppercase">SEGUNDA: REGULACIÓN FISCAL (SENIAT).</strong> El software actúa única y exclusivamente como una herramienta de administración e inventario interno. Bajo ninguna circunstancia sustituye máquinas fiscales ni sistemas homologados por el SENIAT.</p>
-                <p><strong class="text-slate-900 uppercase">TERCERA: CUSTODIA DE DATOS.</strong> La empresa proveedora no responde por diferencias contables o inventario. El cliente es el único custodio de su información.</p>
-            </div>
-
-            <!-- FORMULARIO 1: DATOS DEL REPRESENTANTE (KYC) -->
-            <form onsubmit="event.preventDefault(); window.completarRegistroFichaComercio();" class="space-y-4 text-xs font-bold text-slate-800">
-                <h3 class="text-xs font-black text-purple-700 uppercase tracking-wider"><i class="fa-solid fa-id-card"></i> 1. Datos del Titular Responsable (KYC)</h3>
-                <div class="grid grid-cols-1 sm:grid-cols-2 gap-3">
-                    <input type="text" id="kyc-nombre" required placeholder="Nombre Completo *" class="input-clean">
-                    <input type="text" id="kyc-cedula" required placeholder="Cédula de Identidad *" class="input-clean font-mono">
-                </div>
-                <div class="grid grid-cols-1 sm:grid-cols-2 gap-3">
-                    <input type="tel" id="kyc-telefono" required placeholder="Teléfono de Contacto *" class="input-clean font-mono">
-                    <input type="text" id="kyc-direccion-personal" required placeholder="Dirección Personal *" class="input-clean">
-                </div>
-
-                <!-- FORMULARIO 2: DATOS DE LA EMPRESA Y ENCABEZADO -->
-                <h3 class="text-xs font-black text-blue-700 uppercase tracking-wider pt-2"><i class="fa-solid fa-store"></i> 2. Datos del Establecimiento Comercial</h3>
-                <div class="grid grid-cols-1 sm:grid-cols-2 gap-3">
-                    <input type="text" id="kyc-razon-social" required placeholder="Nombre Comercial / Ej: Zapatería Gran Parada *" class="input-clean">
-                    <input type="text" id="kyc-rif" placeholder="RIF (O ponga 'Omitir')" class="input-clean font-mono">
-                </div>
-                <div class="grid grid-cols-1 sm:grid-cols-2 gap-3">
-                    <input type="text" id="kyc-direccion-empresa" required placeholder="Dirección Comercial Exacta *" class="input-clean">
-                    <input type="text" id="kyc-redes" placeholder="Redes Sociales (Ej: @granparada)" class="input-clean">
-                </div>
-
-                <button type="submit" class="btn-brand w-full py-4 text-xs tracking-wider shadow-md">
-                    Firmar Contrato Digital y Desbloquear Mi Tienda 🔒
-                </button>
-            </form>
-        </div>
-    </div>
-
-    <!-- VITRINA Y TIENDA INDIVIDUAL DEL CLIENTE -->
+    <!-- 3. ESPACIO INDIVIDUAL DE CADA CLIENTE (PERFIL AISLADO) -->
     <div id="vista-tienda-comercio" class="hidden min-h-screen flex flex-col">
         <div id="banner-modo-soporte-master" class="bg-amber-500 text-slate-950 font-black text-[10.5px] py-1.5 px-4 text-center uppercase tracking-wider flex justify-between items-center hidden">
             <span>⚡ MODO SOPORTE TÉCNICO MÁSTER — AUDITANDO CUENTA EN CALIENTE</span>
@@ -262,13 +237,13 @@
                     </div>
                     <div>
                         <h1 id="header-shop-title" class="font-black text-base text-slate-900 uppercase tracking-tight">Cargando Comercio...</h1>
-                        <p id="header-shop-sub" class="text-[10px] text-slate-500 font-medium">Catálogo Web Exclusivo</p>
+                        <p id="header-shop-sub" class="text-[10px] text-slate-500 font-medium">Catálogo Web Exclusivo del Cliente</p>
                     </div>
                 </div>
 
                 <div class="flex gap-2">
                     <button onclick="window.togglePanelGestionOculto()" class="bg-slate-100 hover:bg-slate-200 text-slate-700 px-3 py-2 rounded-xl text-xs font-bold uppercase flex items-center gap-2 border border-slate-300">
-                        <i class="fa-solid fa-sliders text-blue-600"></i> <span class="hidden sm:inline">Ajustes & Carga</span>
+                        <i class="fa-solid fa-sliders text-blue-600"></i> <span class="hidden sm:inline">Configurar Perfil / Tasas</span>
                     </button>
                     <button onclick="window.cerrarSesionCompleta()" class="bg-red-50 text-red-600 px-3 py-2 rounded-xl text-xs font-bold uppercase border border-red-200">
                         Salir
@@ -282,18 +257,18 @@
             <div class="max-w-5xl mx-auto space-y-4">
                 <div class="flex justify-between items-center border-b border-slate-800 pb-2">
                     <h3 class="font-black text-xs uppercase text-amber-400 tracking-wider flex items-center gap-2">
-                        <i class="fa-solid fa-gear"></i> Ajustes de Tasas y Carga de Productos
+                        <i class="fa-solid fa-gear"></i> Ajustes de Tasas y Carga de Productos del Cliente
                     </h3>
                     <button onclick="window.togglePanelGestionOculto()" class="text-slate-400 hover:text-white"><i class="fa-solid fa-xmark text-sm"></i></button>
                 </div>
 
                 <div class="grid grid-cols-1 sm:grid-cols-2 gap-3">
                     <div class="bg-slate-950 p-3 rounded-2xl border border-slate-800 space-y-1">
-                        <label class="text-[10px] text-amber-400 font-bold uppercase block">Tasa Pesos (COP por 1 USD)</label>
+                        <label class="text-[10px] text-amber-400 font-bold uppercase block">Tasa Pesos de este Comercio (COP por 1 USD)</label>
                         <input type="number" id="privado-tasa-cop" value="3600" class="w-full bg-slate-900 text-white font-mono font-black p-2 rounded-xl text-xs border border-slate-700">
                     </div>
                     <div class="bg-slate-950 p-3 rounded-2xl border border-slate-800 space-y-1">
-                        <label class="text-[10px] text-emerald-400 font-bold uppercase block">Tasa Bolívares (Bs por 1 USD)</label>
+                        <label class="text-[10px] text-emerald-400 font-bold uppercase block">Tasa Bolívares de este Comercio (Bs por 1 USD)</label>
                         <input type="number" step="0.01" id="privado-tasa-bcv" value="36.50" class="w-full bg-slate-900 text-white font-mono font-black p-2 rounded-xl text-xs border border-slate-700">
                     </div>
                 </div>
@@ -325,7 +300,7 @@
         </main>
     </div>
 
-    <!-- FIREBASE INITIALIZATION & CONTROL JS -->
+    <!-- INICIALIZACIÓN FIREBASE Y CONTROL JS -->
     <script>
         const firebaseConfig = {
             authDomain: "tucocel-vitrina.firebaseapp.com",
@@ -343,6 +318,7 @@
         window.dbClientesSaaS = [];
         window.esMasterLogueado = false;
         window.diasSuscripcionSeleccionados = 365;
+        window.tipoVistaModalActual = 'ACTIVOS';
         window.clienteActivoActual = null;
 
         window.getBaseAppUrl = function() {
@@ -362,12 +338,12 @@
             }
         };
 
-        window.abrirModalBaseClientes = function() {
+        window.abrirModalBaseClientes = function(tipo) {
+            window.tipoVistaModalActual = tipo;
             window.renderizarListaClientesModal();
             document.getElementById('modal-base-clientes').classList.remove('hidden');
         };
 
-        // RENDERIZADO GARANTIZADO DE LA LISTA DE CLIENTES
         window.renderizarListaClientesModal = function() {
             const container = document.getElementById('lista-clientes-modal');
             if (!container) return;
@@ -375,9 +351,12 @@
             const busqueda = (document.getElementById('busqueda-modal-cliente')?.value || '').toLowerCase().trim();
             
             const filtrados = window.dbClientesSaaS.filter(c => {
+                const estatusCliente = c.estatus ? c.estatus.toUpperCase() : 'ACTIVO';
+                const coincideTipo = estatusCliente === window.tipoVistaModalActual;
+                
                 const nombreStr = (c.nombre || '').toLowerCase();
                 const userStr = (c.user || '').toLowerCase();
-                return nombreStr.includes(busqueda) || userStr.includes(busqueda);
+                return coincideTipo && (nombreStr.includes(busqueda) || userStr.includes(busqueda));
             });
 
             if (filtrados.length === 0) {
@@ -399,7 +378,6 @@
                     <div class="text-[10px] text-slate-600 font-mono space-y-0.5">
                         <p>📞 WA: ${c.wa || 'N/A'}</p>
                         <p>🔑 User: ${c.user || 'N/A'} | Pass: ${c.pass || '••••••'}</p>
-                        <p>🔒 Contrato: ${c.contratoFirmado ? 'FIRMADO ✓' : 'PENDIENTE'}</p>
                     </div>
                     <div class="grid grid-cols-2 gap-2 pt-2 border-t border-slate-100">
                         <button onclick="window.editarClienteDirectoDesdeModal('${c.id}')" class="bg-slate-100 hover:bg-slate-200 text-slate-700 font-bold text-xs py-2 rounded-xl uppercase border border-slate-300">
@@ -413,21 +391,6 @@
             `).join('');
         };
 
-        window.editarClienteDirectoDesdeModal = function(id) {
-            const cliente = window.dbClientesSaaS.find(c => c.id === id);
-            if (!cliente) return;
-
-            document.getElementById('modal-base-clientes').classList.add('hidden');
-            document.getElementById('saas-editing-id').value = cliente.id;
-            document.getElementById('modal-saas-titulo').innerText = `EDITAR: ${(cliente.nombre || '').toUpperCase()}`;
-            document.getElementById('saas-input-nombre').value = cliente.nombre || '';
-            document.getElementById('saas-input-wa').value = cliente.wa || '';
-            document.getElementById('saas-link-generado').value = `${window.getBaseAppUrl()}?tienda=${cliente.slug}`;
-
-            window.seleccionarPildoraDias(cliente.dias || 365);
-            document.getElementById('modal-configurar-entorno-saas').classList.remove('hidden');
-        };
-
         window.entrarEnCalienteCliente = async function(id) {
             const cliente = window.dbClientesSaaS.find(c => c.id === id);
             if (!cliente) return;
@@ -436,59 +399,17 @@
 
             document.getElementById('modal-base-clientes').classList.add('hidden');
             document.getElementById('vista-master-admin').classList.add('hidden');
-            document.getElementById('vista-login').classList.add('hidden');
+            document.getElementById('header-shop-title').innerText = cliente.nombre;
+            document.getElementById('vista-tienda-comercio').classList.remove('hidden');
+            document.getElementById('banner-modo-soporte-master').classList.remove('hidden');
 
-            if (!cliente.contratoFirmado && !window.esMasterLogueado) {
-                document.getElementById('vista-contrato-cliente').classList.remove('hidden');
-            } else {
-                document.getElementById('header-shop-title').innerText = cliente.empresaInfo?.razonSocial || cliente.nombre;
-                document.getElementById('header-shop-sub').innerText = cliente.empresaInfo?.direccion || "Catálogo Web Exclusivo";
-                document.getElementById('vista-tienda-comercio').classList.remove('hidden');
-                if (window.esMasterLogueado) {
-                    document.getElementById('banner-modo-soporte-master').classList.remove('hidden');
-                }
-                await window.cargarProductosIndividualesCliente(cliente.slug);
-            }
-        };
-
-        window.completarRegistroFichaComercio = async function() {
-            if (!window.clienteActivoActual) return;
-
-            const kycNombre = document.getElementById('kyc-nombre').value.trim();
-            const kycCedula = document.getElementById('kyc-cedula').value.trim();
-            const kycTelefono = document.getElementById('kyc-telefono').value.trim();
-            const kycDirPersonal = document.getElementById('kyc-direccion-personal').value.trim();
-
-            const razonSocial = document.getElementById('kyc-razon-social').value.trim();
-            const rif = document.getElementById('kyc-rif').value.trim();
-            const dirEmpresa = document.getElementById('kyc-direccion-empresa').value.trim();
-            const redes = document.getElementById('kyc-redes').value.trim();
-
-            const updateData = {
-                contratoFirmado: true,
-                fechaFirma: Date.now(),
-                kyc: { nombre: kycNombre, cedula: kycCedula, telefono: kycTelefono, direccion: kycDirPersonal },
-                empresaInfo: { razonSocial, rif, direccion: dirEmpresa, redes }
-            };
-
-            try {
-                await window.db.collection('tcl_saas_data').doc(window.clienteActivoActual.id).set(updateData, { merge: true });
-                alert("✨ Contrato Digital Firmado. ¡Bienvenido a TCL Comercio Web!");
-
-                document.getElementById('vista-contrato-cliente').classList.add('hidden');
-                document.getElementById('header-shop-title').innerText = razonSocial;
-                document.getElementById('header-shop-sub').innerText = dirEmpresa;
-                document.getElementById('vista-tienda-comercio').classList.remove('hidden');
-
-                await window.cargarProductosIndividualesCliente(window.clienteActivoActual.slug);
-            } catch(e) {
-                console.error("Error al guardar la firma del contrato:", e);
-            }
+            // Cargar productos AISLADOS de este cliente desde Firestore
+            await window.cargarProductosIndividualesCliente(cliente.slug);
         };
 
         window.cargarProductosIndividualesCliente = async function(slug) {
             const container = document.getElementById('grid-productos-tienda');
-            container.innerHTML = `<div class="col-span-3 text-center text-slate-400 py-8 text-xs font-mono">Cargando productos de la tienda...</div>`;
+            container.innerHTML = `<div class="col-span-3 text-center text-slate-400 py-8 text-xs font-mono">Cargando la tienda de este cliente desde la nube...</div>`;
 
             try {
                 const docSnap = await window.db.collection('tcl_custom_shop').doc(slug).get();
@@ -510,7 +431,7 @@
                         </div>
                     `).join('');
                 } else {
-                    container.innerHTML = `<div class="col-span-3 text-center text-slate-400 py-12 text-xs font-mono">Esta cuenta está totalmente en blanco. Cargue sus productos desde la sección de Ajustes.</div>`;
+                    container.innerHTML = `<div class="col-span-3 text-center text-slate-400 py-12 text-xs font-mono">Esta cuenta está totalmente en cero. Agregue productos desde el panel de ajustes.</div>`;
                 }
             } catch(e) {
                 console.error("Error cargando productos:", e);
@@ -541,7 +462,7 @@
                 productos.push({ id: Date.now(), nombre, precio });
                 await refDoc.set({ productos }, { merge: true });
 
-                alert("✨ Producto guardado en su tienda.");
+                alert("✨ Producto guardado en la cuenta de este cliente.");
                 document.getElementById('nuevo-prod-nombre').value = '';
                 document.getElementById('nuevo-prod-precio').value = '';
                 
@@ -551,62 +472,60 @@
             }
         };
 
+        window.regresarAlPanelMaster = function() {
+            document.getElementById('vista-tienda-comercio').classList.add('hidden');
+            document.getElementById('banner-modo-soporte-master').classList.add('hidden');
+            document.getElementById('vista-master-admin').classList.remove('hidden');
+        };
+
         window.guardarCambiosEntornoSaaS = async function() {
             const idEdit = document.getElementById('saas-editing-id').value;
             const nombre = document.getElementById('saas-input-nombre').value.trim();
             const wa = document.getElementById('saas-input-wa').value.trim();
+            const user = document.getElementById('saas-input-user').value.trim();
+            const pass = document.getElementById('saas-input-pass').value.trim();
             const dias = window.diasSuscripcionSeleccionados;
 
-            if (!nombre || !wa) {
-                alert("⚠️ Escriba el nombre del comercio y el teléfono del cliente.");
+            if (!nombre || !wa || !user || !pass) {
+                alert("⚠️ Complete todos los campos requeridos.");
                 return;
             }
 
             const slug = nombre.toLowerCase().replace(/[^a-z0-9]/g, '');
-            const user = slug;
-            const pass = '123456';
             const docId = idEdit || 'cli_' + Date.now();
 
             const clienteData = {
                 nombre, wa, user, pass, slug, dias,
                 estatus: 'ACTIVO',
-                contratoFirmado: false,
                 updatedAt: Date.now()
             };
 
             try {
+                // 1. Guardar credenciales de acceso del cliente
                 await window.db.collection('tcl_saas_data').doc(docId).set(clienteData, { merge: true });
 
+                // 2. Crear su documento individual totalmente en cero para sus productos
                 await window.db.collection('tcl_custom_shop').doc(slug).set({
                     nombreComercio: nombre,
                     productos: []
                 }, { merge: true });
 
-                alert("🚀 Cliente registrado con éxito.");
+                alert("🚀 Cuenta del cliente creada exitosamente en Firebase en cero.");
                 document.getElementById('modal-configurar-entorno-saas').classList.add('hidden');
                 await window.cargarClientesDesdeFirebase();
             } catch(e) {
-                console.error("Error creando el cliente:", e);
+                console.error("Error guardando en Firebase:", e);
+                alert("❌ Error creando la cuenta en la nube.");
             }
         };
 
-        window.enviarNotificacionWhatsApp = function() {
-            const nombre = document.getElementById('saas-input-nombre').value.trim() || 'Comercio';
-            const wa = document.getElementById('saas-input-wa').value.trim();
-            const slug = nombre.toLowerCase().replace(/[^a-z0-9]/g, '');
-            const dias = window.diasSuscripcionSeleccionados;
+        window.recalcularTotalesYBadgesComercios = function() {
+            const activos = window.dbClientesSaaS.filter(c => (c.estatus || 'ACTIVO') === 'ACTIVO').length;
+            const inactivos = window.dbClientesSaaS.filter(c => c.estatus === 'INACTIVO').length;
 
-            if (!wa) { alert("⚠️ Ingrese el número de WhatsApp."); return; }
-
-            let msg = `🚀 *¡BIENVENIDO A TCL COMERCIO WEB!*\n\n`;
-            msg += `Estimado cliente, sus datos de acceso son:\n\n`;
-            msg += `🏪 *Comercio:* ${nombre}\n`;
-            msg += `🔗 *Enlace:* ${window.getBaseAppUrl()}?tienda=${slug}\n`;
-            msg += `🔑 *Usuario:* ${slug} | *Clave:* 123456\n`;
-            msg += `⏳ *Suscripción:* ${dias} Días\n\n`;
-            msg += `_Ingrese a su enlace para firmar el contrato digital y comenzar a cargar su catálogo en blanco._`;
-
-            window.open(`https://api.whatsapp.com/send?phone=${wa}&text=${encodeURIComponent(msg)}`, '_blank');
+            document.getElementById('master-count-clientes').innerText = activos;
+            document.getElementById('cnt-badge-activos').innerText = activos;
+            document.getElementById('cnt-badge-inactivos').innerText = inactivos;
         };
 
         window.actualizarSlugEnTiempoReal = function() {
@@ -619,12 +538,6 @@
             const linkInput = document.getElementById('saas-link-generado');
             if (!linkInput || !linkInput.value) return;
             navigator.clipboard.writeText(linkInput.value).then(() => alert("📋 Link copiado: " + linkInput.value));
-        };
-
-        window.recalcularTotalesYBadgesComercios = function() {
-            const total = window.dbClientesSaaS.length;
-            document.getElementById('master-count-clientes').innerText = total;
-            document.getElementById('cnt-badge-activos').innerText = total;
         };
 
         window.seleccionarPildoraDias = function(dias) {
@@ -641,16 +554,12 @@
                 document.getElementById('saas-editing-id').value = '';
                 document.getElementById('saas-input-nombre').value = '';
                 document.getElementById('saas-input-wa').value = '';
+                document.getElementById('saas-input-user').value = '';
+                document.getElementById('saas-input-pass').value = '';
                 document.getElementById('saas-link-generado').value = `${window.getBaseAppUrl()}?...`;
                 window.seleccionarPildoraDias(365);
             }
             document.getElementById('modal-configurar-entorno-saas').classList.remove('hidden');
-        };
-
-        window.regresarAlPanelMaster = function() {
-            document.getElementById('vista-tienda-comercio').classList.add('hidden');
-            document.getElementById('banner-modo-soporte-master').classList.add('hidden');
-            document.getElementById('vista-master-admin').classList.remove('hidden');
         };
 
         window.evaluarRutaDirecta = async function() {
@@ -689,6 +598,22 @@
             alert("⚠️ Credenciales incorrectas.");
         };
 
+        window.purgarBaseDeDatosCompleta = async function() {
+            if (!confirm("🔥 ¿Está seguro de ELIMINAR TODAS LAS CUENTAS de Firebase?")) return;
+
+            try {
+                const snap = await window.db.collection('tcl_saas_data').get();
+                const batch = window.db.batch();
+                snap.forEach(doc => batch.delete(doc.ref));
+                await batch.commit();
+
+                alert("🗑️ Servidor purgado por completo.");
+                await window.cargarClientesDesdeFirebase();
+            } catch(e) {
+                alert("❌ Error al purgar.");
+            }
+        };
+
         window.togglePanelGestionOculto = function() {
             document.getElementById('panel-gestion-privado').classList.toggle('hidden');
         };
@@ -697,7 +622,6 @@
             window.esMasterLogueado = false;
             document.getElementById('vista-master-admin').classList.add('hidden');
             document.getElementById('vista-tienda-comercio').classList.add('hidden');
-            document.getElementById('vista-contrato-cliente').classList.add('hidden');
             document.getElementById('vista-login').classList.remove('hidden');
         };
 
