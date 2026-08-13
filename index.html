@@ -31,7 +31,7 @@
 <body class="min-h-screen flex flex-col bg-slate-50 w-full overflow-x-hidden">
 
     <!-- CAJA NEGRA DE DIAGNÓSTICO FLOTANTE -->
-    <div id="diagnostico-master-flotante" class="fixed bottom-20 right-4 z-[10005] flex flex-col items-center gap-1 hidden select-none">
+    <div id="diagnostico-master-flotante" class="fixed bottom-28 right-4 z-[10005] flex flex-col items-center gap-1 hidden select-none">
         <div id="badge-contador-errores" class="bg-red-600 text-white font-black text-[10px] px-2 py-0.5 rounded-full shadow-lg border border-red-400 animate-bounce hidden">0</div>
         <button id="btn-consola-flotante" onclick="window.toggleConsolaDiagnosticoInterna()" class="w-12 h-12 bg-slate-900 border border-slate-700 text-white rounded-full flex items-center justify-center shadow-2xl text-lg hover:border-blue-500 transition-all cursor-grab active:cursor-grabbing">
             <i class="fa-solid fa-terminal"></i>
@@ -47,7 +47,7 @@
             </div>
             <div id="logs-diagnostico-box" class="p-4 flex-grow overflow-y-auto font-mono text-[10px] text-slate-700 space-y-2 no-scrollbar bg-slate-50">
                 <p class="text-emerald-600">[OK] Consola de monitoreo inicializada.</p>
-                <p id="log-status-master" class="text-slate-500">[INFO] Inicie sesión como Máster 'tucocel' para desplegar controles avanzados.</p>
+                <p id="log-status-master" class="text-slate-500">[INFO] Inicie sesión como Máster para desplegar controles avanzados.</p>
             </div>
             
             <div id="box-controles-descarga-segura" class="bg-slate-100 p-2.5 border-t border-slate-200 grid grid-cols-2 sm:grid-cols-4 gap-1.5 hidden">
@@ -72,11 +72,11 @@
 
             <form onsubmit="event.preventDefault(); window.procesarLoginUnificado();" class="space-y-4 text-xs font-bold">
                 <div>
-                    <label class="text-[10px] text-slate-500 uppercase block mb-1">Usuario de Acceso</label>
-                    <input type="text" id="login-user-field" class="input-clean font-mono" placeholder="Usuario / Nombre de Comercio" value="tucocel">
+                    <label class="text-[10px] text-slate-500 uppercase block mb-1">Usuario de Acceso *</label>
+                    <input type="text" id="login-user-field" class="input-clean font-mono" placeholder="Ej: demo / tucocel" value="tucocel">
                 </div>
                 <div>
-                    <label class="text-[10px] text-slate-500 uppercase block mb-1">Contraseña de Seguridad</label>
+                    <label class="text-[10px] text-slate-500 uppercase block mb-1">Contraseña de Seguridad *</label>
                     <input type="password" id="login-pass-field" class="input-clean font-mono" placeholder="••••••••" value="Razu2020.">
                 </div>
                 <button type="submit" class="btn-brand w-full py-3.5 shadow-md">Ingresar al Sistema 🔒</button>
@@ -119,12 +119,12 @@
 
             <div class="card-light p-4 space-y-1">
                 <span class="text-[10px] font-black text-slate-400 uppercase font-mono tracking-wider block">🇨🇴 Tasa USDT / Pesos</span>
-                <input type="number" id="master-tasa-cop" value="3600" onkeyup="window.recalcularTarifasSaasCalculadora()" onchange="window.recalcularTarifasSaasCalculadora()" class="input-clean font-mono text-base font-black text-blue-600">
+                <input type="number" id="master-tasa-cop" value="3600" class="input-clean font-mono text-base font-black text-blue-600">
             </div>
 
             <div class="card-light p-4 space-y-1">
                 <span class="text-[10px] font-black text-slate-400 uppercase font-mono tracking-wider block">🇻🇪 Tasa Paridad Bs</span>
-                <input type="number" step="0.1" id="master-tasa-bs" value="3.3" onkeyup="window.recalcularTarifasSaasCalculadora()" onchange="window.recalcularTarifasSaasCalculadora()" class="input-clean font-mono text-base font-black text-emerald-600">
+                <input type="number" step="0.1" id="master-tasa-bs" value="36.50" class="input-clean font-mono text-base font-black text-emerald-600">
             </div>
         </div>
 
@@ -173,21 +173,21 @@
 
                 <div class="space-y-3">
                     <div>
-                        <label class="text-[10px] text-slate-500 uppercase block mb-1">Nombre Comercial / Sucursal *</label>
-                        <input type="text" id="saas-input-nombre" onkeyup="window.actualizarSlugEnTiempoReal()" placeholder="Ej: Tucocel C.A." class="input-clean">
+                        <label class="text-[10px] text-slate-500 uppercase block mb-1">Nombre Comercial / Razón Social *</label>
+                        <input type="text" id="saas-input-nombre" placeholder="Ej: Repuestos El Centro C.A." class="input-clean">
                     </div>
                     <div>
                         <label class="text-[10px] text-slate-500 uppercase block mb-1">Responsable / Titular *</label>
-                        <input type="text" id="saas-input-responsable" placeholder="Ej: Marta Silva" class="input-clean">
+                        <input type="text" id="saas-input-responsable" placeholder="Ej: Juan Pérez" class="input-clean">
                     </div>
                     <div>
                         <label class="text-[10px] text-slate-500 uppercase block mb-1">WhatsApp de Contacto *</label>
-                        <input type="tel" id="saas-input-wa" placeholder="0424-1234567" class="input-clean font-mono">
+                        <input type="tel" id="saas-input-wa" placeholder="Ej: 04XX-0000000" class="input-clean font-mono">
                     </div>
                     <div class="grid grid-cols-1 sm:grid-cols-2 gap-3">
                         <div>
-                            <label class="text-[10px] text-slate-500 uppercase block mb-1">Usuario ID *</label>
-                            <input type="text" id="saas-input-user" placeholder="demo" class="input-clean font-mono">
+                            <label class="text-[10px] text-slate-500 uppercase block mb-1">Usuario ID de Acceso *</label>
+                            <input type="text" id="saas-input-user" placeholder="Ej: repuestoselcentro" class="input-clean font-mono">
                         </div>
                         <div>
                             <label class="text-[10px] text-slate-500 uppercase block mb-1">Clave de Acceso *</label>
@@ -205,34 +205,25 @@
                         <button type="button" onclick="window.seleccionarPildoraDias(365)" id="pildora-365" class="pildora-dias">365 Días</button>
                     </div>
                     <div id="lbl-display-dias-seleccionados" class="bg-white p-2.5 rounded-xl border border-slate-200 text-center font-black text-sm text-slate-900 font-mono shadow-sm">
-                        180 Días
+                        180 Días (6 MESES)
                     </div>
                 </div>
 
                 <div class="bg-slate-50 p-4 rounded-2xl border border-slate-200 space-y-3">
                     <div class="flex gap-2">
-                        <input type="text" id="saas-link-generado" readonly value="https://tcl.com/tucocel" class="input-clean font-mono text-blue-600 bg-white">
-                        <button onclick="window.copiarLinkClienteGenerated()" class="bg-slate-900 hover:bg-slate-800 text-white px-4 rounded-xl font-bold uppercase text-xs shrink-0">
+                        <input type="text" id="saas-link-generado" readonly value="https://tcl.com/repuestoselcentro" class="input-clean font-mono text-blue-600 bg-white">
+                        <button onclick="alert('Enlace copiado')" class="bg-slate-900 hover:bg-slate-800 text-white px-4 rounded-xl font-bold uppercase text-xs shrink-0">
                             <i class="fa-solid fa-copy"></i> Copiar
-                        </button>
-                    </div>
-
-                    <div class="grid grid-cols-2 gap-2">
-                        <button onclick="window.enviarNotificacionWhatsApp('activacion')" class="bg-blue-600 hover:bg-blue-500 text-white font-black py-2.5 rounded-xl uppercase text-xs shadow">
-                            ENVIAR ACTIVACIÓN
-                        </button>
-                        <button onclick="window.enviarNotificacionWhatsApp('renovacion')" class="bg-emerald-600 hover:bg-emerald-500 text-white font-black py-2.5 rounded-xl uppercase text-xs shadow">
-                            ENVIAR RENOVACIÓN
                         </button>
                     </div>
                 </div>
             </div>
 
             <div class="bg-slate-100 p-4 border-t border-slate-200 grid grid-cols-2 gap-3 shrink-0">
-                <button onclick="window.solicitarOpcionesEliminarPerfil()" class="bg-red-600 hover:bg-red-500 text-white font-black py-3 rounded-xl uppercase text-xs shadow">
-                    ELIMINAR PERFIL
+                <button onclick="document.getElementById('modal-configurar-entorno-saas').classList.add('hidden')" class="bg-slate-300 text-slate-800 font-black py-3 rounded-xl uppercase text-xs">
+                    CANCELAR
                 </button>
-                <button onclick="window.guardarCambiosEntornoSaaS()" class="bg-amber-500 hover:bg-amber-400 text-slate-950 font-black py-3 rounded-xl uppercase text-xs shadow">
+                <button onclick="document.getElementById('modal-configurar-entorno-saas').classList.add('hidden')" class="bg-amber-500 hover:bg-amber-400 text-slate-950 font-black py-3 rounded-xl uppercase text-xs shadow">
                     GUARDAR CAMBIOS
                 </button>
             </div>
@@ -250,7 +241,7 @@
             </div>
 
             <div class="p-4 bg-slate-100 border-b border-slate-200">
-                <input type="text" id="busqueda-modal-cliente" onkeyup="window.renderizarListaClientesModal()" placeholder="🔍 Buscar por nombre de comercio o usuario..." class="input-clean">
+                <input type="text" id="busqueda-modal-cliente" onkeyup="window.renderizarListaClientesModal()" placeholder="🔍 Buscar comercio..." class="input-clean">
             </div>
 
             <div class="p-5 overflow-y-auto space-y-3 no-scrollbar flex-grow">
@@ -277,44 +268,40 @@
                         <span class="text-slate-500 uppercase block text-[9.5px]">Plan 30 Días</span>
                         <div class="flex items-center gap-1">
                             <span class="text-slate-900 font-black">$</span>
-                            <input type="number" id="input-tarifas-30" value="25" onkeyup="window.recalcularTarifasSaasCalculadora()" onchange="window.recalcularTarifasSaasCalculadora()" class="input-clean font-black text-slate-900 text-sm">
+                            <input type="number" id="input-tarifas-30" value="25" class="input-clean font-black text-slate-900 text-sm">
                             <span class="text-slate-500 font-bold text-[10px]">USDT</span>
                         </div>
-                        <div id="tarifa-calc-30" class="text-[10px] text-blue-600 font-bold pt-1 border-t border-slate-200">0 COP | 0 Bs</div>
                     </div>
 
                     <div class="bg-slate-50 p-3.5 rounded-2xl border border-slate-200 space-y-2">
                         <span class="text-slate-500 uppercase block text-[9.5px]">Plan 90 Días</span>
                         <div class="flex items-center gap-1">
                             <span class="text-slate-900 font-black">$</span>
-                            <input type="number" id="input-tarifas-90" value="60" onkeyup="window.recalcularTarifasSaasCalculadora()" onchange="window.recalcularTarifasSaasCalculadora()" class="input-clean font-black text-slate-900 text-sm">
+                            <input type="number" id="input-tarifas-90" value="60" class="input-clean font-black text-slate-900 text-sm">
                             <span class="text-slate-500 font-bold text-[10px]">USDT</span>
                         </div>
-                        <div id="tarifa-calc-90" class="text-[10px] text-blue-600 font-bold pt-1 border-t border-slate-200">0 COP | 0 Bs</div>
                     </div>
 
                     <div class="bg-slate-50 p-3.5 rounded-2xl border border-slate-200 space-y-2">
                         <span class="text-slate-500 uppercase block text-[9.5px]">Plan 180 Días</span>
                         <div class="flex items-center gap-1">
                             <span class="text-slate-900 font-black">$</span>
-                            <input type="number" id="input-tarifas-180" value="90" onkeyup="window.recalcularTarifasSaasCalculadora()" onchange="window.recalcularTarifasSaasCalculadora()" class="input-clean font-black text-slate-900 text-sm">
+                            <input type="number" id="input-tarifas-180" value="90" class="input-clean font-black text-slate-900 text-sm">
                             <span class="text-slate-500 font-bold text-[10px]">USDT</span>
                         </div>
-                        <div id="tarifa-calc-180" class="text-[10px] text-blue-600 font-bold pt-1 border-t border-slate-200">0 COP | 0 Bs</div>
                     </div>
 
                     <div class="bg-slate-50 p-3.5 rounded-2xl border border-blue-200 space-y-2">
                         <span class="text-blue-600 uppercase block text-[9.5px]">Plan 365 Días (Año)</span>
                         <div class="flex items-center gap-1">
                             <span class="text-blue-600 font-black">$</span>
-                            <input type="number" id="input-tarifas-365" value="160" onkeyup="window.recalcularTarifasSaasCalculadora()" onchange="window.recalcularTarifasSaasCalculadora()" class="input-clean font-black text-blue-600 text-sm">
+                            <input type="number" id="input-tarifas-365" value="160" class="input-clean font-black text-blue-600 text-sm">
                             <span class="text-blue-600 font-bold text-[10px]">USDT</span>
                         </div>
-                        <div id="tarifa-calc-365" class="text-[10px] text-blue-600 font-bold pt-1 border-t border-blue-200">0 COP | 0 Bs</div>
                     </div>
                 </div>
 
-                <button onclick="window.guardarNuevasTarifasSaas()" class="btn-brand w-full py-3.5 text-xs shadow-md">
+                <button onclick="document.getElementById('modal-tarifas-saas').classList.add('hidden')" class="btn-brand w-full py-3.5 text-xs shadow-md">
                     Guardar Tarifas Editadas 🔒
                 </button>
             </div>
@@ -322,7 +309,7 @@
     </div>
 
     <!-- 3. PANEL DE ADMINISTRACIÓN PRIVADO DEL CLIENTE -->
-    <div id="vista-panel-cliente-privado" class="hidden min-h-screen p-3 sm:p-6 max-w-6xl mx-auto space-y-4 bg-slate-100 w-full overflow-x-hidden">
+    <div id="vista-panel-cliente-privado" class="hidden min-h-screen p-3 sm:p-6 max-w-6xl mx-auto space-y-4 bg-slate-100 w-full overflow-x-hidden pb-12">
         <div class="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-3 border-b border-slate-300 pb-3 w-full">
             <div class="flex items-center gap-2.5 w-full sm:w-auto">
                 <div class="w-10 h-10 sm:w-12 sm:h-12 bg-blue-600 text-white rounded-2xl flex items-center justify-center text-lg sm:text-xl font-black shadow-sm shrink-0">
@@ -330,10 +317,16 @@
                 </div>
                 <div class="min-w-0 flex-1">
                     <span class="text-[9px] sm:text-[10px] text-blue-600 font-bold uppercase tracking-wider font-mono block">Panel de Control Comercial</span>
-                    <h1 id="client-panel-title" class="text-sm sm:text-2xl font-black text-slate-900 uppercase truncate">Tucocel C.A.</h1>
+                    <h1 id="client-panel-title" class="text-sm sm:text-2xl font-black text-slate-900 uppercase truncate">Comercio Ejemplo C.A.</h1>
                 </div>
             </div>
+            
             <div class="flex items-center gap-2 w-full sm:w-auto">
+                <!-- BOTÓN MÁSTER TOTALMENTE OCULTO POR DEFECTO -->
+                <button id="btn-master-regreso-panel" onclick="window.regresarAlPanelMaster()" class="hidden bg-amber-500 hover:bg-amber-400 text-slate-950 px-3 py-2 sm:px-4 sm:py-2.5 rounded-xl font-black text-[10.5px] sm:text-xs uppercase shadow flex items-center justify-center gap-1.5 shrink-0 border border-amber-600">
+                    <i class="fa-solid fa-user-shield"></i> <span>Volver a Máster</span>
+                </button>
+
                 <button onclick="window.verVitrinaComoCliente()" class="bg-blue-600 hover:bg-blue-500 text-white px-3 py-2 sm:px-4 sm:py-2.5 rounded-xl font-bold text-[11px] sm:text-xs uppercase shadow flex items-center justify-center gap-1.5 flex-grow sm:flex-grow-0">
                     <i class="fa-solid fa-eye"></i> <span class="truncate">Ver Mi Vitrina Web</span>
                 </button>
@@ -343,7 +336,6 @@
             </div>
         </div>
 
-        <!-- CÁPSULA RESTAURADA DE ESTADO DE SUSCRIPCIÓN Y CUENTA REGRESIVA -->
         <div class="card-light p-4 bg-white border border-blue-200 space-y-2 w-full shadow-sm">
             <div class="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-3">
                 <div class="space-y-1">
@@ -373,11 +365,11 @@
                     <input type="hidden" id="inv-input-foto-base64" value="">
 
                     <div class="bg-slate-50 p-2.5 sm:p-3 rounded-2xl border border-slate-200 flex flex-col sm:flex-row items-center gap-2.5 w-full">
-                        <div id="box-preview-foto" class="w-16 h-16 sm:w-20 sm:h-20 bg-slate-200 rounded-xl flex items-center justify-center text-slate-400 text-xl overflow-hidden shrink-0 border border-slate-300">
+                        <div id="box-preview-foto" class="w-16 h-20 sm:w-20 sm:h-24 bg-slate-200 rounded-xl flex items-center justify-center text-slate-400 text-xl overflow-hidden shrink-0 border border-slate-300">
                             <i class="fa-solid fa-image"></i>
                         </div>
                         <div class="space-y-1 text-center sm:text-left w-full flex-grow">
-                            <span class="text-[9.5px] text-slate-500 uppercase block font-mono">Foto del Producto (Optimizada)</span>
+                            <span class="text-[9.5px] text-slate-500 uppercase block font-mono">Foto del Producto (Formato Vertical Recomendado)</span>
                             <input type="file" id="input-archivo-foto" accept="image/*" capture="environment" class="hidden" onchange="window.procesarYComprimirImagen(this)">
                             <button type="button" onclick="document.getElementById('input-archivo-foto').click()" class="bg-slate-900 hover:bg-slate-800 text-white px-3 py-2 rounded-xl text-[10px] font-black uppercase flex items-center justify-center gap-2 w-full sm:w-auto shadow">
                                 <i class="fa-solid fa-camera"></i> Tomar Foto o Galería
@@ -387,27 +379,36 @@
 
                     <div>
                         <label class="text-[10px] text-slate-500 uppercase block mb-1">Nombre del Producto *</label>
-                        <input type="text" id="inv-input-nombre" placeholder="Ej: Harina PAN 1kg, Filtro Aceite..." class="input-clean">
+                        <input type="text" id="inv-input-nombre" placeholder="Ej: Harina PAN 1kg / Filtro Aceite 20W50 / Aceite Vegetal 1L" class="input-clean">
+                    </div>
+
+                    <div class="bg-blue-50/60 p-3 rounded-2xl border border-blue-200 space-y-2">
+                        <label class="text-[10px] text-blue-800 font-black uppercase block">Moneda de Ingreso de Precios</label>
+                        <select id="inv-input-moneda-base" class="input-clean font-mono bg-white text-blue-900 font-bold">
+                            <option value="USD">💵 Cargar Precios en Dólares ($ USD)</option>
+                            <option value="COP">🇨🇴 Cargar Precios en Pesos (COP)</option>
+                            <option value="BS">VB Cargar Precios en Bolívares (Bs)</option>
+                        </select>
                     </div>
                     
                     <div class="grid grid-cols-1 sm:grid-cols-3 gap-2 w-full">
                         <div>
-                            <label class="text-[10px] text-slate-500 uppercase block mb-1">Precio Costo ($) *</label>
-                            <input type="number" step="0.01" id="inv-input-costo" placeholder="0.80" class="input-clean font-mono text-slate-700">
+                            <label class="text-[10px] text-slate-500 uppercase block mb-1">Precio Costo (Compra) *</label>
+                            <input type="number" step="0.01" id="inv-input-costo" placeholder="Ej: 1.80 o 9000" class="input-clean font-mono text-slate-700">
                         </div>
                         <div>
-                            <label class="text-[10px] text-slate-500 uppercase block mb-1">Precio Venta ($) *</label>
-                            <input type="number" step="0.01" id="inv-input-venta" placeholder="1.20" class="input-clean font-mono text-blue-600">
+                            <label class="text-[10px] text-slate-500 uppercase block mb-1">Precio Venta (Público) *</label>
+                            <input type="number" step="0.01" id="inv-input-venta" placeholder="Ej: 2.50 o 12000" class="input-clean font-mono text-blue-600">
                         </div>
                         <div>
                             <label class="text-[10px] text-slate-500 uppercase block mb-1">Stock Disponible *</label>
-                            <input type="number" id="inv-input-stock" placeholder="20" class="input-clean font-mono">
+                            <input type="number" id="inv-input-stock" placeholder="Ej: 15" class="input-clean font-mono">
                         </div>
                     </div>
 
                     <div>
                         <label class="text-[10px] text-slate-500 uppercase block mb-1">Descripción Breve / Compatibilidad</label>
-                        <input type="text" id="inv-input-desc" placeholder="Ej: Aplicación para carros, repuesto original..." class="input-clean">
+                        <input type="text" id="inv-input-desc" placeholder="Ej: Repuesto original, comestible de soya..." class="input-clean">
                     </div>
 
                     <div class="flex gap-2 pt-1 w-full">
@@ -490,9 +491,16 @@
                 </div>
             </div>
         </div>
+
+        <!-- PIE DE PÁGINA CORPORATIVO ESTRUCTURADO Y CENTRADO -->
+        <footer class="mt-8 pt-4 border-t border-slate-200 text-center text-slate-600 font-sans text-[11px] space-y-1 max-w-lg mx-auto">
+            <p class="font-extrabold text-slate-900 tracking-tight">Sistema TCL Comercio Web</p>
+            <p class="font-semibold text-slate-600">Un Programa de Tucocel C.A. | Desarrollado por PublionlineMK</p>
+            <p class="text-blue-600 font-bold flex items-center justify-center gap-1"><i class="fa-solid fa-phone text-[10px]"></i> Contacto: 0424-7357549</p>
+        </footer>
     </div>
 
-    <!-- MODAL INVENTARIO CON TARJETAS VERTICALES MÓVILES (CERO SCROLL HORIZONTAL) -->
+    <!-- MODAL INVENTARIO CON TARJETAS VERTICALES -->
     <div id="modal-inventario-completo" class="fixed inset-0 bg-slate-900/80 backdrop-blur-md z-50 p-2 sm:p-4 flex items-center justify-center hidden">
         <div class="bg-white border border-slate-200 w-full max-w-4xl rounded-3xl overflow-hidden shadow-2xl flex flex-col h-[90vh]">
             <div class="bg-slate-900 px-4 py-3.5 text-white flex justify-between items-center shrink-0">
@@ -505,20 +513,19 @@
             <div class="p-3 bg-slate-100 border-b border-slate-200 shrink-0">
                 <div class="relative">
                     <i class="fa-solid fa-magnifying-glass absolute left-3.5 top-3 text-slate-400 text-xs"></i>
-                    <input type="text" id="busqueda-inventario-input" onkeyup="window.renderizarTablaModalInventario()" placeholder="Escriba para buscar: harina, aceite, filtro, guaya..." class="input-clean pl-9 bg-white font-mono text-xs">
+                    <input type="text" id="busqueda-inventario-input" onkeyup="window.renderizarTablaModalInventario()" placeholder="Escriba para buscar: harina, aceite, filtro..." class="input-clean pl-9 bg-white font-mono text-xs">
                 </div>
             </div>
 
-            <!-- CONTENEDOR DE TARJETAS VERTICALES -->
             <div class="p-3 sm:p-5 overflow-y-auto no-scrollbar flex-grow space-y-3">
                 <div id="contenedor-tarjetas-inventario" class="grid grid-cols-1 sm:grid-cols-2 gap-3">
-                    <!-- Inyección dinámica de tarjetas de producto -->
+                    <!-- Inyección dinámica -->
                 </div>
             </div>
         </div>
     </div>
 
-    <!-- SUB-MODAL DE EDICIÓN RÁPIDA (DIRECTO SIN SALIR DEL INVENTARIO) -->
+    <!-- SUB-MODAL DE EDICIÓN RÁPIDA -->
     <div id="submodal-edicion-rapida" class="fixed inset-0 bg-slate-950/80 backdrop-blur-md z-[60] p-4 flex items-center justify-center hidden">
         <div class="bg-white border border-slate-200 w-full max-w-md rounded-3xl overflow-hidden shadow-2xl p-5 space-y-4 font-bold text-xs">
             <div class="flex justify-between items-center border-b border-slate-100 pb-3">
@@ -563,7 +570,14 @@
 
     <!-- 4. VITRINA DIGITAL PÚBLICA -->
     <div id="vista-tienda-comercio" class="hidden min-h-screen flex flex-col bg-slate-50 w-full">
-        <!-- CABECERA DE LA VITRINA - PRIORIDAD RAZÓN SOCIAL COMPLETA -->
+        <!-- BANNER DE SOPORTE MÁSTER -->
+        <div id="banner-soporte-master-top" class="bg-amber-500 text-slate-950 font-black text-[10.5px] py-2 px-4 text-center uppercase tracking-wider flex justify-between items-center hidden shadow-md">
+            <span>⚡ MODO SOPORTE TÉCNICO MÁSTER CONECTADO</span>
+            <button onclick="window.regresarAlPanelMaster()" class="bg-slate-950 text-white px-3 py-1 rounded-lg text-[9px] font-bold uppercase hover:bg-slate-800 transition-all">
+                Volver a Panel Máster
+            </button>
+        </div>
+
         <header class="bg-white border-b border-slate-200 p-3 sm:p-4 sticky top-0 z-30 shadow-sm w-full">
             <div class="max-w-5xl mx-auto flex justify-between items-center gap-3 w-full">
                 <div class="flex items-center gap-3 min-w-0 flex-1">
@@ -571,8 +585,8 @@
                         <i class="fa-solid fa-shop"></i>
                     </div>
                     <div class="min-w-0 flex-1">
-                        <h1 id="header-shop-title" class="font-black text-sm sm:text-lg text-slate-900 uppercase tracking-tight truncate">TUCOCEL C.A.</h1>
-                        <p id="header-shop-sub" class="text-[10px] sm:text-[11px] text-slate-500 font-medium truncate">Cordero — Táchira | WhatsApp: 0424-1234567</p>
+                        <h1 id="header-shop-title" class="font-black text-sm sm:text-lg text-slate-900 uppercase tracking-tight truncate">COMERCIO EJEMPLO C.A.</h1>
+                        <p id="header-shop-sub" class="text-[10px] sm:text-[11px] text-slate-500 font-medium truncate">Ciudad — Estado | WhatsApp: 04XX-0000000</p>
                     </div>
                 </div>
 
@@ -582,19 +596,26 @@
             </div>
         </header>
 
-        <main class="max-w-5xl mx-auto w-full p-3 sm:p-4 flex-grow space-y-4 sm:space-y-6 pb-28">
+        <main class="max-w-5xl mx-auto w-full p-3 sm:p-4 flex-grow space-y-4 sm:space-y-6">
             <div class="flex justify-between items-center border-b border-slate-200 pb-2">
                 <h2 class="text-xs font-black uppercase text-slate-500 tracking-wider">Productos en Vitrina</h2>
                 <span class="text-[9px] text-slate-400 font-mono">Precios en tiempo real</span>
             </div>
 
-            <!-- GRID ADAPTATIVO: 2 POR FILA EN MÓVIL, 4 EN COMPUTADORA -->
+            <!-- GRID ADAPTATIVO: 2 POR FILA EN MÓVIL, 4 EN PC -->
             <div id="grid-productos-tienda" class="grid grid-cols-2 md:grid-cols-4 gap-2.5 sm:gap-4 w-full">
                 <!-- Se inyecta dinámicamente -->
             </div>
+
+            <!-- PIE DE PÁGINA CORPORATIVO CON RESGUARDO DE ESPACIO (PB-28) -->
+            <footer class="mt-8 pt-4 border-t border-slate-200 text-center text-slate-600 font-sans text-[11px] space-y-1 max-w-lg mx-auto pb-28">
+                <p class="font-extrabold text-slate-900 tracking-tight">Sistema TCL Comercio Web</p>
+                <p class="font-semibold text-slate-600">Un Programa de Tucocel C.A. | Desarrollado por PublionlineMK</p>
+                <p class="text-blue-600 font-bold flex items-center justify-center gap-1"><i class="fa-solid fa-phone text-[10px]"></i> Contacto: 0424-7357549</p>
+            </footer>
         </main>
 
-        <!-- BARRA INFERIOR FLOTANTE DE VITRINA (WHATSAPP + CARRITO REINSTALADOS) -->
+        <!-- BARRA INFERIOR FLOTANTE CON ESPACIO CÓMODO -->
         <div class="fixed bottom-4 left-3 right-3 max-w-xl mx-auto z-40 flex items-center gap-2 sm:gap-3">
             <button onclick="window.openWhatsAppDirectQuery()" class="w-12 h-12 sm:w-14 sm:h-14 bg-white border-2 border-emerald-500 text-emerald-600 rounded-2xl flex items-center justify-center shadow-lg hover:bg-emerald-50 shrink-0 transition-all active:scale-95">
                 <i class="fa-brands fa-whatsapp text-2xl sm:text-3xl"></i>
@@ -610,7 +631,7 @@
         </div>
     </div>
 
-    <!-- MODAL LOGIN FORMAL CLIENTE -->
+    <!-- MODAL LOGIN CLIENTE -->
     <div id="modal-auth-panel-privado" class="fixed inset-0 bg-slate-900/80 backdrop-blur-md z-50 p-4 flex items-center justify-center hidden">
         <div class="bg-white border border-slate-200 w-full max-w-sm rounded-3xl overflow-hidden shadow-2xl p-5 sm:p-6 space-y-4">
             <div class="text-center space-y-1">
@@ -624,7 +645,7 @@
             <form onsubmit="event.preventDefault(); window.validarCredencialesGestionComercio();" class="space-y-3 font-bold text-xs">
                 <div>
                     <label class="text-[10px] text-slate-500 uppercase block mb-1">Usuario ID *</label>
-                    <input type="text" id="auth-user-gestion" required placeholder="Ej: tucocel" class="input-clean font-mono">
+                    <input type="text" id="auth-user-gestion" required placeholder="Ej: demo / repuestos" class="input-clean font-mono">
                 </div>
                 <div>
                     <label class="text-[10px] text-slate-500 uppercase block mb-1">Contraseña de Seguridad *</label>
@@ -636,7 +657,7 @@
         </div>
     </div>
 
-    <!-- SCRIPT GENERAL RESTAURADO Y COMPLETO -->
+    <!-- SCRIPT GENERAL Y DE DIAGNÓSTICO -->
     <script>
         // CONFIGURACIÓN DE GOOGLE FIREBASE
         const firebaseConfig = {
@@ -658,7 +679,71 @@
         window.STORAGE_KEY = 'tcl_master_db_2026';
         window.STORAGE_KEY_INV = 'tcl_inventario_db_2026';
 
-        // RENDER DE TARJETAS VERTICALES DE INVENTARIO PRIVADO (CLARIDAD TOTAL)
+        window.esMasterLogueado = false;
+        window.clienteActivoSesion = null;
+        window.diasSuscripcionSeleccionados = 180;
+        window.contadorErroresConsola = 0;
+        window.tipoVistaModalActual = 'ACTIVOS';
+        window.carritoTienda = [];
+        window.monedasVisibles = { usd: true, cop: true, bs: true };
+        window.tasasConfig = { cop: 3600, bcv: 36.50, paridad: 3.3 };
+
+        // DECLARACIÓN DE FUNCIÓN CORREGIDA PARA PÍLDORAS DE SUSCRIPCIÓN (CORRIGE ERROR DE CAJA NEGRA)
+        window.seleccionarPildoraDias = function(dias) {
+            window.diasSuscripcionSeleccionados = dias;
+            [30, 90, 180, 365].forEach(d => {
+                const btn = document.getElementById(`pildora-${d}`);
+                if (btn) {
+                    if (d === dias) btn.classList.add('pildora-dias-active');
+                    else btn.classList.remove('pildora-dias-active');
+                }
+            });
+            const display = document.getElementById('lbl-display-dias-seleccionados');
+            if (display) display.innerText = `${dias} Días (${window.obtenerFormatoPlanText(dias)})`;
+        };
+
+        window.formatearMiles = function(val) {
+            return Math.round(val || 0).toString().replace(/\B(?=(\d{3})+(?!\d))/g, ".");
+        };
+
+        window.obtenerFormatoPlanText = function(dias) {
+            if (dias >= 365) return '1 AÑO';
+            if (dias >= 180) return '6 MESES';
+            if (dias >= 90) return '3 MESES';
+            return `${dias} DÍAS`;
+        };
+
+        window.procesarYComprimirImagen = function(input) {
+            if (!input.files || !input.files[0]) return;
+            const file = input.files[0];
+            const reader = new FileReader();
+            reader.onload = function(e) {
+                const img = new Image();
+                img.onload = function() {
+                    const canvas = document.createElement('canvas');
+                    const MAX_WIDTH = 450, MAX_HEIGHT = 600;
+                    let width = img.width, height = img.height;
+                    if (width > height) { if (width > MAX_WIDTH) { height *= MAX_WIDTH / width; width = MAX_WIDTH; } }
+                    else { if (height > MAX_HEIGHT) { width *= MAX_HEIGHT / height; height = MAX_HEIGHT; } }
+                    canvas.width = width; canvas.height = height;
+                    const ctx = canvas.getContext('2d');
+                    ctx.drawImage(img, 0, 0, width, height);
+                    const base64Optimizado = canvas.toDataURL('image/jpeg', 0.70);
+                    document.getElementById('inv-input-foto-base64').value = base64Optimizado;
+                    document.getElementById('box-preview-foto').innerHTML = `<img src="${base64Optimizado}" class="w-full h-full object-cover">`;
+                };
+                img.src = e.target.result;
+            };
+            reader.readAsDataURL(file);
+        };
+
+        window.regresarAlPanelMaster = function() {
+            if (!window.esMasterLogueado) return;
+            document.getElementById('vista-tienda-comercio').classList.add('hidden');
+            document.getElementById('vista-panel-cliente-privado').classList.add('hidden');
+            document.getElementById('vista-master-admin').classList.remove('hidden');
+        };
+
         window.renderizarTablaModalInventario = function() {
             const container = document.getElementById('contenedor-tarjetas-inventario');
             const busqueda = (document.getElementById('busqueda-inventario-input').value || '').toLowerCase().trim();
@@ -680,7 +765,7 @@
                 return `
                     <div class="card-light p-4 space-y-3 border-slate-200 shadow-sm relative w-full">
                         <div class="flex items-center gap-3">
-                            <div class="w-12 h-12 rounded-xl bg-slate-100 flex items-center justify-center text-slate-400 overflow-hidden shrink-0 border">
+                            <div class="w-12 h-16 rounded-xl bg-slate-100 flex items-center justify-center text-slate-400 overflow-hidden shrink-0 border">
                                 ${p.foto ? `<img src="${p.foto}" class="w-full h-full object-cover">` : `<i class="fa-solid fa-box text-base"></i>`}
                             </div>
                             <div class="min-w-0 flex-1">
@@ -721,7 +806,6 @@
             }).join('');
         };
 
-        // SUB-MODAL DE EDICIÓN RÁPIDA (DIRECTO EN EL INVENTARIO)
         window.abrirSubmodalEdicion = function(id) {
             const prod = window.dbInventario.find(p => p.id === id);
             if (!prod) return;
@@ -760,14 +844,15 @@
             }
         };
 
-        // RENDERIZADO VITRINA CON CUADRÍCULA 2 (MÓVIL) Y 4 (PC) + TARJETA "PRÓXIMAMENTE"
+        // RENDERIZADO DE VITRINA CON LÓGICA DINÁMICA DE RELLENO DE GRILLA
         window.renderizarProductosVitrina = function() {
             const grid = document.getElementById('grid-productos-tienda');
             if (!grid) return;
 
             let htmlProductos = '';
+            const totalProd = window.dbInventario.length;
 
-            if (window.dbInventario.length === 0) {
+            if (totalProd === 0) {
                 htmlProductos = `<div class="col-span-2 md:col-span-4 py-12 text-center text-slate-400 font-bold text-xs">No hay productos en la vitrina por los momentos.</div>`;
             } else {
                 htmlProductos = window.dbInventario.map(p => {
@@ -779,11 +864,11 @@
                     return `
                         <div class="card-light p-2.5 sm:p-3.5 space-y-2 flex flex-col justify-between hover:border-blue-300 transition-all w-full">
                             <div class="space-y-1.5">
-                                <div class="w-full h-28 sm:h-36 bg-slate-100 rounded-2xl overflow-hidden flex items-center justify-center text-slate-400 text-2xl relative">
+                                <div class="w-full aspect-[3/4] bg-slate-100 rounded-2xl overflow-hidden flex items-center justify-center text-slate-400 text-3xl relative">
                                     ${p.foto ? `<img src="${p.foto}" class="w-full h-full object-cover">` : `<i class="fa-solid fa-box-open"></i>`}
-                                    ${!disponible ? `<span class="absolute top-1.5 right-1.5 bg-red-600 text-white font-black text-[8px] sm:text-[9px] px-1.5 py-0.5 rounded-lg uppercase shadow">Agotado</span>` : `<span class="absolute top-1.5 right-1.5 bg-emerald-600 text-white font-black text-[8px] sm:text-[9px] px-1.5 py-0.5 rounded-lg uppercase font-mono shadow">${p.stock} Disponibles</span>`}
+                                    ${!disponible ? `<span class="absolute top-2 right-2 bg-red-600 text-white font-black text-[8px] sm:text-[9px] px-2 py-0.5 rounded-lg uppercase shadow">Agotado</span>` : `<span class="absolute top-2 right-2 bg-emerald-600 text-white font-black text-[8px] sm:text-[9px] px-2 py-0.5 rounded-lg uppercase font-mono shadow">${p.stock} Disponibles</span>`}
                                 </div>
-                                <h3 class="font-black text-slate-900 text-[11px] sm:text-xs uppercase truncate">${p.nombre}</h3>
+                                <h3 class="font-black text-slate-900 text-[11px] sm:text-xs uppercase truncate pt-1">${p.nombre}</h3>
                                 <p class="text-[9px] sm:text-[10px] text-slate-500 leading-tight line-clamp-2">${p.desc || ''}</p>
                             </div>
 
@@ -808,26 +893,32 @@
                     `;
                 }).join('');
 
-                // AUTOGENERACIÓN DE TARJETA "PRÓXIMAMENTE NUEVO PRODUCTO AQUÍ"
-                const tarjetaProximamente = `
-                    <div class="border-2 border-dashed border-slate-300 rounded-3xl p-3 sm:p-4 flex flex-col items-center justify-center text-center space-y-2 bg-slate-50/50 hover:bg-slate-100/50 transition-all min-h-[220px]">
-                        <div class="w-10 h-10 rounded-full bg-blue-50 text-blue-600 flex items-center justify-center text-lg border border-blue-100">
-                            <i class="fa-solid fa-plus"></i>
-                        </div>
-                        <div class="space-y-0.5">
-                            <span class="font-black text-slate-800 text-[10px] sm:text-xs uppercase block">Próximamente Nuevo Producto Aquí</span>
-                            <span class="text-[9px] text-slate-400 block font-medium">Catálogo en permanente actualización.</span>
-                        </div>
-                    </div>
-                `;
+                // CÁLCULO INTELIGENTE DE RELLENO IMPAR DE FILA
+                const esMovil = window.innerWidth < 768;
+                const cols = esMovil ? 2 : 4;
+                const resto = totalProd % cols;
 
-                htmlProductos += tarjetaProximamente;
+                if (resto !== 0) {
+                    const faltantes = cols - resto;
+                    for (let i = 0; i < faltantes; i++) {
+                        htmlProductos += `
+                            <div class="border-2 border-dashed border-slate-300 rounded-3xl p-3 sm:p-4 flex flex-col items-center justify-center text-center space-y-2 bg-slate-50/50 hover:bg-slate-100/50 transition-all min-h-[260px]">
+                                <div class="w-10 h-10 rounded-full bg-blue-50 text-blue-600 flex items-center justify-center text-lg border border-blue-100">
+                                    <i class="fa-solid fa-plus"></i>
+                                </div>
+                                <div class="space-y-0.5">
+                                    <span class="font-black text-slate-800 text-[10px] sm:text-xs uppercase block">Próximamente Nuevo Producto Aquí</span>
+                                    <span class="text-[9px] text-slate-400 block font-medium">Catálogo en permanente actualización.</span>
+                                </div>
+                            </div>
+                        `;
+                    }
+                }
             }
 
             grid.innerHTML = htmlProductos;
         };
 
-        // TARJETA DE CLIENTE MODAL
         window.renderizarListaClientesModal = function() {
             const container = document.getElementById('lista-clientes-modal');
             const busquedaInput = document.getElementById('busqueda-modal-cliente');
@@ -861,7 +952,7 @@
                         ${c.responsable ? `<div class="flex items-center gap-2 truncate"><span>👤</span><span>Responsable: <strong class="text-slate-900">${c.responsable}</strong></span></div>` : ''}
                         <div class="flex items-center gap-2 truncate">
                             <span>📞</span>
-                            <span>WA: ${c.wa || '0424-1234567'}</span>
+                            <span>WA: ${c.wa || '04XX-0000000'}</span>
                         </div>
                         <div class="flex items-center gap-2 truncate">
                             <span>⏳</span>
@@ -929,7 +1020,7 @@
                 try { window.dbClientesSaaS = JSON.parse(guardados); } catch(e) { window.dbClientesSaaS = []; }
             } else {
                 window.dbClientesSaaS = [
-                    { id: 'cli_001', nombre: 'TUCOCEL C.A.', responsable: 'Marta Silva', wa: '0424-1234567', user: 'tucocel', pass: '123456', slug: 'tucocel', dias: 180, estatus: 'ACTIVO' }
+                    { id: 'cli_001', nombre: 'COMERCIO EJEMPLO C.A.', responsable: 'Juan Pérez', wa: '04XX-0000000', user: 'demo', pass: '123456', slug: 'demo', dias: 180, estatus: 'ACTIVO' }
                 ];
                 window.guardarClientesEnStorage();
             }
@@ -960,51 +1051,58 @@
 
         window.cargarInventarioDesdeStorage();
 
-        window.esMasterLogueado = false;
-        window.clienteActivoSesion = null;
-        window.diasSuscripcionSeleccionados = 180;
-        window.contadorErroresConsola = 0;
-        window.tipoVistaModalActual = 'ACTIVOS';
-        window.carritoTienda = [];
-        window.monedasVisibles = { usd: true, cop: true, bs: true };
-        window.tasasConfig = { cop: 3600, bcv: 36.50, paridad: 3.3 };
+        window.guardarProductoInventario = function() {
+            const idEdit = document.getElementById('inv-edit-id').value;
+            const nombre = document.getElementById('inv-input-nombre').value.trim();
+            const monedaBase = document.getElementById('inv-input-moneda-base').value;
+            let valCosto = parseFloat(document.getElementById('inv-input-costo').value) || 0;
+            let valVenta = parseFloat(document.getElementById('inv-input-venta').value) || 0;
+            const stock = parseInt(document.getElementById('inv-input-stock').value) || 0;
+            const desc = document.getElementById('inv-input-desc').value.trim() || 'Sin descripción';
+            const foto = document.getElementById('inv-input-foto-base64').value || '';
 
-        window.formatearMiles = function(val) {
-            return Math.round(val || 0).toString().replace(/\B(?=(\d{3})+(?!\d))/g, ".");
+            if (!nombre || valVenta <= 0) {
+                alert("⚠️ Ingrese un nombre válido y un precio de venta mayor a 0.");
+                return;
+            }
+
+            let precioCostoUSD = valCosto;
+            let precioVentaUSD = valVenta;
+
+            if (monedaBase === 'COP') {
+                precioCostoUSD = valCosto / window.tasasConfig.cop;
+                precioVentaUSD = valVenta / window.tasasConfig.cop;
+            } else if (monedaBase === 'BS') {
+                precioCostoUSD = valCosto / window.tasasConfig.bcv;
+                precioVentaUSD = valVenta / window.tasasConfig.bcv;
+            }
+
+            if (idEdit) {
+                const idx = window.dbInventario.findIndex(p => p.id === idEdit);
+                if (idx !== -1) {
+                    window.dbInventario[idx] = { ...window.dbInventario[idx], nombre, desc, precioCosto: precioCostoUSD, precioVenta: precioVentaUSD, stock, foto: foto || window.dbInventario[idx].foto || '' };
+                }
+                alert("✨ Producto actualizado en inventario.");
+            } else {
+                const nuevo = { id: 'p_' + Date.now(), nombre, desc, precioCosto: precioCostoUSD, precioVenta: precioVentaUSD, stock, foto };
+                window.dbInventario.push(nuevo);
+                alert("✅ Producto agregado al inventario.");
+            }
+
+            window.guardarInventarioEnStorage();
+            document.getElementById('inv-edit-id').value = '';
+            document.getElementById('inv-input-foto-base64').value = '';
+            document.getElementById('box-preview-foto').innerHTML = `<i class="fa-solid fa-image"></i>`;
+            document.getElementById('inv-input-nombre').value = '';
+            document.getElementById('inv-input-costo').value = '';
+            document.getElementById('inv-input-venta').value = '';
+            document.getElementById('inv-input-stock').value = '';
+            document.getElementById('inv-input-desc').value = '';
+
+            window.actualizarBadgeTotalInventario();
+            window.recalcularReportesGanancias();
         };
 
-        window.obtenerFormatoPlanText = function(dias) {
-            if (dias >= 365) return '1 AÑO';
-            if (dias >= 180) return '6 MESES';
-            if (dias >= 90) return '3 MESES';
-            return `${dias} DÍAS`;
-        };
-
-        window.procesarYComprimirImagen = function(input) {
-            if (!input.files || !input.files[0]) return;
-            const file = input.files[0];
-            const reader = new FileReader();
-            reader.onload = function(e) {
-                const img = new Image();
-                img.onload = function() {
-                    const canvas = document.createElement('canvas');
-                    const MAX_WIDTH = 500, MAX_HEIGHT = 500;
-                    let width = img.width, height = img.height;
-                    if (width > height) { if (width > MAX_WIDTH) { height *= MAX_WIDTH / width; width = MAX_WIDTH; } }
-                    else { if (height > MAX_HEIGHT) { width *= MAX_HEIGHT / height; height = MAX_HEIGHT; } }
-                    canvas.width = width; canvas.height = height;
-                    const ctx = canvas.getContext('2d');
-                    ctx.drawImage(img, 0, 0, width, height);
-                    const base64Optimizado = canvas.toDataURL('image/jpeg', 0.65);
-                    document.getElementById('inv-input-foto-base64').value = base64Optimizado;
-                    document.getElementById('box-preview-foto').innerHTML = `<img src="${base64Optimizado}" class="w-full h-full object-cover">`;
-                };
-                img.src = e.target.result;
-            };
-            reader.readAsDataURL(file);
-        };
-
-        // MANEJO DEL CARRITO Y WHATSAPP
         window.agregarAlCarrito = function(nombre, precioUSD) {
             window.carritoTienda.push({ nombre, precioUSD });
             window.actualizarResumenCarrito();
@@ -1022,7 +1120,7 @@
         };
 
         window.openWhatsAppDirectQuery = function() {
-            const phone = "584241234567";
+            const phone = "584247357549";
             const text = encodeURIComponent("¡Hola! Quisiera consultar disponibilidad de productos.");
             window.open(`https://wa.me/${phone}?text=${text}`, '_blank');
         };
@@ -1039,7 +1137,7 @@
             const total = window.carritoTienda.reduce((acc, p) => acc + p.precioUSD, 0);
             mensaje += `\n💰 *Total:* $${total.toFixed(2)} USD`;
 
-            const phone = "584241234567";
+            const phone = "584247357549";
             window.open(`https://wa.me/${phone}?text=${encodeURIComponent(mensaje)}`, '_blank');
         };
 
@@ -1054,6 +1152,7 @@
             const passIngresada = document.getElementById('auth-pass-gestion').value.trim();
 
             if (userIngresado === 'tucocel' && passIngresada === 'Razu2020.') {
+                window.esMasterLogueado = true;
                 document.getElementById('modal-auth-panel-privado').classList.add('hidden');
                 window.abrirPanelClientePrivadoDirecto();
                 return;
@@ -1071,12 +1170,21 @@
 
         window.abrirPanelClientePrivadoDirecto = function() {
             const cliente = window.clienteActivoSesion || window.dbClientesSaaS[0];
-            document.getElementById('client-panel-title').innerText = cliente ? cliente.nombre : 'TUCOCEL C.A.';
+            document.getElementById('client-panel-title').innerText = cliente ? cliente.nombre : 'COMERCIO EJEMPLO C.A.';
             
-            // Actualización de plan y cuenta regresiva en el panel
             const dias = cliente ? (cliente.dias || 180) : 180;
             document.getElementById('client-panel-plan-badge').innerText = `PLAN CONTRATADO: ${window.obtenerFormatoPlanText(dias)} (${dias} DÍAS)`;
             document.getElementById('client-panel-dias-cuenta').innerText = `${dias} Días`;
+
+            // SOLO MUESTRA EL BOTÓN DE REGRESO SI ESTÁ AUTENTICADO COMO MÁSTER
+            const btnRegreso = document.getElementById('btn-master-regreso-panel');
+            if (btnRegreso) {
+                if (window.esMasterLogueado) {
+                    btnRegreso.classList.remove('hidden');
+                } else {
+                    btnRegreso.classList.add('hidden');
+                }
+            }
 
             document.getElementById('vista-tienda-comercio').classList.add('hidden');
             document.getElementById('vista-panel-cliente-privado').classList.remove('hidden');
@@ -1085,6 +1193,15 @@
         };
 
         window.verVitrinaComoCliente = function() {
+            const banner = document.getElementById('banner-soporte-master-top');
+            if (banner) {
+                if (window.esMasterLogueado) {
+                    banner.classList.remove('hidden');
+                } else {
+                    banner.classList.add('hidden');
+                }
+            }
+
             document.getElementById('vista-panel-cliente-privado').classList.add('hidden');
             document.getElementById('vista-tienda-comercio').classList.remove('hidden');
             window.renderizarProductosVitrina();
@@ -1092,6 +1209,16 @@
 
         window.entrarEnCalienteCliente = function(slug, nombreLocal) {
             document.getElementById('header-shop-title').innerText = nombreLocal;
+            
+            const banner = document.getElementById('banner-soporte-master-top');
+            if (banner) {
+                if (window.esMasterLogueado) {
+                    banner.classList.remove('hidden');
+                } else {
+                    banner.classList.add('hidden');
+                }
+            }
+
             document.getElementById('modal-base-clientes').classList.add('hidden');
             document.getElementById('vista-master-admin').classList.add('hidden');
             document.getElementById('vista-tienda-comercio').classList.remove('hidden');
@@ -1126,46 +1253,6 @@
 
             window.tasasConfig.cop = copVal;
             window.tasasConfig.bcv = bsVal;
-        };
-
-        window.guardarProductoInventario = function() {
-            const idEdit = document.getElementById('inv-edit-id').value;
-            const nombre = document.getElementById('inv-input-nombre').value.trim();
-            const precioCosto = parseFloat(document.getElementById('inv-input-costo').value) || 0;
-            const precioVenta = parseFloat(document.getElementById('inv-input-venta').value) || 0;
-            const stock = parseInt(document.getElementById('inv-input-stock').value) || 0;
-            const desc = document.getElementById('inv-input-desc').value.trim() || 'Sin descripción';
-            const foto = document.getElementById('inv-input-foto-base64').value || '';
-
-            if (!nombre || precioVenta <= 0) {
-                alert("⚠️ Ingrese un nombre válido y un precio de venta mayor a 0.");
-                return;
-            }
-
-            if (idEdit) {
-                const idx = window.dbInventario.findIndex(p => p.id === idEdit);
-                if (idx !== -1) {
-                    window.dbInventario[idx] = { ...window.dbInventario[idx], nombre, desc, precioCosto, precioVenta, stock, foto: foto || window.dbInventario[idx].foto || '' };
-                }
-                alert("✨ Producto actualizado en inventario.");
-            } else {
-                const nuevo = { id: 'p_' + Date.now(), nombre, desc, precioCosto, precioVenta, stock, foto };
-                window.dbInventario.push(nuevo);
-                alert("✅ Producto agregado al inventario.");
-            }
-
-            window.guardarInventarioEnStorage();
-            document.getElementById('inv-edit-id').value = '';
-            document.getElementById('inv-input-foto-base64').value = '';
-            document.getElementById('box-preview-foto').innerHTML = `<i class="fa-solid fa-image"></i>`;
-            document.getElementById('inv-input-nombre').value = '';
-            document.getElementById('inv-input-costo').value = '';
-            document.getElementById('inv-input-venta').value = '';
-            document.getElementById('inv-input-stock').value = '';
-            document.getElementById('inv-input-desc').value = '';
-
-            window.actualizarBadgeTotalInventario();
-            window.recalcularReportesGanancias();
         };
 
         window.actualizarBadgeTotalInventario = function() {
@@ -1234,7 +1321,7 @@
                 document.getElementById('vista-master-admin').classList.remove('hidden');
                 document.getElementById('diagnostico-master-flotante').classList.remove('hidden');
                 document.getElementById('box-controles-descarga-segura').classList.remove('hidden');
-                document.getElementById('log-status-master').innerText = "[SUCCESS] Sesión 'tucocel' autenticada. Caja Negra activa.";
+                document.getElementById('log-status-master').innerText = "[SUCCESS] Sesión Máster autenticada. Caja Negra activa.";
                 window.recalcularTotalesYBadgesComercios();
                 return;
             }
