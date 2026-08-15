@@ -13,6 +13,9 @@
     <script src="https://www.gstatic.com/firebasejs/10.8.0/firebase-app-compat.js"></script>
     <script src="https://www.gstatic.com/firebasejs/10.8.0/firebase-firestore-compat.js"></script>
 
+    <!-- ESCÁNER CÓDIGO DE BARRAS HTML5-QRCODE -->
+    <script src="https://unpkg.com/html5-qrcode" type="text/javascript"></script>
+
     <style>
         @import url('https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800;900&display=swap');
         body { font-family: 'Plus Jakarta Sans', sans-serif; background-color: #f8fafc; color: #0f172a; overflow-x: hidden; width: 100%; }
@@ -583,9 +586,15 @@
             </div>
 
             <div id="sec-pos-modo-inventario" class="space-y-3">
-                <div class="relative">
-                    <i class="fa-solid fa-magnifying-glass absolute left-3.5 top-3.5 text-slate-400 text-sm"></i>
-                    <input type="text" id="pos-busqueda-input" onkeyup="window.renderizarInventarioPOS()" placeholder="Buscar producto por nombre (ej: harina, aceite)..." class="input-clean pl-10 py-3 bg-white font-mono text-xs border-slate-300">
+                <div class="flex gap-2">
+                    <div class="relative flex-grow">
+                        <i class="fa-solid fa-magnifying-glass absolute left-3.5 top-3.5 text-slate-400 text-sm"></i>
+                        <input type="text" id="pos-busqueda-input" onkeyup="window.renderizarInventarioPOS()" placeholder="Buscar por nombre o código de barra..." class="input-clean pl-10 py-3 bg-white font-mono text-xs border-slate-300">
+                    </div>
+                    <button type="button" onclick="window.iniciarEscanerCamara('POS')" class="bg-slate-900 hover:bg-slate-800 text-white px-3.5 rounded-xl text-sm font-black flex items-center justify-center gap-1.5 shrink-0 shadow-md">
+                        <i class="fa-solid fa-barcode text-base text-amber-400"></i>
+                        <span class="hidden sm:inline text-xs">Escanear</span>
+                    </button>
                 </div>
                 <div id="pos-grid-inventario" class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-2 max-h-56 overflow-y-auto no-scrollbar p-1">
                     <!-- Productos buscados -->
@@ -669,6 +678,19 @@
                                 <option value="🇻🇪 Transferencia / Pago Móvil (Bs)">🇻🇪 Transferencia / Pago Móvil (Bs)</option>
                                 <option value="🔀 Pago Mixto / Múltiple">🔀 Pago Mixto / Múltiple</option>
                             </select>
+                        </div>
+
+                        <!-- CÁLCULO DE VUELTO / CAMBIO EN CALIENTE -->
+                        <div class="bg-blue-50/50 p-2.5 rounded-xl border border-blue-200 grid grid-cols-1 sm:grid-cols-2 gap-2 items-center">
+                            <div>
+                                <label class="text-[9px] text-slate-600 font-bold uppercase block mb-0.5">Monto Recibido del Cliente:</label>
+                                <input type="number" step="0.01" id="pos-input-paga-con" oninput="window.calcularVueltoPOS()" placeholder="Ej: 10.00 ó 50000" class="input-clean font-mono font-black text-blue-600">
+                            </div>
+                            <div class="text-center sm:text-right font-mono">
+                                <span class="text-[9px] text-slate-500 uppercase font-bold block">Cambio / Vuelto a Entregar:</span>
+                                <div id="lbl-pos-vuelto-display" class="text-sm font-black text-emerald-600">$0.00 USD</div>
+                                <div id="lbl-pos-vuelto-sub" class="text-[9.5px] text-slate-500 font-bold">0 COP | 0.00 Bs</div>
+                            </div>
                         </div>
                     </div>
 
@@ -875,82 +897,157 @@
         </div>
     </div>
 
-    <!-- MODAL COMPRAS / INGRESO DE MERCANCÍA (SIMÉTRICO AL POS) -->
+    <!-- MODAL COMPRAS / INGRESO DE MERCANCÍA TIPO CARRITO MULTI-ÍTEM (SIMÉTRICO AL POS) -->
     <div id="modal-recepcion-proveedor" class="fixed inset-0 bg-slate-900/80 backdrop-blur-md z-50 p-3 sm:p-4 flex items-center justify-center hidden no-print">
-        <div class="bg-white border border-slate-200 w-full max-w-2xl rounded-3xl overflow-hidden shadow-2xl flex flex-col max-h-[90vh]">
+        <div class="bg-white border border-slate-200 w-full max-w-3xl rounded-3xl overflow-hidden shadow-2xl flex flex-col max-h-[92vh]">
             <div class="bg-slate-900 px-5 py-4 text-white flex justify-between items-center shrink-0">
-                <h3 class="font-black text-xs uppercase tracking-wider flex items-center gap-2">
-                    <i class="fa-solid fa-truck-ramp-box text-amber-400"></i> COMPRAS & INGRESO DE MERCANCÍA (USO INTERNO)
+                <h3 class="font-black text-xs sm:text-sm uppercase tracking-wider flex items-center gap-2">
+                    <i class="fa-solid fa-truck-ramp-box text-amber-400"></i> INGRESO DE COMPRAS Y MERCANCÍA (PROVEEDORES)
                 </h3>
                 <button onclick="document.getElementById('modal-recepcion-proveedor').classList.add('hidden')" class="text-slate-400 hover:text-white"><i class="fa-solid fa-xmark text-sm"></i></button>
             </div>
 
-            <div class="p-5 overflow-y-auto space-y-4 text-xs font-bold text-slate-800 no-scrollbar">
-                
-                <!-- PÍLDORA MULTIMONEDA DE CARGA DE COMPRAS -->
-                <div class="bg-slate-50 p-2.5 rounded-2xl border border-slate-200 space-y-1">
-                    <span class="text-[9px] text-slate-500 uppercase font-mono font-bold block">1. SELECCIONE MONEDA DE LA FACTURA DE COMPRA:</span>
-                    <div class="grid grid-cols-3 gap-1.5 font-bold text-[10px]">
-                        <button type="button" onclick="window.seleccionarMonedaCargaCompra('USD')" id="btn-compra-usd" class="py-2 rounded-lg border border-blue-600 bg-blue-600 text-white text-center font-black shadow-sm">💵 USD</button>
-                        <button type="button" onclick="window.seleccionarMonedaCargaCompra('COP')" id="btn-compra-cop" class="py-2 rounded-lg border border-slate-300 bg-white text-slate-700 text-center">🇨🇴 COP</button>
-                        <button type="button" onclick="window.seleccionarMonedaCargaCompra('BS')" id="btn-compra-bs" class="py-2 rounded-lg border border-slate-300 bg-white text-slate-700 text-center">🇻🇪 BS</button>
+            <div class="p-4 overflow-y-auto space-y-3 text-xs font-bold text-slate-800 no-scrollbar flex-grow">
+                <!-- 1. ENCARGADO Y PROVEEDOR CON DIRECCIÓN -->
+                <div class="bg-amber-50 p-3 rounded-2xl border border-amber-200 grid grid-cols-1 sm:grid-cols-2 md:grid-cols-4 gap-2">
+                    <div>
+                        <label class="text-[9.5px] text-slate-500 uppercase block mb-0.5">Encargado que Recibe *</label>
+                        <input type="text" id="prov-input-encargado" placeholder="Ej: Carlos Gómez" class="input-clean font-mono">
+                    </div>
+                    <div>
+                        <label class="text-[9.5px] text-slate-500 uppercase block mb-0.5">Proveedor / Empresa *</label>
+                        <input type="text" id="prov-input-nombre" placeholder="Ej: Distribuidora Los Andes C.A." class="input-clean font-mono">
+                    </div>
+                    <div>
+                        <label class="text-[9.5px] text-slate-500 uppercase block mb-0.5">Teléfono / WhatsApp</label>
+                        <input type="tel" id="prov-input-tel" placeholder="Ej: 0414-0000000" class="input-clean font-mono">
+                    </div>
+                    <div>
+                        <label class="text-[9.5px] text-slate-500 uppercase block mb-0.5">Dirección / Ubicación *</label>
+                        <input type="text" id="prov-input-dir" placeholder="Ej: Calle 12, Local 4" class="input-clean font-mono">
                     </div>
                 </div>
 
-                <div class="bg-amber-50 p-3.5 rounded-2xl border border-amber-200 space-y-2">
-                    <span class="text-[10px] font-black text-amber-800 uppercase tracking-wider block">2. Ficha de Compra y Encargado</span>
-                    <div class="grid grid-cols-1 sm:grid-cols-2 gap-2">
-                        <div>
-                            <label class="text-[9.5px] text-slate-500 uppercase block mb-0.5">Nombre del Encargado que Recibe *</label>
-                            <input type="text" id="prov-input-encargado" placeholder="Ej: Carlos Gómez" class="input-clean font-mono">
-                        </div>
-                        <div>
-                            <label class="text-[9.5px] text-slate-500 uppercase block mb-0.5">Nombre del Proveedor / Empresa *</label>
-                            <input type="text" id="prov-input-nombre" placeholder="Ej: Distribuidora Los Andes C.A." class="input-clean">
-                        </div>
-                        <div>
-                            <label class="text-[9.5px] text-slate-500 uppercase block mb-0.5">RIF / Cédula del Proveedor</label>
-                            <input type="text" id="prov-input-rif" placeholder="Ej: J-12345678-0" class="input-clean font-mono">
-                        </div>
-                        <div>
-                            <label class="text-[9.5px] text-slate-500 uppercase block mb-0.5">Teléfono / WhatsApp Proveedor</label>
-                            <input type="tel" id="prov-input-tel" placeholder="Ej: 0414-0000000" class="input-clean font-mono">
-                        </div>
+                <!-- 2. PÍLDORA MULTIMONEDA DE CARGA -->
+                <div class="bg-slate-50 p-2 rounded-xl border border-slate-200 flex justify-between items-center gap-2">
+                    <span class="text-[9px] text-slate-500 uppercase font-mono font-bold">Moneda de Factura de Compra:</span>
+                    <div class="flex gap-1">
+                        <button type="button" onclick="window.seleccionarMonedaCargaCompra('USD')" id="btn-compra-usd" class="px-3 py-1.5 rounded-lg border border-blue-600 bg-blue-600 text-white font-black text-[10px]">💵 USD</button>
+                        <button type="button" onclick="window.seleccionarMonedaCargaCompra('COP')" id="btn-compra-cop" class="px-3 py-1.5 rounded-lg border border-slate-300 bg-white text-slate-700 font-bold text-[10px]">🇨🇴 COP</button>
+                        <button type="button" onclick="window.seleccionarMonedaCargaCompra('BS')" id="btn-compra-bs" class="px-3 py-1.5 rounded-lg border border-slate-300 bg-white text-slate-700 font-bold text-[10px]">🇻🇪 BS</button>
                     </div>
                 </div>
 
-                <div class="bg-slate-50 p-3.5 rounded-2xl border border-slate-200 space-y-2">
-                    <span class="text-[10px] font-black text-slate-600 uppercase tracking-wider block">3. Detalle de Producto & Precios</span>
-                    <div class="grid grid-cols-1 sm:grid-cols-2 gap-2">
-                        <div>
-                            <label class="text-[9.5px] text-slate-500 uppercase block mb-0.5">Nombre del Producto *</label>
-                            <input type="text" id="prov-prod-nombre" placeholder="Ej: Aceite Motor 20W50 1L" class="input-clean">
+                <!-- 3. FORMULARIO PARA AGREGAR PRODUCTOS AL CARRITO DE COMPRA -->
+                <div class="bg-slate-50 p-3 rounded-2xl border border-slate-200 space-y-2">
+                    <div class="flex justify-between items-center">
+                        <span class="text-[10px] font-black text-slate-600 uppercase tracking-wider block">+ Agregar Producto a la Lista de Compra</span>
+                        <button type="button" onclick="window.iniciarEscanerCamara('COMPRA')" class="bg-slate-900 hover:bg-slate-800 text-amber-400 px-2.5 py-1 rounded-lg text-[10px] font-black uppercase flex items-center gap-1 shadow-sm">
+                            <i class="fa-solid fa-barcode"></i> Escanear Código
+                        </button>
+                    </div>
+                    <div class="grid grid-cols-1 sm:grid-cols-4 gap-2">
+                        <div class="sm:col-span-2">
+                            <label class="text-[9px] text-slate-500 uppercase block mb-0.5">Nombre del Producto *</label>
+                            <input type="text" id="prov-prod-nombre" placeholder="Ej: Harina PAN 1kg / Filtro 20W50" class="input-clean font-mono">
                         </div>
                         <div>
-                            <label class="text-[9.5px] text-slate-500 uppercase block mb-0.5">Cantidad Recibida (Unidades) *</label>
-                            <input type="number" id="prov-prod-cant" placeholder="Ej: 24" class="input-clean font-mono">
+                            <label class="text-[9px] text-slate-500 uppercase block mb-0.5">Cantidad *</label>
+                            <input type="number" id="prov-prod-cant" value="1" min="1" class="input-clean font-mono text-center font-black">
+                        </div>
+                        <div>
+                            <label id="lbl-compra-costo-moneda" class="text-[9px] text-slate-500 uppercase block mb-0.5">P. Costo ($ USD) *</label>
+                            <input type="number" step="0.01" id="prov-prod-costo" placeholder="0.00" class="input-clean font-mono text-slate-800 font-black">
                         </div>
                     </div>
-                    <div class="grid grid-cols-1 sm:grid-cols-2 gap-2">
-                        <div>
-                            <label id="lbl-compra-costo-moneda" class="text-[9.5px] text-slate-500 uppercase block mb-0.5">Precio de Costo ($ USD) *</label>
-                            <input type="number" step="0.01" id="prov-prod-costo" placeholder="Ej: 3.20" class="input-clean font-mono text-slate-700">
+                    <div class="flex justify-between items-center gap-2 pt-1">
+                        <div class="flex-1">
+                            <label id="lbl-compra-venta-moneda" class="text-[9px] text-slate-500 uppercase block mb-0.5">P. Venta Público ($ USD) *</label>
+                            <input type="number" step="0.01" id="prov-prod-venta" placeholder="0.00" class="input-clean font-mono text-blue-600 font-black">
                         </div>
-                        <div>
-                            <label id="lbl-compra-venta-moneda" class="text-[9.5px] text-slate-500 uppercase block mb-0.5">Precio de Venta al Público ($ USD) *</label>
-                            <input type="number" step="0.01" id="prov-prod-venta" placeholder="Ej: 4.50" class="input-clean font-mono text-blue-600">
-                        </div>
+                        <button type="button" onclick="window.agregarItemAlCarritoCompra()" class="bg-blue-600 hover:bg-blue-500 text-white px-5 py-2.5 rounded-xl uppercase font-black text-xs shrink-0 mt-3.5 shadow">
+                            + Agregar a la Lista
+                        </button>
                     </div>
                 </div>
 
-                <button onclick="window.procesarRecepcionProveedor()" class="btn-brand w-full py-3.5 text-xs shadow-md flex items-center justify-center gap-2">
-                    <i class="fa-solid fa-dolly"></i> INGRESAR COMPRA, SUMAR STOCK Y EMITIR COMPROBANTE
+                <!-- 4. LISTA DE PRODUCTOS AGREGADOS (CARRITO DE COMPRAS) -->
+                <div class="space-y-1.5">
+                    <span class="text-[10px] text-slate-400 font-mono font-bold uppercase tracking-wider block">Productos en este Documento de Compra:</span>
+                    <div id="lista-carrito-compras" class="space-y-1.5 max-h-40 overflow-y-auto no-scrollbar"></div>
+                </div>
+
+                <!-- 5. TOTALES DE COMPRA MULTIMONEDA SIMULTÁNEOS -->
+                <div class="bg-slate-900 text-white p-3 rounded-2xl space-y-1.5 font-mono">
+                    <div class="flex justify-between items-center border-b border-slate-700 pb-1">
+                        <span class="text-[10.5px] uppercase font-bold text-slate-400">Total Inversión (Multimoneda):</span>
+                        <span id="lbl-total-inversion-compra" class="text-base font-black text-amber-400">$0.00 USD</span>
+                    </div>
+                    <div class="grid grid-cols-2 gap-2 text-center text-xs">
+                        <div class="bg-slate-800 p-1.5 rounded-xl border border-slate-700">
+                            <span class="text-[9px] text-slate-400 uppercase block">Total Pesos</span>
+                            <strong id="lbl-total-compra-cop" class="text-white">0 COP</strong>
+                        </div>
+                        <div class="bg-slate-800 p-1.5 rounded-xl border border-slate-700">
+                            <span class="text-[9px] text-slate-400 uppercase block">Total Bolívares (Paridad)</span>
+                            <strong id="lbl-total-compra-bs" class="text-emerald-400">0.00 Bs</strong>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="bg-slate-100 p-3.5 border-t border-slate-200 shrink-0">
+                <button onclick="window.abrirModalAccionesCierreDocumento('COMPRA')" class="btn-brand w-full py-3.5 text-xs shadow-lg flex items-center justify-center gap-2">
+                    <i class="fa-solid fa-check-double text-base"></i> PROCESAR Y CARGAR COMPRA AL SISTEMA
                 </button>
             </div>
         </div>
     </div>
 
-    <!-- MODAL CIERRE DE PERÍODO GERENCIAL (DESDE / HASTA) -->
+    <!-- MODAL FLOTANTE DE ACCIONES DE CIERRE (3 VÍAS: IMPRIMIR, WHATSAPP, SOLO CARGAR) -->
+    <div id="modal-cierre-acciones-rapidas" class="fixed inset-0 bg-slate-950/85 backdrop-blur-md z-[130] p-4 flex items-center justify-center hidden no-print">
+        <div class="bg-white border border-slate-200 w-full max-w-md rounded-3xl overflow-hidden shadow-2xl p-5 space-y-4 font-bold text-xs text-center">
+            <div class="w-12 h-12 bg-emerald-50 text-emerald-600 rounded-2xl flex items-center justify-center mx-auto text-xl border border-emerald-100 shadow-sm">
+                <i class="fa-solid fa-circle-check"></i>
+            </div>
+            <div>
+                <h3 id="lbl-modal-cierre-titulo" class="font-black text-slate-900 text-sm uppercase">¡OPERACIÓN LISTA PARA CARGAR!</h3>
+                <p id="lbl-modal-cierre-sub" class="text-slate-500 text-[11px]">Seleccione cómo desea emitir el comprobante:</p>
+            </div>
+
+            <div class="bg-slate-50 p-3 rounded-2xl border border-slate-200 font-mono text-slate-800 text-left space-y-1 text-xs" id="box-resumen-cierre-rapido"></div>
+
+            <div class="grid grid-cols-1 gap-2 pt-1">
+                <button onclick="window.ejecutarFinalizacionOperacion('IMPRIMIR')" class="bg-slate-800 hover:bg-slate-700 text-white font-black py-3 rounded-xl uppercase text-xs shadow flex items-center justify-center gap-2 transition-all">
+                    <i class="fa-solid fa-print"></i> 1. Cargar e Imprimir Comprobante
+                </button>
+                <button onclick="window.ejecutarFinalizacionOperacion('WHATSAPP')" class="bg-emerald-600 hover:bg-emerald-500 text-white font-black py-3 rounded-xl uppercase text-xs shadow flex items-center justify-center gap-2 transition-all">
+                    <i class="fa-brands fa-whatsapp text-sm"></i> 2. Cargar y Enviar por WhatsApp
+                </button>
+                <button onclick="window.ejecutarFinalizacionOperacion('SOLO_CARGAR')" class="bg-blue-50 text-blue-700 hover:bg-blue-100 border border-blue-200 font-black py-3 rounded-xl uppercase text-xs flex items-center justify-center gap-2 transition-all">
+                    <i class="fa-solid fa-floppy-disk"></i> 3. Solo Cargar y Continuar
+                </button>
+            </div>
+        </div>
+    </div>
+    <!-- MODAL ESCÁNER DE CÓDIGO DE BARRAS CON CÁMARA -->
+    <div id="modal-escaner-camara" class="fixed inset-0 bg-slate-950/90 backdrop-blur-md z-[150] p-4 flex items-center justify-center hidden no-print">
+        <div class="bg-white border border-slate-200 w-full max-w-sm rounded-3xl overflow-hidden shadow-2xl p-4 space-y-3 text-center">
+            <div class="flex justify-between items-center border-b border-slate-100 pb-2">
+                <h3 class="font-black text-xs uppercase tracking-wider text-slate-900 flex items-center gap-1.5">
+                    <i class="fa-solid fa-barcode text-blue-600"></i> Escanear Código de Barra
+                </h3>
+                <button onclick="window.cerrarEscanerCamara()" class="text-slate-400 hover:text-slate-700 p-1"><i class="fa-solid fa-xmark text-base"></i></button>
+            </div>
+            <p class="text-[11px] text-slate-500 font-medium">Apunte la cámara al código de barra del producto.</p>
+            <div id="reader-camara-box" class="w-full aspect-square bg-slate-900 rounded-2xl overflow-hidden shadow-inner flex items-center justify-center text-white"></div>
+            <button onclick="window.cerrarEscanerCamara()" class="w-full bg-slate-100 hover:bg-slate-200 text-slate-700 font-black py-2.5 rounded-xl uppercase text-xs">
+                Cancelar / Cerrar Cámara
+            </button>
+        </div>
+    </div>
+
+    <!-- MODAL CIERRE DE PERÍODO GERENCIAL (DESDE / HASTA) RENOVADO -->
     <div id="modal-cierre-periodo" class="fixed inset-0 bg-slate-900/80 backdrop-blur-md z-50 p-3 sm:p-4 flex items-center justify-center hidden no-print">
         <div class="bg-white border border-slate-200 w-full max-w-2xl rounded-3xl overflow-hidden shadow-2xl flex flex-col max-h-[90vh]">
             <div class="bg-slate-900 px-5 py-4 text-white flex justify-between items-center shrink-0">
@@ -970,38 +1067,46 @@
                         <label class="text-[9.5px] text-slate-500 font-bold uppercase block">Hasta:</label>
                         <input type="date" id="filtro-periodo-hasta" onchange="window.calcularCierrePeriodoGerencial()" class="input-clean font-mono py-1 text-xs w-auto">
                     </div>
-                    <button onclick="window.calcularCierrePeriodoGerencial()" class="bg-purple-600 hover:bg-purple-500 text-white px-3 py-2 rounded-xl text-xs font-black uppercase mt-3.5 shadow-sm">
-                        Generar
-                    </button>
                 </div>
-                <div class="mt-3.5 flex gap-2">
+                <div class="flex flex-wrap gap-1.5">
+                    <button onclick="window.abrirAuditoriaHojaBlancaPeriodo()" class="bg-blue-600 hover:bg-blue-500 text-white px-3 py-2 rounded-xl text-xs font-black uppercase flex items-center gap-1 shadow-sm">
+                        <i class="fa-solid fa-eye"></i> Ver Balance Detallado
+                    </button>
                     <button onclick="window.enviarCierrePeriodoWhatsApp()" class="bg-emerald-600 hover:bg-emerald-500 text-white px-3 py-2 rounded-xl text-xs font-black uppercase flex items-center gap-1 shadow-sm">
-                        <i class="fa-brands fa-whatsapp"></i> Reporte WhatsApp
+                        <i class="fa-brands fa-whatsapp"></i> WhatsApp
                     </button>
                 </div>
             </div>
 
             <div class="p-5 overflow-y-auto space-y-4 no-scrollbar flex-grow font-mono text-xs" id="contenido-cierre-periodo-body">
-                <!-- Se llena dinámicamente con desglose de ítems y cápsulas [VER] -->
+                <!-- Se llena dinámicamente con recálculo automático -->
             </div>
         </div>
     </div>
 
-    <!-- MODAL DETALLE DE COMPROBANTE GENERAL (USADO POR CÁPSULAS [VER]) -->
-    <div id="modal-detalle-auditoria" class="fixed inset-0 bg-slate-950/80 backdrop-blur-md z-[120] p-3 sm:p-4 flex items-center justify-center hidden no-print">
-        <div class="bg-white border border-slate-200 w-full max-w-md rounded-3xl overflow-hidden shadow-2xl flex flex-col max-h-[90vh]">
-            <div class="bg-slate-900 px-5 py-3.5 text-white flex justify-between items-center shrink-0">
+    <!-- MODAL DETALLE DE COMPROBANTE GENERAL ESTANDARIZADO EN HOJA BLANCA / TICKET TÉRMICO -->
+    <div id="modal-detalle-auditoria" class="fixed inset-0 bg-slate-950/90 backdrop-blur-md z-[120] p-2 sm:p-4 flex items-center justify-center hidden no-print">
+        <div class="bg-slate-100 border border-slate-300 w-full max-w-md rounded-2xl overflow-hidden shadow-2xl flex flex-col max-h-[95vh]">
+            <div class="bg-slate-900 px-4 py-3 text-white flex justify-between items-center shrink-0">
                 <h3 id="lbl-auditoria-titulo" class="font-black text-xs uppercase tracking-wider flex items-center gap-2">
-                    <i class="fa-solid fa-file-invoice text-blue-400"></i> Comprobante de Movimiento
+                    <i class="fa-solid fa-receipt text-amber-400"></i> Comprobante Oficial
                 </h3>
-                <button onclick="document.getElementById('modal-detalle-auditoria').classList.add('hidden')" class="text-slate-400 hover:text-white"><i class="fa-solid fa-xmark text-sm"></i></button>
+                <button onclick="document.getElementById('modal-detalle-auditoria').classList.add('hidden')" class="text-slate-400 hover:text-white p-1"><i class="fa-solid fa-xmark text-base"></i></button>
             </div>
-            <div class="p-5 overflow-y-auto space-y-3 font-mono text-xs text-slate-800 flex-grow" id="cuerpo-modal-auditoria">
-                <!-- Detalle -->
+            
+            <div class="p-4 overflow-y-auto flex-grow flex justify-center bg-slate-200">
+                <div id="cuerpo-modal-auditoria" class="bg-white shadow-md w-full max-w-[80mm] p-4 text-[10px] font-mono text-black border border-slate-300 relative">
+                    <!-- Ticket Hoja Blanca renderizado -->
+                </div>
             </div>
-            <div class="bg-slate-100 p-3 border-t border-slate-200 grid grid-cols-2 gap-2 shrink-0">
-                <button id="btn-audit-imprimir" onclick="window.imprimirAuditoriaActual()" class="bg-slate-800 hover:bg-slate-700 text-white py-2.5 rounded-xl uppercase text-xs font-bold flex items-center justify-center gap-1.5"><i class="fa-solid fa-print"></i> Imprimir</button>
-                <button id="btn-audit-whatsapp" onclick="window.enviarAuditoriaWhatsAppActual()" class="bg-emerald-600 hover:bg-emerald-500 text-white py-2.5 rounded-xl uppercase text-xs font-black flex items-center justify-center gap-1.5"><i class="fa-brands fa-whatsapp"></i> WhatsApp</button>
+
+            <div class="bg-white p-3 border-t border-slate-300 grid grid-cols-2 gap-2 shrink-0">
+                <button id="btn-audit-imprimir" onclick="window.imprimirAuditoriaActual()" class="bg-slate-800 hover:bg-slate-700 text-white font-black py-3 rounded-xl uppercase text-xs flex items-center justify-center gap-1.5 shadow-sm">
+                    <i class="fa-solid fa-print"></i> Imprimir Ticket
+                </button>
+                <button id="btn-audit-whatsapp" onclick="window.enviarAuditoriaWhatsAppActual()" class="bg-emerald-600 hover:bg-emerald-500 text-white font-black py-3 rounded-xl uppercase text-xs flex items-center justify-center gap-1.5 shadow-sm">
+                    <i class="fa-brands fa-whatsapp text-sm"></i> WhatsApp 🔒
+                </button>
             </div>
         </div>
     </div>
@@ -2788,86 +2893,120 @@ $${(item.precioUSD * item.cant).toFixed(2)} USD
         window.openWhatsAppDirectQuery = function() { window.open(`https://wa.me/584247357549?text=${encodeURIComponent("¡Hola! Quisiera consultar disponibilidad de productos.")}`, '_blank'); };
 
         // -------------------------------------------------------------
-        // CÁPSULA INTERACTIVA [ 👁️ VER ] PARA TODA LA AUDITORÍA
+        // CÁPSULA INTERACTIVA [ 👁️ VER ] PARA TODA LA AUDITORÍA (FORMATO HOJA BLANCA TICKET)
         // -------------------------------------------------------------
         window.abrirAuditoriaDetallada = function(tipo, id) {
-            let titulo = "COMPROBANTE DE AUDITORÍA";
-            let htmlDetalle = "";
             window.auditoriaItemActivo = null;
+            const nombreNegocio = (window.clienteActivoSesion ? window.clienteActivoSesion.nombre : 'TUCOCEL C.A.').toUpperCase();
+            const telNegocio = window.clienteActivoSesion ? (window.clienteActivoSesion.wa || '0424-0000000') : '0424-7357549';
+            let ticketHtml = '';
+            let tituloModal = 'COMPROBANTE OFICIAL';
 
             if (tipo === 'VENTA') {
                 const n = window.dbVentas.find(x => x.id === id);
                 if (!n) return;
                 window.auditoriaItemActivo = { tipo: 'VENTA', data: n };
-                titulo = `DETALLE NOTA DE ENTREGA #${n.correlativo}`;
-                
-                const d = new Date(n.fechaMs);
-                htmlDetalle = `
-                    <div class="space-y-2 border-b border-slate-200 pb-3">
-                        <p><strong>FECHA:</strong> ${d.toLocaleString()}</p>
-                        <p><strong>CAJERO:</strong> ${n.cajero}</p>
-                        <p><strong>CLIENTE:</strong> ${n.cliente} (${n.cedula || 'N/A'})</p>
-                        <p><strong>FORMA DE PAGO:</strong> ${n.pago}</p>
-                    </div>
-                    <div class="space-y-1.5 py-2">
-                        <span class="font-black text-slate-500 uppercase block text-[10px]">Ítems Facturados:</span>
-                        ${n.items.map(it => `
-                            <div class="flex justify-between py-1 border-b border-slate-100">
-                                <span>${it.cant}x ${it.nombre}</span>
-                                <strong>$${(it.precioUSD * it.cant).toFixed(2)} USD</strong>
-                            </div>
-                        `).join('')}
-                    </div>
-                    <div class="pt-2 text-right font-black text-sm text-emerald-600">
-                        TOTAL: $${n.totalUSD.toFixed(2)} USD
-                    </div>
-                `;
+                tituloModal = `NOTA DE ENTREGA #${n.correlativo}`;
+                ticketHtml = window.generarHTMLTicketTermico(n, 'HISTORIAL', n.correlativo);
             } else if (tipo === 'COMPRA') {
                 const rec = window.dbProveedores.find(x => x.id === id);
                 if (!rec) return;
                 window.auditoriaItemActivo = { tipo: 'COMPRA', data: rec };
-                titulo = `COMPROBANTE DE COMPRA / INGRESO`;
-                
-                const d = new Date(rec.fechaMs);
-                htmlDetalle = `
-                    <div class="space-y-2 border-b border-slate-200 pb-3">
-                        <p><strong>FECHA:</strong> ${d.toLocaleString()}</p>
-                        <p><strong>ENCARGADO QUE RECIBIÓ:</strong> ${rec.encargado || 'N/A'}</p>
-                        <p><strong>PROVEEDOR:</strong> ${rec.provNombre} (${rec.provRif || 'N/A'})</p>
-                        <p><strong>TELÉFONO:</strong> ${rec.provTel || 'N/A'}</p>
+                tituloModal = `COMPROBANTE DE COMPRA / INGRESO`;
+
+                const d = new Date(rec.fechaMs || Date.now());
+                const fechaStr = `${d.getDate().toString().padStart(2,'0')}/${(d.getMonth()+1).toString().padStart(2,'0')}/${d.getFullYear()} ${d.getHours()}:${d.getMinutes().toString().padStart(2,'0')}`;
+                const totUSD = rec.totalUSD || rec.totalInversionUSD || 0;
+                const totCOP = window.calcularPesosDesdeUSD(totUSD);
+                const totBs = window.calcularBsDesdeUSD(totUSD);
+
+                const itemsCompra = rec.items && rec.items.length > 0 ? rec.items : [
+                    { nombre: rec.prodNombre || 'PRODUCTO DIVERSO', cant: rec.cant || 1, costoUSD: rec.costo || totUSD, ventaUSD: rec.venta || 0, subtotalUSD: totUSD }
+                ];
+
+                ticketHtml = `
+                    <div style="text-align:center;margin-bottom:8px;font-family:monospace;color:#000;">
+                        <h2 style="font-size:13px;font-weight:900;margin:0;line-height:1.2;">${nombreNegocio}</h2>
+                        <p style="font-size:9px;margin:2px 0;">WhatsApp: ${telNegocio}</p>
+                        <p style="font-size:10px;font-weight:bold;margin:4px 0;border-top:1px dashed #000;border-bottom:1px dashed #000;padding:3px 0;">COMPROBANTE DE COMPRA / INGRESO</p>
                     </div>
-                    <div class="space-y-1.5 py-2">
-                        <span class="font-black text-slate-500 uppercase block text-[10px]">Mercancía Ingresada al Inventario:</span>
-                        <div class="flex justify-between py-1 border-b border-slate-100">
-                            <span>${rec.cant}x ${rec.prodNombre}</span>
-                            <span>Costo: $${(rec.costo || 0).toFixed(2)} | Venta: $${(rec.venta || 0).toFixed(2)}</span>
-                        </div>
+                    <div style="margin-bottom:8px;font-size:9px;font-family:monospace;line-height:1.3;color:#000;">
+                        <p style="margin:1px 0;"><strong>FECHA:</strong> ${fechaStr}</p>
+                        <p style="margin:1px 0;"><strong>ENCARGADO QUE RECIBE:</strong> ${rec.encargado || 'N/A'}</p>
+                        <p style="margin:1px 0;"><strong>PROVEEDOR:</strong> ${rec.provNombre}</p>
+                        <p style="margin:1px 0;"><strong>TELÉFONO PROVEEDOR:</strong> ${rec.provTel || 'N/A'}</p>
+                        <p style="margin:1px 0;"><strong>DIRECCIÓN PROVEEDOR:</strong> ${rec.provDir || 'N/A'}</p>
                     </div>
-                    <div class="pt-2 text-right font-black text-sm text-blue-600">
-                        INVERSIÓN TOTAL: $${(rec.totalInversionUSD || 0).toFixed(2)} USD
+                    <table style="width:100%;margin-bottom:8px;font-size:9px;font-family:monospace;border-collapse:collapse;color:#000;">
+                        <thead>
+                            <tr style="border-top:1px dashed #000;border-bottom:1px dashed #000;">
+                                <th style="text-align:left;padding:3px 0;">CANT PRODUCTO</th>
+                                <th style="text-align:right;padding:3px 0;">TOTAL</th>
+                            </tr>
+                        </thead>
+                        <tbody style="border-bottom:1px dashed #000;">
+                            ${itemsCompra.map(it => `
+                                <tr>
+                                    <td style="padding:3px 0;vertical-align:top;"><strong>${it.cant}x</strong> ${it.nombre}<br><span style="font-size:8px;color:#333;">Costo: $${(it.costoUSD || 0).toFixed(2)} | Venta: $${(it.ventaUSD || 0).toFixed(2)}</span></td>
+                                    <td style="text-align:right;padding:3px 0;vertical-align:top;">$${(it.subtotalUSD || (it.costoUSD*it.cant) || 0).toFixed(2)}</td>
+                                </tr>
+                            `).join('')}
+                        </tbody>
+                    </table>
+                    <div style="text-align:right;font-size:10px;font-family:monospace;margin-bottom:8px;color:#000;line-height:1.3;">
+                        <p style="margin:1px 0;"><strong>TOTAL INVERSIÓN: $${totUSD.toFixed(2)} USD</strong></p>
+                        <p style="margin:1px 0;">TOTAL COP: ${window.formatearMiles(totCOP)}</p>
+                        <p style="margin:1px 0;">TOTAL Bs. (Paridad): ${totBs.toFixed(2)}</p>
+                    </div>
+                    <div style="text-align:center;font-size:8px;font-family:monospace;margin-top:8px;border-top:1px dashed #000;padding-top:6px;color:#000;line-height:1.3;">
+                        <p style="margin:1px 0;font-weight:bold;">¡Mercancía ingresada y verificada en inventario!</p>
+                        <p style="margin:1px 0;">Comprobante de Recepción Interna.</p>
+                        <p style="margin:2px 0;font-weight:900;font-size:8.5px;">Sistema TCL Comercio — Un Programa de TUCOCEL C.A. & PublionlineMK</p>
                     </div>
                 `;
             } else if (tipo === 'GASTO') {
                 const g = window.dbGastos.find(x => x.id === id);
                 if (!g) return;
                 window.auditoriaItemActivo = { tipo: 'GASTO', data: g };
-                titulo = `COMPROBANTE DE EGRESO / GASTO`;
-                
-                const d = new Date(g.fechaMs);
-                htmlDetalle = `
-                    <div class="space-y-2 border-b border-slate-200 pb-3">
-                        <p><strong>FECHA:</strong> ${d.toLocaleString()}</p>
-                        <p><strong>TIPO DE SALIDA:</strong> ${g.tipo}</p>
-                        <p><strong>CONCEPTO / DESCRIPCIÓN:</strong> ${g.desc}</p>
+                tituloModal = `COMPROBANTE DE SALIDA / GASTO`;
+
+                const d = new Date(g.fechaMs || Date.now());
+                const fechaStr = `${d.getDate().toString().padStart(2,'0')}/${(d.getMonth()+1).toString().padStart(2,'0')}/${d.getFullYear()} ${d.getHours()}:${d.getMinutes().toString().padStart(2,'0')}`;
+                const totCOP = window.calcularPesosDesdeUSD(g.montoUSD);
+                const totBs = window.calcularBsDesdeUSD(g.montoUSD);
+
+                ticketHtml = `
+                    <div style="text-align:center;margin-bottom:8px;font-family:monospace;color:#000;">
+                        <h2 style="font-size:13px;font-weight:900;margin:0;line-height:1.2;">${nombreNegocio}</h2>
+                        <p style="font-size:9px;margin:2px 0;">WhatsApp: ${telNegocio}</p>
+                        <p style="font-size:10px;font-weight:bold;margin:4px 0;border-top:1px dashed #000;border-bottom:1px dashed #000;padding:3px 0;">COMPROBANTE DE EGRESO / SALIDA DE CAJA</p>
                     </div>
-                    <div class="pt-3 text-right font-black text-sm text-rose-600">
-                        MONTO DE EGRESO: -$${g.montoUSD.toFixed(2)} USD
+                    <div style="margin-bottom:8px;font-size:9px;font-family:monospace;line-height:1.3;color:#000;">
+                        <p style="margin:1px 0;"><strong>FECHA Y HORA:</strong> ${fechaStr}</p>
+                        <p style="margin:1px 0;"><strong>TIPO DE EGRESO:</strong> ${g.tipo}</p>
+                        <p style="margin:1px 0;"><strong>CONCEPTO / DESCRIPCIÓN:</strong> ${g.desc}</p>
+                    </div>
+                    <div style="text-align:right;font-size:10px;font-family:monospace;margin:12px 0 8px 0;border-top:1px dashed #000;border-bottom:1px dashed #000;padding:6px 0;color:#000;line-height:1.4;">
+                        <p style="margin:1px 0;font-size:11px;font-weight:900;">MONTO DE SALIDA: -$${g.montoUSD.toFixed(2)} USD</p>
+                        <p style="margin:1px 0;">Equivalente COP: ${window.formatearMiles(totCOP)} COP</p>
+                        <p style="margin:1px 0;">Equivalente Bs. (Paridad): ${totBs.toFixed(2)} Bs</p>
+                    </div>
+                    <div style="text-align:center;font-size:8px;font-family:monospace;margin-top:8px;padding-top:4px;color:#000;line-height:1.3;">
+                        <p style="margin:1px 0;">Salida de dinero debitada de la caja registradora.</p>
+                        <p style="margin:1px 0;font-weight:bold;">Comprobante de Control Interno.</p>
+                        <p style="margin:2px 0;font-weight:900;font-size:8.5px;">Sistema TCL Comercio — Un Programa de TUCOCEL C.A. & PublionlineMK</p>
                     </div>
                 `;
             }
 
-            document.getElementById('lbl-auditoria-titulo').innerHTML = `<i class="fa-solid fa-file-invoice text-blue-400"></i> ${titulo}`;
-            document.getElementById('cuerpo-modal-auditoria').innerHTML = htmlDetalle;
+            const headerT = document.getElementById('lbl-auditoria-titulo');
+            const boxCuerpo = document.getElementById('cuerpo-modal-auditoria');
+            const printDirecto = document.getElementById('seccion-impresion-termica-directa');
+
+            if (headerT) headerT.innerHTML = `<i class="fa-solid fa-receipt text-amber-400 mr-1.5"></i> ${tituloModal}`;
+            if (boxCuerpo) boxCuerpo.innerHTML = ticketHtml;
+            if (printDirecto) printDirecto.innerHTML = ticketHtml;
+
             document.getElementById('modal-detalle-auditoria').classList.remove('hidden');
         };
 
@@ -2875,63 +3014,101 @@ $${(item.precioUSD * item.cant).toFixed(2)} USD
             if (!window.auditoriaItemActivo) return;
             const printDirecto = document.getElementById('seccion-impresion-termica-directa');
             const preview = document.getElementById('cuerpo-modal-auditoria');
-            
-            const htmlAuditoria = `
-                <div style="text-align: center; font-family: monospace; color: #000;">
-                    <h2 style="font-size: 13px; font-weight: 900; margin: 0;">${(window.clienteActivoSesion ? window.clienteActivoSesion.nombre : 'TUCOCEL C.A.').toUpperCase()}</h2>
-                    <p style="font-size: 9px; margin: 2px 0;">COMPROBANTE DE AUDITORÍA INTERNA</p>
-                    <p style="font-size: 9px; font-weight: bold; margin: 4px 0; border-top: 1px dashed #000; border-bottom: 1px dashed #000; padding: 2px 0;">FECHA: ${new Date().toLocaleDateString()}</p>
-                </div>
-                <div style="margin: 8px 0; font-size: 9.5px; font-family: monospace; color: #000; line-height: 1.3;">
-                    ${preview.innerHTML}
-                </div>
-                <div style="text-align: center; font-size: 8px; font-family: monospace; border-top: 1px dashed #000; padding-top: 6px; color: #000;">
-                    <p>Comprobante de Recepción Interna.</p>
-                    <p style="font-weight: 900; font-size: 8.5px;">Sistema TCL Comercio — Un Programa de TUCOCEL C.A. & PublionlineMK</p>
-                </div>
-            `;
-
-            if (printDirecto) {
-                printDirecto.innerHTML = htmlAuditoria;
-                window.print();
-            }
+            if (printDirecto && preview) printDirecto.innerHTML = preview.innerHTML;
+            window.print();
         };
 
         window.enviarAuditoriaWhatsAppActual = function() {
             if (!window.auditoriaItemActivo) return;
             const it = window.auditoriaItemActivo;
-            let msj = `📑 *COMPROBANTE DE AUDITORÍA — TCL COMERCIO*
-`;
-            msj += `🏢 Local: ${(window.clienteActivoSesion ? window.clienteActivoSesion.nombre : 'TUCOCEL C.A.').toUpperCase()}
-`;
-            msj += `📅 Fecha: ${new Date().toLocaleString()}
-------------------------------------
-`;
-            
+            const nombreNegocio = (window.clienteActivoSesion ? window.clienteActivoSesion.nombre : 'TUCOCEL C.A.').toUpperCase();
+            let msj = "";
+
             if (it.tipo === 'VENTA') {
-                msj += `🧾 *Nota de Entrega #${it.data.correlativo}*
-👤 Cajero: ${it.data.cajero}
-👤 Cliente: ${it.data.cliente}
-💰 Total: $${it.data.totalUSD.toFixed(2)} USD
-`;
+                const n = it.data;
+                const totalCOP = window.calcularPesosDesdeUSD(n.totalUSD);
+                const totalBs = window.calcularBsDesdeUSD(n.totalUSD);
+
+                msj = `━━━━━━━━━━━━━━━━━━━━━━\n`;
+                msj += `🏢 *${nombreNegocio}*\n`;
+                msj += `📞 WhatsApp: 0424-7357549\n`;
+                msj += `━━━━━━━━━━━━━━━━━━━━━━\n`;
+                msj += `📄 *NOTA DE ENTREGA #${n.correlativo}*\n`;
+                msj += `📅 Fecha: ${new Date(n.fechaMs).toLocaleString()}\n`;
+                msj += `👤 Cajero: ${n.cajero}\n`;
+                msj += `🪪 Cédula/RIF: ${n.cedula || 'N/A'}\n`;
+                msj += `👤 Cliente: ${n.cliente}\n`;
+                msj += `💳 Pago: ${n.pago}\n`;
+                msj += `━━━━━━━━━━━━━━━━━━━━━━\n`;
+                msj += `📦 *DETALLE DE PRODUCTOS:*\n`;
+                n.items.forEach(i => {
+                    msj += `• ${i.cant}x ${i.nombre} ➔ $${(i.precioUSD * i.cant).toFixed(2)} USD\n`;
+                });
+                msj += `━━━━━━━━━━━━━━━━━━━━━━\n`;
+                msj += `💵 *TOTAL USD:* $${n.totalUSD.toFixed(2)} USD\n`;
+                msj += `🇨🇴 Total COP: ${window.formatearMiles(totalCOP)} COP\n`;
+                msj += `🇻🇪 Total Bs: ${totalBs.toFixed(2)} Bs (Paridad 3.3)\n`;
+                msj += `━━━━━━━━━━━━━━━━━━━━━━\n`;
+                msj += `_Comprobante de Recepción Interna._\n`;
+                msj += `*Sistema TCL Comercio — TUCOCEL C.A. & PublionlineMK* 🔒`;
+
+                const targetTel = n.telefono ? n.telefono.replace(/[^0-9]/g, "") : '';
+                window.open(`https://wa.me/${targetTel}?text=${encodeURIComponent(msj)}`, '_blank');
             } else if (it.tipo === 'COMPRA') {
-                msj += `📦 *Recepción de Mercancía / Compra*
-👤 Encargado: ${it.data.encargado}
-🚛 Proveedor: ${it.data.provNombre}
-📦 Producto: ${it.data.cant}x ${it.data.prodNombre}
-💰 Total Invertido: $${(it.data.totalInversionUSD || 0).toFixed(2)} USD
-`;
-            } else {
-                msj += `📉 *Salida de Dinero / Gasto*
-🏷️ Tipo: ${it.data.tipo}
-📝 Concepto: ${it.data.desc}
-💰 Monto: -$${it.data.montoUSD.toFixed(2)} USD
-`;
+                const rec = it.data;
+                const totUSD = rec.totalUSD || rec.totalInversionUSD || 0;
+                const totCOP = window.calcularPesosDesdeUSD(totUSD);
+                const totBs = window.calcularBsDesdeUSD(totUSD);
+                const itemsCompra = rec.items && rec.items.length > 0 ? rec.items : [
+                    { nombre: rec.prodNombre || 'PRODUCTO DIVERSO', cant: rec.cant || 1, subtotalUSD: totUSD }
+                ];
+
+                msj = `━━━━━━━━━━━━━━━━━━━━━━\n`;
+                msj += `🏢 *${nombreNegocio}*\n`;
+                msj += `📦 *COMPROBANTE DE COMPRA / INGRESO*\n`;
+                msj += `━━━━━━━━━━━━━━━━━━━━━━\n`;
+                msj += `📅 Fecha: ${new Date(rec.fechaMs || Date.now()).toLocaleString()}\n`;
+                msj += `👤 Encargado que Recibió: ${rec.encargado}\n`;
+                msj += `🚛 Proveedor: ${rec.provNombre}\n`;
+                msj += `📞 Teléfono: ${rec.provTel || 'N/A'}\n`;
+                msj += `📍 Dirección: ${rec.provDir || 'N/A'}\n`;
+                msj += `━━━━━━━━━━━━━━━━━━━━━━\n`;
+                msj += `📦 *MERCANCÍA INGRESADA:*\n`;
+                itemsCompra.forEach(i => {
+                    msj += `• ${i.cant}x ${i.nombre} ➔ $${(i.subtotalUSD || 0).toFixed(2)} USD\n`;
+                });
+                msj += `━━━━━━━━━━━━━━━━━━━━━━\n`;
+                msj += `💰 *TOTAL INVERSIÓN:* $${totUSD.toFixed(2)} USD\n`;
+                msj += `🇨🇴 Total COP: ${window.formatearMiles(totCOP)} COP\n`;
+                msj += `🇻🇪 Total Bs: ${totBs.toFixed(2)} Bs (Paridad 3.3)\n`;
+                msj += `━━━━━━━━━━━━━━━━━━━━━━\n`;
+                msj += `¡Mercancía sumada a inventario y registrada en auditoría!\n`;
+                msj += `*Sistema TCL Comercio — TUCOCEL C.A. & PublionlineMK* 🔒`;
+
+                const targetTel = rec.provTel ? rec.provTel.replace(/[^0-9]/g, "") : '';
+                window.open(`https://wa.me/${targetTel}?text=${encodeURIComponent(msj)}`, '_blank');
+            } else if (it.tipo === 'GASTO') {
+                const g = it.data;
+                const totCOP = window.calcularPesosDesdeUSD(g.montoUSD);
+                const totBs = window.calcularBsDesdeUSD(g.montoUSD);
+
+                msj = `━━━━━━━━━━━━━━━━━━━━━━\n`;
+                msj += `🏢 *${nombreNegocio}*\n`;
+                msj += `📉 *COMPROBANTE DE EGRESO / SALIDA DE CAJA*\n`;
+                msj += `━━━━━━━━━━━━━━━━━━━━━━\n`;
+                msj += `📅 Fecha: ${new Date(g.fechaMs || Date.now()).toLocaleString()}\n`;
+                msj += `🏷️ Tipo: ${g.tipo}\n`;
+                msj += `📝 Concepto: ${g.desc}\n`;
+                msj += `━━━━━━━━━━━━━━━━━━━━━━\n`;
+                msj += `💵 *MONTO DE SALIDA:* -$${g.montoUSD.toFixed(2)} USD\n`;
+                msj += `🇨🇴 Equivalente COP: ${window.formatearMiles(totCOP)} COP\n`;
+                msj += `🇻🇪 Equivalente Bs: ${totBs.toFixed(2)} Bs (Paridad 3.3)\n`;
+                msj += `━━━━━━━━━━━━━━━━━━━━━━\n`;
+                msj += `_Control interno de egresos de caja registradora._\n`;
+                msj += `*Sistema TCL Comercio — TUCOCEL C.A. & PublionlineMK* 🔒`;
+
+                window.open(`https://wa.me/?text=${encodeURIComponent(msj)}`, '_blank');
             }
-            msj += `------------------------------------
-_Comprobante de Recepción Interna._
-*Sistema TCL Comercio — TUCOCEL C.A. & PublionlineMK*`;
-            window.open(`https://wa.me/?text=${encodeURIComponent(msj)}`, '_blank');
         };
 
         // -------------------------------------------------------------
@@ -3171,7 +3348,116 @@ _Comprobante de Recepción Interna._
             }).join('');
         };
 
-        // COMPRAS / RECEPCIÓN PROVEEDORES (SIMÉTRICO AL POS)
+        // ESCÁNER DE CÓDIGO DE BARRAS POR CÁMARA DESACOPLADO
+        window.scannerInstancia = null;
+        window.scannerDestino = 'POS';
+
+        window.iniciarEscanerCamara = function(destino = 'POS') {
+            window.scannerDestino = destino;
+            document.getElementById('modal-escaner-camara').classList.remove('hidden');
+
+            if (typeof Html5Qrcode === 'undefined') {
+                alert("⚠️ Librería de escáner en inicialización. Verifique conexión a internet.");
+                return;
+            }
+
+            try {
+                if (window.scannerInstancia) {
+                    try { window.scannerInstancia.stop(); } catch(e){}
+                }
+                window.scannerInstancia = new Html5Qrcode("reader-camara-box");
+                window.scannerInstancia.start(
+                    { facingMode: "environment" },
+                    { fps: 10, qrbox: { width: 250, height: 180 } },
+                    (codigoTexto) => {
+                        window.procesarCodigoEscaneadoExitoso(codigoTexto);
+                    },
+                    (error) => {}
+                ).catch(err => {
+                    alert("⚠️ No se pudo acceder a la cámara trasera. Asegúrese de otorgar permisos.");
+                    window.cerrarEscanerCamara();
+                });
+            } catch(e) {
+                console.error("Error al iniciar cámara:", e);
+            }
+        };
+
+        window.cerrarEscanerCamara = function() {
+            if (window.scannerInstancia) {
+                try {
+                    window.scannerInstancia.stop().then(() => {
+                        window.scannerInstancia.clear();
+                        window.scannerInstancia = null;
+                    }).catch(() => { window.scannerInstancia = null; });
+                } catch(e) { window.scannerInstancia = null; }
+            }
+            const modal = document.getElementById('modal-escaner-camara');
+            if (modal) modal.classList.add('hidden');
+        };
+
+        window.procesarCodigoEscaneadoExitoso = function(codigo) {
+            window.cerrarEscanerCamara();
+            const codLimpio = (codigo || '').trim();
+            if (!codLimpio) return;
+
+            if (window.scannerDestino === 'POS') {
+                const inputB = document.getElementById('pos-busqueda-input');
+                if (inputB) {
+                    inputB.value = codLimpio;
+                    window.renderizarInventarioPOS();
+                    // Si hay coincidencia exacta de 1 solo producto, lo pre-selecciona
+                    const coincidencias = window.dbInventario.filter(p => p.stock > 0 && p.nombre.toLowerCase().includes(codLimpio.toLowerCase()));
+                    if (coincidencias.length === 1) {
+                        window.solicitarCantidadPOS(coincidencias[0].id, coincidencias[0].nombre, coincidencias[0].stock);
+                    }
+                }
+            } else if (window.scannerDestino === 'COMPRA') {
+                const inputP = document.getElementById('prov-prod-nombre');
+                if (inputP) {
+                    inputP.value = codLimpio;
+                    const prodExistente = window.dbInventario.find(p => p.nombre.toLowerCase().includes(codLimpio.toLowerCase()));
+                    if (prodExistente) {
+                        document.getElementById('prov-prod-costo').value = prodExistente.precioCosto || '';
+                        document.getElementById('prov-prod-venta').value = prodExistente.precioVenta || '';
+                    }
+                }
+            }
+        };
+
+        // CÁLCULO DE VUELTO / CAMBIO EN CALIENTE EN POS
+        window.calcularVueltoPOS = function() {
+            const tUSD = window.carritoPOS.reduce((acc, p) => acc + (p.precioUSD * p.cant), 0);
+            const pagaConVal = parseFloat(document.getElementById('pos-input-paga-con').value) || 0;
+            const lblVuelto = document.getElementById('lbl-pos-vuelto-display');
+            const lblSub = document.getElementById('lbl-pos-vuelto-sub');
+
+            if (!lblVuelto || !lblSub) return;
+
+            if (pagaConVal <= 0 || tUSD <= 0) {
+                lblVuelto.innerText = "$0.00 USD";
+                lblSub.innerText = "0 COP | 0.00 Bs";
+                return;
+            }
+
+            let montoPagaUSD = pagaConVal;
+            if (window.monedaCargaPOS === 'COP') {
+                montoPagaUSD = window.calcularUSDDesdeCOP(pagaConVal);
+            } else if (window.monedaCargaPOS === 'BS') {
+                montoPagaUSD = window.calcularUSDDesdeBs(pagaConVal);
+            }
+
+            const vueltoUSD = Math.max(0, montoPagaUSD - tUSD);
+            const vueltoCOP = window.calcularPesosDesdeUSD(vueltoUSD);
+            const vueltoBs = window.calcularBsDesdeUSD(vueltoUSD);
+
+            lblVuelto.innerText = `$${vueltoUSD.toFixed(2)} USD`;
+            lblSub.innerText = `${window.formatearMiles(vueltoCOP)} COP | ${vueltoBs.toFixed(2)} Bs`;
+        };
+
+        // GESTIÓN DE COMPRAS TIPO CARRITO MULTI-ÍTEM (SIMÉTRICO AL POS)
+        window.carritoCompras = [];
+        window.operacionPendienteCierre = null;
+
         window.seleccionarMonedaCargaCompra = function(moneda) {
             window.monedaCargaCompra = moneda;
             const btnUSD = document.getElementById('btn-compra-usd');
@@ -3181,42 +3467,39 @@ _Comprobante de Recepción Interna._
             const lblVenta = document.getElementById('lbl-compra-venta-moneda');
 
             [btnUSD, btnCOP, btnBS].forEach(b => {
-                if(b) b.className = "py-2 rounded-lg border border-slate-300 bg-white text-slate-700 text-center font-bold";
+                if(b) b.className = "px-3 py-1.5 rounded-lg border border-slate-300 bg-white text-slate-700 font-bold text-[10px]";
             });
 
             if (moneda === 'USD') {
-                if(btnUSD) btnUSD.className = "py-2 rounded-lg border border-blue-600 bg-blue-600 text-white text-center font-black shadow-sm";
-                if(lblCosto) lblCosto.innerText = "Precio de Costo ($ USD) *";
-                if(lblVenta) lblVenta.innerText = "Precio de Venta al Público ($ USD) *";
+                if(btnUSD) btnUSD.className = "px-3 py-1.5 rounded-lg border border-blue-600 bg-blue-600 text-white font-black text-[10px]";
+                if(lblCosto) lblCosto.innerText = "P. Costo ($ USD) *";
+                if(lblVenta) lblVenta.innerText = "P. Venta Público ($ USD) *";
             } else if (moneda === 'COP') {
-                if(btnCOP) btnCOP.className = "py-2 rounded-lg border border-slate-800 bg-slate-800 text-white text-center font-black shadow-sm";
-                if(lblCosto) lblCosto.innerText = "Precio de Costo en Pesos (COP) *";
-                if(lblVenta) lblVenta.innerText = "Precio de Venta en Pesos (COP) *";
+                if(btnCOP) btnCOP.className = "px-3 py-1.5 rounded-lg border border-slate-800 bg-slate-800 text-white font-black text-[10px]";
+                if(lblCosto) lblCosto.innerText = "P. Costo en Pesos (COP) *";
+                if(lblVenta) lblVenta.innerText = "P. Venta en Pesos (COP) *";
             } else {
-                if(btnBS) btnBS.className = "py-2 rounded-lg border border-emerald-600 bg-emerald-600 text-white text-center font-black shadow-sm";
-                if(lblCosto) lblCosto.innerText = "Precio de Costo en Bolívares (Bs) *";
-                if(lblVenta) lblVenta.innerText = "Precio de Venta en Bolívares (Bs) *";
+                if(btnBS) btnBS.className = "px-3 py-1.5 rounded-lg border border-emerald-600 bg-emerald-600 text-white font-black text-[10px]";
+                if(lblCosto) lblCosto.innerText = "P. Costo en Bolívares (Bs) *";
+                if(lblVenta) lblVenta.innerText = "P. Venta en Bolívares (Bs) *";
             }
         };
 
         window.abrirModalRecepcionProveedor = function() {
+            window.carritoCompras = [];
             window.seleccionarMonedaCargaCompra('USD');
+            window.renderizarCarritoCompras();
             document.getElementById('modal-recepcion-proveedor').classList.remove('hidden');
         };
 
-        window.procesarRecepcionProveedor = function() {
-            const encargado = document.getElementById('prov-input-encargado').value.trim();
-            const provNombre = document.getElementById('prov-input-nombre').value.trim();
-            const provRif = document.getElementById('prov-input-rif').value.trim() || 'N/A';
-            const provTel = document.getElementById('prov-input-tel').value.trim() || 'N/A';
-
-            const prodNombre = document.getElementById('prov-prod-nombre').value.trim();
-            const cant = parseInt(document.getElementById('prov-prod-cant').value) || 0;
+        window.agregarItemAlCarritoCompra = function() {
+            const nombre = document.getElementById('prov-prod-nombre').value.trim();
+            const cant = parseInt(document.getElementById('prov-prod-cant').value) || 1;
             const valCosto = parseFloat(document.getElementById('prov-prod-costo').value) || 0;
             const valVenta = parseFloat(document.getElementById('prov-prod-venta').value) || 0;
 
-            if (!encargado || !provNombre || !prodNombre || cant <= 0 || valCosto <= 0 || valVenta <= 0) {
-                alert("⚠️ Complete el Encargado, Proveedor, Producto, Cantidad y Precios.");
+            if (!nombre || valCosto <= 0 || valVenta <= 0) {
+                alert("⚠️ Complete Nombre del Producto, Cantidad y Precios.");
                 return;
             }
 
@@ -3229,63 +3512,176 @@ _Comprobante de Recepción Interna._
                 ventaUSD = window.calcularUSDDesdeBs(valVenta);
             }
 
-            // Inyección y actualización directa en inventario / vitrina
-            const idx = window.dbInventario.findIndex(p => p.nombre.toLowerCase() === prodNombre.toLowerCase());
-            if (idx !== -1) {
-                window.dbInventario[idx].stock += cant;
-                window.dbInventario[idx].precioCosto = costoUSD;
-                window.dbInventario[idx].precioVenta = ventaUSD;
-            } else {
-                window.dbInventario.push({ id: 'p_' + Date.now(), nombre: prodNombre.toUpperCase(), desc: `Ingreso de compra: ${provNombre}`, precioCosto: costoUSD, precioVenta: ventaUSD, stock: cant, foto: '' });
-            }
-            window.guardarInventarioEnStorage();
-            window.renderizarTablaModalInventario();
-            window.renderizarProductosVitrina();
-            window.recalcularReportesGanancias();
-            window.actualizarBadgeTotalInventario();
+            window.carritoCompras.push({
+                nombre: nombre.toUpperCase(),
+                cant, costoUSD, ventaUSD,
+                subtotalUSD: cant * costoUSD
+            });
 
-            // Registro en historial de compras/proveedores
-            const recepcion = { id: 'rec_' + Date.now(), encargado, provNombre, provRif, provTel, prodNombre, cant, costo: costoUSD, venta: ventaUSD, totalInversionUSD: cant * costoUSD, fechaMs: Date.now() };
-            window.dbProveedores.unshift(recepcion);
-            window.guardarProveedoresEnStorage();
-
-            // Inyección automática a gastos para cuadre de caja
-            window.dbGastos.unshift({ id: 'gasto_' + Date.now(), tipo: 'MERCANCIA', desc: `Compra a ${provNombre} (${cant}x ${prodNombre})`, montoUSD: cant * costoUSD, fechaMs: Date.now() });
-            window.guardarGastosEnStorage();
-
-            document.getElementById('modal-recepcion-proveedor').classList.add('hidden');
-
-            // Envío formal a WhatsApp
-            let msj = `📦 *COMPROBANTE DE COMPRA / INGRESO DE MERCANCÍA*
-`;
-            msj += `🏢 Local: ${(window.clienteActivoSesion ? window.clienteActivoSesion.nombre : 'TUCOCEL C.A.').toUpperCase()}
-`;
-            msj += `👤 Encargado que Recibió: ${encargado}
-`;
-            msj += `🚛 Proveedor: ${provNombre} (${provRif})
-`;
-            msj += `📞 Teléfono Proveedor: ${provTel}
-------------------------------------
-`;
-            msj += `• Producto: ${prodNombre}
-`;
-            msj += `• Cantidad Recibida: ${cant} unidades
-`;
-            msj += `• Costo Unitario: $${costoUSD.toFixed(2)} USD
-`;
-            msj += `• Precio Venta Asignado: $${ventaUSD.toFixed(2)} USD
-------------------------------------
-`;
-            msj += `💰 *Total Inversión: $${(cant * costoUSD).toFixed(2)} USD*
-
-¡Mercancía sumada al inventario y sincronizada en vitrina!
-*Sistema TCL Comercio — TUCOCEL C.A. & PublionlineMK*`;
-
-            window.open(`https://wa.me/?text=${encodeURIComponent(msj)}`, '_blank');
-            alert("✨ Compra registrada, inventario sumado y comprobante generado con éxito.");
+            document.getElementById('prov-prod-nombre').value = '';
+            document.getElementById('prov-prod-cant').value = '1';
+            document.getElementById('prov-prod-costo').value = '';
+            document.getElementById('prov-prod-venta').value = '';
+            window.renderizarCarritoCompras();
         };
 
-        // CIERRE DE PERÍODO (DESDE / HASTA) CON CÁPSULAS [VER]
+        window.quitarItemCarritoCompra = function(idx) {
+            window.carritoCompras.splice(idx, 1);
+            window.renderizarCarritoCompras();
+        };
+
+        window.renderizarCarritoCompras = function() {
+            const container = document.getElementById('lista-carrito-compras');
+            const lblTot = document.getElementById('lbl-total-inversion-compra');
+            if (!container) return;
+
+            if (window.carritoCompras.length === 0) {
+                container.innerHTML = `<div class="text-center text-slate-400 py-4 text-xs font-bold uppercase">No hay productos agregados al documento.</div>`;
+                if (lblTot) lblTot.innerText = "$0.00 USD";
+                return;
+            }
+
+            container.innerHTML = window.carritoCompras.map((item, idx) => `
+                <div class="bg-white p-2.5 rounded-xl border border-slate-200 flex justify-between items-center shadow-sm text-xs font-mono">
+                    <div class="min-w-0 flex-1">
+                        <span class="font-black text-slate-900 uppercase truncate block">${item.cant}x ${item.nombre}</span>
+                        <span class="text-[10px] text-slate-500">Costo: $${item.costoUSD.toFixed(2)} | Venta: $${item.ventaUSD.toFixed(2)}</span>
+                    </div>
+                    <div class="flex items-center gap-2 shrink-0">
+                        <strong class="text-blue-600 font-black">$${item.subtotalUSD.toFixed(2)} USD</strong>
+                        <button onclick="window.quitarItemCarritoCompra(${idx})" class="w-6 h-6 bg-red-100 hover:bg-red-200 text-red-600 rounded-lg flex items-center justify-center text-xs"><i class="fa-solid fa-trash-can text-[10px]"></i></button>
+                    </div>
+                </div>
+            `).join('');
+
+            const totUSD = window.carritoCompras.reduce((acc, x) => acc + x.subtotalUSD, 0);
+            if (lblTot) lblTot.innerText = `$${totUSD.toFixed(2)} USD`;
+        };
+
+        // VENTANA MODAL DE CIERRE CON LAS 3 ACCIONES (IMPRIMIR, WHATSAPP, SOLO CARGAR)
+        window.abrirModalAccionesCierreDocumento = function(tipo) {
+            if (tipo === 'COMPRA') {
+                const encargado = document.getElementById('prov-input-encargado').value.trim();
+                const provNombre = document.getElementById('prov-input-nombre').value.trim();
+                const provTel = document.getElementById('prov-input-tel').value.trim() || 'N/A';
+                const provDir = (document.getElementById('prov-input-dir') ? document.getElementById('prov-input-dir').value.trim() : '') || 'Local Comercial';
+
+                if (!encargado || !provNombre) {
+                    alert("⚠️ Complete el Nombre del Encargado y del Proveedor.");
+                    return;
+                }
+                if (window.carritoCompras.length === 0) {
+                    alert("⚠️ Agregue al menos un producto a la compra.");
+                    return;
+                }
+
+                const totUSD = window.carritoCompras.reduce((acc, x) => acc + x.subtotalUSD, 0);
+                window.operacionPendienteCierre = {
+                    tipo: 'COMPRA',
+                    encargado, provNombre, provTel, provDir,
+                    items: JSON.parse(JSON.stringify(window.carritoCompras)),
+                    totalUSD: totUSD,
+                    fechaMs: Date.now(),
+                    id: 'cmp_' + Date.now()
+                };
+
+                const box = document.getElementById('box-resumen-cierre-rapido');
+                if (box) {
+                    box.innerHTML = `
+                        <p><strong>DOCUMENTO:</strong> INGRESO DE COMPRA / PROVEEDOR</p>
+                        <p><strong>ENCARGADO:</strong> ${encargado}</p>
+                        <p><strong>PROVEEDOR:</strong> ${provNombre}</p>
+                        <p><strong>TOTAL ÍTEMS:</strong> ${window.carritoCompras.length} productos</p>
+                        <p class="text-blue-600 font-black"><strong>TOTAL INVERSIÓN:</strong> $${totUSD.toFixed(2)} USD</p>
+                    `;
+                }
+            }
+            document.getElementById('modal-cierre-acciones-rapidas').classList.remove('hidden');
+        };
+
+        // EJECUCIÓN FINAL: ACTUALIZA INVENTARIO, REGISTRA EN REPORTES Y EJECUTA ACCIÓN
+        window.ejecutarFinalizacionOperacion = function(accion) {
+            if (!window.operacionPendienteCierre) return;
+            const op = window.operacionPendienteCierre;
+
+            if (op.tipo === 'COMPRA') {
+                // 1. Inyección y suma directa al Inventario
+                op.items.forEach(it => {
+                    const idx = window.dbInventario.findIndex(p => p.nombre.toLowerCase() === it.nombre.toLowerCase());
+                    if (idx !== -1) {
+                        window.dbInventario[idx].stock += it.cant;
+                        window.dbInventario[idx].precioCosto = it.costoUSD;
+                        window.dbInventario[idx].precioVenta = it.ventaUSD;
+                    } else {
+                        window.dbInventario.push({
+                            id: 'p_' + Date.now() + Math.floor(Math.random()*1000),
+                            nombre: it.nombre,
+                            desc: `Proveedor: ${op.provNombre}`,
+                            precioCosto: it.costoUSD,
+                            precioVenta: it.ventaUSD,
+                            stock: it.cant,
+                            foto: ''
+                        });
+                    }
+                });
+                window.guardarInventarioEnStorage();
+                window.renderizarTablaModalInventario();
+                window.renderizarProductosVitrina();
+                window.recalcularReportesGanancias();
+                window.actualizarBadgeTotalInventario();
+
+                // 2. Registro en Proveedores / Compras
+                window.dbProveedores.unshift(op);
+                window.guardarProveedoresEnStorage();
+
+                // 3. Inyección automática al Módulo de Gastos/Egresos para Cierre Diario
+                window.dbGastos.unshift({
+                    id: 'gasto_' + Date.now(),
+                    tipo: 'MERCANCIA',
+                    desc: `Compra a ${op.provNombre} (${op.items.length} productos)`,
+                    montoUSD: op.totalUSD,
+                    fechaMs: Date.now()
+                });
+                window.guardarGastosEnStorage();
+
+                // 4. Ejecutar la acción elegida
+                if (accion === 'IMPRIMIR') {
+                    const printDirecto = document.getElementById('seccion-impresion-termica-directa');
+                    if (printDirecto) {
+                        printDirecto.innerHTML = `
+                            <div style="text-align:center;font-family:monospace;">
+                                <h3>${(window.clienteActivoSesion ? window.clienteActivoSesion.nombre : 'TUCOCEL C.A.').toUpperCase()}</h3>
+                                <p>COMPROBANTE DE COMPRA / INGRESO</p>
+                                <p>Encargado: ${op.encargado} | Prov: ${op.provNombre}</p>
+                                <hr style="border-top:1px dashed #000;">
+                                ${op.items.map(i => `<p style="text-align:left;">${i.cant}x ${i.nombre} - $${i.subtotalUSD.toFixed(2)}</p>`).join('')}
+                                <hr style="border-top:1px dashed #000;">
+                                <p style="text-align:right;font-weight:bold;">TOTAL: $${op.totalUSD.toFixed(2)} USD</p>
+                                <p style="font-size:8px;">Sistema TCL Comercio — TUCOCEL C.A. & PublionlineMK</p>
+                            </div>
+                        `;
+                        window.print();
+                    }
+                } else if (accion === 'WHATSAPP') {
+                    let msj = `📦 *COMPROBANTE DE COMPRA / INGRESO DE MERCANCÍA*\n`;
+                    msj += `🏢 Local: ${(window.clienteActivoSesion ? window.clienteActivoSesion.nombre : 'TUCOCEL C.A.').toUpperCase()}\n`;
+                    msj += `👤 Encargado: ${op.encargado}\n`;
+                    msj += `🚛 Proveedor: ${op.provNombre}\n------------------------------------\n`;
+                    op.items.forEach(i => { msj += `• ${i.cant}x ${i.nombre}: $${i.subtotalUSD.toFixed(2)} USD\n`; });
+                    msj += `------------------------------------\n💰 *Total Invertido: $${op.totalUSD.toFixed(2)} USD*\n\n¡Cargado al inventario y reportes!\n*Sistema TCL Comercio — TUCOCEL C.A. & PublionlineMK*`;
+                    window.open(`https://wa.me/?text=${encodeURIComponent(msj)}`, '_blank');
+                }
+
+                // Limpieza de pantallas
+                window.carritoCompras = [];
+                document.getElementById('modal-recepcion-proveedor').classList.add('hidden');
+                document.getElementById('modal-cierre-acciones-rapidas').classList.add('hidden');
+                window.operacionPendienteCierre = null;
+                alert("✨ Compra procesada y cargada a inventario, gastos y reportes.");
+            }
+        };
+
+        // CIERRE DE PERÍODO GERENCIAL RENOVADO (RECÁLCULO AUTOMÁTICO EN TIEMPO REAL)
         window.abrirModalCierrePeriodo = function() {
             const hoyStr = new Date().toISOString().split('T')[0];
             document.getElementById('filtro-periodo-hasta').value = hoyStr;
@@ -3295,11 +3691,10 @@ _Comprobante de Recepción Interna._
             document.getElementById('modal-cierre-periodo').classList.remove('hidden');
         };
 
-        window.calcularCierrePeriodoGerencial = function() {
+        window.obtenerDatosCierrePeriodo = function() {
             const desdeVal = document.getElementById('filtro-periodo-desde').value;
             const hastaVal = document.getElementById('filtro-periodo-hasta').value;
-            const container = document.getElementById('contenido-cierre-periodo-body');
-            if (!desdeVal || !hastaVal) return;
+            if (!desdeVal || !hastaVal) return null;
 
             const tDesde = new Date(desdeVal + 'T00:00:00').getTime();
             const tHasta = new Date(hastaVal + 'T23:59:59').getTime();
@@ -3312,7 +3707,15 @@ _Comprobante de Recepción Interna._
             const totalGastosUSD = gastosRango.reduce((acc, g) => acc + g.montoUSD, 0);
             const gananciaNetaPeriodo = totalVentasUSD - totalGastosUSD;
 
-            let listaVentasHtml = ventasRango.map(v => `
+            return { desdeVal, hastaVal, ventasRango, gastosRango, comprasRango, totalVentasUSD, totalGastosUSD, gananciaNetaPeriodo };
+        };
+
+        window.calcularCierrePeriodoGerencial = function() {
+            const datos = window.obtenerDatosCierrePeriodo();
+            const container = document.getElementById('contenido-cierre-periodo-body');
+            if (!datos || !container) return;
+
+            let listaVentasHtml = datos.ventasRango.map(v => `
                 <div class="flex justify-between items-center bg-white p-2 rounded-xl border border-slate-200 text-[10.5px]">
                     <div><strong>#${v.correlativo}</strong> | ${v.cliente}</div>
                     <div class="flex items-center gap-2">
@@ -3322,17 +3725,17 @@ _Comprobante de Recepción Interna._
                 </div>
             `).join('');
 
-            let listaComprasHtml = comprasRango.map(c => `
+            let listaComprasHtml = datos.comprasRango.map(c => `
                 <div class="flex justify-between items-center bg-white p-2 rounded-xl border border-slate-200 text-[10.5px]">
-                    <div><strong>${c.provNombre}</strong> | ${c.prodNombre} (${c.cant} un.)</div>
+                    <div><strong>${c.provNombre}</strong> (${c.items ? c.items.length : 1} productos)</div>
                     <div class="flex items-center gap-2">
-                        <span class="text-blue-600 font-bold">$${(c.totalInversionUSD || 0).toFixed(2)}</span>
+                        <span class="text-blue-600 font-bold">$${(c.totalUSD || c.totalInversionUSD || 0).toFixed(2)}</span>
                         <button onclick="window.abrirAuditoriaDetallada('COMPRA', '${c.id}')" class="bg-blue-50 text-blue-600 border border-blue-200 px-2 py-0.5 rounded text-[9px] font-black uppercase"><i class="fa-solid fa-eye"></i> Ver</button>
                     </div>
                 </div>
             `).join('');
 
-            let listaGastosHtml = gastosRango.map(g => `
+            let listaGastosHtml = datos.gastosRango.map(g => `
                 <div class="flex justify-between items-center bg-white p-2 rounded-xl border border-slate-200 text-[10.5px]">
                     <div><strong>${g.tipo}</strong> | ${g.desc}</div>
                     <div class="flex items-center gap-2">
@@ -3346,67 +3749,100 @@ _Comprobante de Recepción Interna._
                 <div class="bg-slate-50 p-4 rounded-2xl border border-slate-200 space-y-3">
                     <div class="text-center border-b border-slate-200 pb-2">
                         <h4 class="font-black text-sm uppercase text-slate-900">${(window.clienteActivoSesion ? window.clienteActivoSesion.nombre : 'TUCOCEL C.A.').toUpperCase()}</h4>
-                        <p class="text-[10px] text-slate-500">AUDITORÍA Y CIERRE GERENCIAL DE PERÍODO</p>
-                        <p class="text-[10px] font-bold text-purple-600">Rango: ${desdeVal} al ${hastaVal}</p>
+                        <p class="text-[10px] text-slate-500">AUDITORÍA Y BALANCE GERENCIAL DE PERÍODO</p>
+                        <p class="text-[10px] font-bold text-purple-600">Rango: ${datos.desdeVal} al ${datos.hastaVal}</p>
                     </div>
 
                     <div class="grid grid-cols-1 sm:grid-cols-3 gap-2 text-center">
-                        <div class="bg-white p-3 rounded-xl border border-slate-200"><span class="text-[9px] text-slate-400 block font-bold">Ventas Totales</span><span class="text-sm font-black text-emerald-600">$${totalVentasUSD.toFixed(2)} USD</span></div>
-                        <div class="bg-white p-3 rounded-xl border border-slate-200"><span class="text-[9px] text-slate-400 block font-bold">Egresos / Compras</span><span class="text-sm font-black text-rose-600">$${totalGastosUSD.toFixed(2)} USD</span></div>
-                        <div class="bg-purple-50 p-3 rounded-xl border border-purple-200"><span class="text-[9px] text-purple-700 block font-bold">Ganancia Neta</span><span class="text-sm font-black text-purple-700">$${gananciaNetaPeriodo.toFixed(2)} USD</span></div>
+                        <div class="bg-white p-3 rounded-xl border border-slate-200"><span class="text-[9px] text-slate-400 block font-bold">Ventas Totales</span><span class="text-sm font-black text-emerald-600">$${datos.totalVentasUSD.toFixed(2)} USD</span></div>
+                        <div class="bg-white p-3 rounded-xl border border-slate-200"><span class="text-[9px] text-slate-400 block font-bold">Egresos / Compras</span><span class="text-sm font-black text-rose-600">$${datos.totalGastosUSD.toFixed(2)} USD</span></div>
+                        <div class="bg-purple-50 p-3 rounded-xl border border-purple-200"><span class="text-[9px] text-purple-700 block font-bold">Ganancia Neta</span><span class="text-sm font-black text-purple-700">$${datos.gananciaNetaPeriodo.toFixed(2)} USD</span></div>
                     </div>
 
                     <div class="space-y-2 pt-2">
-                        <span class="text-[10px] font-black uppercase text-slate-500 tracking-wider block">1. Ventas Registradas en el Período (${ventasRango.length}):</span>
-                        <div class="space-y-1 max-h-32 overflow-y-auto no-scrollbar">${listaVentasHtml || '<p class="text-slate-400 text-[10px]">Sin ventas.</p>'}</div>
+                        <span class="text-[10px] font-black uppercase text-slate-500 tracking-wider block">1. Ventas Registradas en el Período (${datos.ventasRango.length}):</span>
+                        <div class="space-y-1 max-h-32 overflow-y-auto no-scrollbar">${listaVentasHtml || '<p class="text-slate-400 text-[10px]">Sin ventas en este rango.</p>'}</div>
                     </div>
 
                     <div class="space-y-2 pt-2 border-t border-slate-200">
-                        <span class="text-[10px] font-black uppercase text-slate-500 tracking-wider block">2. Compras a Proveedores (${comprasRango.length}):</span>
-                        <div class="space-y-1 max-h-32 overflow-y-auto no-scrollbar">${listaComprasHtml || '<p class="text-slate-400 text-[10px]">Sin compras.</p>'}</div>
+                        <span class="text-[10px] font-black uppercase text-slate-500 tracking-wider block">2. Compras a Proveedores (${datos.comprasRango.length}):</span>
+                        <div class="space-y-1 max-h-32 overflow-y-auto no-scrollbar">${listaComprasHtml || '<p class="text-slate-400 text-[10px]">Sin compras en este rango.</p>'}</div>
                     </div>
 
                     <div class="space-y-2 pt-2 border-t border-slate-200">
-                        <span class="text-[10px] font-black uppercase text-slate-500 tracking-wider block">3. Salidas de Dinero / Gastos (${gastosRango.length}):</span>
-                        <div class="space-y-1 max-h-32 overflow-y-auto no-scrollbar">${listaGastosHtml || '<p class="text-slate-400 text-[10px]">Sin gastos.</p>'}</div>
+                        <span class="text-[10px] font-black uppercase text-slate-500 tracking-wider block">3. Salidas de Dinero / Gastos (${datos.gastosRango.length}):</span>
+                        <div class="space-y-1 max-h-32 overflow-y-auto no-scrollbar">${listaGastosHtml || '<p class="text-slate-400 text-[10px]">Sin gastos en este rango.</p>'}</div>
                     </div>
                 </div>
             `;
         };
 
+        // VISOR DE BALANCE EN FORMATO COMPROBANTE / HOJA BLANCA / TICKET TÉRMICO
+        window.abrirAuditoriaHojaBlancaPeriodo = function() {
+            const datos = window.obtenerDatosCierrePeriodo();
+            if (!datos) return;
+
+            const totalCOP = window.calcularPesosDesdeUSD(datos.totalVentasUSD);
+            const totalBs = window.calcularBsDesdeUSD(datos.totalVentasUSD);
+            const nombreNegocio = (window.clienteActivoSesion ? window.clienteActivoSesion.nombre : 'TUCOCEL C.A.').toUpperCase();
+            const telNegocio = window.clienteActivoSesion ? (window.clienteActivoSesion.wa || '0424-0000000') : '0424-7357549';
+
+            window.auditoriaItemActivo = {
+                tipo: 'BALANCE_PERIODO',
+                data: datos
+            };
+
+            const htmlTicketPeriodo = `
+                <div style="text-align:center;font-family:monospace;color:#000;">
+                    <h2 style="font-size:13px;font-weight:900;margin:0;">${nombreNegocio}</h2>
+                    <p style="font-size:9px;margin:2px 0;">WhatsApp: ${telNegocio}</p>
+                    <p style="font-size:10px;font-weight:bold;margin:4px 0;border-top:1px dashed #000;border-bottom:1px dashed #000;padding:3px 0;">BALANCE GERENCIAL DE PERÍODO</p>
+                </div>
+                <div style="margin:8px 0;font-size:9.5px;font-family:monospace;line-height:1.4;color:#000;">
+                    <p><strong>PERÍODO EVALUADO:</strong></p>
+                    <p>Desde: ${datos.desdeVal}  Hasta: ${datos.hastaVal}</p>
+                    <hr style="border-top:1px dashed #000;margin:4px 0;">
+                    <p><strong>VENTAS TOTALES:</strong> $${datos.totalVentasUSD.toFixed(2)} USD</p>
+                    <p>• Total COP: ${window.formatearMiles(totalCOP)}</p>
+                    <p>• Total Bs.: ${totalBs.toFixed(2)}</p>
+                    <p>• Notas Emitidas: ${datos.ventasRango.length}</p>
+                    <hr style="border-top:1px dashed #000;margin:4px 0;">
+                    <p><strong>EGRESOS / INVERSIÓN:</strong> -$${datos.totalGastosUSD.toFixed(2)} USD</p>
+                    <p>• Compras Proveedores: ${datos.comprasRango.length}</p>
+                    <p>• Gastos Operativos: ${datos.gastosRango.length}</p>
+                    <hr style="border-top:1px dashed #000;margin:4px 0;">
+                    <p style="font-size:11px;font-weight:900;">GANANCIA NETA: $${datos.gananciaNetaPeriodo.toFixed(2)} USD</p>
+                </div>
+                <div style="text-align:center;font-size:8px;font-family:monospace;border-top:1px dashed #000;padding-top:6px;color:#000;">
+                    <p>Comprobante de Recepción Interna.</p>
+                    <p style="font-weight:900;font-size:8.5px;">Sistema TCL Comercio — Un Programa de TUCOCEL C.A. & PublionlineMK</p>
+                </div>
+            `;
+
+            document.getElementById('lbl-auditoria-titulo').innerHTML = `<i class="fa-solid fa-chart-pie text-purple-400"></i> BALANCE GERENCIAL`;
+            document.getElementById('cuerpo-modal-auditoria').innerHTML = htmlTicketPeriodo;
+            document.getElementById('modal-detalle-auditoria').classList.remove('hidden');
+        };
+
         window.enviarCierrePeriodoWhatsApp = function() {
-            const desdeVal = document.getElementById('filtro-periodo-desde').value;
-            const hastaVal = document.getElementById('filtro-periodo-hasta').value;
-            const tDesde = new Date(desdeVal + 'T00:00:00').getTime();
-            const tHasta = new Date(hastaVal + 'T23:59:59').getTime();
+            const datos = window.obtenerDatosCierrePeriodo();
+            if (!datos) return;
 
-            const ventasRango = window.dbVentas.filter(v => v.fechaMs >= tDesde && v.fechaMs <= tHasta && v.estado !== 'ANULADA');
-            const gastosRango = window.dbGastos.filter(g => g.fechaMs >= tDesde && g.fechaMs <= tHasta);
+            const totalCOP = window.calcularPesosDesdeUSD(datos.totalVentasUSD);
+            const totalBs = window.calcularBsDesdeUSD(datos.totalVentasUSD);
 
-            const totalVentasUSD = ventasRango.reduce((acc, v) => acc + v.totalUSD, 0);
-            const totalGastosUSD = gastosRango.reduce((acc, g) => acc + g.montoUSD, 0);
-            const gananciaNetaPeriodo = totalVentasUSD - totalGastosUSD;
-
-            let msj = `📑 *INFORME EJECUTIVO GERENCIAL — CIERRE DE PERÍODO*
-`;
-            msj += `🏢 Local: ${(window.clienteActivoSesion ? window.clienteActivoSesion.nombre : 'TUCOCEL C.A.').toUpperCase()}
-`;
-            msj += `📅 Período: ${desdeVal} hasta ${hastaVal}
-`;
-            msj += `------------------------------------
-`;
-            msj += `📈 *Ingresos por Ventas:* $${totalVentasUSD.toFixed(2)} USD
-`;
-            msj += `📉 *Egresos e Inversión:* $${totalGastosUSD.toFixed(2)} USD
-`;
-            msj += `💎 *GANANCIA NETA DEL PERÍODO:* $${gananciaNetaPeriodo.toFixed(2)} USD
-`;
-            msj += `------------------------------------
-`;
-            msj += `📄 Notas Procesadas: ${ventasRango.length}
-`;
-            msj += `📊 Estado: Cuadre Gerencial Consolidado.
-*Sistema TCL Comercio — TUCOCEL C.A. & PublionlineMK*`;
+            let msj = `📑 *INFORME EJECUTIVO GERENCIAL — CIERRE DE PERÍODO*\n`;
+            msj += `🏢 Local: ${(window.clienteActivoSesion ? window.clienteActivoSesion.nombre : 'TUCOCEL C.A.').toUpperCase()}\n`;
+            msj += `📅 Período: ${datos.desdeVal} hasta ${datos.hastaVal}\n`;
+            msj += `------------------------------------\n`;
+            msj += `📈 *Ingresos por Ventas:* $${datos.totalVentasUSD.toFixed(2)} USD\n`;
+            msj += `🇨🇴 Total COP: ${window.formatearMiles(totalCOP)} COP\n`;
+            msj += `🇻🇪 Total Bs: ${totalBs.toFixed(2)} Bs\n`;
+            msj += `📉 *Egresos e Inversión:* $${datos.totalGastosUSD.toFixed(2)} USD\n`;
+            msj += `💎 *GANANCIA NETA DEL PERÍODO:* $${datos.gananciaNetaPeriodo.toFixed(2)} USD\n`;
+            msj += `------------------------------------\n`;
+            msj += `📄 Notas Procesadas: ${datos.ventasRango.length}\n`;
+            msj += `📊 Estado: Cuadre Gerencial Consolidado.\n*Sistema TCL Comercio — TUCOCEL C.A. & PublionlineMK*`;
 
             window.open(`https://wa.me/?text=${encodeURIComponent(msj)}`, '_blank');
         };
