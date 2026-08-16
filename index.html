@@ -1444,12 +1444,15 @@
             } catch(e) { console.log("Modo offline / local reactivado."); }
         }
 
-        window.STORAGE_KEY = 'tcl_master_db_2026';
-        window.STORAGE_KEY_INV = 'tcl_inventario_db_2026';
-        window.STORAGE_KEY_VENTAS = 'tcl_ventas_db_2026';
-        window.STORAGE_KEY_GASTOS = 'tcl_gastos_db_2026';
-        window.STORAGE_KEY_PROV = 'tcl_proveedores_db_2026';
-        window.STORAGE_KEY_CIERRES = 'tcl_cierres_diarios_db_2026';
+        window.STORAGE_KEY_SAAS_CLIENTES = 'tcl_master_db_2026';
+        
+        // NAMESPACE MULTI-TENANT POR COMERCIO
+        window.getTenantStorageKey = function(entidad) {
+            const slug = (window.clienteActivoSesion && window.clienteActivoSesion.slug) 
+                         ? window.clienteActivoSesion.slug 
+                         : 'demo';
+            return `tcl_tenant_${slug}_${entidad}_2026`;
+        };
 
         window.esMasterLogueado = false;
         window.clienteActivoSesion = null;
@@ -1928,9 +1931,14 @@ _Comprobante de Recepción Interna._
                 return;
             }
 
-            const encontrado = window.dbClientesSaaS.find(c => c.user === usr && c.pass === pass);
+            const encontrado = window.dbClientesSaaS.find(c => (c.user === usr || c.slug === usr) && c.pass === pass);
             if (encontrado) {
+                if (encontrado.estatus === 'INACTIVO') {
+                    alert("🔒 Esta cuenta de comercio se encuentra inactiva. Contacte al desarrollador.");
+                    return;
+                }
                 window.clienteActivoSesion = encontrado;
+                window.cargarDatosDelComercioActivo();
                 document.getElementById('vista-login').classList.add('hidden');
                 document.getElementById('bottom-bar-gerencial').classList.add('hidden');
                 window.abrirPanelClientePrivadoDirecto();
@@ -2469,18 +2477,49 @@ tu suscripción ha sido renovada exitosamente por *${dias} días adicionales*.
             const pass = document.getElementById('saas-input-pass').value.trim();
             const dias = window.diasSuscripcionSeleccionados;
 
-            if (!nombre || !user || !pass) { alert("⚠️ Complete Nombre Comercial, Usuario y Clave."); return; }
+            if (!nombre || !user || !pass) { alert("⚠️ Complete Nombre Comercial, Usuario ID y Contraseña."); return; }
+
+            const existeUser = window.dbClientesSaaS.find(c => (c.user === user || c.slug === user) && c.id !== idEdit);
+            if (existeUser) {
+                alert("⚠️ El Usuario ID / Slug ya está en uso. Por favor elija uno diferente.");
+                return;
+            }
+
+            const fechaVencimiento = new Date(Date.now() + dias * 24 * 60 * 60 * 1000).toISOString();
 
             if (idEdit) {
                 const idx = window.dbClientesSaaS.findIndex(c => c.id === idEdit);
-                if (idx !== -1) window.dbClientesSaaS[idx] = { ...window.dbClientesSaaS[idx], nombre, responsable, wa, user, pass, slug: user, dias };
+                if (idx !== -1) {
+                    window.dbClientesSaaS[idx] = { 
+                        ...window.dbClientesSaaS[idx], 
+                        nombre, responsable, wa, user, pass, slug: user, dias, fechaVencimiento 
+                    };
+                }
             } else {
-                window.dbClientesSaaS.push({ id: 'cli_' + Date.now(), nombre, responsable, wa, user, pass, slug: user, dias, estatus: 'ACTIVO' });
+                const nuevoTenant = { 
+                    id: 'cli_' + Date.now(), 
+                    nombre, responsable, wa, user, pass, slug: user, dias, 
+                    estatus: 'ACTIVO',
+                    fechaCreacion: Date.now(),
+                    fechaVencimiento: fechaVencimiento,
+                    tasas: { cop: 3600, paridadBs: 3.3 }
+                };
+                window.dbClientesSaaS.push(nuevoTenant);
+
+                // Inicializar espacio de datos aislado para el nuevo comercio
+                const prevSesion = window.clienteActivoSesion;
+                window.clienteActivoSesion = nuevoTenant;
+                window.dbInventario = [
+                    { id: 'p1_' + Date.now(), nombre: 'PRODUCTO INICIAL ' + nombre.toUpperCase(), desc: 'Catálogo de bienvenida', precioCosto: 1.00, precioVenta: 2.00, stock: 10, foto: '' }
+                ];
+                window.guardarInventarioEnStorage();
+                window.clienteActivoSesion = prevSesion;
             }
+
             window.guardarClientesEnStorage();
             window.recalcularTotalesYBadgesComercios();
             document.getElementById('modal-configurar-entorno-saas').classList.add('hidden');
-            alert("✨ Datos guardados con éxito.");
+            alert("✨ Cuenta de comercio creada con aislamiento de base de datos exitoso.");
         };
 
         window.eliminarPerfilComercioSaas = function() {
@@ -2535,66 +2574,69 @@ tu suscripción ha sido renovada exitosamente por *${dias} días adicionales*.
             reader.readAsDataURL(file);
         };
 
-        // ALMACENAMIENTO DE DATOS LOCAL
+        // GESTIÓN DE CLIENTES / TENANTS SAAS
         window.cargarClientesDesdeStorage = function() {
-            const guardados = localStorage.getItem(window.STORAGE_KEY);
-            if (guardados) { try { window.dbClientesSaaS = JSON.parse(guardados); } catch(e) { window.dbClientesSaaS = []; } } else {
-                window.dbClientesSaaS = [ { id: 'cli_001', nombre: 'COMERCIO EJEMPLO C.A.', responsable: 'Juan Pérez', wa: '04XX-0000000', user: 'demo', pass: '123456', slug: 'demo', dias: 180, estatus: 'ACTIVO' } ];
+            const guardados = localStorage.getItem(window.STORAGE_KEY_SAAS_CLIENTES);
+            if (guardados) { 
+                try { window.dbClientesSaaS = JSON.parse(guardados); } catch(e) { window.dbClientesSaaS = []; } 
+            } else {
+                window.dbClientesSaaS = [ 
+                    { id: 'cli_001', nombre: 'COMERCIO EJEMPLO C.A.', responsable: 'Juan Pérez', wa: '0424-7357549', user: 'demo', pass: '123456', slug: 'demo', dias: 180, estatus: 'ACTIVO', fechaCreacion: Date.now(), fechaVencimiento: new Date(Date.now() + 180*24*60*60*1000).toISOString(), tasas: { cop: 3600, paridadBs: 3.3 } } 
+                ];
                 window.guardarClientesEnStorage();
             }
         };
-        window.guardarClientesEnStorage = function() { localStorage.setItem(window.STORAGE_KEY, JSON.stringify(window.dbClientesSaaS)); };
-        
-        window.cargarInventarioDesdeStorage = function() {
-            const guardados = localStorage.getItem(window.STORAGE_KEY_INV);
-            if (guardados) { try { window.dbInventario = JSON.parse(guardados); } catch(e) { window.dbInventario = []; } } else {
+        window.guardarClientesEnStorage = function() { localStorage.setItem(window.STORAGE_KEY_SAAS_CLIENTES, JSON.stringify(window.dbClientesSaaS)); };
+
+        // CARGA DINÁMICA DE CONTEXTO AISLADO POR COMERCIO (MULTI-TENANT)
+        window.cargarDatosDelComercioActivo = function() {
+            if (!window.clienteActivoSesion && window.dbClientesSaaS && window.dbClientesSaaS.length > 0) {
+                window.clienteActivoSesion = window.dbClientesSaaS[0];
+            }
+            if (!window.clienteActivoSesion) return;
+
+            // Inventario Aislado
+            const gInv = localStorage.getItem(window.getTenantStorageKey('inventario'));
+            if (gInv) { 
+                try { window.dbInventario = JSON.parse(gInv); } catch(e) { window.dbInventario = []; } 
+            } else {
                 window.dbInventario = [
-                    { id: 'p1', nombre: 'ACEITE VEGETAL 1L', desc: 'Soya.', precioCosto: 1.80, precioVenta: 2.50, stock: 15, foto: '' },
-                    { id: 'p2', nombre: 'HARINA PAN 1KG', desc: 'Maíz.', precioCosto: 0.85, precioVenta: 1.10, stock: 0, foto: '' }
+                    { id: 'p1_' + Date.now(), nombre: 'ACEITE VEGETAL 1L', desc: 'Comestible vegetal de primera.', precioCosto: 1.80, precioVenta: 2.50, stock: 15, foto: '' },
+                    { id: 'p2_' + Date.now(), nombre: 'HARINA PAN 1KG', desc: 'Harina de maíz blanco precocida.', precioCosto: 0.85, precioVenta: 1.10, stock: 25, foto: '' }
                 ];
                 window.guardarInventarioEnStorage();
             }
-        };
-        window.guardarInventarioEnStorage = function() { localStorage.setItem(window.STORAGE_KEY_INV, JSON.stringify(window.dbInventario)); };
 
-        window.cargarVentasDesdeStorage = function() {
-            const guardados = localStorage.getItem(window.STORAGE_KEY_VENTAS);
-            if (guardados) { try { window.dbVentas = JSON.parse(guardados); } catch(e) { window.dbVentas = []; } } else {
-                window.dbVentas = []; window.guardarVentasEnStorage();
+            // Ventas Aisladas
+            const gVentas = localStorage.getItem(window.getTenantStorageKey('ventas'));
+            window.dbVentas = gVentas ? JSON.parse(gVentas) : [];
+
+            // Gastos Aislados
+            const gGastos = localStorage.getItem(window.getTenantStorageKey('gastos'));
+            window.dbGastos = gGastos ? JSON.parse(gGastos) : [];
+
+            // Compras / Proveedores Aislados
+            const gProv = localStorage.getItem(window.getTenantStorageKey('proveedores'));
+            window.dbProveedores = gProv ? JSON.parse(gProv) : [];
+
+            // Cierres Diarios Aislados
+            const gCierres = localStorage.getItem(window.getTenantStorageKey('cierres'));
+            window.dbCierres = gCierres ? JSON.parse(gCierres) : [];
+
+            // Sincronizar Tasas si el cliente tiene configuración particular
+            if (window.clienteActivoSesion.tasas) {
+                window.tasasConfig = { ...window.clienteActivoSesion.tasas };
             }
         };
-        window.guardarVentasEnStorage = function() { localStorage.setItem(window.STORAGE_KEY_VENTAS, JSON.stringify(window.dbVentas)); };
 
-        window.cargarGastosDesdeStorage = function() {
-            const guardados = localStorage.getItem(window.STORAGE_KEY_GASTOS);
-            if (guardados) { try { window.dbGastos = JSON.parse(guardados); } catch(e) { window.dbGastos = []; } } else {
-                window.dbGastos = []; window.guardarGastosEnStorage();
-            }
-        };
-        window.guardarGastosEnStorage = function() { localStorage.setItem(window.STORAGE_KEY_GASTOS, JSON.stringify(window.dbGastos)); };
-
-        window.cargarProveedoresDesdeStorage = function() {
-            const guardados = localStorage.getItem(window.STORAGE_KEY_PROV);
-            if (guardados) { try { window.dbProveedores = JSON.parse(guardados); } catch(e) { window.dbProveedores = []; } } else {
-                window.dbProveedores = []; window.guardarProveedoresEnStorage();
-            }
-        };
-        window.guardarProveedoresEnStorage = function() { localStorage.setItem(window.STORAGE_KEY_PROV, JSON.stringify(window.dbProveedores)); };
-
-        window.cargarCierresDesdeStorage = function() {
-            const guardados = localStorage.getItem(window.STORAGE_KEY_CIERRES);
-            if (guardados) { try { window.dbCierres = JSON.parse(guardados); } catch(e) { window.dbCierres = []; } } else {
-                window.dbCierres = []; window.guardarCierresEnStorage();
-            }
-        };
-        window.guardarCierresEnStorage = function() { localStorage.setItem(window.STORAGE_KEY_CIERRES, JSON.stringify(window.dbCierres)); };
+        window.guardarInventarioEnStorage = function() { localStorage.setItem(window.getTenantStorageKey('inventario'), JSON.stringify(window.dbInventario)); };
+        window.guardarVentasEnStorage = function() { localStorage.setItem(window.getTenantStorageKey('ventas'), JSON.stringify(window.dbVentas)); };
+        window.guardarGastosEnStorage = function() { localStorage.setItem(window.getTenantStorageKey('gastos'), JSON.stringify(window.dbGastos)); };
+        window.guardarProveedoresEnStorage = function() { localStorage.setItem(window.getTenantStorageKey('proveedores'), JSON.stringify(window.dbProveedores)); };
+        window.guardarCierresEnStorage = function() { localStorage.setItem(window.getTenantStorageKey('cierres'), JSON.stringify(window.dbCierres)); };
 
         window.cargarClientesDesdeStorage();
-        window.cargarInventarioDesdeStorage();
-        window.cargarVentasDesdeStorage();
-        window.cargarGastosDesdeStorage();
-        window.cargarProveedoresDesdeStorage();
-        window.cargarCierresDesdeStorage();
+        window.cargarDatosDelComercioActivo();
 
         window.guardarProductoInventario = function() {
             const idEdit = document.getElementById('inv-edit-id').value;
@@ -2984,7 +3026,12 @@ $${(item.precioUSD * item.cant).toFixed(2)} USD
         };
 
         window.entrarEnCalienteCliente = function(slug, nombreLocal) {
-            document.getElementById('header-shop-title').innerText = nombreLocal;
+            const cliente = window.dbClientesSaaS.find(c => c.slug === slug);
+            if (cliente) {
+                window.clienteActivoSesion = cliente;
+                window.cargarDatosDelComercioActivo();
+            }
+            document.getElementById('header-shop-title').innerText = nombreLocal || (cliente ? cliente.nombre : 'COMERCIO');
             const banner = document.getElementById('banner-soporte-master-top');
             if (banner) { if (window.esMasterLogueado) banner.classList.remove('hidden'); else banner.classList.add('hidden'); }
             document.getElementById('modal-base-clientes').classList.add('hidden');
@@ -4292,7 +4339,7 @@ window.abrirModalReporteZ = function() {
         window.compartirCatalogoWhatsApp = function() {
             const nombreNegocio = (window.clienteActivoSesion ? window.clienteActivoSesion.nombre : 'TUCOCEL C.A.').toUpperCase();
             const slug = window.clienteActivoSesion ? (window.clienteActivoSesion.slug || 'comercio') : 'demo';
-            const urlCatalogo = `https://tucocel.github.io/tclcomercioweb/${slug}`;
+            const urlCatalogo = `${window.location.origin}${window.location.pathname}?tenant=${slug}`;
 
             let texto = `🛍️ *¡CATÁLOGO DIGITAL DISPONIBLE!* ✨\n`;
             texto += `🏢 *${nombreNegocio}*\n\n`;
@@ -4304,6 +4351,22 @@ window.abrirModalReporteZ = function() {
 
             window.open(`https://wa.me/?text=${encodeURIComponent(texto)}`, '_blank');
         };
+
+        // AUTO-DETECCIÓN DE COMERCIO POR PARÁMETRO URL (?tenant=slug)
+        window.addEventListener('DOMContentLoaded', () => {
+            window.cargarClientesDesdeStorage();
+            const urlParams = new URLSearchParams(window.location.search);
+            const tenantParam = urlParams.get('tenant') || urlParams.get('u');
+            if (tenantParam) {
+                const enc = window.dbClientesSaaS.find(c => c.slug === tenantParam || c.user === tenantParam);
+                if (enc) {
+                    window.clienteActivoSesion = enc;
+                    window.cargarDatosDelComercioActivo();
+                    document.getElementById('vista-login').classList.add('hidden');
+                    window.verVitrinaComoCliente();
+                }
+            }
+        });
 
     
         // -------------------------------------------------------------
