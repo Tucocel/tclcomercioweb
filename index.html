@@ -270,7 +270,7 @@
                 <div class="bg-slate-50 p-4 rounded-2xl border border-slate-200 space-y-3">
                     <label class="text-[10px] font-black text-emerald-600 uppercase tracking-wider block">VERIFICACIÓN KYC & ENLACES</label>
                     <div class="flex gap-2">
-                        <input type="text" id="saas-link-generado" readonly value="https://tcl.com/multirepuestosminel" class="input-clean font-mono text-blue-600 bg-white">
+                        <input type="text" id="saas-link-generado" readonly value="https://tucocel.github.io/tclcomercioweb/multirepuestosminel" class="input-clean font-mono text-blue-600 bg-white">
                         <button onclick="window.copiarEnlaceComercioGenerado()" class="bg-slate-900 hover:bg-slate-800 text-white px-4 rounded-xl font-bold uppercase text-xs shrink-0 flex items-center gap-1">
                             <i class="fa-solid fa-copy"></i> Copiar
                         </button>
@@ -680,16 +680,25 @@
                             </select>
                         </div>
 
-                        <!-- CÁLCULO DE VUELTO / CAMBIO EN CALIENTE -->
-                        <div class="bg-blue-50/50 p-2.5 rounded-xl border border-blue-200 grid grid-cols-1 sm:grid-cols-2 gap-2 items-center">
-                            <div>
-                                <label class="text-[9px] text-slate-600 font-bold uppercase block mb-0.5">Monto Recibido del Cliente:</label>
-                                <input type="number" step="0.01" id="pos-input-paga-con" oninput="window.calcularVueltoPOS()" placeholder="Ej: 10.00 ó 50000" class="input-clean font-mono font-black text-blue-600">
+                        <!-- CÁLCULO DE VUELTO / CAMBIO EN CALIENTE MULTIMONEDA EXACTO -->
+                        <div class="bg-blue-50/50 p-3 rounded-2xl border border-blue-200 space-y-2">
+                            <div class="flex justify-between items-center gap-2">
+                                <label class="text-[9.5px] text-slate-700 font-black uppercase font-mono">Cliente Paga Con:</label>
+                                <div class="flex gap-1 font-bold text-[9.5px]">
+                                    <button type="button" onclick="window.seleccionarMonedaPagoVuelto('USD')" id="btn-vuelto-usd" class="px-2 py-1 rounded-lg border border-blue-600 bg-blue-600 text-white font-black">💵 USD</button>
+                                    <button type="button" onclick="window.seleccionarMonedaPagoVuelto('COP')" id="btn-vuelto-cop" class="px-2 py-1 rounded-lg border border-slate-300 bg-white text-slate-700 font-bold">🇨🇴 COP</button>
+                                    <button type="button" onclick="window.seleccionarMonedaPagoVuelto('BS')" id="btn-vuelto-bs" class="px-2 py-1 rounded-lg border border-slate-300 bg-white text-slate-700 font-bold">🇻🇪 BS</button>
+                                </div>
                             </div>
-                            <div class="text-center sm:text-right font-mono">
-                                <span class="text-[9px] text-slate-500 uppercase font-bold block">Cambio / Vuelto a Entregar:</span>
-                                <div id="lbl-pos-vuelto-display" class="text-sm font-black text-emerald-600">$0.00 USD</div>
-                                <div id="lbl-pos-vuelto-sub" class="text-[9.5px] text-slate-500 font-bold">0 COP | 0.00 Bs</div>
+                            <div class="grid grid-cols-1 sm:grid-cols-2 gap-2 items-center">
+                                <div>
+                                    <input type="number" step="0.01" id="pos-input-paga-con" oninput="window.calcularVueltoPOS()" placeholder="Ingrese monto entregado..." class="input-clean font-mono font-black text-blue-600 text-sm">
+                                </div>
+                                <div class="text-center sm:text-right font-mono bg-white p-2 rounded-xl border border-slate-200 shadow-sm">
+                                    <span class="text-[9px] text-slate-500 uppercase font-black block">Vuelto a Entregar:</span>
+                                    <div id="lbl-pos-vuelto-display" class="text-sm font-black text-emerald-600">$0.00 USD</div>
+                                    <div id="lbl-pos-vuelto-sub" class="text-[9.5px] text-slate-600 font-bold">0 COP | 0.00 Bs</div>
+                                </div>
                             </div>
                         </div>
                     </div>
@@ -729,6 +738,25 @@
         </header>
 
         <main class="max-w-5xl mx-auto w-full p-3 sm:p-4 flex-grow space-y-4 sm:space-y-6 no-print">
+            <!-- CÁPSULA VERDE DE COMPARTIR CATÁLOGO EN WHATSAPP -->
+            <div class="bg-gradient-to-r from-emerald-600 via-emerald-500 to-teal-600 rounded-2xl p-3 sm:p-4 text-white shadow-lg flex flex-col sm:flex-row items-center justify-between gap-3 border border-emerald-400/40">
+                <div class="flex items-center gap-3 text-center sm:text-left">
+                    <div class="w-11 h-11 bg-white/20 backdrop-blur-md rounded-2xl flex items-center justify-center text-2xl shrink-0 shadow-inner">
+                        <i class="fa-brands fa-whatsapp text-white"></i>
+                    </div>
+                    <div>
+                        <h3 class="font-black text-xs sm:text-sm uppercase tracking-tight flex items-center justify-center sm:justify-start gap-1.5">
+                            <span>📲 COMPARTIR CATÁLOGO DIGITAL</span>
+                            <span class="bg-amber-400 text-slate-950 text-[9px] font-black px-1.5 py-0.5 rounded-md uppercase">Enlace Web</span>
+                        </h3>
+                        <p class="text-[11px] text-emerald-50 font-medium">Difunde nuestra vitrina interactiva y precios en tus grupos y estados de WhatsApp.</p>
+                    </div>
+                </div>
+                <button onclick="window.compartirCatalogoWhatsApp()" class="w-full sm:w-auto bg-white hover:bg-slate-100 text-emerald-800 font-black px-5 py-3 rounded-xl text-xs uppercase tracking-wider shadow-md hover:shadow-lg transition-all active:scale-95 flex items-center justify-center gap-2 shrink-0 border border-emerald-200">
+                    <i class="fa-solid fa-share-nodes text-emerald-600 text-sm"></i> <span>COMPARTIR EN WHATSAPP</span>
+                </button>
+            </div>
+
             <div class="flex justify-between items-center border-b border-slate-200 pb-2">
                 <h2 class="text-xs font-black uppercase text-slate-500 tracking-wider">Productos en Vitrina</h2>
                 <span class="text-[9px] text-slate-400 font-mono">Precios calculados con tasa de frontera</span>
@@ -751,6 +779,35 @@
                     <span id="lbl-cart-count" class="truncate text-[11px] sm:text-xs">0 ítems agregados</span>
                 </div>
                 <span id="lbl-cart-total" class="text-xs sm:text-sm font-extrabold font-mono shrink-0">$0.00 USD</span>
+            </button>
+        </div>
+    </div>
+
+
+    <!-- MODAL FIJAR TASAS DEL DÍA (APERTURA DE TURNO) -->
+    <div id="modal-fijar-tasa-dia" class="fixed inset-0 bg-slate-950/85 backdrop-blur-md z-[160] p-4 flex items-center justify-center hidden no-print">
+        <div class="bg-white border border-slate-200 w-full max-w-md rounded-3xl overflow-hidden shadow-2xl p-6 space-y-4 font-bold text-xs">
+            <div class="text-center space-y-1">
+                <div class="w-14 h-14 bg-amber-50 text-amber-500 rounded-2xl flex items-center justify-center mx-auto text-2xl border border-amber-200 shadow-sm">
+                    <i class="fa-solid fa-calculator"></i>
+                </div>
+                <h3 class="font-black text-slate-900 text-sm uppercase">FIJAR TASAS DEL DÍA — APERTURA</h3>
+                <p class="text-slate-500 text-[11px]">Confirme las tasas de cambio de frontera antes de iniciar la facturación.</p>
+            </div>
+
+            <div class="space-y-3 font-mono">
+                <div class="bg-slate-50 p-3 rounded-2xl border border-slate-200 space-y-1">
+                    <label class="text-[10px] text-slate-600 uppercase font-black block">🇨🇴 Tasa USDT / Pesos (COP):</label>
+                    <input type="number" id="apertura-tasa-cop" class="input-clean text-base font-black text-blue-600 bg-white" placeholder="3600" value="3600">
+                </div>
+                <div class="bg-slate-50 p-3 rounded-2xl border border-slate-200 space-y-1">
+                    <label class="text-[10px] text-slate-600 uppercase font-black block">🇻🇪 Factor Paridad Cúcuta (Bs):</label>
+                    <input type="number" step="0.1" id="apertura-tasa-bs" class="input-clean text-base font-black text-emerald-600 bg-white" placeholder="3.3" value="3.3">
+                </div>
+            </div>
+
+            <button onclick="window.confirmarTasasAperturaDia()" class="btn-brand w-full py-4 text-xs shadow-lg flex items-center justify-center gap-2">
+                <i class="fa-solid fa-lock text-sm"></i> FIJAR TASAS DEL DÍA Y ABRIR CAJA
             </button>
         </div>
     </div>
@@ -837,17 +894,9 @@
                     <label class="text-[10px] text-slate-600 font-bold uppercase font-mono">Día:</label>
                     <input type="date" id="filtro-fecha-reporte-z" onchange="window.generarReporteZDia()" class="input-clean font-mono py-1 text-xs w-auto">
                 </div>
-                <div class="flex flex-wrap gap-1.5">
-                    <button onclick="window.hacerCierreDelDiaDirecto()" class="bg-purple-600 hover:bg-purple-500 text-white px-3 py-2 rounded-xl text-xs font-black uppercase flex items-center gap-1 shadow-sm">
-                        <i class="fa-solid fa-lock"></i> Hacer Cierre del Día
-                    </button>
-                    <button onclick="window.imprimirReporteZ()" class="bg-slate-800 hover:bg-slate-700 text-white px-3 py-2 rounded-xl text-xs font-bold uppercase flex items-center gap-1 shadow-sm">
-                        <i class="fa-solid fa-print"></i> Imprimir
-                    </button>
-                    <button onclick="window.enviarReporteZWhatsApp()" class="bg-emerald-600 hover:bg-emerald-500 text-white px-3 py-2 rounded-xl text-xs font-black uppercase flex items-center gap-1 shadow-sm">
-                        <i class="fa-brands fa-whatsapp"></i> WhatsApp
-                    </button>
-                </div>
+                <button onclick="window.abrirHojaBlancaCierreDia()" class="bg-gradient-to-r from-purple-600 to-indigo-600 hover:from-purple-500 hover:to-indigo-500 text-white px-4 py-2.5 rounded-xl text-xs font-black uppercase flex items-center gap-1.5 shadow-md">
+                    <i class="fa-solid fa-file-lines text-sm"></i> <span>HACER CIERRE DEL DÍA (VER BALANCE)</span>
+                </button>
             </div>
 
             <div class="p-5 overflow-y-auto space-y-4 no-scrollbar flex-grow font-mono text-xs" id="contenido-reporte-z-body">
@@ -1094,19 +1143,15 @@
                 <button onclick="document.getElementById('modal-detalle-auditoria').classList.add('hidden')" class="text-slate-400 hover:text-white p-1"><i class="fa-solid fa-xmark text-base"></i></button>
             </div>
             
-            <div class="p-4 overflow-y-auto flex-grow flex justify-center bg-slate-200">
+            <div class="p-3 sm:p-4 overflow-y-auto flex-grow flex justify-center bg-slate-200">
                 <div id="cuerpo-modal-auditoria" class="bg-white shadow-md w-full max-w-[80mm] p-4 text-[10px] font-mono text-black border border-slate-300 relative">
                     <!-- Ticket Hoja Blanca renderizado -->
                 </div>
             </div>
 
-            <div class="bg-white p-3 border-t border-slate-300 grid grid-cols-2 gap-2 shrink-0">
-                <button id="btn-audit-imprimir" onclick="window.imprimirAuditoriaActual()" class="bg-slate-800 hover:bg-slate-700 text-white font-black py-3 rounded-xl uppercase text-xs flex items-center justify-center gap-1.5 shadow-sm">
-                    <i class="fa-solid fa-print"></i> Imprimir Ticket
-                </button>
-                <button id="btn-audit-whatsapp" onclick="window.enviarAuditoriaWhatsAppActual()" class="bg-emerald-600 hover:bg-emerald-500 text-white font-black py-3 rounded-xl uppercase text-xs flex items-center justify-center gap-1.5 shadow-sm">
-                    <i class="fa-brands fa-whatsapp text-sm"></i> WhatsApp 🔒
-                </button>
+            <!-- CONTENEDOR DINÁMICO DE ACCIONES ADAPTADO POR TIPO (COMPACTO PARA MÓVIL) -->
+            <div id="box-acciones-modal-auditoria" class="bg-white p-2.5 sm:p-3 border-t border-slate-300 flex flex-wrap items-center justify-center gap-1.5 shrink-0">
+                <!-- Se inyectan las cápsulas según sea NOTA o CIERRE -->
             </div>
         </div>
     </div>
@@ -1411,7 +1456,7 @@
 
         window.calcularBsDesdeUSD = function(dolares) {
             const pesos = window.calcularPesosDesdeUSD(dolares);
-            const paridad = (window.tasasConfig.paridadBs || 3.3) * 100;
+            const paridad = (window.tasasConfig.paridadBs || 3.3);
             return paridad > 0 ? (pesos / paridad) : 0;
         };
 
@@ -1420,7 +1465,7 @@
         };
 
         window.calcularUSDDesdeBs = function(bs) {
-            const paridad = (window.tasasConfig.paridadBs || 3.3) * 100;
+            const paridad = (window.tasasConfig.paridadBs || 3.3);
             const pesos = (bs || 0) * paridad;
             return pesos / (window.tasasConfig.cop || 3600);
         };
@@ -1778,12 +1823,18 @@ _Comprobante de Recepción Interna._
                 window.open(`https://wa.me/${targetTel}?text=${encodeURIComponent(msj)}`, '_blank');
             }
 
+            // Limpieza y reseteo total en caliente para mantener al cajero en facturación
             window.carritoPOS = [];
             window.desgloseMixto = null;
-            window.renderizarCarritoPOS();
-            window.cerrarModuloPOS();
             window.notaPendiente = null;
-            alert("✨ Nota de Entrega Emitida con Éxito.");
+            document.getElementById('pos-busqueda-input').value = '';
+            document.getElementById('pos-input-paga-con').value = '';
+            window.calcularVueltoPOS();
+            window.cargarVentaSinDatos();
+            window.renderizarCarritoPOS();
+            window.renderizarInventarioPOS();
+            // Permanece en el POS listo para la siguiente factura sin saltos
+            alert("✨ Nota de Entrega Emitida con Éxito. Caja lista para la siguiente venta.");
         };
 
         window.procesarCierrePOS = function() {
@@ -1955,8 +2006,51 @@ _Comprobante de Recepción Interna._
             document.getElementById('bottom-bar-gerencial').classList.remove('hidden'); // VISIBLE SOLO EN POS
             
             window.seleccionarMonedaCargaPOS('USD');
+            window.seleccionarMonedaPagoVuelto('USD');
             window.cambiarModoPOS('INVENTARIO');
             window.renderizarCarritoPOS();
+
+            // Verificar si se deben fijar las tasas de apertura del día
+            window.verificarTasaAperturaDia();
+        };
+
+        window.verificarTasaAperturaDia = function() {
+            const hoyStr = new Date().toISOString().split('T')[0];
+            const fijada = localStorage.getItem('tcl_tasa_fijada_fecha');
+            if (fijada !== hoyStr) {
+                const inpCop = document.getElementById('apertura-tasa-cop');
+                const inpBs = document.getElementById('apertura-tasa-bs');
+                if (inpCop) inpCop.value = window.tasasConfig.cop || 3600;
+                if (inpBs) inpBs.value = window.tasasConfig.paridadBs || 3.3;
+                document.getElementById('modal-fijar-tasa-dia').classList.remove('hidden');
+            }
+        };
+
+        window.confirmarTasasAperturaDia = function() {
+            const hoyStr = new Date().toISOString().split('T')[0];
+            const inpCop = document.getElementById('apertura-tasa-cop');
+            const inpBs = document.getElementById('apertura-tasa-bs');
+            const nuevoCop = parseFloat(inpCop ? inpCop.value : 3600) || 3600;
+            const nuevoBs = parseFloat(inpBs ? inpBs.value : 3.3) || 3.3;
+
+            window.tasasConfig.cop = nuevoCop;
+            window.tasasConfig.paridadBs = nuevoBs;
+
+            const mtCop = document.getElementById('master-tasa-cop');
+            const mtBs = document.getElementById('master-tasa-bs');
+            if (mtCop) mtCop.value = nuevoCop;
+            if (mtBs) mtBs.value = nuevoBs;
+
+            const copCli = document.getElementById('inv-tasa-cop');
+            const bsCli = document.getElementById('inv-tasa-bs');
+            if (copCli) copCli.value = nuevoCop;
+            if (bsCli) bsCli.value = nuevoBs;
+
+            localStorage.setItem('tcl_tasa_fijada_fecha', hoyStr);
+            document.getElementById('modal-fijar-tasa-dia').classList.add('hidden');
+            window.renderizarProductosVitrina();
+            window.renderizarCarritoPOS();
+            alert(`🔒 Tasas del día fijadas con éxito:\n• Tasa COP: ${nuevoCop}\n• Factor Paridad Bs: ${nuevoBs}`);
         };
 
         window.cerrarModuloPOS = function() {
@@ -2272,13 +2366,13 @@ Esta acción no devuelve stock.`)) {
             const nombre = document.getElementById('saas-input-nombre').value;
             const slug = nombre.toLowerCase().normalize("NFD").replace(/[̀-ͯ]/g, "").replace(/[^a-z0-9]/g, "");
             document.getElementById('saas-input-user').value = slug;
-            document.getElementById('saas-link-generado').value = `https://tcl.com/${slug || 'comercio'}`;
+            document.getElementById('saas-link-generado').value = `https://tucocel.github.io/tclcomercioweb/${slug || 'comercio'}`;
         };
 
         window.actualizarLinkGeneradoManual = function() {
             const user = document.getElementById('saas-input-user').value.toLowerCase().replace(/[^a-z0-9]/g, "");
             document.getElementById('saas-input-user').value = user;
-            document.getElementById('saas-link-generado').value = `https://tcl.com/${user || 'comercio'}`;
+            document.getElementById('saas-link-generado').value = `https://tucocel.github.io/tclcomercioweb/${user || 'comercio'}`;
         };
 
         window.copiarEnlaceComercioGenerado = function() {
@@ -2301,7 +2395,7 @@ Esta acción no devuelve stock.`)) {
 ¡Hola ${nombre}!
 Tu servicio ha sido activado con éxito por *${dias} días*.
 
-🌐 *Tu Vitrina Web:* https://tcl.com/${user}
+🌐 *Tu Vitrina Web:* https://tucocel.github.io/tclcomercioweb/${user}
 🔑 *Usuario ID:* ${user}
 🔒 *Clave:* ${pass}
 
@@ -2312,7 +2406,7 @@ Tu servicio ha sido activado con éxito por *${dias} días*.
 Estimado ${nombre},
 tu suscripción ha sido renovada exitosamente por *${dias} días adicionales*.
 
-🌐 *Acceso:* https://tcl.com/${user}
+🌐 *Acceso:* https://tucocel.github.io/tclcomercioweb/${user}
 
 *Desarrollado por PublionlineMK & TUCOCEL C.A.*`;
             }
@@ -2764,7 +2858,7 @@ $${(item.precioUSD * item.cant).toFixed(2)} USD
                 document.getElementById('saas-input-wa').value = '';
                 document.getElementById('saas-input-user').value = '';
                 document.getElementById('saas-input-pass').value = '123456';
-                document.getElementById('saas-link-generado').value = 'https://tcl.com/...';
+                document.getElementById('saas-link-generado').value = 'https://tucocel.github.io/tclcomercioweb/...';
                 window.seleccionarPildoraDias(180);
             }
             document.getElementById('modal-configurar-entorno-saas').classList.remove('hidden');
@@ -2837,7 +2931,7 @@ $${(item.precioUSD * item.cant).toFixed(2)} USD
             document.getElementById('saas-input-wa').value = cliente.wa;
             document.getElementById('saas-input-user').value = cliente.user;
             document.getElementById('saas-input-pass').value = cliente.pass;
-            document.getElementById('saas-link-generado').value = `https://tcl.com/${cliente.slug}`;
+            document.getElementById('saas-link-generado').value = `https://tucocel.github.io/tclcomercioweb/${cliente.slug}`;
             window.seleccionarPildoraDias(cliente.dias);
             document.getElementById('modal-configurar-entorno-saas').classList.remove('hidden');
         };
@@ -2901,6 +2995,7 @@ $${(item.precioUSD * item.cant).toFixed(2)} USD
             const telNegocio = window.clienteActivoSesion ? (window.clienteActivoSesion.wa || '0424-0000000') : '0424-7357549';
             let ticketHtml = '';
             let tituloModal = 'COMPROBANTE OFICIAL';
+            let botonesHtml = '';
 
             if (tipo === 'VENTA') {
                 const n = window.dbVentas.find(x => x.id === id);
@@ -2908,6 +3003,15 @@ $${(item.precioUSD * item.cant).toFixed(2)} USD
                 window.auditoriaItemActivo = { tipo: 'VENTA', data: n };
                 tituloModal = `NOTA DE ENTREGA #${n.correlativo}`;
                 ticketHtml = window.generarHTMLTicketTermico(n, 'HISTORIAL', n.correlativo);
+                
+                botonesHtml = `
+                    <button onclick="window.imprimirAuditoriaActual()" class="bg-slate-800 hover:bg-slate-700 text-white font-black py-2.5 px-4 rounded-xl uppercase text-[11px] flex items-center justify-center gap-1.5 shadow-sm active:scale-95 transition-all">
+                        <i class="fa-solid fa-print"></i> IMPRIMIR NOTA
+                    </button>
+                    <button onclick="window.enviarAuditoriaWhatsAppActual()" class="bg-emerald-600 hover:bg-emerald-500 text-white font-black py-2.5 px-4 rounded-xl uppercase text-[11px] flex items-center justify-center gap-1.5 shadow-sm active:scale-95 transition-all">
+                        <i class="fa-brands fa-whatsapp text-sm"></i> ENVIAR POR WHATSAPP
+                    </button>
+                `;
             } else if (tipo === 'COMPRA') {
                 const rec = window.dbProveedores.find(x => x.id === id);
                 if (!rec) return;
@@ -2964,6 +3068,15 @@ $${(item.precioUSD * item.cant).toFixed(2)} USD
                         <p style="margin:2px 0;font-weight:900;font-size:8.5px;">Sistema TCL Comercio — Un Programa de TUCOCEL C.A. & PublionlineMK</p>
                     </div>
                 `;
+
+                botonesHtml = `
+                    <button onclick="window.imprimirAuditoriaActual()" class="bg-slate-800 hover:bg-slate-700 text-white font-black py-2.5 px-4 rounded-xl uppercase text-[11px] flex items-center justify-center gap-1.5 shadow-sm active:scale-95 transition-all">
+                        <i class="fa-solid fa-print"></i> IMPRIMIR COMPRA
+                    </button>
+                    <button onclick="window.enviarAuditoriaWhatsAppActual()" class="bg-emerald-600 hover:bg-emerald-500 text-white font-black py-2.5 px-4 rounded-xl uppercase text-[11px] flex items-center justify-center gap-1.5 shadow-sm active:scale-95 transition-all">
+                        <i class="fa-brands fa-whatsapp text-sm"></i> ENVIAR POR WHATSAPP
+                    </button>
+                `;
             } else if (tipo === 'GASTO') {
                 const g = window.dbGastos.find(x => x.id === id);
                 if (!g) return;
@@ -2997,25 +3110,41 @@ $${(item.precioUSD * item.cant).toFixed(2)} USD
                         <p style="margin:2px 0;font-weight:900;font-size:8.5px;">Sistema TCL Comercio — Un Programa de TUCOCEL C.A. & PublionlineMK</p>
                     </div>
                 `;
+
+                botonesHtml = `
+                    <button onclick="window.imprimirAuditoriaActual()" class="bg-slate-800 hover:bg-slate-700 text-white font-black py-2.5 px-4 rounded-xl uppercase text-[11px] flex items-center justify-center gap-1.5 shadow-sm active:scale-95 transition-all">
+                        <i class="fa-solid fa-print"></i> IMPRIMIR
+                    </button>
+                    <button onclick="window.enviarAuditoriaWhatsAppActual()" class="bg-emerald-600 hover:bg-emerald-500 text-white font-black py-2.5 px-4 rounded-xl uppercase text-[11px] flex items-center justify-center gap-1.5 shadow-sm active:scale-95 transition-all">
+                        <i class="fa-brands fa-whatsapp text-sm"></i> ENVIAR POR WHATSAPP
+                    </button>
+                `;
             }
 
             const headerT = document.getElementById('lbl-auditoria-titulo');
             const boxCuerpo = document.getElementById('cuerpo-modal-auditoria');
+            const boxAcciones = document.getElementById('box-acciones-modal-auditoria');
             const printDirecto = document.getElementById('seccion-impresion-termica-directa');
 
             if (headerT) headerT.innerHTML = `<i class="fa-solid fa-receipt text-amber-400 mr-1.5"></i> ${tituloModal}`;
             if (boxCuerpo) boxCuerpo.innerHTML = ticketHtml;
             if (printDirecto) printDirecto.innerHTML = ticketHtml;
+            if (boxAcciones) boxAcciones.innerHTML = botonesHtml;
 
             document.getElementById('modal-detalle-auditoria').classList.remove('hidden');
         };
 
         window.imprimirAuditoriaActual = function() {
-            if (!window.auditoriaItemActivo) return;
             const printDirecto = document.getElementById('seccion-impresion-termica-directa');
             const preview = document.getElementById('cuerpo-modal-auditoria');
-            if (printDirecto && preview) printDirecto.innerHTML = preview.innerHTML;
-            window.print();
+            if (printDirecto && preview) {
+                printDirecto.innerHTML = preview.innerHTML;
+                printDirecto.classList.remove('hidden');
+            }
+            // Ejecución limpia desacoplada para evitar bloqueos en navegador móvil
+            setTimeout(() => {
+                window.print();
+            }, 100);
         };
 
         window.enviarAuditoriaWhatsAppActual = function() {
@@ -3047,7 +3176,7 @@ $${(item.precioUSD * item.cant).toFixed(2)} USD
                 msj += `━━━━━━━━━━━━━━━━━━━━━━\n`;
                 msj += `💵 *TOTAL USD:* $${n.totalUSD.toFixed(2)} USD\n`;
                 msj += `🇨🇴 Total COP: ${window.formatearMiles(totalCOP)} COP\n`;
-                msj += `🇻🇪 Total Bs: ${totalBs.toFixed(2)} Bs (Paridad 3.3)\n`;
+                msj += `🇻🇪 Total Bs: ${totalBs.toFixed(2)} Bs (Paridad ${window.tasasConfig.paridadBs})\n`;
                 msj += `━━━━━━━━━━━━━━━━━━━━━━\n`;
                 msj += `_Comprobante de Recepción Interna._\n`;
                 msj += `*Sistema TCL Comercio — TUCOCEL C.A. & PublionlineMK* 🔒`;
@@ -3080,7 +3209,7 @@ $${(item.precioUSD * item.cant).toFixed(2)} USD
                 msj += `━━━━━━━━━━━━━━━━━━━━━━\n`;
                 msj += `💰 *TOTAL INVERSIÓN:* $${totUSD.toFixed(2)} USD\n`;
                 msj += `🇨🇴 Total COP: ${window.formatearMiles(totCOP)} COP\n`;
-                msj += `🇻🇪 Total Bs: ${totBs.toFixed(2)} Bs (Paridad 3.3)\n`;
+                msj += `🇻🇪 Total Bs: ${totBs.toFixed(2)} Bs (Paridad ${window.tasasConfig.paridadBs})\n`;
                 msj += `━━━━━━━━━━━━━━━━━━━━━━\n`;
                 msj += `¡Mercancía sumada a inventario y registrada en auditoría!\n`;
                 msj += `*Sistema TCL Comercio — TUCOCEL C.A. & PublionlineMK* 🔒`;
@@ -3102,7 +3231,7 @@ $${(item.precioUSD * item.cant).toFixed(2)} USD
                 msj += `━━━━━━━━━━━━━━━━━━━━━━\n`;
                 msj += `💵 *MONTO DE SALIDA:* -$${g.montoUSD.toFixed(2)} USD\n`;
                 msj += `🇨🇴 Equivalente COP: ${window.formatearMiles(totCOP)} COP\n`;
-                msj += `🇻🇪 Equivalente Bs: ${totBs.toFixed(2)} Bs (Paridad 3.3)\n`;
+                msj += `🇻🇪 Equivalente Bs: ${totBs.toFixed(2)} Bs (Paridad ${window.tasasConfig.paridadBs})\n`;
                 msj += `━━━━━━━━━━━━━━━━━━━━━━\n`;
                 msj += `_Control interno de egresos de caja registradora._\n`;
                 msj += `*Sistema TCL Comercio — TUCOCEL C.A. & PublionlineMK* 🔒`;
@@ -3112,9 +3241,175 @@ $${(item.precioUSD * item.cant).toFixed(2)} USD
         };
 
         // -------------------------------------------------------------
-        // MÓDULOS GERENCIALES: CIERRE DIARIO, GASTOS, COMPRAS Y CIERRES DE PERÍODO
+        // VISOR DETALLADO EN HOJA BLANCA / TICKET PARA CIERRE DEL DÍA (3 VÍAS COMPACTAS)
         // -------------------------------------------------------------
-        window.abrirModalReporteZ = function() {
+        window.abrirHojaBlancaCierreDia = function() {
+            const datos = window.obtenerDatosCierreDia();
+            if (!datos) return;
+
+            const nombreNegocio = (window.clienteActivoSesion ? window.clienteActivoSesion.nombre : 'TUCOCEL C.A.').toUpperCase();
+            const telNegocio = window.clienteActivoSesion ? (window.clienteActivoSesion.wa || '0424-0000000') : '0424-7357549';
+
+            const totalCOP = window.calcularPesosDesdeUSD(datos.totalVentasUSD);
+            const totalBs = window.calcularBsDesdeUSD(datos.totalVentasUSD);
+
+            // Agrupar ventas y productos por cada cajero / vendedor
+            const ventasPorCajero = {};
+            datos.ventasDia.forEach(v => {
+                const caj = v.cajero || 'General';
+                if (!ventasPorCajero[caj]) {
+                    ventasPorCajero[caj] = { totalUSD: 0, notas: [], productos: {} };
+                }
+                ventasPorCajero[caj].totalUSD += v.totalUSD;
+                ventasPorCajero[caj].notas.push(v);
+                (v.items || []).forEach(it => {
+                    ventasPorCajero[caj].productos[it.nombre] = (ventasPorCajero[caj].productos[it.nombre] || 0) + it.cant;
+                });
+            });
+
+            let desgloseCajerosHtml = '';
+            for (const [cajero, info] of Object.entries(ventasPorCajero)) {
+                const cUSD = info.totalUSD;
+                const cCOP = window.calcularPesosDesdeUSD(cUSD);
+                const cBs = window.calcularBsDesdeUSD(cUSD);
+
+                let prodList = Object.entries(info.productos).map(([pName, pCant]) => `• ${pCant}x ${pName}`).join('<br>');
+
+                desgloseCajerosHtml += `
+                    <div style="border-top: 1px dashed #000; padding: 4px 0; margin-top: 4px; text-align: left;">
+                        <p style="margin: 1px 0; font-weight: 900; font-size: 9.5px;">👤 VENDEDOR: ${cajero.toUpperCase()}</p>
+                        <p style="margin: 1px 0;">Notas: ${info.notas.length} | Recaudado: <strong>$${cUSD.toFixed(2)} USD</strong></p>
+                        <p style="margin: 1px 0;">Equiv: ${window.formatearMiles(cCOP)} COP | ${cBs.toFixed(2)} Bs</p>
+                        <p style="margin: 2px 0; font-size: 8px; color: #222;"><strong>Productos Vendidos:</strong><br>${prodList}</p>
+                    </div>
+                `;
+            }
+
+            const htmlTicketCierre = `
+                <div style="text-align:center;margin-bottom:8px;font-family:monospace;color:#000;">
+                    <h2 style="font-size:13px;font-weight:900;margin:0;line-height:1.2;">${nombreNegocio}</h2>
+                    <p style="font-size:9px;margin:2px 0;">WhatsApp: ${telNegocio}</p>
+                    <p style="font-size:10px;font-weight:bold;margin:4px 0;border-top:1px dashed #000;border-bottom:1px dashed #000;padding:3px 0;">BALANCE & CIERRE DIARIO DE CAJA</p>
+                    <p style="font-size:9px;margin:2px 0;">FECHA EVALUADA: ${datos.targetDateStr}</p>
+                </div>
+
+                <div style="margin: 6px 0; font-size: 9px; font-family: monospace; color: #000; line-height: 1.3;">
+                    <p style="margin: 1px 0;"><strong>TOTAL FACTURADO:</strong> $${datos.totalVentasUSD.toFixed(2)} USD</p>
+                    <p style="margin: 1px 0;"><strong>TOTAL COP:</strong> ${window.formatearMiles(totalCOP)} COP</p>
+                    <p style="margin: 1px 0;"><strong>TOTAL Bs:</strong> ${totalBs.toFixed(2)} Bs (Paridad ${window.tasasConfig.paridadBs})</p>
+                    <p style="margin: 1px 0;"><strong>TOTAL EGRESOS / GASTOS:</strong> -$${datos.totalGastosUSD.toFixed(2)} USD</p>
+                    <p style="margin: 2px 0; font-weight: 900; font-size: 10px; border-top: 1px dashed #000; border-bottom: 1px dashed #000; padding: 2px 0;">FLUJO NETO EN CAJA: $${datos.flujoCajaNeto.toFixed(2)} USD</p>
+                </div>
+
+                <div style="font-family: monospace; font-size: 8.5px;">
+                    <p style="margin: 2px 0; font-weight: bold; text-align: center; text-transform: uppercase;">--- DESGLOSE POR VENDEDOR ---</p>
+                    ${desgloseCajerosHtml || '<p style="text-align:center; color:#555;">Sin movimientos registrados este día.</p>'}
+                </div>
+
+                <div style="text-align: center; font-size: 8px; font-family: monospace; margin-top: 8px; border-top: 1px dashed #000; padding-top: 6px; color: #000; line-height: 1.3;">
+                    <p style="margin: 1px 0; font-weight: bold;">Auditoría Oficial de Cuadre de Turno</p>
+                    <p style="margin: 2px 0; font-weight: 900; font-size: 8.5px;">Sistema TCL Comercio — TUCOCEL C.A. & PublionlineMK</p>
+                </div>
+            `;
+
+            window.auditoriaItemActivo = {
+                tipo: 'CIERRE_DIA',
+                data: datos,
+                ventasPorCajero: ventasPorCajero
+            };
+
+            const headerT = document.getElementById('lbl-auditoria-titulo');
+            const boxCuerpo = document.getElementById('cuerpo-modal-auditoria');
+            const boxAcciones = document.getElementById('box-acciones-modal-auditoria');
+            const printDirecto = document.getElementById('seccion-impresion-termica-directa');
+
+            if (headerT) headerT.innerHTML = `<i class="fa-solid fa-cash-register text-emerald-400 mr-1.5"></i> CIERRE DIARIO DE CAJA`;
+            if (boxCuerpo) boxCuerpo.innerHTML = htmlTicketCierre;
+            if (printDirecto) printDirecto.innerHTML = htmlTicketCierre;
+
+            // Inyectar 3 Cápsulas Compactas para Cierre
+            if (boxAcciones) {
+                boxAcciones.innerHTML = `
+                    <button onclick="window.ejecutarTresViasCierreDia('GUARDAR')" class="bg-slate-700 hover:bg-slate-600 text-white font-black py-2 px-3 rounded-xl uppercase text-[10px] sm:text-[11px] flex items-center justify-center gap-1 shadow-sm active:scale-95 transition-all">
+                        <i class="fa-solid fa-floppy-disk"></i> GUARDAR Y CERRAR
+                    </button>
+                    <button onclick="window.ejecutarTresViasCierreDia('IMPRIMIR')" class="bg-slate-900 hover:bg-slate-800 text-white font-black py-2 px-3 rounded-xl uppercase text-[10px] sm:text-[11px] flex items-center justify-center gap-1 shadow-sm active:scale-95 transition-all">
+                        <i class="fa-solid fa-print"></i> IMPRIMIR Y CERRAR
+                    </button>
+                    <button onclick="window.ejecutarTresViasCierreDia('WHATSAPP')" class="bg-emerald-600 hover:bg-emerald-500 text-white font-black py-2 px-3 rounded-xl uppercase text-[10px] sm:text-[11px] flex items-center justify-center gap-1 shadow-sm active:scale-95 transition-all">
+                        <i class="fa-brands fa-whatsapp text-sm"></i> WHATSAPP Y CERRAR
+                    </button>
+                `;
+            }
+
+            document.getElementById('modal-reporte-z').classList.add('hidden');
+            document.getElementById('modal-detalle-auditoria').classList.remove('hidden');
+        };
+
+        window.ejecutarTresViasCierreDia = function(via) {
+            const datos = window.obtenerDatosCierreDia();
+            if (!datos) return;
+
+            // 1. Guardar el registro formal del cierre
+            const registro = {
+                id: 'cie_' + Date.now(),
+                fechaStr: datos.targetDateStr,
+                totalVentasUSD: datos.totalVentasUSD,
+                totalGastosUSD: datos.totalGastosUSD,
+                flujoCajaNeto: datos.flujoCajaNeto,
+                cantNotas: datos.ventasDia.length,
+                cantGastos: datos.gastosDia.length,
+                metodos: datos.metodos,
+                timestamp: Date.now()
+            };
+            window.dbCierres.unshift(registro);
+            window.guardarCierresEnStorage();
+
+            const totalCOP = window.calcularPesosDesdeUSD(datos.totalVentasUSD);
+            const totalBs = window.calcularBsDesdeUSD(datos.totalVentasUSD);
+            const nombreNegocio = (window.clienteActivoSesion ? window.clienteActivoSesion.nombre : 'TUCOCEL C.A.').toUpperCase();
+
+            // Reconstruir desglose detallado para WhatsApp
+            const ventasPorCajero = (window.auditoriaItemActivo && window.auditoriaItemActivo.ventasPorCajero) ? window.auditoriaItemActivo.ventasPorCajero : {};
+
+            if (via === 'IMPRIMIR') {
+                window.imprimirAuditoriaActual();
+            } else if (via === 'WHATSAPP') {
+                let msj = `📊 *BALANCE & CIERRE DIARIO DE CAJA*\n`;
+                msj += `🏢 Local: *${nombreNegocio}*\n`;
+                msj += `📅 Fecha: ${datos.targetDateStr}\n`;
+                msj += `------------------------------------\n`;
+                msj += `💰 *TOTAL GENERAL DEL DÍA:*\n`;
+                msj += `• USD: $${datos.totalVentasUSD.toFixed(2)} USD\n`;
+                msj += `• COP: ${window.formatearMiles(totalCOP)} COP\n`;
+                msj += `• Bs: ${totalBs.toFixed(2)} Bs (Paridad ${window.tasasConfig.paridadBs})\n`;
+                msj += `• Egresos/Gastos: -$${datos.totalGastosUSD.toFixed(2)} USD\n`;
+                msj += `💵 *FLUJO NETO EN CAJA: $${datos.flujoCajaNeto.toFixed(2)} USD*\n`;
+                msj += `------------------------------------\n`;
+                msj += `👥 *DESGLOSE POR VENDEDOR:*\n\n`;
+
+                for (const [cajero, info] of Object.entries(ventasPorCajero)) {
+                    const cCOP = window.calcularPesosDesdeUSD(info.totalUSD);
+                    const cBs = window.calcularBsDesdeUSD(info.totalUSD);
+                    msj += `👤 *VENDEDOR: ${cajero.toUpperCase()}*\n`;
+                    msj += `• Notas Emitidas: ${info.notas.length}\n`;
+                    msj += `• Recaudado: $${info.totalUSD.toFixed(2)} USD (${window.formatearMiles(cCOP)} COP | ${cBs.toFixed(2)} Bs)\n`;
+                    msj += `• *Productos Vendidos:*\n`;
+                    for (const [pName, pCant] of Object.entries(info.productos)) {
+                        msj += `  - ${pCant}x ${pName}\n`;
+                    }
+                    msj += `\n`;
+                }
+
+                msj += `------------------------------------\n`;
+                msj += `🔒 ¡Cierre diario consolidado y guardado formalmente!\n*Sistema TCL Comercio — TUCOCEL C.A. & PublionlineMK*`;
+                window.open(`https://wa.me/?text=${encodeURIComponent(msj)}`, '_blank');
+            }
+
+            document.getElementById('modal-detalle-auditoria').classList.add('hidden');
+            alert(`🔒 Cierre Diario de Caja para ${datos.targetDateStr} completado y guardado exitosamente.`);
+        };
+window.abrirModalReporteZ = function() {
             const hoyStr = new Date().toISOString().split('T')[0];
             document.getElementById('filtro-fecha-reporte-z').value = hoyStr;
             window.generarReporteZDia();
@@ -3425,6 +3720,28 @@ $${(item.precioUSD * item.cant).toFixed(2)} USD
         };
 
         // CÁLCULO DE VUELTO / CAMBIO EN CALIENTE EN POS
+        window.monedaPagoVuelto = 'USD';
+
+        window.seleccionarMonedaPagoVuelto = function(moneda) {
+            window.monedaPagoVuelto = moneda;
+            const btnUSD = document.getElementById('btn-vuelto-usd');
+            const btnCOP = document.getElementById('btn-vuelto-cop');
+            const btnBS = document.getElementById('btn-vuelto-bs');
+
+            [btnUSD, btnCOP, btnBS].forEach(b => {
+                if (b) b.className = "px-2 py-1 rounded-lg border border-slate-300 bg-white text-slate-700 font-bold";
+            });
+
+            if (moneda === 'USD') {
+                if (btnUSD) btnUSD.className = "px-2 py-1 rounded-lg border border-blue-600 bg-blue-600 text-white font-black";
+            } else if (moneda === 'COP') {
+                if (btnCOP) btnCOP.className = "px-2 py-1 rounded-lg border border-slate-800 bg-slate-800 text-white font-black";
+            } else {
+                if (btnBS) btnBS.className = "px-2 py-1 rounded-lg border border-emerald-600 bg-emerald-600 text-white font-black";
+            }
+            window.calcularVueltoPOS();
+        };
+
         window.calcularVueltoPOS = function() {
             const tUSD = window.carritoPOS.reduce((acc, p) => acc + (p.precioUSD * p.cant), 0);
             const pagaConVal = parseFloat(document.getElementById('pos-input-paga-con').value) || 0;
@@ -3439,10 +3756,11 @@ $${(item.precioUSD * item.cant).toFixed(2)} USD
                 return;
             }
 
+            // Conversión exacta según la moneda con la que el cliente paga físicamente
             let montoPagaUSD = pagaConVal;
-            if (window.monedaCargaPOS === 'COP') {
+            if (window.monedaPagoVuelto === 'COP') {
                 montoPagaUSD = window.calcularUSDDesdeCOP(pagaConVal);
-            } else if (window.monedaCargaPOS === 'BS') {
+            } else if (window.monedaPagoVuelto === 'BS') {
                 montoPagaUSD = window.calcularUSDDesdeBs(pagaConVal);
             }
 
@@ -3854,6 +4172,26 @@ $${(item.precioUSD * item.cant).toFixed(2)} USD
         window.descargarReporteErroresIndex = function() { const blob = new Blob(["[OK] Ejecución limpia sin errores."], { type: 'text/plain' }); const link = document.createElement('a'); link.href = URL.createObjectURL(blob); link.download = 'reporte_errores.txt'; link.click(); };
         window.limpiarHistorialErroresPermanente = function() { document.getElementById('logs-diagnostico-box').innerHTML = `<p class="text-emerald-600">[OK] Consola limpia.</p>`; document.getElementById('badge-contador-errores').classList.add('hidden'); window.contadorErroresConsola = 0; };
         window.addEventListener('error', function(e) { window.contadorErroresConsola++; const badge = document.getElementById('badge-contador-errores'); if (badge) { badge.innerText = window.contadorErroresConsola; badge.classList.remove('hidden'); } const box = document.getElementById('logs-diagnostico-box'); if(box) box.innerHTML += `<p class="text-red-600 font-bold">[ERROR] ${e.message} (Línea: ${e.lineno})</p>`; });
+
+        // -------------------------------------------------------------
+        // CÁPSULA VERDE: COMPARTIR CATÁLOGO EN WHATSAPP
+        // -------------------------------------------------------------
+        window.compartirCatalogoWhatsApp = function() {
+            const nombreNegocio = (window.clienteActivoSesion ? window.clienteActivoSesion.nombre : 'TUCOCEL C.A.').toUpperCase();
+            const slug = window.clienteActivoSesion ? (window.clienteActivoSesion.slug || 'comercio') : 'demo';
+            const urlCatalogo = `https://tucocel.github.io/tclcomercioweb/${slug}`;
+
+            let texto = `🛍️ *¡CATÁLOGO DIGITAL DISPONIBLE!* ✨\n`;
+            texto += `🏢 *${nombreNegocio}*\n\n`;
+            texto += `📦 Revisa nuestros productos actualizados, disponibilidad y precios de frontera en tiempo real:\n\n`;
+            texto += `👉 *Haz tu pedido en línea aquí:*\n${urlCatalogo}\n\n`;
+            texto += `🚚 *Envíos a domicilio y retiros en tienda.*\n`;
+            texto += `💬 ¡Escríbenos y con gusto te atenderemos! 🚀\n\n`;
+            texto += `_Plataforma TCL Comercio Web — TUCOCEL C.A. & PublionlineMK_`;
+
+            window.open(`https://wa.me/?text=${encodeURIComponent(texto)}`, '_blank');
+        };
+
     </script>
 </body>
 </html>
