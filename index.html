@@ -879,14 +879,38 @@
         </div>
     </div>
 
-    <!-- MODAL CIERRE DIARIO DE CAJA -->
+    <!-- MODAL HISTORIAL / BÓVEDA DE CIERRES DIARIOS (AUDITORÍA HISTÓRICA) -->
+    <div id="modal-historial-cierres-diarios" class="fixed inset-0 bg-slate-900/80 backdrop-blur-md z-50 p-2 sm:p-4 flex items-center justify-center hidden no-print">
+        <div class="bg-white border border-slate-200 w-full max-w-2xl rounded-3xl overflow-hidden shadow-2xl flex flex-col max-h-[90vh]">
+            <div class="bg-slate-900 px-5 py-4 text-white flex justify-between items-center shrink-0">
+                <h3 class="font-black text-xs uppercase tracking-wider flex items-center gap-2">
+                    <i class="fa-solid fa-box-archive text-amber-400"></i> BÓVEDA & HISTORIAL DE CIERRES DIARIOS
+                </h3>
+                <button onclick="document.getElementById('modal-historial-cierres-diarios').classList.add('hidden')" class="text-slate-400 hover:text-white"><i class="fa-solid fa-xmark text-sm"></i></button>
+            </div>
+            <div class="p-3.5 bg-slate-100 border-b border-slate-200 flex justify-between items-center gap-2">
+                <span class="text-[10px] text-slate-500 font-mono font-bold uppercase">Registro histórico de cuadres de turno</span>
+                <span id="badge-cnt-cierres-guardados" class="bg-blue-100 text-blue-800 text-[10px] font-black px-2.5 py-0.5 rounded-full font-mono">0 Cierres</span>
+            </div>
+            <div class="p-4 sm:p-5 overflow-y-auto space-y-2.5 no-scrollbar flex-grow font-mono text-xs" id="contenedor-lista-cierres-historicos">
+                <!-- Tarjetas de cierres diarios guardados -->
+            </div>
+        </div>
+    </div>
+
+    <!-- MODAL CIERRE DIARIO DE CAJA (REPORTE Z) -->
     <div id="modal-reporte-z" class="fixed inset-0 bg-slate-900/80 backdrop-blur-md z-50 p-3 sm:p-4 flex items-center justify-center hidden no-print">
         <div class="bg-white border border-slate-200 w-full max-w-2xl rounded-3xl overflow-hidden shadow-2xl flex flex-col max-h-[90vh]">
             <div class="bg-slate-900 px-5 py-4 text-white flex justify-between items-center shrink-0">
                 <h3 class="font-black text-xs uppercase tracking-wider flex items-center gap-2">
                     <i class="fa-solid fa-cash-register text-emerald-400"></i> CIERRE DIARIO DE CAJA (CUADRE DE TURNO)
                 </h3>
-                <button onclick="document.getElementById('modal-reporte-z').classList.add('hidden')" class="text-slate-400 hover:text-white"><i class="fa-solid fa-xmark text-sm"></i></button>
+                <div class="flex items-center gap-2">
+                    <button onclick="window.abrirModalHistorialCierresDiarios()" class="bg-slate-800 hover:bg-slate-700 text-amber-400 border border-slate-700 px-2.5 py-1 rounded-xl text-[10px] font-black uppercase flex items-center gap-1 shadow-sm">
+                        <i class="fa-solid fa-box-archive"></i> Bóveda Cierres
+                    </button>
+                    <button onclick="document.getElementById('modal-reporte-z').classList.add('hidden')" class="text-slate-400 hover:text-white"><i class="fa-solid fa-xmark text-sm"></i></button>
+                </div>
             </div>
 
             <div class="p-4 bg-slate-100 border-b border-slate-200 flex flex-wrap gap-2 items-center justify-between">
@@ -1470,6 +1494,29 @@
             return pesos / (window.tasasConfig.cop || 3600);
         };
 
+        // -------------------------------------------------------------
+        // FORMATEADORES ESTANDARIZADOS (PUNTOS Y COMAS EXACTOS)
+        // -------------------------------------------------------------
+        window.formatearMiles = function(val) { 
+            return Math.round(val || 0).toString().replace(/\B(?=(\d{3})+(?!\d))/g, "."); 
+        };
+
+        window.formatCOP = function(val) {
+            return window.formatearMiles(val);
+        };
+
+        window.formatBS = function(val) {
+            const num = Number(val) || 0;
+            const partes = num.toFixed(2).split('.');
+            partes[0] = partes[0].replace(/\B(?=(\d{3})+(?!\d))/g, ".");
+            return partes.join(',');
+        };
+
+        window.formatUSD = function(val) {
+            const num = Number(val) || 0;
+            return num.toFixed(2);
+        };
+
         window.actualizarTasasGlobalesMaster = function() {
             const mtCop = document.getElementById('master-tasa-cop');
             const mtBs = document.getElementById('master-tasa-bs');
@@ -1648,7 +1695,7 @@
             const restanteBS = window.calcularBsDesdeUSD(restanteUSD);
 
             document.getElementById('lbl-mixto-restante-usd').innerText = `$${restanteUSD.toFixed(2)} USD`;
-            document.getElementById('lbl-mixto-restante-conv').innerText = `Equivalente: ${window.formatearMiles(restanteCOP)} COP | ${restanteBS.toFixed(2)} Bs`;
+            document.getElementById('lbl-mixto-restante-conv').innerText = `Equivalente: ${window.formatCOP(restanteCOP)} COP | ${window.formatBS(restanteBS)} Bs`;
         };
 
         window.confirmarPagoMixto = function() {
@@ -1682,7 +1729,7 @@
                         <p><strong>DETALLE PAGO MIXTO:</strong></p>
                         ${nota.desgloseMixto.abonoUSD > 0 ? `<p>• USD: $${nota.desgloseMixto.abonoUSD.toFixed(2)}</p>` : ''}
                         ${nota.desgloseMixto.abonoCOP > 0 ? `<p>• COP: ${window.formatearMiles(nota.desgloseMixto.abonoCOP)}</p>` : ''}
-                        ${nota.desgloseMixto.abonoBS > 0 ? `<p>• Bs.: ${nota.desgloseMixto.abonoBS.toFixed(2)}</p>` : ''}
+                        ${nota.desgloseMixto.abonoBS > 0 ? `<p>• Bs.: ${window.formatBS(nota.desgloseMixto.abonoBS)}</p>` : ''}
                     </div>
                 `;
             }
@@ -1721,7 +1768,7 @@
                 <div style="text-align: right; font-size: 10px; font-family: monospace; margin-bottom: 8px; color: #000; line-height: 1.3;">
                     <p style="margin: 1px 0;"><strong>TOTAL USD: $${nota.totalUSD.toFixed(2)}</strong></p>
                     <p style="margin: 1px 0;">TOTAL COP: ${window.formatearMiles(totalCOP)}</p>
-                    <p style="margin: 1px 0;">TOTAL Bs.: ${totalBs.toFixed(2)}</p>
+                    <p style="margin: 1px 0;">TOTAL Bs.: ${window.formatBS(totalBs)}</p>
                     ${desgloseHtml}
                 </div>
                 <div style="text-align: center; font-size: 8px; font-family: monospace; margin-top: 8px; border-top: 1px dashed #000; padding-top: 6px; color: #000; line-height: 1.3;">
@@ -1804,14 +1851,14 @@
 `;
                 msj += `🇨🇴 Total COP: ${window.formatearMiles(totalCOP)}
 `;
-                msj += `🇻🇪 Total Bs: ${totalBs.toFixed(2)}
+                msj += `🇻🇪 Total Bs: ${window.formatBS(totalBs)}
 `;
                 if (window.notaPendiente.desgloseMixto) {
                     msj += `• USD: $${window.notaPendiente.desgloseMixto.abonoUSD.toFixed(2)}
 `;
                     msj += `• COP: ${window.formatearMiles(window.notaPendiente.desgloseMixto.abonoCOP)}
 `;
-                    msj += `• Bs: ${window.notaPendiente.desgloseMixto.abonoBS.toFixed(2)}
+                    msj += `• Bs: ${window.formatBS(window.notaPendiente.desgloseMixto.abonoBS)}
 `;
                 }
                 msj += `
@@ -2102,7 +2149,7 @@ _Comprobante de Recepción Interna._
                 if (window.monedaCargaPOS === 'COP') {
                     precioDisplay = `${window.formatearMiles(window.calcularPesosDesdeUSD(ventaUSD))} COP`;
                 } else if (window.monedaCargaPOS === 'BS') {
-                    precioDisplay = `${window.calcularBsDesdeUSD(ventaUSD).toFixed(2)} Bs`;
+                    precioDisplay = `${window.formatBS(window.calcularBsDesdeUSD(ventaUSD))} Bs`;
                 }
 
                 return `
@@ -2191,7 +2238,7 @@ _Comprobante de Recepción Interna._
                 if (window.monedaCargaPOS === 'COP') {
                     displaySubtotal = `${window.formatearMiles(window.calcularPesosDesdeUSD(item.precioUSD * item.cant))} COP`;
                 } else if (window.monedaCargaPOS === 'BS') {
-                    displaySubtotal = `${window.calcularBsDesdeUSD(item.precioUSD * item.cant).toFixed(2)} Bs`;
+                    displaySubtotal = `${window.formatBS(window.calcularBsDesdeUSD(item.precioUSD * item.cant))} Bs`;
                 }
 
                 return `
@@ -2212,7 +2259,7 @@ _Comprobante de Recepción Interna._
             const tUSD = window.carritoPOS.reduce((acc, p) => acc + (p.precioUSD * p.cant), 0);
             document.getElementById('pos-tot-usd').innerText = `$${tUSD.toFixed(2)}`;
             document.getElementById('pos-tot-cop').innerText = window.formatearMiles(window.calcularPesosDesdeUSD(tUSD));
-            document.getElementById('pos-tot-bs').innerText = window.calcularBsDesdeUSD(tUSD).toFixed(2);
+            document.getElementById('pos-tot-bs').innerText = window.formatBS(window.calcularBsDesdeUSD(tUSD));
         };
 
         window.imprimirNotaExistente = function() {
@@ -2313,7 +2360,7 @@ _Comprobante de Recepción Interna._
 `;
                 msj += `🇨🇴 Total COP: ${window.formatearMiles(totalCOP)}
 `;
-                msj += `🇻🇪 Total Bs: ${totalBs.toFixed(2)}
+                msj += `🇻🇪 Total Bs: ${window.formatBS(totalBs)}
 
 `;
                 msj += `_Comprobante de Recepción Interna._
@@ -2659,7 +2706,7 @@ tu suscripción ha sido renovada exitosamente por *${dias} días adicionales*.
                 displayTotals.innerHTML = `
                     ${window.monedasVisibles.usd ? `<div class="bg-white p-2 rounded-xl border border-slate-200"><span class="text-[9px] text-slate-400 block">Dólares</span><strong class="text-blue-600 text-xs">$${totalUSD.toFixed(2)} USD</strong></div>` : ''}
                     ${window.monedasVisibles.cop ? `<div class="bg-white p-2 rounded-xl border border-slate-200"><span class="text-[9px] text-slate-400 block">Pesos</span><strong class="text-slate-800 text-xs">${window.formatearMiles(totalCOP)} COP</strong></div>` : ''}
-                    ${window.monedasVisibles.bs ? `<div class="bg-white p-2 rounded-xl border border-slate-200"><span class="text-[9px] text-slate-400 block">Bolívares</span><strong class="text-emerald-600 text-xs">${totalBS.toFixed(2)} Bs</strong></div>` : ''}
+                    ${window.monedasVisibles.bs ? `<div class="bg-white p-2 rounded-xl border border-slate-200"><span class="text-[9px] text-slate-400 block">Bolívares</span><strong class="text-emerald-600 text-xs">${window.formatBS(totalBS)} Bs</strong></div>` : ''}
                 `;
             }
         };
@@ -2706,7 +2753,7 @@ $${(item.precioUSD * item.cant).toFixed(2)} USD
 `;
             if (window.monedasVisibles.cop) mensaje += `COP: ${window.formatearMiles(totalCOP)} COP
 `;
-            if (window.monedasVisibles.bs) mensaje += `BS: ${totalBS.toFixed(2)} Bs
+            if (window.monedasVisibles.bs) mensaje += `BS: ${window.formatBS(totalBS)} Bs
 `;
             mensaje += `----------------------------------------
 ⏳ *Estado:* Pendiente por confirmar pago y despacho.
@@ -2747,7 +2794,7 @@ $${(item.precioUSD * item.cant).toFixed(2)} USD
                                 <div class="text-[11px] sm:text-xs space-y-0.5">
                                     ${window.monedasVisibles.usd ? `<div class="text-blue-600 font-black text-xs sm:text-sm">$${venta.toFixed(2)} USD</div>` : ''}
                                     ${window.monedasVisibles.cop ? `<div class="text-slate-600 font-bold text-[9.5px]">${window.formatearMiles(cop)} COP</div>` : ''}
-                                    ${window.monedasVisibles.bs ? `<div class="text-slate-500 font-bold text-[9.5px]">${bs.toFixed(2)} Bs</div>` : ''}
+                                    ${window.monedasVisibles.bs ? `<div class="text-slate-500 font-bold text-[9.5px]">${window.formatBS(bs)} Bs</div>` : ''}
                                 </div>
                                 ${disponible ? `
                                     <button onclick="window.agregarAlCarrito('${p.nombre}', ${venta})" class="btn-brand w-full py-2 sm:py-2.5 text-[9.5px] sm:text-xs flex items-center justify-center gap-1 shadow-sm">
@@ -3060,7 +3107,7 @@ $${(item.precioUSD * item.cant).toFixed(2)} USD
                     <div style="text-align:right;font-size:10px;font-family:monospace;margin-bottom:8px;color:#000;line-height:1.3;">
                         <p style="margin:1px 0;"><strong>TOTAL INVERSIÓN: $${totUSD.toFixed(2)} USD</strong></p>
                         <p style="margin:1px 0;">TOTAL COP: ${window.formatearMiles(totCOP)}</p>
-                        <p style="margin:1px 0;">TOTAL Bs. (Paridad): ${totBs.toFixed(2)}</p>
+                        <p style="margin:1px 0;">TOTAL Bs. (Paridad): ${window.formatBS(totBs)}</p>
                     </div>
                     <div style="text-align:center;font-size:8px;font-family:monospace;margin-top:8px;border-top:1px dashed #000;padding-top:6px;color:#000;line-height:1.3;">
                         <p style="margin:1px 0;font-weight:bold;">¡Mercancía ingresada y verificada en inventario!</p>
@@ -3102,7 +3149,7 @@ $${(item.precioUSD * item.cant).toFixed(2)} USD
                     <div style="text-align:right;font-size:10px;font-family:monospace;margin:12px 0 8px 0;border-top:1px dashed #000;border-bottom:1px dashed #000;padding:6px 0;color:#000;line-height:1.4;">
                         <p style="margin:1px 0;font-size:11px;font-weight:900;">MONTO DE SALIDA: -$${g.montoUSD.toFixed(2)} USD</p>
                         <p style="margin:1px 0;">Equivalente COP: ${window.formatearMiles(totCOP)} COP</p>
-                        <p style="margin:1px 0;">Equivalente Bs. (Paridad): ${totBs.toFixed(2)} Bs</p>
+                        <p style="margin:1px 0;">Equivalente Bs. (Paridad): ${window.formatBS(totBs)} Bs</p>
                     </div>
                     <div style="text-align:center;font-size:8px;font-family:monospace;margin-top:8px;padding-top:4px;color:#000;line-height:1.3;">
                         <p style="margin:1px 0;">Salida de dinero debitada de la caja registradora.</p>
@@ -3176,7 +3223,7 @@ $${(item.precioUSD * item.cant).toFixed(2)} USD
                 msj += `━━━━━━━━━━━━━━━━━━━━━━\n`;
                 msj += `💵 *TOTAL USD:* $${n.totalUSD.toFixed(2)} USD\n`;
                 msj += `🇨🇴 Total COP: ${window.formatearMiles(totalCOP)} COP\n`;
-                msj += `🇻🇪 Total Bs: ${totalBs.toFixed(2)} Bs (Paridad ${window.tasasConfig.paridadBs})\n`;
+                msj += `🇻🇪 Total Bs: ${window.formatBS(totalBs)} Bs (Paridad ${window.tasasConfig.paridadBs})\n`;
                 msj += `━━━━━━━━━━━━━━━━━━━━━━\n`;
                 msj += `_Comprobante de Recepción Interna._\n`;
                 msj += `*Sistema TCL Comercio — TUCOCEL C.A. & PublionlineMK* 🔒`;
@@ -3209,7 +3256,7 @@ $${(item.precioUSD * item.cant).toFixed(2)} USD
                 msj += `━━━━━━━━━━━━━━━━━━━━━━\n`;
                 msj += `💰 *TOTAL INVERSIÓN:* $${totUSD.toFixed(2)} USD\n`;
                 msj += `🇨🇴 Total COP: ${window.formatearMiles(totCOP)} COP\n`;
-                msj += `🇻🇪 Total Bs: ${totBs.toFixed(2)} Bs (Paridad ${window.tasasConfig.paridadBs})\n`;
+                msj += `🇻🇪 Total Bs: ${window.formatBS(totBs)} Bs (Paridad ${window.tasasConfig.paridadBs})\n`;
                 msj += `━━━━━━━━━━━━━━━━━━━━━━\n`;
                 msj += `¡Mercancía sumada a inventario y registrada en auditoría!\n`;
                 msj += `*Sistema TCL Comercio — TUCOCEL C.A. & PublionlineMK* 🔒`;
@@ -3231,7 +3278,7 @@ $${(item.precioUSD * item.cant).toFixed(2)} USD
                 msj += `━━━━━━━━━━━━━━━━━━━━━━\n`;
                 msj += `💵 *MONTO DE SALIDA:* -$${g.montoUSD.toFixed(2)} USD\n`;
                 msj += `🇨🇴 Equivalente COP: ${window.formatearMiles(totCOP)} COP\n`;
-                msj += `🇻🇪 Equivalente Bs: ${totBs.toFixed(2)} Bs (Paridad ${window.tasasConfig.paridadBs})\n`;
+                msj += `🇻🇪 Equivalente Bs: ${window.formatBS(totBs)} Bs (Paridad ${window.tasasConfig.paridadBs})\n`;
                 msj += `━━━━━━━━━━━━━━━━━━━━━━\n`;
                 msj += `_Control interno de egresos de caja registradora._\n`;
                 msj += `*Sistema TCL Comercio — TUCOCEL C.A. & PublionlineMK* 🔒`;
@@ -3279,7 +3326,7 @@ $${(item.precioUSD * item.cant).toFixed(2)} USD
                     <div style="border-top: 1px dashed #000; padding: 4px 0; margin-top: 4px; text-align: left;">
                         <p style="margin: 1px 0; font-weight: 900; font-size: 9.5px;">👤 VENDEDOR: ${cajero.toUpperCase()}</p>
                         <p style="margin: 1px 0;">Notas: ${info.notas.length} | Recaudado: <strong>$${cUSD.toFixed(2)} USD</strong></p>
-                        <p style="margin: 1px 0;">Equiv: ${window.formatearMiles(cCOP)} COP | ${cBs.toFixed(2)} Bs</p>
+                        <p style="margin: 1px 0;">Equiv: ${window.formatCOP(cCOP)} COP | ${window.formatBS(cBs)} Bs</p>
                         <p style="margin: 2px 0; font-size: 8px; color: #222;"><strong>Productos Vendidos:</strong><br>${prodList}</p>
                     </div>
                 `;
@@ -3296,7 +3343,7 @@ $${(item.precioUSD * item.cant).toFixed(2)} USD
                 <div style="margin: 6px 0; font-size: 9px; font-family: monospace; color: #000; line-height: 1.3;">
                     <p style="margin: 1px 0;"><strong>TOTAL FACTURADO:</strong> $${datos.totalVentasUSD.toFixed(2)} USD</p>
                     <p style="margin: 1px 0;"><strong>TOTAL COP:</strong> ${window.formatearMiles(totalCOP)} COP</p>
-                    <p style="margin: 1px 0;"><strong>TOTAL Bs:</strong> ${totalBs.toFixed(2)} Bs (Paridad ${window.tasasConfig.paridadBs})</p>
+                    <p style="margin: 1px 0;"><strong>TOTAL Bs:</strong> ${window.formatBS(totalBs)} Bs (Paridad ${window.tasasConfig.paridadBs})</p>
                     <p style="margin: 1px 0;"><strong>TOTAL EGRESOS / GASTOS:</strong> -$${datos.totalGastosUSD.toFixed(2)} USD</p>
                     <p style="margin: 2px 0; font-weight: 900; font-size: 10px; border-top: 1px dashed #000; border-bottom: 1px dashed #000; padding: 2px 0;">FLUJO NETO EN CAJA: $${datos.flujoCajaNeto.toFixed(2)} USD</p>
                 </div>
@@ -3382,7 +3429,7 @@ $${(item.precioUSD * item.cant).toFixed(2)} USD
                 msj += `💰 *TOTAL GENERAL DEL DÍA:*\n`;
                 msj += `• USD: $${datos.totalVentasUSD.toFixed(2)} USD\n`;
                 msj += `• COP: ${window.formatearMiles(totalCOP)} COP\n`;
-                msj += `• Bs: ${totalBs.toFixed(2)} Bs (Paridad ${window.tasasConfig.paridadBs})\n`;
+                msj += `• Bs: ${window.formatBS(totalBs)} Bs (Paridad ${window.tasasConfig.paridadBs})\n`;
                 msj += `• Egresos/Gastos: -$${datos.totalGastosUSD.toFixed(2)} USD\n`;
                 msj += `💵 *FLUJO NETO EN CAJA: $${datos.flujoCajaNeto.toFixed(2)} USD*\n`;
                 msj += `------------------------------------\n`;
@@ -3393,7 +3440,7 @@ $${(item.precioUSD * item.cant).toFixed(2)} USD
                     const cBs = window.calcularBsDesdeUSD(info.totalUSD);
                     msj += `👤 *VENDEDOR: ${cajero.toUpperCase()}*\n`;
                     msj += `• Notas Emitidas: ${info.notas.length}\n`;
-                    msj += `• Recaudado: $${info.totalUSD.toFixed(2)} USD (${window.formatearMiles(cCOP)} COP | ${cBs.toFixed(2)} Bs)\n`;
+                    msj += `• Recaudado: $${info.totalUSD.toFixed(2)} USD (${window.formatCOP(cCOP)} COP | ${window.formatBS(cBs)} Bs)\n`;
                     msj += `• *Productos Vendidos:*\n`;
                     for (const [pName, pCant] of Object.entries(info.productos)) {
                         msj += `  - ${pCant}x ${pName}\n`;
@@ -3497,7 +3544,7 @@ window.abrirModalReporteZ = function() {
 
                     <div class="space-y-1 pt-2 border-t border-slate-200 text-[10.5px]">
                         <p><strong>• Equivalente en Pesos (COP):</strong> ${window.formatearMiles(totalCOP)} COP</p>
-                        <p><strong>• Equivalente en Bolívares (Bs):</strong> ${totalBs.toFixed(2)} Bs</p>
+                        <p><strong>• Equivalente en Bolívares (Bs):</strong> ${window.formatBS(totalBs)} Bs</p>
                     </div>
                 </div>
             `;
@@ -3543,7 +3590,7 @@ window.abrirModalReporteZ = function() {
                     <p><strong>TOTAL EGRESOS:</strong> $${datos.totalGastosUSD.toFixed(2)} USD</p>
                     <p><strong>FLUJO NETO:</strong> $${datos.flujoCajaNeto.toFixed(2)} USD</p>
                     <p><strong>TOTAL COP:</strong> ${window.formatearMiles(totalCOP)}</p>
-                    <p><strong>TOTAL BS:</strong> ${totalBs.toFixed(2)}</p>
+                    <p><strong>TOTAL BS:</strong> ${window.formatBS(totalBs)}</p>
                     <p><strong>NOTAS EMITIDAS:</strong> ${datos.ventasDia.length}</p>
                     <p><strong>EGRESOS REGISTRADOS:</strong> ${datos.gastosDia.length}</p>
                 </div>
@@ -3578,7 +3625,7 @@ window.abrirModalReporteZ = function() {
 `;
             msj += `🇨🇴 Total COP: ${window.formatearMiles(totalCOP)} COP
 `;
-            msj += `🇻🇪 Total Bs: ${totalBs.toFixed(2)} Bs
+            msj += `🇻🇪 Total Bs: ${window.formatBS(totalBs)} Bs
 `;
             msj += `📉 *Gastos y Egresos:* $${datos.totalGastosUSD.toFixed(2)} USD
 `;
@@ -3752,7 +3799,7 @@ window.abrirModalReporteZ = function() {
 
             if (pagaConVal <= 0 || tUSD <= 0) {
                 lblVuelto.innerText = "$0.00 USD";
-                lblSub.innerText = "0 COP | 0.00 Bs";
+                lblSub.innerText = "0 COP | 0,00 Bs";
                 return;
             }
 
@@ -3769,7 +3816,7 @@ window.abrirModalReporteZ = function() {
             const vueltoBs = window.calcularBsDesdeUSD(vueltoUSD);
 
             lblVuelto.innerText = `$${vueltoUSD.toFixed(2)} USD`;
-            lblSub.innerText = `${window.formatearMiles(vueltoCOP)} COP | ${vueltoBs.toFixed(2)} Bs`;
+            lblSub.innerText = `${window.formatCOP(vueltoCOP)} COP | ${window.formatBS(vueltoBs)} Bs`;
         };
 
         // GESTIÓN DE COMPRAS TIPO CARRITO MULTI-ÍTEM (SIMÉTRICO AL POS)
@@ -4020,12 +4067,26 @@ window.abrirModalReporteZ = function() {
             const ventasRango = window.dbVentas.filter(v => v.fechaMs >= tDesde && v.fechaMs <= tHasta && v.estado !== 'ANULADA');
             const gastosRango = window.dbGastos.filter(g => g.fechaMs >= tDesde && g.fechaMs <= tHasta);
             const comprasRango = window.dbProveedores.filter(c => c.fechaMs >= tDesde && c.fechaMs <= tHasta);
+            const cierresRango = (window.dbCierres || []).filter(cie => {
+                const tCie = cie.timestamp || (cie.fechaStr ? new Date(cie.fechaStr + 'T00:00:00').getTime() : 0);
+                return tCie >= tDesde && tCie <= tHasta;
+            });
 
             const totalVentasUSD = ventasRango.reduce((acc, v) => acc + v.totalUSD, 0);
             const totalGastosUSD = gastosRango.reduce((acc, g) => acc + g.montoUSD, 0);
             const gananciaNetaPeriodo = totalVentasUSD - totalGastosUSD;
 
-            return { desdeVal, hastaVal, ventasRango, gastosRango, comprasRango, totalVentasUSD, totalGastosUSD, gananciaNetaPeriodo };
+            return { desdeVal, hastaVal, ventasRango, gastosRango, comprasRango, cierresRango, totalVentasUSD, totalGastosUSD, gananciaNetaPeriodo };
+        };
+
+                window.toggleSeccionAcordeon = function(idContenido, idIcono) {
+            const el = document.getElementById(idContenido);
+            const icon = document.getElementById(idIcono);
+            if (!el) return;
+            el.classList.toggle('hidden');
+            if (icon) {
+                icon.classList.toggle('rotate-180');
+            }
         };
 
         window.calcularCierrePeriodoGerencial = function() {
@@ -4037,8 +4098,8 @@ window.abrirModalReporteZ = function() {
                 <div class="flex justify-between items-center bg-white p-2 rounded-xl border border-slate-200 text-[10.5px]">
                     <div><strong>#${v.correlativo}</strong> | ${v.cliente}</div>
                     <div class="flex items-center gap-2">
-                        <span class="text-emerald-600 font-bold">$${v.totalUSD.toFixed(2)}</span>
-                        <button onclick="window.abrirAuditoriaDetallada('VENTA', '${v.id}')" class="bg-blue-50 text-blue-600 border border-blue-200 px-2 py-0.5 rounded text-[9px] font-black uppercase"><i class="fa-solid fa-eye"></i> Ver</button>
+                        <span class="text-emerald-600 font-bold">$${window.formatUSD(v.totalUSD)} USD</span>
+                        <button onclick="window.abrirAuditoriaDetallada('VENTA', '${v.id}')" class="bg-blue-50 text-blue-600 hover:bg-blue-100 border border-blue-200 px-2 py-0.5 rounded text-[9px] font-black uppercase"><i class="fa-solid fa-eye"></i> Ver</button>
                     </div>
                 </div>
             `).join('');
@@ -4047,8 +4108,8 @@ window.abrirModalReporteZ = function() {
                 <div class="flex justify-between items-center bg-white p-2 rounded-xl border border-slate-200 text-[10.5px]">
                     <div><strong>${c.provNombre}</strong> (${c.items ? c.items.length : 1} productos)</div>
                     <div class="flex items-center gap-2">
-                        <span class="text-blue-600 font-bold">$${(c.totalUSD || c.totalInversionUSD || 0).toFixed(2)}</span>
-                        <button onclick="window.abrirAuditoriaDetallada('COMPRA', '${c.id}')" class="bg-blue-50 text-blue-600 border border-blue-200 px-2 py-0.5 rounded text-[9px] font-black uppercase"><i class="fa-solid fa-eye"></i> Ver</button>
+                        <span class="text-blue-600 font-bold">$${window.formatUSD(c.totalUSD || c.totalInversionUSD || 0)} USD</span>
+                        <button onclick="window.abrirAuditoriaDetallada('COMPRA', '${c.id}')" class="bg-blue-50 text-blue-600 hover:bg-blue-100 border border-blue-200 px-2 py-0.5 rounded text-[9px] font-black uppercase"><i class="fa-solid fa-eye"></i> Ver</button>
                     </div>
                 </div>
             `).join('');
@@ -4057,14 +4118,26 @@ window.abrirModalReporteZ = function() {
                 <div class="flex justify-between items-center bg-white p-2 rounded-xl border border-slate-200 text-[10.5px]">
                     <div><strong>${g.tipo}</strong> | ${g.desc}</div>
                     <div class="flex items-center gap-2">
-                        <span class="text-rose-600 font-bold">-$${g.montoUSD.toFixed(2)}</span>
-                        <button onclick="window.abrirAuditoriaDetallada('GASTO', '${g.id}')" class="bg-blue-50 text-blue-600 border border-blue-200 px-2 py-0.5 rounded text-[9px] font-black uppercase"><i class="fa-solid fa-eye"></i> Ver</button>
+                        <span class="text-rose-600 font-bold">-$${window.formatUSD(g.montoUSD)} USD</span>
+                        <button onclick="window.abrirAuditoriaDetallada('GASTO', '${g.id}')" class="bg-blue-50 text-blue-600 hover:bg-blue-100 border border-blue-200 px-2 py-0.5 rounded text-[9px] font-black uppercase"><i class="fa-solid fa-eye"></i> Ver</button>
+                    </div>
+                </div>
+            `).join('');
+
+            let listaCierresHtml = (datos.cierresRango || []).map(cie => `
+                <div class="flex justify-between items-center bg-white p-2 rounded-xl border border-slate-200 text-[10.5px]">
+                    <div>
+                        <strong class="text-slate-900 font-mono">${cie.fechaStr}</strong> | Net: <span class="text-emerald-600 font-bold font-mono">$${window.formatUSD(cie.flujoCajaNeto)} USD</span>
+                    </div>
+                    <div class="flex items-center gap-2">
+                        <span class="text-slate-500 font-mono text-[9.5px]">(${cie.cantNotas || 0} Notas)</span>
+                        <button onclick="window.verCierreGuardadoHistorico('${cie.id}')" class="bg-amber-50 text-amber-700 hover:bg-amber-100 border border-amber-200 px-2 py-0.5 rounded text-[9px] font-black uppercase"><i class="fa-solid fa-eye"></i> Ver</button>
                     </div>
                 </div>
             `).join('');
 
             container.innerHTML = `
-                <div class="bg-slate-50 p-4 rounded-2xl border border-slate-200 space-y-3">
+                <div class="bg-slate-50 p-3 sm:p-4 rounded-2xl border border-slate-200 space-y-3">
                     <div class="text-center border-b border-slate-200 pb-2">
                         <h4 class="font-black text-sm uppercase text-slate-900">${(window.clienteActivoSesion ? window.clienteActivoSesion.nombre : 'TUCOCEL C.A.').toUpperCase()}</h4>
                         <p class="text-[10px] text-slate-500">AUDITORÍA Y BALANCE GERENCIAL DE PERÍODO</p>
@@ -4072,30 +4145,70 @@ window.abrirModalReporteZ = function() {
                     </div>
 
                     <div class="grid grid-cols-1 sm:grid-cols-3 gap-2 text-center">
-                        <div class="bg-white p-3 rounded-xl border border-slate-200"><span class="text-[9px] text-slate-400 block font-bold">Ventas Totales</span><span class="text-sm font-black text-emerald-600">$${datos.totalVentasUSD.toFixed(2)} USD</span></div>
-                        <div class="bg-white p-3 rounded-xl border border-slate-200"><span class="text-[9px] text-slate-400 block font-bold">Egresos / Compras</span><span class="text-sm font-black text-rose-600">$${datos.totalGastosUSD.toFixed(2)} USD</span></div>
-                        <div class="bg-purple-50 p-3 rounded-xl border border-purple-200"><span class="text-[9px] text-purple-700 block font-bold">Ganancia Neta</span><span class="text-sm font-black text-purple-700">$${datos.gananciaNetaPeriodo.toFixed(2)} USD</span></div>
+                        <div class="bg-white p-3 rounded-xl border border-slate-200"><span class="text-[9px] text-slate-400 block font-bold">Ventas Totales</span><span class="text-sm font-black text-emerald-600">$${window.formatUSD(datos.totalVentasUSD)} USD</span></div>
+                        <div class="bg-white p-3 rounded-xl border border-slate-200"><span class="text-[9px] text-slate-400 block font-bold">Egresos / Compras</span><span class="text-sm font-black text-rose-600">$${window.formatUSD(datos.totalGastosUSD)} USD</span></div>
+                        <div class="bg-purple-50 p-3 rounded-xl border border-purple-200"><span class="text-[9px] text-purple-700 block font-bold">Ganancia Neta</span><span class="text-sm font-black text-purple-700">$${window.formatUSD(datos.gananciaNetaPeriodo)} USD</span></div>
                     </div>
 
-                    <div class="space-y-2 pt-2">
-                        <span class="text-[10px] font-black uppercase text-slate-500 tracking-wider block">1. Ventas Registradas en el Período (${datos.ventasRango.length}):</span>
-                        <div class="space-y-1 max-h-32 overflow-y-auto no-scrollbar">${listaVentasHtml || '<p class="text-slate-400 text-[10px]">Sin ventas en este rango.</p>'}</div>
+                    <!-- 1. ACORDEÓN VENTAS -->
+                    <div class="bg-white rounded-2xl border border-slate-200 overflow-hidden shadow-sm">
+                        <button type="button" onclick="window.toggleSeccionAcordeon('box-acordeon-ventas', 'icon-acordeon-ventas')" class="w-full p-3 flex justify-between items-center text-left hover:bg-slate-50 transition-colors">
+                            <span class="text-[10.5px] font-black uppercase text-slate-700 tracking-wider flex items-center gap-1.5">
+                                <i class="fa-solid fa-file-invoice-dollar text-emerald-600"></i>
+                                <span>1. VENTAS REGISTRADAS EN EL PERÍODO (${datos.ventasRango.length})</span>
+                            </span>
+                            <i id="icon-acordeon-ventas" class="fa-solid fa-chevron-down text-slate-400 text-xs transition-transform duration-200"></i>
+                        </button>
+                        <div id="box-acordeon-ventas" class="p-3 border-t border-slate-100 space-y-1.5 max-h-48 overflow-y-auto no-scrollbar">
+                            ${listaVentasHtml || '<p class="text-slate-400 text-[10px] text-center py-1 font-bold">Sin ventas en este rango.</p>'}
+                        </div>
                     </div>
 
-                    <div class="space-y-2 pt-2 border-t border-slate-200">
-                        <span class="text-[10px] font-black uppercase text-slate-500 tracking-wider block">2. Compras a Proveedores (${datos.comprasRango.length}):</span>
-                        <div class="space-y-1 max-h-32 overflow-y-auto no-scrollbar">${listaComprasHtml || '<p class="text-slate-400 text-[10px]">Sin compras en este rango.</p>'}</div>
+                    <!-- 2. ACORDEÓN COMPRAS -->
+                    <div class="bg-white rounded-2xl border border-slate-200 overflow-hidden shadow-sm">
+                        <button type="button" onclick="window.toggleSeccionAcordeon('box-acordeon-compras', 'icon-acordeon-compras')" class="w-full p-3 flex justify-between items-center text-left hover:bg-slate-50 transition-colors">
+                            <span class="text-[10.5px] font-black uppercase text-slate-700 tracking-wider flex items-center gap-1.5">
+                                <i class="fa-solid fa-truck-ramp-box text-amber-500"></i>
+                                <span>2. COMPRAS A PROVEEDORES (${datos.comprasRango.length})</span>
+                            </span>
+                            <i id="icon-acordeon-compras" class="fa-solid fa-chevron-down text-slate-400 text-xs transition-transform duration-200"></i>
+                        </button>
+                        <div id="box-acordeon-compras" class="p-3 border-t border-slate-100 space-y-1.5 max-h-48 overflow-y-auto no-scrollbar hidden">
+                            ${listaComprasHtml || '<p class="text-slate-400 text-[10px] text-center py-1 font-bold">Sin compras en este rango.</p>'}
+                        </div>
                     </div>
 
-                    <div class="space-y-2 pt-2 border-t border-slate-200">
-                        <span class="text-[10px] font-black uppercase text-slate-500 tracking-wider block">3. Salidas de Dinero / Gastos (${datos.gastosRango.length}):</span>
-                        <div class="space-y-1 max-h-32 overflow-y-auto no-scrollbar">${listaGastosHtml || '<p class="text-slate-400 text-[10px]">Sin gastos en este rango.</p>'}</div>
+                    <!-- 3. ACORDEÓN GASTOS -->
+                    <div class="bg-white rounded-2xl border border-slate-200 overflow-hidden shadow-sm">
+                        <button type="button" onclick="window.toggleSeccionAcordeon('box-acordeon-gastos', 'icon-acordeon-gastos')" class="w-full p-3 flex justify-between items-center text-left hover:bg-slate-50 transition-colors">
+                            <span class="text-[10.5px] font-black uppercase text-slate-700 tracking-wider flex items-center gap-1.5">
+                                <i class="fa-solid fa-receipt text-rose-500"></i>
+                                <span>3. SALIDAS DE DINERO / GASTOS (${datos.gastosRango.length})</span>
+                            </span>
+                            <i id="icon-acordeon-gastos" class="fa-solid fa-chevron-down text-slate-400 text-xs transition-transform duration-200"></i>
+                        </button>
+                        <div id="box-acordeon-gastos" class="p-3 border-t border-slate-100 space-y-1.5 max-h-48 overflow-y-auto no-scrollbar hidden">
+                            ${listaGastosHtml || '<p class="text-slate-400 text-[10px] text-center py-1 font-bold">Sin gastos en este rango.</p>'}
+                        </div>
+                    </div>
+
+                    <!-- 4. ACORDEÓN CIERRES DIARIOS GUARDADOS -->
+                    <div class="bg-white rounded-2xl border border-slate-200 overflow-hidden shadow-sm">
+                        <button type="button" onclick="window.toggleSeccionAcordeon('box-acordeon-cierres', 'icon-acordeon-cierres')" class="w-full p-3 flex justify-between items-center text-left hover:bg-slate-50 transition-colors">
+                            <span class="text-[10.5px] font-black uppercase text-slate-700 tracking-wider flex items-center gap-1.5">
+                                <i class="fa-solid fa-cash-register text-purple-600"></i>
+                                <span>4. CIERRES DIARIOS GUARDADOS (${(datos.cierresRango || []).length})</span>
+                            </span>
+                            <i id="icon-acordeon-cierres" class="fa-solid fa-chevron-down text-slate-400 text-xs transition-transform duration-200"></i>
+                        </button>
+                        <div id="box-acordeon-cierres" class="p-3 border-t border-slate-100 space-y-1.5 max-h-48 overflow-y-auto no-scrollbar hidden">
+                            ${listaCierresHtml || '<p class="text-slate-400 text-[10px] text-center py-1 font-bold">Sin cierres guardados en este rango.</p>'}
+                        </div>
                     </div>
                 </div>
             `;
         };
 
-        // VISOR DE BALANCE EN FORMATO COMPROBANTE / HOJA BLANCA / TICKET TÉRMICO
         window.abrirAuditoriaHojaBlancaPeriodo = function() {
             const datos = window.obtenerDatosCierrePeriodo();
             if (!datos) return;
@@ -4122,7 +4235,7 @@ window.abrirModalReporteZ = function() {
                     <hr style="border-top:1px dashed #000;margin:4px 0;">
                     <p><strong>VENTAS TOTALES:</strong> $${datos.totalVentasUSD.toFixed(2)} USD</p>
                     <p>• Total COP: ${window.formatearMiles(totalCOP)}</p>
-                    <p>• Total Bs.: ${totalBs.toFixed(2)}</p>
+                    <p>• Total Bs.: ${window.formatBS(totalBs)}</p>
                     <p>• Notas Emitidas: ${datos.ventasRango.length}</p>
                     <hr style="border-top:1px dashed #000;margin:4px 0;">
                     <p><strong>EGRESOS / INVERSIÓN:</strong> -$${datos.totalGastosUSD.toFixed(2)} USD</p>
@@ -4155,7 +4268,7 @@ window.abrirModalReporteZ = function() {
             msj += `------------------------------------\n`;
             msj += `📈 *Ingresos por Ventas:* $${datos.totalVentasUSD.toFixed(2)} USD\n`;
             msj += `🇨🇴 Total COP: ${window.formatearMiles(totalCOP)} COP\n`;
-            msj += `🇻🇪 Total Bs: ${totalBs.toFixed(2)} Bs\n`;
+            msj += `🇻🇪 Total Bs: ${window.formatBS(totalBs)} Bs\n`;
             msj += `📉 *Egresos e Inversión:* $${datos.totalGastosUSD.toFixed(2)} USD\n`;
             msj += `💎 *GANANCIA NETA DEL PERÍODO:* $${datos.gananciaNetaPeriodo.toFixed(2)} USD\n`;
             msj += `------------------------------------\n`;
@@ -4190,6 +4303,240 @@ window.abrirModalReporteZ = function() {
             texto += `_Plataforma TCL Comercio Web — TUCOCEL C.A. & PublionlineMK_`;
 
             window.open(`https://wa.me/?text=${encodeURIComponent(texto)}`, '_blank');
+        };
+
+    
+        // -------------------------------------------------------------
+        // BÓVEDA Y GESTIÓN DE HISTORIAL DE CIERRES DIARIOS (AUDITORÍA)
+        // -------------------------------------------------------------
+        window.abrirModalHistorialCierresDiarios = function() {
+            window.renderizarHistorialCierresDiarios();
+            document.getElementById('modal-historial-cierres-diarios').classList.remove('hidden');
+        };
+
+        window.renderizarHistorialCierresDiarios = function() {
+            const container = document.getElementById('contenedor-lista-cierres-historicos');
+            const badge = document.getElementById('badge-cnt-cierres-guardados');
+            if (!container) return;
+
+            const lista = window.dbCierres || [];
+            if (badge) badge.innerText = `${lista.length} Cierre${lista.length !== 1 ? 's' : ''}`;
+
+            if (lista.length === 0) {
+                container.innerHTML = `<div class="text-center text-slate-400 py-10 font-bold uppercase text-xs">No hay cierres diarios archivados en la bóveda aún.</div>`;
+                return;
+            }
+
+            container.innerHTML = lista.map((cie, idx) => {
+                const totalCOP = window.calcularPesosDesdeUSD(cie.totalVentasUSD);
+                const totalBs = window.calcularBsDesdeUSD(cie.totalVentasUSD);
+                const d = new Date(cie.timestamp || Date.now());
+                const horaStr = `${d.getHours().toString().padStart(2,'0')}:${d.getMinutes().toString().padStart(2,'0')}`;
+
+                return `
+                    <div class="bg-white border border-slate-200 rounded-2xl p-3.5 shadow-sm space-y-2 hover:border-blue-300 transition-all">
+                        <div class="flex justify-between items-start">
+                            <div>
+                                <span class="bg-emerald-100 text-emerald-800 text-[9.5px] font-black px-2.5 py-0.5 rounded-md uppercase font-mono">📅 ${cie.fechaStr} (${horaStr})</span>
+                                <h4 class="font-black text-slate-900 text-xs uppercase mt-1">Cierre Oficial — ${cie.cantNotas || 0} Notas | ${cie.cantGastos || 0} Egresos</h4>
+                            </div>
+                            <div class="text-right">
+                                <span class="text-[9px] text-slate-400 block font-bold">Flujo Neto</span>
+                                <span class="text-sm font-black text-emerald-600 font-mono">$${cie.flujoCajaNeto.toFixed(2)} USD</span>
+                            </div>
+                        </div>
+
+                        <div class="bg-slate-50 p-2 rounded-xl border border-slate-200 grid grid-cols-2 sm:grid-cols-3 gap-1.5 text-[10px] font-mono text-slate-700">
+                            <div><span>Facturado:</span> <strong class="text-slate-900">$${cie.totalVentasUSD.toFixed(2)}</strong></div>
+                            <div><span>Pesos:</span> <strong class="text-slate-800">${window.formatCOP(totalCOP)} COP</strong></div>
+                            <div class="col-span-2 sm:col-span-1"><span>Bolívares:</span> <strong class="text-emerald-700">${window.formatBS(totalBs)} Bs</strong></div>
+                        </div>
+
+                        <div class="flex justify-end gap-1.5 pt-1">
+                            <button onclick="window.verCierreGuardadoHistorico('${cie.id}')" class="bg-blue-50 hover:bg-blue-100 text-blue-700 border border-blue-200 px-3 py-1.5 rounded-xl text-[10px] font-black uppercase flex items-center gap-1 shadow-sm transition-all">
+                                <i class="fa-solid fa-eye"></i> Ver Hoja Blanca
+                            </button>
+                        </div>
+                    </div>
+                `;
+            }).join('');
+        };
+
+        window.verCierreGuardadoHistorico = function(id) {
+            const cie = (window.dbCierres || []).find(x => x.id === id);
+            if (!cie) return;
+
+            // Filtrar las notas de ese día específico
+            const targetDateStr = cie.fechaStr;
+            const ventasDia = window.dbVentas.filter(v => {
+                const vDateStr = new Date(v.fechaMs).toLocaleDateString();
+                return vDateStr === targetDateStr && v.estado !== 'ANULADA';
+            });
+            const gastosDia = window.dbGastos.filter(g => {
+                const gDateStr = new Date(g.fechaMs).toLocaleDateString();
+                return gDateStr === targetDateStr;
+            });
+
+            const datos = {
+                targetDateStr: cie.fechaStr,
+                totalVentasUSD: cie.totalVentasUSD,
+                totalGastosUSD: cie.totalGastosUSD,
+                flujoCajaNeto: cie.flujoCajaNeto,
+                ventasDia: ventasDia,
+                gastosDia: gastosDia
+            };
+
+            const nombreNegocio = (window.clienteActivoSesion ? window.clienteActivoSesion.nombre : 'TUCOCEL C.A.').toUpperCase();
+            const telNegocio = window.clienteActivoSesion ? (window.clienteActivoSesion.wa || '0424-0000000') : '0424-7357549';
+            const totalCOP = window.calcularPesosDesdeUSD(datos.totalVentasUSD);
+            const totalBs = window.calcularBsDesdeUSD(datos.totalVentasUSD);
+
+            // Agrupar por cajero
+            const ventasPorCajero = {};
+            datos.ventasDia.forEach(v => {
+                const caj = v.cajero || 'General';
+                if (!ventasPorCajero[caj]) {
+                    ventasPorCajero[caj] = { totalUSD: 0, notas: [], productos: {} };
+                }
+                ventasPorCajero[caj].totalUSD += v.totalUSD;
+                ventasPorCajero[caj].notas.push(v);
+                (v.items || []).forEach(it => {
+                    ventasPorCajero[caj].productos[it.nombre] = (ventasPorCajero[caj].productos[it.nombre] || 0) + it.cant;
+                });
+            });
+
+            let desgloseCajerosHtml = '';
+            for (const [cajero, info] of Object.entries(ventasPorCajero)) {
+                const cUSD = info.totalUSD;
+                const cCOP = window.calcularPesosDesdeUSD(cUSD);
+                const cBs = window.calcularBsDesdeUSD(cUSD);
+                let prodList = Object.entries(info.productos).map(([pName, pCant]) => `• ${pCant}x ${pName}`).join('<br>');
+
+                desgloseCajerosHtml += `
+                    <div style="border-top: 1px dashed #000; padding: 4px 0; margin-top: 4px; text-align: left;">
+                        <p style="margin: 1px 0; font-weight: 900; font-size: 9.5px;">👤 VENDEDOR: ${cajero.toUpperCase()}</p>
+                        <p style="margin: 1px 0;">Notas: ${info.notas.length} | Recaudado: <strong>$${cUSD.toFixed(2)} USD</strong></p>
+                        <p style="margin: 1px 0;">Equiv: ${window.formatCOP(cCOP)} COP | ${window.formatBS(cBs)} Bs</p>
+                        <p style="margin: 2px 0; font-size: 8px; color: #222;"><strong>Productos Vendidos:</strong><br>${prodList}</p>
+                    </div>
+                `;
+            }
+
+            const htmlTicketCierre = `
+                <div style="text-align:center;margin-bottom:8px;font-family:monospace;color:#000;">
+                    <h2 style="font-size:13px;font-weight:900;margin:0;line-height:1.2;">${nombreNegocio}</h2>
+                    <p style="font-size:9px;margin:2px 0;">WhatsApp: ${telNegocio}</p>
+                    <p style="font-size:10px;font-weight:bold;margin:4px 0;border-top:1px dashed #000;border-bottom:1px dashed #000;padding:3px 0;">COPIA DE CIERRE DIARIO DE CAJA</p>
+                    <p style="font-size:9px;margin:2px 0;">FECHA AUDITADA: ${datos.targetDateStr}</p>
+                </div>
+
+                <div style="margin: 6px 0; font-size: 9px; font-family: monospace; color: #000; line-height: 1.3;">
+                    <p style="margin: 1px 0;"><strong>TOTAL FACTURADO:</strong> $${datos.totalVentasUSD.toFixed(2)} USD</p>
+                    <p style="margin: 1px 0;"><strong>TOTAL COP:</strong> ${window.formatCOP(totalCOP)} COP</p>
+                    <p style="margin: 1px 0;"><strong>TOTAL Bs:</strong> ${window.formatBS(totalBs)} Bs (Paridad ${window.tasasConfig.paridadBs})</p>
+                    <p style="margin: 1px 0;"><strong>TOTAL EGRESOS / GASTOS:</strong> -$${datos.totalGastosUSD.toFixed(2)} USD</p>
+                    <p style="margin: 2px 0; font-weight: 900; font-size: 10px; border-top: 1px dashed #000; border-bottom: 1px dashed #000; padding: 2px 0;">FLUJO NETO EN CAJA: $${datos.flujoCajaNeto.toFixed(2)} USD</p>
+                </div>
+
+                <div style="font-family: monospace; font-size: 8.5px;">
+                    <p style="margin: 2px 0; font-weight: bold; text-align: center; text-transform: uppercase;">--- DESGLOSE POR VENDEDOR ---</p>
+                    ${desgloseCajerosHtml || '<p style="text-align:center; color:#555;">Sin movimientos de notas en el registro.</p>'}
+                </div>
+
+                <div style="text-align: center; font-size: 8px; font-family: monospace; margin-top: 8px; border-top: 1px dashed #000; padding-top: 6px; color: #000; line-height: 1.3;">
+                    <p style="margin: 1px 0; font-weight: bold;">Auditoría Oficial de Bóveda Histórica</p>
+                    <p style="margin: 2px 0; font-weight: 900; font-size: 8.5px;">Sistema TCL Comercio — TUCOCEL C.A. & PublionlineMK</p>
+                </div>
+            `;
+
+            window.auditoriaItemActivo = {
+                tipo: 'CIERRE_HISTORICO',
+                data: datos,
+                ventasPorCajero: ventasPorCajero
+            };
+
+            const headerT = document.getElementById('lbl-auditoria-titulo');
+            const boxCuerpo = document.getElementById('cuerpo-modal-auditoria');
+            const boxAcciones = document.getElementById('box-acciones-modal-auditoria');
+            const printDirecto = document.getElementById('seccion-impresion-termica-directa');
+
+            if (headerT) headerT.innerHTML = `<i class="fa-solid fa-box-archive text-amber-400 mr-1.5"></i> AUDITORÍA DE CIERRE GUARDADO`;
+            if (boxCuerpo) boxCuerpo.innerHTML = htmlTicketCierre;
+            if (printDirecto) printDirecto.innerHTML = htmlTicketCierre;
+
+            if (boxAcciones) {
+                boxAcciones.innerHTML = `
+                    <button onclick="window.imprimirAuditoriaActual()" class="bg-slate-900 hover:bg-slate-800 text-white font-black py-2.5 px-4 rounded-xl uppercase text-[11px] flex items-center justify-center gap-1.5 shadow-sm active:scale-95 transition-all">
+                        <i class="fa-solid fa-print"></i> Re-imprimir Cierre
+                    </button>
+                    <button onclick="window.enviarCierreHistoricoWhatsApp()" class="bg-emerald-600 hover:bg-emerald-500 text-white font-black py-2.5 px-4 rounded-xl uppercase text-[11px] flex items-center justify-center gap-1.5 shadow-sm active:scale-95 transition-all">
+                        <i class="fa-brands fa-whatsapp text-sm"></i> Enviar por WhatsApp
+                    </button>
+                `;
+            }
+
+            document.getElementById('modal-historial-cierres-diarios').classList.add('hidden');
+            document.getElementById('modal-detalle-auditoria').classList.remove('hidden');
+        };
+
+        window.enviarCierreHistoricoWhatsApp = function() {
+            if (!window.auditoriaItemActivo || window.auditoriaItemActivo.tipo !== 'CIERRE_HISTORICO') return;
+            const datos = window.auditoriaItemActivo.data;
+            const ventasPorCajero = window.auditoriaItemActivo.ventasPorCajero || {};
+            const totalCOP = window.calcularPesosDesdeUSD(datos.totalVentasUSD);
+            const totalBs = window.calcularBsDesdeUSD(datos.totalVentasUSD);
+            const nombreNegocio = (window.clienteActivoSesion ? window.clienteActivoSesion.nombre : 'TUCOCEL C.A.').toUpperCase();
+
+            let msj = `📊 *COPIA DE CIERRE DIARIO DE CAJA (AUDITORÍA)*
+`;
+            msj += `🏢 Local: *${nombreNegocio}*
+`;
+            msj += `📅 Fecha Auditada: ${datos.targetDateStr}
+`;
+            msj += `------------------------------------
+`;
+            msj += `💰 *TOTAL GENERAL:*
+`;
+            msj += `• USD: $${datos.totalVentasUSD.toFixed(2)} USD
+`;
+            msj += `• COP: ${window.formatCOP(totalCOP)} COP
+`;
+            msj += `• Bs: ${window.formatBS(totalBs)} Bs (Paridad ${window.tasasConfig.paridadBs})
+`;
+            msj += `• Gastos: -$${datos.totalGastosUSD.toFixed(2)} USD
+`;
+            msj += `💵 *FLUJO NETO EN CAJA: $${datos.flujoCajaNeto.toFixed(2)} USD*
+`;
+            msj += `------------------------------------
+`;
+            msj += `👥 *DESGLOSE POR VENDEDOR:*
+
+`;
+
+            for (const [cajero, info] of Object.entries(ventasPorCajero)) {
+                const cCOP = window.calcularPesosDesdeUSD(info.totalUSD);
+                const cBs = window.calcularBsDesdeUSD(info.totalUSD);
+                msj += `👤 *VENDEDOR: ${cajero.toUpperCase()}*
+`;
+                msj += `• Notas: ${info.notas.length}
+`;
+                msj += `• Total: $${info.totalUSD.toFixed(2)} USD (${window.formatCOP(cCOP)} COP | ${window.formatBS(cBs)} Bs)
+`;
+                msj += `• *Productos:*
+`;
+                for (const [pName, pCant] of Object.entries(info.productos)) {
+                    msj += `  - ${pCant}x ${pName}
+`;
+                }
+                msj += `
+`;
+            }
+
+            msj += `------------------------------------
+`;
+            msj += `🔒 Registro extraído de la Bóveda de Cierres.
+*Sistema TCL Comercio — TUCOCEL C.A. & PublionlineMK*`;
+            window.open(`https://wa.me/?text=${encodeURIComponent(msj)}`, '_blank');
         };
 
     </script>
