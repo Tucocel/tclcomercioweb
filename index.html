@@ -2519,7 +2519,7 @@ _Comprobante de Recepción Interna._
 *Sistema TCL Comercio — Un Programa de TUCOCEL C.A. & PublionlineMK*`;
                 
                 const targetTel = window.notaPendiente.telefono ? window.notaPendiente.telefono.replace(/[^0-9]/g, "") : '';
-                window.open(`https://wa.me/${targetTel}?text=${encodeURIComponent(msj)}`, '_blank');
+                window.despacharWhatsApp(targetTel, msj);
             }
 
             // Limpieza y reseteo total en caliente para mantener al cajero en facturación
@@ -3027,7 +3027,7 @@ _Comprobante de Recepción Interna._
 *Sistema TCL Comercio — Un Programa de TUCOCEL C.A. & PublionlineMK*`;
                 
                 const targetTel = n.telefono ? n.telefono.replace(/[^0-9]/g, "") : '';
-                window.open(`https://wa.me/${targetTel}?text=${encodeURIComponent(msj)}`, '_blank');
+                window.despacharWhatsApp(targetTel, msj);
             }
         };
 
@@ -3073,13 +3073,13 @@ Esta acción no devuelve stock.`)) {
             const nombre = document.getElementById('saas-input-nombre').value;
             const slug = nombre.toLowerCase().normalize("NFD").replace(/[̀-ͯ]/g, "").replace(/[^a-z0-9]/g, "");
             document.getElementById('saas-input-user').value = slug;
-            document.getElementById('saas-link-generado').value = `https://tucocel.github.io/tclcomercioweb/${slug || 'comercio'}`;
+            document.getElementById('saas-link-generado').value = `https://tucocel.github.io/tclcomercioweb/?comercio=${slug || 'comercio'}`;
         };
 
         window.actualizarLinkGeneradoManual = function() {
             const user = document.getElementById('saas-input-user').value.toLowerCase().replace(/[^a-z0-9]/g, "");
             document.getElementById('saas-input-user').value = user;
-            document.getElementById('saas-link-generado').value = `https://tucocel.github.io/tclcomercioweb/${user || 'comercio'}`;
+            document.getElementById('saas-link-generado').value = `https://tucocel.github.io/tclcomercioweb/?comercio=${user || 'comercio'}`;
         };
 
         window.copiarEnlaceComercioGenerado = function() {
@@ -3088,40 +3088,66 @@ Esta acción no devuelve stock.`)) {
             alert("📋 Enlace web copiado.");
         };
 
+        // DESPACHADOR UNIVERSAL WHATSAPP (COMPATIBLE WHATSAPP PERSONAL Y WHATSAPP BUSINESS)
+        window.despacharWhatsApp = function(telefono, mensaje) {
+            let telLimpio = (telefono || '').toString().replace(/[^0-9]/g, '');
+            // Formateo de código de país Venezuela si empieza con 04
+            if (telLimpio.startsWith('04')) {
+                telLimpio = '58' + telLimpio.substring(1);
+            } else if (telLimpio.startsWith('4') && telLimpio.length === 10) {
+                telLimpio = '58' + telLimpio;
+            }
+
+            const textoEnc = encodeURIComponent(mensaje);
+            let urlPrincipal = '';
+            
+            if (telLimpio) {
+                urlPrincipal = `https://api.whatsapp.com/send?phone=${telLimpio}&text=${textoEnc}`;
+            } else {
+                urlPrincipal = `https://api.whatsapp.com/send?text=${textoEnc}`;
+            }
+
+            const win = window.open(urlPrincipal, '_blank');
+            if (!win) {
+                window.location.href = urlPrincipal;
+            }
+        };
+
         window.enviarNotificacionAccionWA = function(tipo) {
-            const nombre = document.getElementById('saas-input-nombre').value || "Comercio";
-            const user = document.getElementById('saas-input-user').value;
-            const pass = document.getElementById('saas-input-pass').value;
-            const wa = document.getElementById('saas-input-wa').value.replace(/[^0-9]/g, "");
-            const dias = window.diasSuscripcionSeleccionados;
+            const nombre = (document.getElementById('saas-input-nombre').value || "COMERCIO EJEMPLO C.A.").toUpperCase();
+            const user = document.getElementById('saas-input-user').value || "comercio";
+            const pass = document.getElementById('saas-input-pass').value || "123456";
+            const wa = document.getElementById('saas-input-wa').value;
+            const dias = window.diasSuscripcionSeleccionados || 180;
+            const linkComercio = `https://tucocel.github.io/tclcomercioweb/?comercio=${user}`;
 
             let text = "";
             if (tipo === 'activacion') {
-                text = `✅ *ACTIVACIÓN DE PLATAFORMA TCL COMERCIO WEB*
-
-¡Hola ${nombre}!
-Tu servicio ha sido activado con éxito por *${dias} días*.
-
-🌐 *Tu Vitrina Web:* https://tucocel.github.io/tclcomercioweb/${user}
-🔑 *Usuario ID:* ${user}
-🔒 *Clave:* ${pass}
-
-*Desarrollado por PublionlineMK & TUCOCEL C.A.*`;
+                text = `¡Hola, *${nombre}*! 👋\n\n` +
+                       `¡Te damos una cordial bienvenida a la familia de *TCL Comercio Web*! 🎉\n\n` +
+                       `Tu espacio en nuestra plataforma ya está completamente configurado para que comiences a optimizar la gestión de tu negocio. Desde ahora cuentas con una herramienta pensada para facilitar tu día a día con el mejor *sistema de control e inventario*.\n\n` +
+                       `Aquí tienes tus datos de acceso:\n\n` +
+                       `🔗 *Enlace de tu vitrina:* ${linkComercio}\n` +
+                       `👤 *Usuario:* ${user}\n` +
+                       `🔑 *Contraseña:* ${pass}\n\n` +
+                       `💡 _Al ingresar a tu vitrina, presiona el candado superior para acceder a tu panel de control y administración._\n\n` +
+                       `📌 *Recomendaciones importantes:*\n` +
+                       `• Por tu seguridad, no compartas estas credenciales con terceras personas.\n` +
+                       `• Guarda este enlace en tus favoritos para acceder rápido cuando lo necesites.\n\n` +
+                       `¡Mucho éxito en tus operaciones! 🚀`;
             } else {
-                text = `🔄 *RENOVACIÓN DE SERVICIO TCL COMERCIO WEB*
-
-Estimado ${nombre},
-tu suscripción ha sido renovada exitosamente por *${dias} días adicionales*.
-
-🌐 *Acceso:* https://tucocel.github.io/tclcomercioweb/${user}
-
-*Desarrollado por PublionlineMK & TUCOCEL C.A.*`;
+                text = `🔄 *RENOVACIÓN DE SERVICIO TCL COMERCIO WEB*\n\n` +
+                       `Estimado *${nombre}*,\n` +
+                       `tu suscripción ha sido renovada exitosamente por *${dias} días adicionales*.\n\n` +
+                       `🔗 *Enlace de acceso a tu vitrina:* ${linkComercio}\n` +
+                       `👤 *Usuario:* ${user}\n\n` +
+                       `*Sistema respaldado por TUCOCEL C.A. & PublionlineMK* 🚀`;
             }
-            window.open(`https://wa.me/${wa}?text=${encodeURIComponent(text)}`, '_blank');
+            window.despacharWhatsApp(wa, text);
         };
 
         window.guardarNuevoComercioEntornoSaaS = function() {
-            const idEdit = document.getElementById('saas-editing-id').value;
+            let idEdit = document.getElementById('saas-editing-id').value;
             const nombre = document.getElementById('saas-input-nombre').value.trim();
             const responsable = document.getElementById('saas-input-responsable').value.trim();
             const wa = document.getElementById('saas-input-wa').value.trim();
@@ -3129,18 +3155,50 @@ tu suscripción ha sido renovada exitosamente por *${dias} días adicionales*.
             const pass = document.getElementById('saas-input-pass').value.trim();
             const dias = window.diasSuscripcionSeleccionados;
 
-            if (!nombre || !user || !pass) { alert("⚠️ Complete Nombre Comercial, Usuario y Clave."); return; }
+            if (!nombre || !user || !pass) { 
+                alert("⚠️ Complete Nombre Comercial, Usuario y Clave."); 
+                return; 
+            }
 
+            let clienteGuardado = null;
             if (idEdit) {
                 const idx = window.dbClientesSaaS.findIndex(c => c.id === idEdit);
-                if (idx !== -1) window.dbClientesSaaS[idx] = { ...window.dbClientesSaaS[idx], nombre, responsable, wa, user, pass, slug: user, dias };
+                if (idx !== -1) {
+                    window.dbClientesSaaS[idx] = { 
+                        ...window.dbClientesSaaS[idx], 
+                        nombre, responsable, wa, user, pass, slug: user, dias 
+                    };
+                    clienteGuardado = window.dbClientesSaaS[idx];
+                }
             } else {
-                window.dbClientesSaaS.push({ id: 'cli_' + Date.now(), nombre, responsable, wa, user, pass, slug: user, dias, estatus: 'ACTIVO' });
+                idEdit = 'cli_' + Date.now();
+                clienteGuardado = { 
+                    id: idEdit, 
+                    nombre, responsable, wa, user, pass, slug: user, dias, 
+                    estatus: 'ACTIVO', 
+                    contratoAceptado: false 
+                };
+                window.dbClientesSaaS.push(clienteGuardado);
+                document.getElementById('saas-editing-id').value = idEdit;
             }
+
             window.guardarClientesEnStorage();
             window.recalcularTotalesYBadgesComercios();
-            document.getElementById('modal-configurar-entorno-saas').classList.add('hidden');
-            alert("✨ Datos guardados con éxito.");
+
+            // Sincronización en la nube (Firestore) si está inicializado
+            if (window.dbNube && clienteGuardado) {
+                try {
+                    window.dbNube.collection("comercios_saas").doc(idEdit).set(clienteGuardado, { merge: true })
+                        .then(() => console.log("☁️ Sincronizado en la nube con éxito."))
+                        .catch(err => console.warn("Aviso nube:", err));
+                } catch(e) {}
+            }
+
+            // Actualizar el enlace generado
+            document.getElementById('saas-link-generado').value = `https://tucocel.github.io/tclcomercioweb/?comercio=${user}`;
+
+            // NO cerramos el modal para que el usuario pueda presionar de inmediato ENVIAR ACTIVACIÓN por WhatsApp
+            alert("✨ El cliente ha sido guardado satisfactoriamente en su base de datos y en la nube.\n\nPuede presionar ahora el botón 'ENVIAR ACTIVACIÓN' para despacharle las credenciales por WhatsApp.");
         };
 
         window.eliminarPerfilComercioSaas = function() {
@@ -3309,7 +3367,7 @@ tu suscripción ha sido renovada exitosamente por *${dias} días adicionales*.
 ` +
                       `🏢 *TCL Comercio Web es un sistema respaldado por TUCOCEL C.A. (RIF J-31378837-6) y diseñado por @PublionlineMK, agencia de publicidad de TUCOCEL C.A.*`;
 
-            window.open(`https://wa.me/?text=${encodeURIComponent(msj)}`, '_blank');
+            window.despacharWhatsApp('', msj);
         };
 
         window.accionPropuestaWeb = function() {
@@ -3568,7 +3626,7 @@ tu suscripción ha sido renovada exitosamente por *${dias} días adicionales*.
             msg += `El arrendatario acepta formalmente los términos de uso del software TCL Comercio Web exclusivamente para control administrativo de mostrador, notas de entrega e inventario interno. Declara conocer que el sistema NO sustituye las regulaciones fiscales del SENIAT, eximiendo a TUCOCEL C.A. de responsabilidades contables.\n\n`;
             msg += `Licencia registrada bajo la infraestructura de TUCOCEL C.A. (RIF J-31378837-6).`;
 
-            window.open(`https://api.whatsapp.com/send?phone=584247357549&text=${encodeURIComponent(msg)}`, '_blank');
+            window.despacharWhatsApp('04247357549', msg);
 
             alert("✅ ¡Contrato firmado y verificado exitosamente! Bienvenido a su panel de control comercial.");
             window.abrirPanelClientePrivadoDirecto();
@@ -3864,7 +3922,7 @@ $${(item.precioUSD * item.cant).toFixed(2)} USD
 *Sistema TCL Comercio — TUCOCEL C.A. & PublionlineMK*`;
 
             const phone = "584247357549";
-            window.open(`https://wa.me/${phone}?text=${encodeURIComponent(mensaje)}`, '_blank');
+            window.despacharWhatsApp(phone, mensaje);
             document.getElementById('modal-checkout-pro').classList.add('hidden');
         };
 
@@ -3997,7 +4055,7 @@ $${(item.precioUSD * item.cant).toFixed(2)} USD
             msj += `------------------------------------
 📊 Total Ítems: ${window.dbInventario.length}
 *Sistema TCL Comercio — TUCOCEL C.A. & PublionlineMK*`;
-            window.open(`https://wa.me/?text=${encodeURIComponent(msj)}`, '_blank');
+            window.despacharWhatsApp('', msj);
         };
 
         window.abrirModalConfigurarEntornoSaaS = function(modo) {
@@ -4009,7 +4067,7 @@ $${(item.precioUSD * item.cant).toFixed(2)} USD
                 document.getElementById('saas-input-wa').value = '';
                 document.getElementById('saas-input-user').value = '';
                 document.getElementById('saas-input-pass').value = '123456';
-                document.getElementById('saas-link-generado').value = 'https://tucocel.github.io/tclcomercioweb/...';
+                document.getElementById('saas-link-generado').value = 'https://tucocel.github.io/tclcomercioweb/?comercio=...';
                 window.seleccionarPildoraDias(180);
             }
             document.getElementById('modal-configurar-entorno-saas').classList.remove('hidden');
@@ -4088,7 +4146,7 @@ $${(item.precioUSD * item.cant).toFixed(2)} USD
             document.getElementById('saas-input-wa').value = cliente.wa;
             document.getElementById('saas-input-user').value = cliente.user;
             document.getElementById('saas-input-pass').value = cliente.pass;
-            document.getElementById('saas-link-generado').value = `https://tucocel.github.io/tclcomercioweb/${cliente.slug}`;
+            document.getElementById('saas-link-generado').value = `https://tucocel.github.io/tclcomercioweb/?comercio=${cliente.slug}`;
             window.seleccionarPildoraDias(cliente.dias);
             document.getElementById('modal-configurar-entorno-saas').classList.remove('hidden');
         };
@@ -4141,7 +4199,7 @@ $${(item.precioUSD * item.cant).toFixed(2)} USD
             window.renderizarProductosVitrina();
         };
 
-        window.openWhatsAppDirectQuery = function() { window.open(`https://wa.me/584247357549?text=${encodeURIComponent("¡Hola! Quisiera consultar disponibilidad de productos.")}`, '_blank'); };
+        window.openWhatsAppDirectQuery = function() { window.despacharWhatsApp('04247357549', '¡Hola! Quisiera consultar disponibilidad de productos.'); };
 
         // -------------------------------------------------------------
         // CÁPSULA INTERACTIVA [ 👁️ VER ] PARA TODA LA AUDITORÍA (FORMATO HOJA BLANCA TICKET)
@@ -4339,7 +4397,7 @@ $${(item.precioUSD * item.cant).toFixed(2)} USD
                 msj += `*Sistema TCL Comercio — TUCOCEL C.A. & PublionlineMK* 🔒`;
 
                 const targetTel = n.telefono ? n.telefono.replace(/[^0-9]/g, "") : '';
-                window.open(`https://wa.me/${targetTel}?text=${encodeURIComponent(msj)}`, '_blank');
+                window.despacharWhatsApp(targetTel, msj);
             } else if (it.tipo === 'COMPRA') {
                 const rec = it.data;
                 const totUSD = rec.totalUSD || rec.totalInversionUSD || 0;
@@ -4372,7 +4430,7 @@ $${(item.precioUSD * item.cant).toFixed(2)} USD
                 msj += `*Sistema TCL Comercio — TUCOCEL C.A. & PublionlineMK* 🔒`;
 
                 const targetTel = rec.provTel ? rec.provTel.replace(/[^0-9]/g, "") : '';
-                window.open(`https://wa.me/${targetTel}?text=${encodeURIComponent(msj)}`, '_blank');
+                window.despacharWhatsApp(targetTel, msj);
             } else if (it.tipo === 'GASTO') {
                 const g = it.data;
                 const totCOP = window.calcularPesosDesdeUSD(g.montoUSD);
@@ -4393,7 +4451,7 @@ $${(item.precioUSD * item.cant).toFixed(2)} USD
                 msj += `_Control interno de egresos de caja registradora._\n`;
                 msj += `*Sistema TCL Comercio — TUCOCEL C.A. & PublionlineMK* 🔒`;
 
-                window.open(`https://wa.me/?text=${encodeURIComponent(msj)}`, '_blank');
+                window.despacharWhatsApp('', msj);
             }
         };
 
@@ -4560,7 +4618,7 @@ $${(item.precioUSD * item.cant).toFixed(2)} USD
 
                 msj += `------------------------------------\n`;
                 msj += `🔒 ¡Cierre diario consolidado y guardado formalmente!\n*Sistema TCL Comercio — TUCOCEL C.A. & PublionlineMK*`;
-                window.open(`https://wa.me/?text=${encodeURIComponent(msj)}`, '_blank');
+                window.despacharWhatsApp('', msj);
             }
 
             document.getElementById('modal-detalle-auditoria').classList.add('hidden');
@@ -4748,7 +4806,7 @@ window.abrirModalReporteZ = function() {
             msj += `¡Cierre de caja consolidado exitosamente!
 *Sistema TCL Comercio — TUCOCEL C.A. & PublionlineMK*`;
 
-            window.open(`https://wa.me/?text=${encodeURIComponent(msj)}`, '_blank');
+            window.despacharWhatsApp('', msj);
         };
 
         // GASTOS CON CÁPSULA [VER]
@@ -5144,7 +5202,7 @@ window.abrirModalReporteZ = function() {
                     msj += `🚛 Proveedor: ${op.provNombre}\n------------------------------------\n`;
                     op.items.forEach(i => { msj += `• ${i.cant}x ${i.nombre}: $${i.subtotalUSD.toFixed(2)} USD\n`; });
                     msj += `------------------------------------\n💰 *Total Invertido: $${op.totalUSD.toFixed(2)} USD*\n\n¡Cargado al inventario y reportes!\n*Sistema TCL Comercio — TUCOCEL C.A. & PublionlineMK*`;
-                    window.open(`https://wa.me/?text=${encodeURIComponent(msj)}`, '_blank');
+                    window.despacharWhatsApp('', msj);
                 }
 
                 // Limpieza de pantallas
@@ -5385,7 +5443,7 @@ window.abrirModalReporteZ = function() {
             msj += `📄 Notas Procesadas: ${datos.ventasRango.length}\n`;
             msj += `📊 Estado: Cuadre Gerencial Consolidado.\n*Sistema TCL Comercio — TUCOCEL C.A. & PublionlineMK*`;
 
-            window.open(`https://wa.me/?text=${encodeURIComponent(msj)}`, '_blank');
+            window.despacharWhatsApp('', msj);
         };
 
         // CONSOLA MÁSTER
@@ -5402,7 +5460,7 @@ window.abrirModalReporteZ = function() {
         window.compartirCatalogoWhatsApp = function() {
             const nombreNegocio = (window.clienteActivoSesion ? window.clienteActivoSesion.nombre : 'TUCOCEL C.A.').toUpperCase();
             const slug = window.clienteActivoSesion ? (window.clienteActivoSesion.slug || 'comercio') : 'demo';
-            const urlCatalogo = `https://tucocel.github.io/tclcomercioweb/${slug}`;
+            const urlCatalogo = `https://tucocel.github.io/tclcomercioweb/?comercio=${slug}`;
 
             let texto = `🛍️ *¡CATÁLOGO DIGITAL DISPONIBLE!* ✨\n`;
             texto += `🏢 *${nombreNegocio}*\n\n`;
@@ -5412,7 +5470,7 @@ window.abrirModalReporteZ = function() {
             texto += `💬 ¡Escríbenos y con gusto te atenderemos! 🚀\n\n`;
             texto += `_Plataforma TCL Comercio Web — TUCOCEL C.A. & PublionlineMK_`;
 
-            window.open(`https://wa.me/?text=${encodeURIComponent(texto)}`, '_blank');
+            window.despacharWhatsApp('', texto);
         };
 
     
@@ -5646,7 +5704,7 @@ window.abrirModalReporteZ = function() {
 `;
             msj += `🔒 Registro extraído de la Bóveda de Cierres.
 *Sistema TCL Comercio — TUCOCEL C.A. & PublionlineMK*`;
-            window.open(`https://wa.me/?text=${encodeURIComponent(msj)}`, '_blank');
+            window.despacharWhatsApp('', msj);
         };
 
 
