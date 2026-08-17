@@ -82,7 +82,10 @@
                 display: none !important;
             }
         }
-    </style>
+    
+        /* ESTILOS PROPUESTA GLASSMORPHISM DARK */
+        .glass-panel { background: rgba(15, 23, 42, 0.75); backdrop-filter: blur(16px); border: 1px solid rgba(255, 255, 255, 0.08); }
+</style>
 </head>
 <body class="min-h-screen flex flex-col bg-slate-50 w-full overflow-x-hidden">
 
@@ -208,9 +211,9 @@
                     <i class="fa-solid fa-tags text-2xl text-amber-400"></i>
                     <span class="font-black text-xs uppercase tracking-wider">Tarifas SaaS</span>
                 </button>
-                <button onclick="alert('Propuesta Comercial TCL')" class="bg-gradient-to-r from-blue-600 to-purple-600 text-white p-4 rounded-2xl flex flex-col items-center justify-center gap-2 transition-all shadow-md">
+                <button onclick="window.abrirModalZonaPropuesta()" class="bg-gradient-to-r from-blue-600 to-purple-600 hover:from-blue-500 hover:to-purple-500 text-white p-4 rounded-2xl flex flex-col items-center justify-center gap-2 transition-all shadow-md active:scale-95">
                     <i class="fa-solid fa-paper-plane text-2xl text-white"></i>
-                    <span class="font-black text-xs uppercase tracking-wider">Enviar Propuesta</span>
+                    <span class="font-black text-xs uppercase tracking-wider">Zona de Propuesta del Cliente</span>
                 </button>
             </div>
         </div>
@@ -784,7 +787,485 @@
     </div>
 
 
-    <!-- MODAL FIJAR TASAS DEL DÍA (APERTURA DE TURNO) -->
+    <!-- 6. VISTA COMPLETA DE PROPUESTA COMERCIAL & CATÁLOGO (HIJO DIRECTO DEL BODY) -->
+        <!-- 6. VISTA COMPLETA DE PROPUESTA COMERCIAL & CATÁLOGO -->
+    <div id="vista-propuesta-comercial-catalogo" class="hidden min-h-screen bg-[#020617] text-white p-3 sm:p-6 w-full overflow-y-auto no-print z-50">
+        <div class="max-w-md mx-auto sm:max-w-3xl space-y-6 px-3 sm:px-4 py-6">
+
+            <div class="flex justify-between items-center border-b border-slate-800 pb-3 mb-4">
+                <span class="text-xs font-mono text-blue-400 font-black uppercase tracking-wider flex items-center gap-1.5">
+                    <i class="fa-solid fa-store"></i> TCL COMERCIO WEB — PROPUESTA COMERCIAL
+                </span>
+                <button onclick="window.cerrarVistaPropuestaWeb()" class="bg-slate-900 hover:bg-slate-800 text-slate-300 hover:text-white px-3.5 py-2 rounded-xl border border-slate-700 text-xs font-black uppercase flex items-center gap-1 transition-all shadow-md active:scale-95">
+                    <i class="fa-solid fa-arrow-left"></i> Volver al Panel
+                </button>
+            </div>
+
+            <!-- 1. ENCABEZADO PRINCIPAL -->
+            <header class="text-center space-y-3 pt-4">
+                <span class="bg-blue-500/10 text-blue-400 border border-blue-500/20 text-[10px] sm:text-xs font-black tracking-widest uppercase px-4 py-1.5 rounded-full inline-flex items-center gap-1.5 shadow-sm">
+                    <i class="fa-solid fa-rocket text-blue-400"></i> PRESENTACIÓN COMERCIAL Y CATÁLOGO 2026
+                </span>
+                
+                <h1 class="text-3xl sm:text-5xl font-black tracking-tight text-white uppercase flex items-center justify-center gap-2">
+                    TCL COMERCIO WEB <i class="fa-solid fa-lock text-blue-500 text-2xl"></i>
+                </h1>
+
+                <div class="p-0.5 rounded-2xl bg-gradient-to-r from-amber-500 via-amber-400 to-amber-600 shadow-lg">
+                    <div class="bg-slate-950 px-4 py-2 rounded-[14px]">
+                        <p class="text-amber-400 font-extrabold text-[11px] sm:text-xs tracking-wider uppercase flex items-center justify-center gap-1.5">
+                            <i class="fa-solid fa-bolt"></i> LA INFRAESTRUCTURA DE MOSTRADOR QUE BLINDA TU CAJA Y AUTOMATIZA TU NEGOCIO
+                        </p>
+                    </div>
+                </div>
+
+                <p class="text-slate-300 text-xs sm:text-sm font-medium leading-relaxed max-w-xl mx-auto pt-1">
+                    La solución digital definitiva diseñada para agilizar el cobro en ventas, eliminar descuadres en caja, blindar la administración de inventarios y automatizar tus operaciones comerciales desde cualquier teléfono inteligente, tableta o computadora.
+                </p>
+            </header>
+
+            <!-- 2. AVISO DE CUMPLIMIENTO LEGAL Y CONTROL INTERNO -->
+            <section class="glass-panel border border-blue-500/30 rounded-3xl p-5 shadow-xl space-y-3 relative overflow-hidden">
+                <div class="flex flex-col items-center text-center space-y-2">
+                    <div class="w-12 h-12 bg-blue-600/20 border border-blue-500/40 rounded-2xl flex items-center justify-center text-blue-400 text-2xl shadow-inner">
+                        <i class="fa-solid fa-scale-balanced"></i>
+                    </div>
+                    <h2 class="font-black text-xs sm:text-sm uppercase tracking-wider text-white">
+                        OPERACIÓN 100% LEGÍTIMA Y CONTROL INTERNO SEGURO
+                    </h2>
+                </div>
+                <p class="text-slate-300 text-xs leading-relaxed text-justify font-medium">
+                    <strong class="text-white">TCL sistema Master</strong> actúa estrictamente como un programa privado para contabilidad interna, gestión de almacén, logística de inventarios y auditoría de mostrador. La plataforma emite limpiamente <strong class="text-white">Notas de Entrega para control administrativo no fiscal</strong>, permitiendo una supervisión precisa sobre tus activos comerciales. <strong class="text-amber-400 uppercase">Bajo ninguna circunstancia reemplaza ni interfiere con los sistemas de facturación fiscal certificados por los entes tributarios nacionales</strong>, quedando a cargo del comercio el cumplimiento de sus deberes legales por las vías correspondientes.
+                </p>
+            </section>
+
+            <!-- 3. BENEFICIOS CLAVE Y DEMOSTRACIONES EN VIVO -->
+            <section class="space-y-5 pt-2">
+                <h3 class="text-xs font-black uppercase tracking-widest text-blue-400 border-b border-slate-800 pb-2 flex items-center gap-2">
+                    <i class="fa-solid fa-briefcase"></i> CAPACIDADES DEL SISTEMA Y VISTAS PREVIAS INTERACTIVAS
+                </h3>
+
+                <!-- BENEFICIO 1: VITRINA DIGITAL WEB INTERACTIVA (MAQUETA VISUAL DE TIENDA EN LÍNEA) -->
+                <div class="glass-panel border border-blue-500/40 rounded-3xl p-5 space-y-4 shadow-inner hover:border-blue-400 transition-all">
+                    
+                    <!-- SIMULACIÓN DE TELÉFONO / VITRINA EN VIVO -->
+                    <div class="bg-slate-950 border border-slate-800 rounded-2xl p-3 sm:p-4 space-y-3 relative overflow-hidden">
+                        <div class="flex justify-between items-center border-b border-slate-800 pb-2">
+                            <div class="flex items-center gap-2">
+                                <span class="w-2.5 h-2.5 rounded-full bg-emerald-500 animate-pulse"></span>
+                                <span class="text-[10px] font-black tracking-wider text-slate-300 uppercase font-mono">TU-NEGOCIO.COM/VITRINA</span>
+                            </div>
+                            <span class="bg-emerald-500/20 text-emerald-400 border border-emerald-500/30 text-[8.5px] font-black px-2 py-0.5 rounded uppercase font-mono">
+                                EN LÍNEA 24/7
+                            </span>
+                        </div>
+
+                        <!-- Cuadrícula de Productos de Demostración -->
+                        <div class="grid grid-cols-2 gap-2 text-left font-sans">
+                            <!-- Producto 1 -->
+                            <div class="bg-slate-900/90 border border-slate-800 rounded-xl p-2 space-y-1.5 flex flex-col justify-between">
+                                <div class="w-full aspect-[4/3] bg-slate-800/80 rounded-lg flex items-center justify-center text-blue-400 text-xl border border-slate-700/50">
+                                    <i class="fa-solid fa-box-open"></i>
+                                </div>
+                                <div>
+                                    <h5 class="text-[10px] font-black text-white uppercase truncate">Aceite Vegetal 1L</h5>
+                                    <div class="text-[9px] font-mono text-blue-400 font-extrabold">$2.50 USD</div>
+                                    <div class="text-[8px] font-mono text-slate-400">9.000 COP | 92,50 Bs</div>
+                                </div>
+                                <button type="button" class="w-full bg-blue-600 hover:bg-blue-500 text-white font-black py-1 rounded-lg text-[8.5px] uppercase flex items-center justify-center gap-1 shadow-sm">
+                                    <i class="fa-solid fa-cart-plus"></i> AGREGAR
+                                </button>
+                            </div>
+
+                            <!-- Producto 2 -->
+                            <div class="bg-slate-900/90 border border-slate-800 rounded-xl p-2 space-y-1.5 flex flex-col justify-between">
+                                <div class="w-full aspect-[4/3] bg-slate-800/80 rounded-lg flex items-center justify-center text-amber-400 text-xl border border-slate-700/50">
+                                    <i class="fa-solid fa-tag"></i>
+                                </div>
+                                <div>
+                                    <h5 class="text-[10px] font-black text-white uppercase truncate">Harina PAN 1kg</h5>
+                                    <div class="text-[9px] font-mono text-blue-400 font-extrabold">$1.20 USD</div>
+                                    <div class="text-[8px] font-mono text-slate-400">4.320 COP | 44,40 Bs</div>
+                                </div>
+                                <button type="button" class="w-full bg-blue-600 hover:bg-blue-500 text-white font-black py-1 rounded-lg text-[8.5px] uppercase flex items-center justify-center gap-1 shadow-sm">
+                                    <i class="fa-solid fa-cart-plus"></i> AGREGAR
+                                </button>
+                            </div>
+                        </div>
+
+                        <!-- Barra de Pedido Directo a WhatsApp -->
+                        <div class="bg-emerald-600/20 border border-emerald-500/40 rounded-xl p-2 flex items-center justify-between font-mono text-[9.5px]">
+                            <div class="flex items-center gap-1.5 text-emerald-400 font-black">
+                                <i class="fa-solid fa-basket-shopping text-xs"></i>
+                                <span>2 PRODUCTOS EN CARRITO</span>
+                            </div>
+                            <span class="bg-emerald-600 text-white font-black px-2 py-0.5 rounded text-[8.5px] uppercase flex items-center gap-1">
+                                <i class="fa-brands fa-whatsapp"></i> PEDIR ($3.70)
+                            </span>
+                        </div>
+                    </div>
+
+                    <div class="space-y-1">
+                        <span class="bg-blue-500/10 text-blue-400 border border-blue-500/20 text-[9px] font-black uppercase px-2.5 py-1 rounded-lg inline-block">
+                            <i class="fa-solid fa-globe"></i> VENTAS EN LÍNEA SIN COMISIONES
+                        </span>
+                        <h4 class="font-black text-sm text-white uppercase tracking-tight">VITRINA DIGITAL INTERACTIVA (TIENDA WEB AUTO-ADMINISTRABLE)</h4>
+                        <p class="text-slate-400 text-xs leading-relaxed text-justify">
+                            Tus clientes entran a tu enlace web desde cualquier celular, exploran tus productos organizados con fotos, ven existencias y precios en tiempo real con conversión automática a Pesos y Bolívares. Agregan lo que necesitan al carrito y te envían el pedido ordenado y totalizado directamente a tu WhatsApp.
+                        </p>
+                        <div class="bg-slate-900/80 border border-slate-800 p-2.5 rounded-xl text-[10px] text-slate-300 font-medium flex items-center gap-2">
+                            <i class="fa-solid fa-lightbulb text-amber-400 text-xs"></i>
+                            <span><strong>Atención Automática:</strong> Comparte el link de tu vitrina en tus estados, redes sociales y tarjetas de presentación para vender sin descanso.</span>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- BENEFICIO 2: ADAPTABILIDAD A CUALQUIER TIPO DE COMERCIO -->
+                <div class="glass-panel border border-slate-800 rounded-3xl p-5 space-y-3 shadow-inner hover:border-slate-700 transition-all">
+                    <div class="bg-slate-950 border border-slate-800 rounded-2xl p-3 font-mono text-[10px] space-y-2">
+                        <span class="bg-amber-600/30 text-amber-300 border border-amber-500/40 px-2 py-0.5 rounded font-bold text-[9px] inline-block">
+                            CONFIGURACIÓN UNIVERSAL MULTI-RUBRO
+                        </span>
+                        <div class="grid grid-cols-2 sm:grid-cols-3 gap-1.5 text-slate-300 text-center font-bold text-[9px]">
+                            <div class="bg-slate-900 border border-slate-800 p-1.5 rounded-lg">🛒 Bodegones y Abastos</div>
+                            <div class="bg-slate-900 border border-slate-800 p-1.5 rounded-lg">👞 Zapaterías y Calzado</div>
+                            <div class="bg-slate-900 border border-slate-800 p-1.5 rounded-lg">💊 Farmacias y Salud</div>
+                            <div class="bg-slate-900 border border-slate-800 p-1.5 rounded-lg">🥩 Supermercados</div>
+                            <div class="bg-slate-900 border border-slate-800 p-1.5 rounded-lg">🚗 Repuestos de Autos</div>
+                            <div class="bg-slate-900 border border-slate-800 p-1.5 rounded-lg">🔧 Ferreterías y Tiendas</div>
+                        </div>
+                    </div>
+
+                    <div class="space-y-1">
+                        <span class="bg-amber-500/10 text-amber-400 border border-amber-500/20 text-[9px] font-black uppercase px-2.5 py-1 rounded-lg inline-block">
+                            <i class="fa-solid fa-store"></i> 100% VERSÁTIL
+                        </span>
+                        <h4 class="font-black text-sm text-white uppercase tracking-tight">SISTEMA ADAPTABLE A CUALQUIER TIPO DE COMERCIO</h4>
+                        <p class="text-slate-400 text-xs leading-relaxed text-justify">
+                            Una plataforma flexible diseñada para ajustarse a las necesidades exactas de cualquier negocio: zapaterías, bodegones, farmacias, supermercados, tiendas de repuestos automotrices, ferreterías, ropa o minimarkets, asegurando un control de mostrador rápido, fluido y ordenado.
+                        </p>
+                    </div>
+                </div>
+
+                <!-- BENEFICIO 3: ESCÁNER LÁSER POR CÁMARA -->
+                <div class="glass-panel border border-slate-800 rounded-3xl p-5 space-y-3 shadow-inner hover:border-slate-700 transition-all">
+                    <div class="bg-slate-950 border border-slate-800 rounded-2xl p-4 text-center space-y-2 font-mono relative overflow-hidden">
+                        <span class="bg-purple-600 text-white text-[9px] font-black uppercase px-3 py-1 rounded-full inline-block tracking-wider">
+                            CÁMARA TRASERA ACTIVA
+                        </span>
+                        <div class="border-2 border-dashed border-emerald-500/60 p-3 rounded-xl bg-emerald-950/20 space-y-1">
+                            <div class="text-emerald-400 text-xs font-black tracking-widest uppercase">
+                                <i class="fa-solid fa-barcode"></i> LECTURA EXITOSA: 750103042109
+                            </div>
+                            <p class="text-[10px] text-slate-300 font-bold uppercase">Artículo detectado: ACEITE MOTOR 20W50 / HARINA 1KG</p>
+                        </div>
+                    </div>
+
+                    <div class="space-y-1">
+                        <span class="bg-purple-500/10 text-purple-400 border border-purple-500/20 text-[9px] font-black uppercase px-2.5 py-1 rounded-lg inline-block">
+                            <i class="fa-solid fa-camera"></i> CERO INVERSIÓN EN EQUIPOS
+                        </span>
+                        <h4 class="font-black text-sm text-white uppercase tracking-tight">ESCÁNER INTELIGENTE POR CÁMARA (LECTURA LÁSER)</h4>
+                        <p class="text-slate-400 text-xs leading-relaxed text-justify">
+                            Convierte la cámara de cualquier teléfono o tableta en un lector profesional de códigos de barras de alta velocidad. Elimina los lectores de mano convencionales, agilizando el cobro en caja y la recepción de inventario con un solo toque.
+                        </p>
+                        <div class="bg-slate-900/80 border border-slate-800 p-2.5 rounded-xl text-[10px] text-slate-300 font-medium flex items-center gap-2">
+                            <i class="fa-solid fa-lightbulb text-amber-400 text-xs"></i>
+                            <span><strong>Ahorro Directo:</strong> Opera tu punto de venta en dispositivos móviles existentes sin cables ni accesorios adicionales.</span>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- BENEFICIO 4: IMPRESIÓN TÉRMICA UNIVERSAL -->
+                <div class="glass-panel border border-slate-800 rounded-3xl p-5 space-y-3 shadow-inner hover:border-slate-700 transition-all">
+                    <div class="bg-white text-black p-4 rounded-2xl font-mono text-xs space-y-1 shadow-lg max-w-xs mx-auto border border-slate-300">
+                        <div class="text-center border-b border-dashed border-black pb-2 space-y-0.5">
+                            <p class="font-black text-sm">*** NOTA DE ENTREGA ***</p>
+                            <p class="font-bold text-[11px]">COMERCIO EJEMPLO C.A.</p>
+                            <p class="text-[9px]">Comprobante Administrativo Interno</p>
+                            <p class="text-[9px]">Nota: #042 | Fecha: 11/07/2026</p>
+                            <p class="text-[9px]">Cajero: MARTHA S. (AUDITADO)</p>
+                        </div>
+                        <div class="py-1 text-[10px] space-y-0.5">
+                            <div class="flex justify-between"><span>2x Harina Premium 1kg</span> <span>$2.00</span></div>
+                            <div class="flex justify-between"><span>1x Filtro de Aceite Automotriz</span> <span>$12.00</span></div>
+                        </div>
+                        <div class="border-t border-dashed border-black pt-1.5 text-[10px] space-y-0.5 font-bold">
+                            <div class="flex justify-between"><span>TOTAL REF:</span> <span>$14.00</span></div>
+                            <div class="flex justify-between"><span>TOTAL COP:</span> <span>54.600 COP</span></div>
+                            <div class="flex justify-between"><span>TOTAL VES:</span> <span>560,00 Bs</span></div>
+                        </div>
+                    </div>
+
+                    <div class="space-y-1">
+                        <span class="bg-amber-500/10 text-amber-400 border border-amber-500/20 text-[9px] font-black uppercase px-2.5 py-1 rounded-lg inline-block">
+                            <i class="fa-solid fa-print"></i> MOSTRADOR PROFESIONAL
+                        </span>
+                        <h4 class="font-black text-sm text-white uppercase tracking-tight">MOTOR DE IMPRESIÓN TÉRMICA UNIVERSAL</h4>
+                        <p class="text-slate-400 text-xs leading-relaxed text-justify">
+                            Ahorra más del 50% en papelería tradicional. El sistema detecta automáticamente tu impresora activa y adapta dinámicamente los recibos para impresoras térmicas de 80mm o unidades portátiles inalámbricas de 58mm con conversión multimoneda en tiempo real.
+                        </p>
+                    </div>
+                </div>
+
+                <!-- BENEFICIO 5: DESPACHO INSTANTÁNEO POR WHATSAPP -->
+                <div class="glass-panel border border-slate-800 rounded-3xl p-5 space-y-3 shadow-inner hover:border-slate-700 transition-all">
+                    <div class="bg-emerald-950/40 border border-emerald-500/30 rounded-2xl p-4 font-sans text-xs space-y-2">
+                        <div class="flex items-center gap-2 text-emerald-400 font-bold text-[10px] border-b border-emerald-500/20 pb-1.5">
+                            <i class="fa-brands fa-whatsapp text-sm"></i> Despacho Digital Instantáneo (En Línea)
+                        </div>
+                        <div class="bg-slate-900 p-3 rounded-xl border border-slate-800 space-y-1 text-[11px]">
+                            <p class="font-black text-emerald-400">🛒 COMERCIO EJEMPLO C.A.</p>
+                            <p class="text-slate-300 font-bold">🧾 NOTA Y CONFIRMACIÓN DE PEDIDO</p>
+                            <p class="text-slate-400 text-[10px]">Nota #042 | Cajero: MARTHA</p>
+                            <div class="py-1 text-slate-300 space-y-0.5 text-[10px]">
+                                <p>▪ 2x Harina Premium 1kg -> $2</p>
+                                <p>▪ 1x Filtro de Aceite Automotriz -> $12</p>
+                            </div>
+                            <div class="border-t border-slate-800 pt-1 text-slate-200 font-bold text-[10px]">
+                                <p>💵 REF: $14.00 USD</p>
+                                <p>🇨🇴 COP: 54.600 Pesos</p>
+                                <p>🇻🇪 VES: 560,00 Bolívares</p>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="space-y-1">
+                        <span class="bg-emerald-500/10 text-emerald-400 border border-emerald-500/20 text-[9px] font-black uppercase px-2.5 py-1 rounded-lg inline-block">
+                            <i class="fa-solid fa-paper-plane"></i> ENTREGA DIGITAL
+                        </span>
+                        <h4 class="font-black text-sm text-white uppercase tracking-tight">ENVÍO ELEGANTE E INSTANTÁNEO POR WHATSAPP</h4>
+                        <p class="text-slate-400 text-xs leading-relaxed text-justify">
+                            Eleva la imagen de tu negocio con una experiencia moderna para tus clientes. Con un solo toque al cobrar, la plataforma genera y envía el comprobante digital detallado con tasas de cambio directamente al chat de WhatsApp del cliente.
+                        </p>
+                    </div>
+                </div>
+
+                <!-- BENEFICIO 6: SEGURIDAD EN AUDITORÍA Y CONTROL DE CRÉDITOS -->
+                <div class="glass-panel border border-slate-800 rounded-3xl p-5 space-y-3 shadow-inner hover:border-slate-700 transition-all">
+                    <div class="bg-slate-950 border border-slate-800 rounded-2xl p-3 font-mono text-[10px] space-y-2">
+                        <div class="flex justify-between items-center border-b border-slate-800 pb-1.5">
+                            <span class="bg-blue-600 text-white font-bold px-2 py-0.5 rounded">AUDITORÍA DE CAJA</span>
+                            <span class="text-slate-400">MÉTRICAS DEL PUNTO DE VENTA</span>
+                        </div>
+                        <div class="grid grid-cols-2 gap-2 text-slate-300">
+                            <div>
+                                <span class="text-slate-500 block text-[8px]">CONDICIÓN DE VENTA</span>
+                                <span class="text-amber-400 font-bold">🔹 CRÉDITO REGISTRADO</span>
+                            </div>
+                            <div>
+                                <span class="text-slate-500 block text-[8px]">TIPO DE PAGO</span>
+                                <span class="text-emerald-400 font-bold">💵 MULTIMONEDA</span>
+                            </div>
+                        </div>
+                        <div class="border-t border-slate-800 pt-1.5 space-y-0.5">
+                            <div class="flex justify-between"><span>Monto Total Pedido:</span> <span class="font-bold text-white">$120</span></div>
+                            <div class="flex justify-between"><span>Abono Inicial:</span> <span class="font-bold text-emerald-400">-$40</span></div>
+                            <div class="flex justify-between font-extrabold text-amber-400"><span>SALDO PENDIENTE:</span> <span>$80</span></div>
+                            <div class="flex justify-between text-[9px] text-slate-400"><span>Plazo de Crédito:</span> <span>15 DÍAS ACTIVOS</span></div>
+                        </div>
+                    </div>
+
+                    <div class="space-y-1">
+                        <span class="bg-blue-500/10 text-blue-400 border border-blue-500/20 text-[9px] font-black uppercase px-2.5 py-1 rounded-lg inline-block">
+                            <i class="fa-solid fa-shield-cat"></i> PREVENCIÓN DE FRAUDES
+                        </span>
+                        <h4 class="font-black text-sm text-white uppercase tracking-tight">PROTECCIÓN ANTIFRAUDE Y GESTIÓN DE CRÉDITOS</h4>
+                        <p class="text-slate-400 text-xs leading-relaxed text-justify">
+                            Mantén un control riguroso sobre el personal de caja y cada transacción. Se bloquean eliminaciones sospechosas; las correcciones requieren notas de crédito auditables, asegurando una trazabilidad total en cuentas por cobrar y flujo de caja.
+                        </p>
+                    </div>
+                </div>
+            </section>
+
+            <!-- 4. SIMULADOR INTERACTIVO DE RENTABILIDAD Y RETORNO DE INVERSIÓN -->
+            <section class="glass-panel border border-blue-500/40 rounded-3xl p-6 space-y-4 shadow-2xl relative overflow-hidden bg-blue-950/20">
+                <div class="text-center space-y-1">
+                    <span class="bg-blue-500 text-white font-black text-[9px] uppercase tracking-widest px-3 py-1 rounded-full inline-block">
+                        CALCULADORA INTERACTIVA
+                    </span>
+                    <h3 class="font-black text-base uppercase text-white tracking-tight">
+                        <i class="fa-solid fa-calculator text-blue-400 mr-1"></i> SIMULADOR INTERACTIVO DE RENTABILIDAD TCL
+                    </h3>
+                    <p class="text-xs text-slate-300 font-medium">
+                        Ajusta la barra para calcular las horas de trabajo operativas ahorradas y la reducción en gastos de papelería cada mes.
+                    </p>
+                </div>
+
+                <div class="space-y-3 pt-2">
+                    <div class="flex justify-between text-[10px] font-extrabold text-slate-400 font-mono">
+                        <span>100 NOTAS</span>
+                        <span id="slider-val-display" class="text-blue-400 text-xs">500 NOTAS / MES</span>
+                        <span>2.000 NOTAS</span>
+                    </div>
+                    <input type="range" id="simulador-slider" min="100" max="2000" step="50" value="500" oninput="window.actualizarSimulador(this.value)" class="w-full cursor-pointer">
+                </div>
+
+                <div class="grid grid-cols-3 gap-2 pt-2 text-center font-mono">
+                    <div class="bg-slate-900/90 border border-slate-800 p-3 rounded-2xl">
+                        <span class="text-[8px] text-slate-400 font-bold block uppercase">VOLUMEN MENSUAL</span>
+                        <span id="sim-volumen" class="text-xs sm:text-sm font-black text-white">500 Notas</span>
+                    </div>
+                    <div class="bg-slate-900/90 border border-slate-800 p-3 rounded-2xl">
+                        <span class="text-[8px] text-slate-400 font-bold block uppercase">TIEMPO AHORRADO</span>
+                        <span id="sim-tiempo" class="text-xs sm:text-sm font-black text-blue-400">16 Horas</span>
+                    </div>
+                    <div class="bg-slate-900/90 border border-slate-800 p-3 rounded-2xl">
+                        <span class="text-[8px] text-slate-400 font-bold block uppercase">AHORRO EN PAPEL</span>
+                        <span id="sim-papel" class="text-xs sm:text-sm font-black text-emerald-400">$35.00 Dólares</span>
+                    </div>
+                </div>
+            </section>
+
+            <!-- 5. TÉRMINOS DE SERVICIO Y CONDICIONES DE USO -->
+            <section class="space-y-4">
+                <h3 class="text-xs font-black uppercase tracking-widest text-blue-400 border-b border-slate-800 pb-2 flex items-center gap-2">
+                    <i class="fa-solid fa-file-contract"></i> TÉRMINOS DE SERVICIO Y ACUERDO OPERATIVO
+                </h3>
+
+                <div class="grid grid-cols-1 sm:grid-cols-3 gap-3 text-xs">
+                    <div class="glass-panel border border-slate-800 p-4 rounded-2xl space-y-2">
+                        <div class="w-8 h-8 rounded-xl bg-red-500/10 text-red-400 flex items-center justify-center font-black">
+                            <i class="fa-solid fa-ban"></i>
+                        </div>
+                        <h4 class="font-bold text-white uppercase text-[11px]">MODIFICACIONES DE CÓDIGO</h4>
+                        <p class="text-slate-400 text-[11px] leading-relaxed text-justify">
+                            Se entrega como una solución de software propietaria lista para usar. No incluye modificaciones personalizadas gratuitas de código o interfaz; desarrollos a medida se cotizan por separado.
+                        </p>
+                    </div>
+
+                    <div class="glass-panel border border-slate-800 p-4 rounded-2xl space-y-2">
+                        <div class="w-8 h-8 rounded-xl bg-blue-500/10 text-blue-400 flex items-center justify-center font-black">
+                            <i class="fa-solid fa-arrows-rotate"></i>
+                        </div>
+                        <h4 class="font-bold text-white uppercase text-[11px]">ACTUALIZACIONES DEL SISTEMA</h4>
+                        <p class="text-slate-400 text-[11px] leading-relaxed text-justify">
+                            Nuestra plataforma base evoluciona continuamente. Todos los miembros con suscripción activa reciben actualizaciones continuas y parches de seguridad sin ningún costo adicional.
+                        </p>
+                    </div>
+
+                    <div class="glass-panel border border-slate-800 p-4 rounded-2xl space-y-2">
+                        <div class="w-8 h-8 rounded-xl bg-amber-500/10 text-amber-400 flex items-center justify-center font-black">
+                            <i class="fa-solid fa-store"></i>
+                        </div>
+                        <h4 class="font-bold text-white uppercase text-[11px]">SOFTWARE COMO SERVICIO</h4>
+                        <p class="text-slate-400 text-[11px] leading-relaxed text-justify">
+                            Los clientes adquieren el derecho no exclusivo de uso del servicio durante el período contratado, formalizado tras el acuerdo digital y la activación de licencias.
+                        </p>
+                    </div>
+                </div>
+            </section>
+
+            <!-- 6. PLANES DE SUSCRIPCIÓN Y MÉTODOS DE PAGO -->
+            <section class="space-y-4">
+                <div class="text-center space-y-1">
+                    <h3 class="text-xs font-black uppercase tracking-widest text-white">PLANES DE MEMBRESÍA FLEXIBLES</h3>
+                    <p class="text-[10px] text-slate-400 font-mono">Tarifas expresadas en moneda digital estable con cotización oficial al día.</p>
+                </div>
+
+                <div class="grid grid-cols-2 sm:grid-cols-4 gap-3 text-center font-mono">
+                    <div class="glass-panel border border-slate-800 rounded-2xl p-4 space-y-1">
+                        <span class="text-[9px] text-slate-400 font-bold uppercase block">1 MES</span>
+                        <div class="text-lg font-black text-white"><span id="lbl-prop-plan-30">$25</span> <span class="text-[10px] text-slate-400">USDT</span></div>
+                    </div>
+                    <div class="glass-panel border border-blue-500/40 rounded-2xl p-4 space-y-1 relative overflow-hidden bg-blue-950/20">
+                        <span class="bg-blue-600 text-white font-black text-[7px] px-2 py-0.5 rounded-full absolute top-2 right-2 uppercase">PLAN PROFESIONAL</span>
+                        <span class="text-[9px] text-blue-400 font-bold uppercase block">3 MESES</span>
+                        <div class="text-lg font-black text-blue-400"><span id="lbl-prop-plan-90">$60</span> <span class="text-[10px] text-slate-400">USDT</span></div>
+                    </div>
+                    <div class="glass-panel border border-slate-800 rounded-2xl p-4 space-y-1">
+                        <span class="text-[9px] text-slate-400 font-bold uppercase block">6 MESES</span>
+                        <div class="text-lg font-black text-white"><span id="lbl-prop-plan-180">$90</span> <span class="text-[10px] text-slate-400">USDT</span></div>
+                    </div>
+                    <div class="glass-panel border border-amber-500/40 rounded-2xl p-4 space-y-1 relative overflow-hidden bg-amber-950/20">
+                        <span class="bg-amber-500 text-slate-950 font-black text-[7px] px-2 py-0.5 rounded-full absolute top-2 right-2 uppercase">MEJOR VALOR</span>
+                        <span class="text-[9px] text-amber-400 font-bold uppercase block">1 AÑO</span>
+                        <div class="text-lg font-black text-amber-400"><span id="lbl-prop-plan-365">$160</span> <span class="text-[10px] text-slate-400">USDT</span></div>
+                    </div>
+                </div>
+
+                <!-- CANALES DE PAGO -->
+                <div class="pt-2 space-y-2">
+                    <p class="text-center text-[10px] font-black text-slate-400 uppercase tracking-wider">CANALES DE PAGO DISPONIBLES</p>
+                    <div class="grid grid-cols-3 sm:grid-cols-6 gap-2 text-center text-xs font-bold text-slate-300">
+                        <div class="bg-slate-900 border border-slate-800 py-2.5 rounded-xl flex items-center justify-center gap-1.5"><i class="fa-solid fa-mobile-screen text-blue-400"></i> Pago Móvil</div>
+                        <div class="bg-slate-900 border border-slate-800 py-2.5 rounded-xl flex items-center justify-center gap-1.5"><i class="fa-solid fa-money-bill-1 text-emerald-400"></i> Efectivo Dólares</div>
+                        <div class="bg-slate-900 border border-slate-800 py-2.5 rounded-xl flex items-center justify-center gap-1.5"><i class="fa-solid fa-flag text-amber-400"></i> Pesos Colombianos</div>
+                        <div class="bg-slate-900 border border-slate-800 py-2.5 rounded-xl flex items-center justify-center gap-1.5"><i class="fa-solid fa-wallet text-purple-400"></i> Nequi</div>
+                        <div class="bg-slate-900 border border-slate-800 py-2.5 rounded-xl flex items-center justify-center gap-1.5"><i class="fa-solid fa-credit-card text-indigo-400"></i> Zinli</div>
+                        <div class="bg-slate-900 border border-slate-800 py-2.5 rounded-xl flex items-center justify-center gap-1.5"><i class="fa-solid fa-coins text-amber-500"></i> Binance USDT</div>
+                    </div>
+                </div>
+            </section>
+
+            <!-- 7. LLAMADO A LA ACCIÓN Y ENLACE DE WHATSAPP -->
+            <section class="p-0.5 rounded-3xl bg-gradient-to-r from-purple-600 via-blue-600 to-emerald-500 shadow-2xl">
+                <div class="glass-panel rounded-[22px] p-6 sm:p-8 text-center space-y-4">
+                    <div class="w-12 h-12 bg-blue-600/20 border border-blue-500/30 rounded-2xl flex items-center justify-center text-blue-400 text-2xl mx-auto">
+                        <i class="fa-solid fa-rocket"></i>
+                    </div>
+                    <div class="space-y-2">
+                        <h2 class="font-black text-base sm:text-xl uppercase text-white tracking-tight">
+                            NO ADMINISTRES TU NEGOCIO A CIEGAS. DA EL SALTO A LA PLATAFORMA QUE AUTOMATIZA TU ÉXITO.
+                        </h2>
+                        <p class="text-xs text-slate-300 leading-relaxed max-w-lg mx-auto">
+                            <strong class="text-white">TCL Comercio Web</strong> es el escudo definitivo para resguardar tu caja, organizar el inventario físico y profesionalizar tu mostrador desde cualquier teléfono inteligente, tableta o computadora.
+                        </p>
+                    </div>
+
+                    <a href="https://api.whatsapp.com/send?phone=584247357549&text=Hola%20Tucocel%20C.A.,%20deseo%20activar%20mi%20suscripci%C3%B3n%20al%20TCL%20sistema%20Master" target="_blank" class="inline-flex items-center justify-center gap-2 bg-emerald-600 hover:bg-emerald-500 text-white font-black px-6 py-4 rounded-xl text-xs sm:text-sm uppercase tracking-wider shadow-lg transition-transform transform active:scale-95 w-full sm:w-auto">
+                        <i class="fa-brands fa-whatsapp text-lg"></i> ACTIVA TU PRUEBA O MEMBRESÍA HOY
+                    </a>
+                </div>
+            </section>
+
+            <!-- PIE DE PÁGINA CORPORATIVO -->
+            <footer class="border-t border-slate-800 pt-4 text-center text-xs text-white bg-slate-950/60 p-4 rounded-2xl border border-slate-800/60 font-sans tracking-wide space-y-1">
+                <p class="font-extrabold uppercase text-white tracking-wider text-[11px]">TCL SISTEMA MASTER RESPALDADO POR TUCOCEL C.A.</p>
+                <div class="w-12 h-0.5 bg-blue-500 mx-auto my-1.5 opacity-60"></div>
+                <p class="text-[10px] text-slate-300 font-medium uppercase whitespace-nowrap">RIF J-31378837-6</p>
+                <p class="text-[10px] text-blue-300 font-semibold uppercase tracking-wide">DISEÑADO Y DESARROLLADO POR AGENCIA PUBLICITARIA @PUBLIONLINEMK PARA TUCOCEL C.A.</p>
+                <p class="text-[8px] text-slate-500 uppercase tracking-widest pt-1 font-mono">© 2026 TCL — TODOS LOS DERECHOS RESERVADOS POR TUCOCEL C.A.</p>
+            </footer>
+        </div>
+    </div>
+
+<div id="modal-zona-propuesta" class="fixed inset-0 bg-slate-950/85 backdrop-blur-md z-[200] p-4 flex items-center justify-center hidden no-print">
+        <div class="bg-[#0d1527] border border-slate-800 w-full max-w-md rounded-3xl overflow-hidden shadow-2xl p-6 space-y-4">
+            <div class="flex justify-between items-center border-b border-slate-800 pb-3">
+                <div class="flex items-center gap-2 text-blue-400 font-extrabold text-xs uppercase tracking-wider">
+                    <i class="fa-solid fa-store text-base"></i>
+                    <span>ECOSISTEMA DEL CLIENTE (MOSTRADOR POS)</span>
+                </div>
+                <button onclick="window.cerrarModalZonaPropuesta()" class="text-slate-400 hover:text-white transition-colors p-1">
+                    <i class="fa-solid fa-xmark text-base"></i>
+                </button>
+            </div>
+
+            <div class="space-y-3 pt-2">
+                <!-- Botón 1: Enviar propuesta por WhatsApp -->
+                <button onclick="window.accionPropuestaWhatsApp()" class="w-full bg-[#059669] hover:bg-[#047857] text-white p-4 rounded-2xl font-black text-xs uppercase tracking-wider flex items-center justify-center gap-3 shadow-lg active:scale-95 transition-all text-center">
+                    <i class="fa-brands fa-whatsapp text-2xl shrink-0"></i>
+                    <span class="leading-tight">ENVIAR PRESENTACIÓN UNIFICADA A WHATSAPP</span>
+                </button>
+
+                <!-- Botón 2: Ver propuesta del cliente -->
+                <button onclick="window.accionPropuestaWeb()" class="w-full bg-[#0e172a] hover:bg-[#172554] border border-blue-900/60 hover:border-blue-500 text-blue-200 p-4 rounded-2xl font-black text-xs uppercase tracking-wider flex items-center justify-between shadow-md active:scale-95 transition-all">
+                    <span>ENVIAR PROPUESTA AL CLIENTE</span>
+                    <i class="fa-solid fa-eye text-blue-400"></i>
+                </button>
+
+                <!-- Botón 3: Ver contratos del cliente -->
+                <button onclick="window.accionPropuestaContrato()" class="w-full bg-[#0e172a] hover:bg-[#172554] border border-blue-900/60 hover:border-blue-500 text-blue-200 p-4 rounded-2xl font-black text-xs uppercase tracking-wider flex items-center justify-between shadow-md active:scale-95 transition-all">
+                    <span>VER CONTRATO CLIENTE MOSTRADOR (WEB)</span>
+                    <i class="fa-solid fa-eye text-blue-400"></i>
+                </button>
+            </div>
+        </div>
+    </div>
+
+
+<!-- MODAL FIJAR TASAS DEL DÍA (APERTURA DE TURNO) -->
     <div id="modal-fijar-tasa-dia" class="fixed inset-0 bg-slate-950/85 backdrop-blur-md z-[160] p-4 flex items-center justify-center hidden no-print">
         <div class="bg-white border border-slate-200 w-full max-w-md rounded-3xl overflow-hidden shadow-2xl p-6 space-y-4 font-bold text-xs">
             <div class="text-center space-y-1">
@@ -1426,6 +1907,12 @@
         </div>
     </div>
 
+    
+    
+
+    
+    
+
     <!-- SCRIPT PRINCIPAL CON LÓGICA DE NEGOCIO INTEGRADA -->
     <script>
         const firebaseConfig = {
@@ -1445,14 +1932,12 @@
         }
 
         window.STORAGE_KEY_SAAS_CLIENTES = 'tcl_master_db_2026';
-        
-        // NAMESPACE MULTI-TENANT POR COMERCIO (PARTICIONES AISLADAS)
-        window.getTenantStorageKey = function(entidad) {
-            const slug = (window.clienteActivoSesion && window.clienteActivoSesion.slug) 
-                         ? window.clienteActivoSesion.slug 
-                         : 'demo';
-            return `tcl_tenant_${slug}_${entidad}_2026`;
-        };
+        window.getTenantStorageKey = function(entidad) { const slug = (window.clienteActivoSesion && window.clienteActivoSesion.slug) ? window.clienteActivoSesion.slug : 'demo'; return `tcl_tenant_${slug}_${entidad}_2026`; };
+        window.STORAGE_KEY_INV = 'tcl_inventario_db_2026';
+        window.STORAGE_KEY_VENTAS = 'tcl_ventas_db_2026';
+        window.STORAGE_KEY_GASTOS = 'tcl_gastos_db_2026';
+        window.STORAGE_KEY_PROV = 'tcl_proveedores_db_2026';
+        window.STORAGE_KEY_CIERRES = 'tcl_cierres_diarios_db_2026';
 
         window.esMasterLogueado = false;
         window.clienteActivoSesion = null;
@@ -1471,6 +1956,7 @@
 
         window.vitrinaPrendida = true;
         window.monedasVisibles = { usd: true, cop: true, bs: true };
+        // ESQUEMA CAMBIARIO DE FRONTERA (TÁCHIRA - CÚCUTA)
         window.tasasConfig = { cop: 3600, paridadBs: 3.3 };
 
         // -------------------------------------------------------------
@@ -1497,7 +1983,7 @@
         };
 
         // -------------------------------------------------------------
-        // FORMATEADORES ESTANDARIZADOS
+        // FORMATEADORES ESTANDARIZADOS (PUNTOS Y COMAS EXACTOS)
         // -------------------------------------------------------------
         window.formatearMiles = function(val) { 
             return Math.round(val || 0).toString().replace(/\B(?=(\d{3})+(?!\d))/g, "."); 
@@ -1668,6 +2154,7 @@
             document.getElementById('pos-input-cliente').focus();
         };
 
+        // PAGO MIXTO / MÚLTIPLE
         window.abrirModalPagoMixto = function() {
             const tUSD = window.carritoPOS.reduce((acc, p) => acc + (p.precioUSD * p.cant), 0);
             if (tUSD <= 0) { alert("⚠️ Agregue productos a la nota para configurar el pago mixto."); return; }
@@ -1831,29 +2318,47 @@
                 setTimeout(() => { window.print(); }, 250);
             } else if (accion === 'whatsapp') {
                 window.abrirPreviewNota(window.notaPendiente, 'HISTORIAL', numCorrelativo);
-                let msj = `📄 *NOTA DE ENTREGA #${numCorrelativo}*\n`;
-                msj += `👤 Cajero: ${window.notaPendiente.cajero}\n`;
-                msj += `🪪 RIF/Cédula: ${window.notaPendiente.cedula}\n`;
-                msj += `👤 Cliente: ${window.notaPendiente.cliente}\n`;
-                msj += `💳 Pago: ${window.notaPendiente.pago}\n`;
-                msj += `--------------------------\n`;
+                let msj = `📄 *NOTA DE ENTREGA #${numCorrelativo}*
+`;
+                msj += `👤 Cajero: ${window.notaPendiente.cajero}
+`;
+                msj += `🪪 RIF/Cédula: ${window.notaPendiente.cedula}
+`;
+                msj += `👤 Cliente: ${window.notaPendiente.cliente}
+`;
+                msj += `💳 Pago: ${window.notaPendiente.pago}
+`;
+                msj += `--------------------------
+`;
                 window.notaPendiente.items.forEach(it => {
-                    msj += `${it.cant}x ${it.nombre}: $${(it.precioUSD * it.cant).toFixed(2)}\n`;
+                    msj += `${it.cant}x ${it.nombre}: $${(it.precioUSD * it.cant).toFixed(2)}
+`;
                 });
-                msj += `--------------------------\n💰 *Total: $${window.notaPendiente.totalUSD.toFixed(2)} USD*\n`;
-                msj += `🇨🇴 Total COP: ${window.formatearMiles(totalCOP)}\n`;
-                msj += `🇻🇪 Total Bs: ${window.formatBS(totalBs)}\n`;
+                msj += `--------------------------
+💰 *Total: $${window.notaPendiente.totalUSD.toFixed(2)} USD*
+`;
+                msj += `🇨🇴 Total COP: ${window.formatearMiles(totalCOP)}
+`;
+                msj += `🇻🇪 Total Bs: ${window.formatBS(totalBs)}
+`;
                 if (window.notaPendiente.desgloseMixto) {
-                    msj += `• USD: $${window.notaPendiente.desgloseMixto.abonoUSD.toFixed(2)}\n`;
-                    msj += `• COP: ${window.formatearMiles(window.notaPendiente.desgloseMixto.abonoCOP)}\n`;
-                    msj += `• Bs: ${window.formatBS(window.notaPendiente.desgloseMixto.abonoBS)}\n`;
+                    msj += `• USD: $${window.notaPendiente.desgloseMixto.abonoUSD.toFixed(2)}
+`;
+                    msj += `• COP: ${window.formatearMiles(window.notaPendiente.desgloseMixto.abonoCOP)}
+`;
+                    msj += `• Bs: ${window.formatBS(window.notaPendiente.desgloseMixto.abonoBS)}
+`;
                 }
-                msj += `\n¡Gracias por su compra!\n_Comprobante de Recepción Interna._\n*Sistema TCL Comercio — Un Programa de TUCOCEL C.A. & PublionlineMK*`;
+                msj += `
+¡Gracias por su compra!
+_Comprobante de Recepción Interna._
+*Sistema TCL Comercio — Un Programa de TUCOCEL C.A. & PublionlineMK*`;
                 
                 const targetTel = window.notaPendiente.telefono ? window.notaPendiente.telefono.replace(/[^0-9]/g, "") : '';
                 window.open(`https://wa.me/${targetTel}?text=${encodeURIComponent(msj)}`, '_blank');
             }
 
+            // Limpieza y reseteo total en caliente para mantener al cajero en facturación
             window.carritoPOS = [];
             window.desgloseMixto = null;
             window.notaPendiente = null;
@@ -1863,6 +2368,7 @@
             window.cargarVentaSinDatos();
             window.renderizarCarritoPOS();
             window.renderizarInventarioPOS();
+            // Permanece en el POS listo para la siguiente factura sin saltos
             alert("✨ Nota de Entrega Emitida con Éxito. Caja lista para la siguiente venta.");
         };
 
@@ -1910,14 +2416,9 @@
                 return;
             }
 
-            const encontrado = window.dbClientesSaaS.find(c => (c.user === usr || c.slug === usr) && c.pass === pass);
+            const encontrado = window.dbClientesSaaS.find(c => c.user === usr && c.pass === pass);
             if (encontrado) {
-                if (encontrado.estatus === 'INACTIVO') {
-                    alert("🔒 Esta cuenta de comercio se encuentra inactiva. Contacte al desarrollador.");
-                    return;
-                }
                 window.clienteActivoSesion = encontrado;
-                window.cargarDatosDelComercioActivo();
                 document.getElementById('vista-login').classList.add('hidden');
                 document.getElementById('bottom-bar-gerencial').classList.add('hidden');
                 window.abrirPanelClientePrivadoDirecto();
@@ -1942,7 +2443,6 @@
             const cliente = window.dbClientesSaaS.find(c => c.user === userIngresado && c.pass === passIngresada);
             if (cliente) {
                 window.clienteActivoSesion = cliente;
-                window.cargarDatosDelComercioActivo();
                 document.getElementById('modal-auth-panel-privado').classList.add('hidden');
                 document.getElementById('bottom-bar-gerencial').classList.add('hidden');
                 window.abrirPanelClientePrivadoDirecto();
@@ -2038,13 +2538,14 @@
             
             document.getElementById('vista-panel-cliente-privado').classList.add('hidden');
             document.getElementById('vista-pos-fullscreen').classList.remove('hidden');
-            document.getElementById('bottom-bar-gerencial').classList.remove('hidden');
+            document.getElementById('bottom-bar-gerencial').classList.remove('hidden'); // VISIBLE SOLO EN POS
             
             window.seleccionarMonedaCargaPOS('USD');
             window.seleccionarMonedaPagoVuelto('USD');
             window.cambiarModoPOS('INVENTARIO');
             window.renderizarCarritoPOS();
 
+            // Verificar si se deben fijar las tasas de apertura del día
             window.verificarTasaAperturaDia();
         };
 
@@ -2089,7 +2590,7 @@
 
         window.cerrarModuloPOS = function() {
             document.getElementById('vista-pos-fullscreen').classList.add('hidden');
-            document.getElementById('bottom-bar-gerencial').classList.add('hidden');
+            document.getElementById('bottom-bar-gerencial').classList.add('hidden'); // OCULTO AL SALIR DEL POS
             document.getElementById('vista-panel-cliente-privado').classList.remove('hidden');
         };
 
@@ -2329,16 +2830,29 @@
                 const totalCOP = window.calcularPesosDesdeUSD(n.totalUSD);
                 const totalBs = window.calcularBsDesdeUSD(n.totalUSD);
 
-                let msj = `📄 *COPIA: NOTA DE ENTREGA #${n.correlativo}*\n`;
-                if (n.estado === 'ANULADA') msj = `🚫 *NOTA ANULADA #${n.correlativo}*\n`;
-                msj += `👤 Cajero: ${n.cajero}\n`;
-                msj += `🪪 RIF/Cédula: ${n.cedula || 'N/A'}\n`;
-                msj += `👤 Cliente: ${n.cliente}\n--------------------------\n`;
-                n.items.forEach(it => { msj += `${it.cant}x ${it.nombre}: $${(it.precioUSD * it.cant).toFixed(2)}\n`; });
-                msj += `--------------------------\n💰 *Total: $${n.totalUSD.toFixed(2)} USD*\n`;
-                msj += `🇨🇴 Total COP: ${window.formatearMiles(totalCOP)}\n`;
-                msj += `🇻🇪 Total Bs: ${window.formatBS(totalBs)}\n\n`;
-                msj += `_Comprobante de Recepción Interna._\n*Sistema TCL Comercio — Un Programa de TUCOCEL C.A. & PublionlineMK*`;
+                let msj = `📄 *COPIA: NOTA DE ENTREGA #${n.correlativo}*
+`;
+                if (n.estado === 'ANULADA') msj = `🚫 *NOTA ANULADA #${n.correlativo}*
+`;
+                msj += `👤 Cajero: ${n.cajero}
+`;
+                msj += `🪪 RIF/Cédula: ${n.cedula || 'N/A'}
+`;
+                msj += `👤 Cliente: ${n.cliente}
+--------------------------
+`;
+                n.items.forEach(it => { msj += `${it.cant}x ${it.nombre}: $${(it.precioUSD * it.cant).toFixed(2)}
+`; });
+                msj += `--------------------------
+💰 *Total: $${n.totalUSD.toFixed(2)} USD*
+`;
+                msj += `🇨🇴 Total COP: ${window.formatearMiles(totalCOP)}
+`;
+                msj += `🇻🇪 Total Bs: ${window.formatBS(totalBs)}
+
+`;
+                msj += `_Comprobante de Recepción Interna._
+*Sistema TCL Comercio — Un Programa de TUCOCEL C.A. & PublionlineMK*`;
                 
                 const targetTel = n.telefono ? n.telefono.replace(/[^0-9]/g, "") : '';
                 window.open(`https://wa.me/${targetTel}?text=${encodeURIComponent(msj)}`, '_blank');
@@ -2350,7 +2864,8 @@
             const n = window.dbVentas.find(x => x.id === id);
             if (!n) return;
 
-            if (confirm(`⚠️ ¿Seguro que desea ANULAR la Nota #${n.correlativo}?\nEl inventario será restaurado.`)) {
+            if (confirm(`⚠️ ¿Seguro que desea ANULAR la Nota #${n.correlativo}?
+El inventario será restaurado.`)) {
                 n.items.forEach(it => {
                     if (!it.id.startsWith('libre_')) {
                         const p = window.dbInventario.find(inv => inv.id === it.id);
@@ -2372,7 +2887,8 @@
         window.borrarNotaMaster = function() {
             const id = document.getElementById('gestion-nota-real-id').value;
             if (!window.esMasterLogueado) return;
-            if (confirm(`🚨 MÁSTER: ¿Borrar definitivamente este registro?\nEsta acción no devuelve stock.`)) {
+            if (confirm(`🚨 MÁSTER: ¿Borrar definitivamente este registro?
+Esta acción no devuelve stock.`)) {
                 window.dbVentas = window.dbVentas.filter(x => x.id !== id);
                 window.guardarVentasEnStorage();
                 window.renderizarHistorialVentas();
@@ -2380,150 +2896,79 @@
             }
         };
 
-        // -------------------------------------------------------------
-        // HELPER GENERADOR DE ENLACES COMPATIBLES GITHUB PAGES (SIN 404)
-        // -------------------------------------------------------------
-        window.obtenerEnlaceVitrinaComercio = function(slug) {
-            const s = (slug || 'demo').toLowerCase().replace(/[^a-z0-9]/g, '');
-            const base = (window.location.origin && window.location.origin !== 'null' && !window.location.origin.includes('file://'))
-                         ? (window.location.origin + window.location.pathname).replace(/\/+$/, '')
-                         : 'https://tucocel.github.io/tclcomercioweb';
-            return `${base}?comercio=${s}`;
-        };
-
-        // AUTO-SLUG Y GESTIÓN SAAS COMPATIBLE 100% GITHUB PAGES
+        // AUTO-SLUG Y GESTIÓN SAAS
         window.autogenerarUsuarioSlug = function() {
             const nombre = document.getElementById('saas-input-nombre').value;
-            const slug = (nombre || '').toLowerCase().normalize("NFD").replace(/[\u0300-\u036f]/g, "").replace(/[^a-z0-9]/g, "");
+            const slug = nombre.toLowerCase().normalize("NFD").replace(/[̀-ͯ]/g, "").replace(/[^a-z0-9]/g, "");
             document.getElementById('saas-input-user').value = slug;
-            document.getElementById('saas-link-generado').value = window.obtenerEnlaceVitrinaComercio(slug);
+            document.getElementById('saas-link-generado').value = `https://tucocel.github.io/tclcomercioweb/${slug || 'comercio'}`;
         };
 
         window.actualizarLinkGeneradoManual = function() {
-            const user = (document.getElementById('saas-input-user').value || '').toLowerCase().replace(/[^a-z0-9]/g, "");
+            const user = document.getElementById('saas-input-user').value.toLowerCase().replace(/[^a-z0-9]/g, "");
             document.getElementById('saas-input-user').value = user;
-            document.getElementById('saas-link-generado').value = window.obtenerEnlaceVitrinaComercio(user);
+            document.getElementById('saas-link-generado').value = `https://tucocel.github.io/tclcomercioweb/${user || 'comercio'}`;
         };
 
         window.copiarEnlaceComercioGenerado = function() {
             const link = document.getElementById('saas-link-generado').value;
-            if (navigator.clipboard && navigator.clipboard.writeText) {
-                navigator.clipboard.writeText(link).then(() => {
-                    alert("📋 Enlace de vitrina copiado exitosamente:\n" + link);
-                }).catch(() => {
-                    prompt("Copie el enlace de su vitrina:", link);
-                });
-            } else {
-                prompt("Copie el enlace de su vitrina:", link);
-            }
+            navigator.clipboard.writeText(link);
+            alert("📋 Enlace web copiado.");
         };
 
-        // -------------------------------------------------------------
-        // PLANTILLAS APROBADAS PARA WHATSAPP (SISTEMA DE CONTROL E INVENTARIO)
-        // -------------------------------------------------------------
         window.enviarNotificacionAccionWA = function(tipo) {
-            const nombre = document.getElementById('saas-input-nombre').value.trim() || "Comercio";
-            const user = (document.getElementById('saas-input-user').value.trim() || 'demo').toLowerCase().replace(/[^a-z0-9]/g, "");
-            const pass = document.getElementById('saas-input-pass').value.trim() || "123456";
-            const rawWa = document.getElementById('saas-input-wa').value.replace(/[^0-9]/g, "");
-            const dias = window.diasSuscripcionSeleccionados || 180;
-            const linkVitrina = window.obtenerEnlaceVitrinaComercio(user);
+            const nombre = document.getElementById('saas-input-nombre').value || "Comercio";
+            const user = document.getElementById('saas-input-user').value;
+            const pass = document.getElementById('saas-input-pass').value;
+            const wa = document.getElementById('saas-input-wa').value.replace(/[^0-9]/g, "");
+            const dias = window.diasSuscripcionSeleccionados;
 
             let text = "";
             if (tipo === 'activacion') {
-                text = `¡Hola, *${nombre}*! 👋\n\n` +
-                       `¡Te damos una cordial bienvenida a la familia de *TCL Comercio Web*! 🎉\n\n` +
-                       `Tu espacio en nuestra plataforma ya está completamente configurado para que comiences a optimizar la gestión de tu negocio. Desde ahora cuentas con una herramienta pensada para facilitar tu día a día con el mejor *sistema de control e inventario*.\n\n` +
-                       `Aquí tienes tus datos de acceso:\n\n` +
-                       `🔗 *Enlace de tu vitrina:* ${linkVitrina}\n` +
-                       `👤 *Usuario:* ${user}\n` +
-                       `🔑 *Contraseña:* ${pass}\n\n` +
-                       `💡 _Al ingresar a tu vitrina, presiona el candado superior para acceder a tu panel de control y administración._\n\n` +
-                       `📌 *Recomendaciones importantes:*\n` +
-                       `• Por tu seguridad, no compartas estas credenciales con terceras personas.\n` +
-                       `• Guarda este enlace en tus favoritos para acceder rápido cuando lo necesites.\n\n` +
-                       `¡Mucho éxito en tus operaciones! 🚀`;
+                text = `✅ *ACTIVACIÓN DE PLATAFORMA TCL COMERCIO WEB*
+
+¡Hola ${nombre}!
+Tu servicio ha sido activado con éxito por *${dias} días*.
+
+🌐 *Tu Vitrina Web:* https://tucocel.github.io/tclcomercioweb/${user}
+🔑 *Usuario ID:* ${user}
+🔒 *Clave:* ${pass}
+
+*Desarrollado por PublionlineMK & TUCOCEL C.A.*`;
             } else {
-                text = `¡Hola, *${nombre}*! 🤝✨\n\n` +
-                       `¡Nos alegra mucho seguir acompañando el crecimiento de tu negocio en *TCL Comercio Web*! 🚀\n\n` +
-                       `Te confirmamos que la suscripción de tu *sistema de control e inventario* ha sido renovada exitosamente por *${dias} días* adicionales. Tu catálogo, movimientos y registros continúan 100% activos y sincronizados.\n\n` +
-                       `🔗 *Tu vitrina y acceso directo:*\n${linkVitrina}\n\n` +
-                       `👤 *Usuario:* ${user}\n` +
-                       `🔒 *Clave:* ${pass}\n\n` +
-                       `💡 _Recuerda presionar el candado en tu vitrina para ingresar a tu panel de administración cuando lo necesites._\n\n` +
-                       `¡Gracias por seguir confiando en nosotros para potenciar y organizar tu comercio! 🙌📦`;
-            }
+                text = `🔄 *RENOVACIÓN DE SERVICIO TCL COMERCIO WEB*
 
-            let waTarget = rawWa;
-            if (waTarget.startsWith("0")) {
-                waTarget = "58" + waTarget.substring(1);
-            } else if (waTarget.length === 10 && !waTarget.startsWith("58")) {
-                waTarget = "58" + waTarget;
-            }
+Estimado ${nombre},
+tu suscripción ha sido renovada exitosamente por *${dias} días adicionales*.
 
-            window.open(`https://wa.me/${waTarget}?text=${encodeURIComponent(text)}`, '_blank');
+🌐 *Acceso:* https://tucocel.github.io/tclcomercioweb/${user}
+
+*Desarrollado por PublionlineMK & TUCOCEL C.A.*`;
+            }
+            window.open(`https://wa.me/${wa}?text=${encodeURIComponent(text)}`, '_blank');
         };
 
-        // -------------------------------------------------------------
-        // GUARDAR CAMBIOS: MANTIENE EL MODAL ABIERTO PARA ENVIAR WHATSAPP DE INMEDIATO
-        // -------------------------------------------------------------
         window.guardarNuevoComercioEntornoSaaS = function() {
             const idEdit = document.getElementById('saas-editing-id').value;
             const nombre = document.getElementById('saas-input-nombre').value.trim();
             const responsable = document.getElementById('saas-input-responsable').value.trim();
             const wa = document.getElementById('saas-input-wa').value.trim();
-            const user = (document.getElementById('saas-input-user').value.trim() || 'demo').toLowerCase().replace(/[^a-z0-9]/g, "");
+            const user = document.getElementById('saas-input-user').value.trim();
             const pass = document.getElementById('saas-input-pass').value.trim();
-            const dias = window.diasSuscripcionSeleccionados || 180;
+            const dias = window.diasSuscripcionSeleccionados;
 
-            if (!nombre || !user || !pass) { alert("⚠️ Complete Nombre Comercial, Usuario ID y Contraseña."); return; }
-
-            const existeUser = window.dbClientesSaaS.find(c => (c.user === user || c.slug === user) && c.id !== idEdit);
-            if (existeUser) {
-                alert("⚠️ El Usuario ID / Slug ya está en uso. Por favor elija uno diferente.");
-                return;
-            }
-
-            const fechaVencimiento = new Date(Date.now() + dias * 24 * 60 * 60 * 1000).toISOString();
+            if (!nombre || !user || !pass) { alert("⚠️ Complete Nombre Comercial, Usuario y Clave."); return; }
 
             if (idEdit) {
                 const idx = window.dbClientesSaaS.findIndex(c => c.id === idEdit);
-                if (idx !== -1) {
-                    window.dbClientesSaaS[idx] = { 
-                        ...window.dbClientesSaaS[idx], 
-                        nombre, responsable, wa, user, pass, slug: user, dias, fechaVencimiento 
-                    };
-                }
+                if (idx !== -1) window.dbClientesSaaS[idx] = { ...window.dbClientesSaaS[idx], nombre, responsable, wa, user, pass, slug: user, dias };
             } else {
-                const nuevoId = 'cli_' + Date.now();
-                const nuevoTenant = { 
-                    id: nuevoId, 
-                    nombre, responsable, wa, user, pass, slug: user, dias, 
-                    estatus: 'ACTIVO',
-                    fechaCreacion: Date.now(),
-                    fechaVencimiento: fechaVencimiento,
-                    tasas: { cop: 3600, paridadBs: 3.3 }
-                };
-                window.dbClientesSaaS.push(nuevoTenant);
-                // Asignar idEdit para que si vuelve a pulsar guardar no duplique
-                document.getElementById('saas-editing-id').value = nuevoId;
-
-                // Partición limpia inicial para el comercio
-                const prevSesion = window.clienteActivoSesion;
-                window.clienteActivoSesion = nuevoTenant;
-                window.dbInventario = [
-                    { id: 'p1_' + Date.now(), nombre: 'PRODUCTO INICIAL (' + nombre.toUpperCase() + ')', desc: 'Artículo de muestra listo para editar', precioCosto: 1.00, precioVenta: 2.00, stock: 10, foto: '' }
-                ];
-                window.guardarInventarioEnStorage();
-                window.clienteActivoSesion = prevSesion;
+                window.dbClientesSaaS.push({ id: 'cli_' + Date.now(), nombre, responsable, wa, user, pass, slug: user, dias, estatus: 'ACTIVO' });
             }
-
             window.guardarClientesEnStorage();
             window.recalcularTotalesYBadgesComercios();
-            
-            // Mantiene el modal abierto y actualiza enlace
-            document.getElementById('saas-link-generado').value = window.obtenerEnlaceVitrinaComercio(user);
-            alert("✨ Datos guardados exitosamente. Ahora puedes pulsar 'ENVIAR ACTIVACIÓN' o 'ENVIAR RENOVACIÓN'.");
+            document.getElementById('modal-configurar-entorno-saas').classList.add('hidden');
+            alert("✨ Datos guardados con éxito.");
         };
 
         window.eliminarPerfilComercioSaas = function() {
@@ -2578,64 +3023,277 @@
             reader.readAsDataURL(file);
         };
 
-        // GESTIÓN DE CLIENTES / TENANTS SAAS
-        window.cargarClientesDesdeStorage = function() {
-            const guardados = localStorage.getItem(window.STORAGE_KEY_SAAS_CLIENTES);
-            if (guardados) { 
-                try { window.dbClientesSaaS = JSON.parse(guardados); } catch(e) { window.dbClientesSaaS = []; } 
+        // ALMACENAMIENTO DE DATOS LOCAL
+        
+        // -------------------------------------------------------------
+        
+        // -------------------------------------------------------------
+        // GESTIÓN DE TARIFAS SAAS Y PROPUESTA COMERCIAL (SINCRONIZACIÓN EN VIVO)
+        // -------------------------------------------------------------
+        window.STORAGE_KEY_TARIFAS_SAAS = 'tcl_tarifas_saas_2026';
+        window.tarifasConfig = { p30: 25, p90: 60, p180: 90, p365: 160 };
+
+        window.cargarTarifasSaasStorage = function() {
+            const guardadas = localStorage.getItem(window.STORAGE_KEY_TARIFAS_SAAS);
+            if (guardadas) {
+                try { window.tarifasConfig = JSON.parse(guardadas); } catch(e){}
+            }
+            window.actualizarInputsTarifasModal();
+            window.renderizarTarifasEnPropuesta();
+        };
+
+        window.actualizarInputsTarifasModal = function() {
+            const i30 = document.getElementById('input-tarifas-30');
+            const i90 = document.getElementById('input-tarifas-90');
+            const i180 = document.getElementById('input-tarifas-180');
+            const i365 = document.getElementById('input-tarifas-365');
+            if (i30) i30.value = window.tarifasConfig.p30 || 25;
+            if (i90) i90.value = window.tarifasConfig.p90 || 60;
+            if (i180) i180.value = window.tarifasConfig.p180 || 90;
+            if (i365) i365.value = window.tarifasConfig.p365 || 160;
+        };
+
+        window.renderizarTarifasEnPropuesta = function() {
+            const l30 = document.getElementById('lbl-prop-plan-30');
+            const l90 = document.getElementById('lbl-prop-plan-90');
+            const l180 = document.getElementById('lbl-prop-plan-180');
+            const l365 = document.getElementById('lbl-prop-plan-365');
+            if (l30) l30.innerText = `$${window.tarifasConfig.p30 || 25}`;
+            if (l90) l90.innerText = `$${window.tarifasConfig.p90 || 60}`;
+            if (l180) l180.innerText = `$${window.tarifasConfig.p180 || 90}`;
+            if (l365) l365.innerText = `$${window.tarifasConfig.p365 || 160}`;
+        };
+
+        window.guardarTarifasSaas = function() {
+            const p30 = parseFloat(document.getElementById('input-tarifas-30').value) || 25;
+            const p90 = parseFloat(document.getElementById('input-tarifas-90').value) || 60;
+            const p180 = parseFloat(document.getElementById('input-tarifas-180').value) || 90;
+            const p365 = parseFloat(document.getElementById('input-tarifas-365').value) || 160;
+
+            window.tarifasConfig = { p30, p90, p180, p365 };
+            localStorage.setItem(window.STORAGE_KEY_TARIFAS_SAAS, JSON.stringify(window.tarifasConfig));
+            window.renderizarTarifasEnPropuesta();
+            document.getElementById('modal-tarifas-saas').classList.add('hidden');
+            alert("✨ Tarifas SaaS guardadas y sincronizadas con la Propuesta Comercial.");
+        };
+
+        // ZONA DE PROPUESTA HANDLERS
+        window.abrirModalZonaPropuesta = function() {
+            const m = document.getElementById('modal-zona-propuesta');
+            if (m) {
+                m.classList.remove('hidden');
+                m.style.setProperty('display', 'flex', 'important');
+            }
+        };
+
+        window.cerrarModalZonaPropuesta = function() {
+            const m = document.getElementById('modal-zona-propuesta');
+            if (m) {
+                m.classList.add('hidden');
+                m.style.setProperty('display', 'none', 'important');
+            }
+        };
+
+        window.accionPropuestaWhatsApp = function() {
+            let currentUrl = window.location.href.split('?')[0].split('#')[0];
+            let linkPropuesta = '';
+            if (currentUrl.startsWith('http')) {
+                linkPropuesta = `${currentUrl}?propuesta=true#propuesta`;
             } else {
-                window.dbClientesSaaS = [ 
-                    { id: 'cli_001', nombre: 'COMERCIO EJEMPLO C.A.', responsable: 'Juan Pérez', wa: '0424-7357549', user: 'demo', pass: '123456', slug: 'demo', dias: 180, estatus: 'ACTIVO', fechaCreacion: Date.now(), fechaVencimiento: new Date(Date.now() + 180*24*60*60*1000).toISOString(), tasas: { cop: 3600, paridadBs: 3.3 } } 
-                ];
+                linkPropuesta = `https://tucocel.github.io/tclcomercioweb/?propuesta=true#propuesta`;
+            }
+
+            let msj = `👋 *¡Hola! Te saludamos cordialmente.* ✨
+
+` +
+                      `🚀 *¡Impulsa y moderniza la gestión de tu negocio con TCL Comercio Web!*
+
+` +
+                      `Te invitamos a revisar nuestra *Propuesta Comercial & Catálogo 2026*, la solución definitiva de *sistema de control e inventario y vitrina digital* diseñada para automatizar tus ventas desde cualquier celular o PC:
+
+` +
+                      `📦 *Lo que incluye tu plataforma:*
+` +
+                      `• 📱 *Escáner por cámara del teléfono:* Escanea códigos de barra al instante sin gastar en lectores físicos.
+` +
+                      `• 🛍️ *Vitrina Digital Web interactiva:* Tus clientes ven tu stock 24/7 y te envían pedidos a WhatsApp.
+` +
+                      `• 💵 *POS Mostrador Multimoneda:* Cobro rápido con tasa de frontera en caliente ($ USD, Pesos COP, Bs).
+` +
+                      `• 🖨️ *Impresión térmica universal (58mm/80mm)* y comprobantes digitales directos.
+
+` +
+                      `👉 *Revisa la propuesta interactiva completa aquí:*
+` +
+                      `${linkPropuesta}
+
+` +
+                      `----------------------------------------
+` +
+                      `⚖️ *Aviso Legal de Control Interno:*
+` +
+                      `_TCL Comercio Web es un software privado para la administración interna de inventario, almacén y notas de entrega. No es un sistema de facturación fiscal ni pretende suplantar las funciones ni obligaciones fiscales del país (SENIAT)._
+
+` +
+                      `🏢 *TCL Comercio Web es un sistema respaldado por TUCOCEL C.A. (RIF J-31378837-6) y diseñado por @PublionlineMK, agencia de publicidad de TUCOCEL C.A.*`;
+
+            window.open(`https://wa.me/?text=${encodeURIComponent(msj)}`, '_blank');
+        };
+
+        window.accionPropuestaWeb = function() {
+            window.cerrarModalZonaPropuesta();
+            window.mostrarPropuestaDirecta();
+        };
+
+        window.mostrarPropuestaDirecta = function() {
+            if (typeof window.cargarTarifasSaasStorage === 'function') window.cargarTarifasSaasStorage();
+            if (typeof window.actualizarSimulador === 'function') window.actualizarSimulador(500);
+
+            window.cerrarModalZonaPropuesta();
+
+            const vistas = [
+                'vista-login',
+                'vista-master-admin',
+                'vista-panel-cliente-privado',
+                'vista-pos-fullscreen',
+                'vista-tienda-comercio',
+                'bottom-bar-gerencial',
+                'banner-soporte-master-top',
+                'diagnostico-master-flotante'
+            ];
+            vistas.forEach(id => {
+                const el = document.getElementById(id);
+                if (el) {
+                    el.classList.add('hidden');
+                    el.style.setProperty('display', 'none', 'important');
+                }
+            });
+
+            const vp = document.getElementById('vista-propuesta-comercial-catalogo');
+            if (vp) {
+                vp.classList.remove('hidden');
+                vp.style.setProperty('display', 'block', 'important');
+                vp.style.opacity = '1';
+                vp.style.visibility = 'visible';
+                vp.style.minHeight = '100vh';
+                vp.style.width = '100%';
+            }
+            window.scrollTo({ top: 0, behavior: 'smooth' });
+        };
+
+        window.cerrarVistaPropuestaWeb = function() {
+            const vp = document.getElementById('vista-propuesta-comercial-catalogo');
+            if (vp) {
+                vp.classList.add('hidden');
+                vp.style.setProperty('display', 'none', 'important');
+            }
+            
+            if (window.esMasterLogueado) {
+                const vm = document.getElementById('vista-master-admin');
+                if (vm) { 
+                    vm.classList.remove('hidden'); 
+                    vm.style.setProperty('display', 'block', 'important'); 
+                }
+                const diag = document.getElementById('diagnostico-master-flotante');
+                if (diag) {
+                    diag.classList.remove('hidden');
+                    diag.style.setProperty('display', 'flex', 'important');
+                }
+            } else if (window.clienteActivoSesion) {
+                const vp_cli = document.getElementById('vista-panel-cliente-privado');
+                if (vp_cli) { 
+                    vp_cli.classList.remove('hidden'); 
+                    vp_cli.style.setProperty('display', 'block', 'important'); 
+                }
+            } else {
+                const vl = document.getElementById('vista-login');
+                if (vl) { 
+                    vl.classList.remove('hidden'); 
+                    vl.style.setProperty('display', 'flex', 'important'); 
+                }
+            }
+        };
+
+        window.accionPropuestaContrato = function() {
+            alert("Función en espera");
+        };
+
+        window.actualizarSimulador = function(val) {
+            const volumen = parseInt(val);
+            const display = document.getElementById('slider-val-display');
+            const vol = document.getElementById('sim-volumen');
+            const tiempo = document.getElementById('sim-tiempo');
+            const papel = document.getElementById('sim-papel');
+
+            if (display) display.innerText = volumen + ' NOTAS AL MES';
+            if (vol) vol.innerText = volumen + ' Notas';
+            
+            const horas = Math.round((volumen / 500) * 16);
+            const ahorroPapel = ((volumen / 500) * 35).toFixed(2);
+
+            if (tiempo) tiempo.innerText = horas + ' Horas';
+            if (papel) papel.innerText = '$' + ahorroPapel + ' USD';
+        };
+
+        window.cargarClientesDesdeStorage = function() {
+            const guardados = localStorage.getItem(window.STORAGE_KEY);
+            if (guardados) { try { window.dbClientesSaaS = JSON.parse(guardados); } catch(e) { window.dbClientesSaaS = []; } } else {
+                window.dbClientesSaaS = [ { id: 'cli_001', nombre: 'COMERCIO EJEMPLO C.A.', responsable: 'Juan Pérez', wa: '04XX-0000000', user: 'demo', pass: '123456', slug: 'demo', dias: 180, estatus: 'ACTIVO' } ];
                 window.guardarClientesEnStorage();
             }
         };
-        window.guardarClientesEnStorage = function() { localStorage.setItem(window.STORAGE_KEY_SAAS_CLIENTES, JSON.stringify(window.dbClientesSaaS)); };
-
-        // CARGA DINÁMICA DE CONTEXTO AISLADO POR COMERCIO (MULTI-TENANT PARTICIÓN LIMPIA)
-        window.cargarDatosDelComercioActivo = function() {
-            if (!window.clienteActivoSesion && window.dbClientesSaaS && window.dbClientesSaaS.length > 0) {
-                window.clienteActivoSesion = window.dbClientesSaaS[0];
-            }
-            if (!window.clienteActivoSesion) return;
-
-            const gInv = localStorage.getItem(window.getTenantStorageKey('inventario'));
-            if (gInv) { 
-                try { window.dbInventario = JSON.parse(gInv); } catch(e) { window.dbInventario = []; } 
-            } else {
-                const nombreComercio = window.clienteActivoSesion.nombre ? window.clienteActivoSesion.nombre.toUpperCase() : 'COMERCIO';
+        window.guardarClientesEnStorage = function() { localStorage.setItem(window.STORAGE_KEY, JSON.stringify(window.dbClientesSaaS)); };
+        
+        window.cargarInventarioDesdeStorage = function() {
+            const guardados = localStorage.getItem(window.STORAGE_KEY_INV);
+            if (guardados) { try { window.dbInventario = JSON.parse(guardados); } catch(e) { window.dbInventario = []; } } else {
                 window.dbInventario = [
-                    { id: 'p1_' + Date.now(), nombre: 'ACEITE VEGETAL 1L', desc: 'Comestible vegetal de primera.', precioCosto: 1.80, precioVenta: 2.50, stock: 15, foto: '' },
-                    { id: 'p2_' + Date.now(), nombre: 'HARINA PAN 1KG', desc: 'Harina de maíz blanco precocida.', precioCosto: 0.85, precioVenta: 1.10, stock: 25, foto: '' }
+                    { id: 'p1', nombre: 'ACEITE VEGETAL 1L', desc: 'Soya.', precioCosto: 1.80, precioVenta: 2.50, stock: 15, foto: '' },
+                    { id: 'p2', nombre: 'HARINA PAN 1KG', desc: 'Maíz.', precioCosto: 0.85, precioVenta: 1.10, stock: 0, foto: '' }
                 ];
                 window.guardarInventarioEnStorage();
             }
+        };
+        window.guardarInventarioEnStorage = function() { localStorage.setItem(window.STORAGE_KEY_INV, JSON.stringify(window.dbInventario)); };
 
-            const gVentas = localStorage.getItem(window.getTenantStorageKey('ventas'));
-            window.dbVentas = gVentas ? JSON.parse(gVentas) : [];
-
-            const gGastos = localStorage.getItem(window.getTenantStorageKey('gastos'));
-            window.dbGastos = gGastos ? JSON.parse(gGastos) : [];
-
-            const gProv = localStorage.getItem(window.getTenantStorageKey('proveedores'));
-            window.dbProveedores = gProv ? JSON.parse(gProv) : [];
-
-            const gCierres = localStorage.getItem(window.getTenantStorageKey('cierres'));
-            window.dbCierres = gCierres ? JSON.parse(gCierres) : [];
-
-            if (window.clienteActivoSesion.tasas) {
-                window.tasasConfig = { ...window.clienteActivoSesion.tasas };
+        window.cargarVentasDesdeStorage = function() {
+            const guardados = localStorage.getItem(window.STORAGE_KEY_VENTAS);
+            if (guardados) { try { window.dbVentas = JSON.parse(guardados); } catch(e) { window.dbVentas = []; } } else {
+                window.dbVentas = []; window.guardarVentasEnStorage();
             }
         };
+        window.guardarVentasEnStorage = function() { localStorage.setItem(window.STORAGE_KEY_VENTAS, JSON.stringify(window.dbVentas)); };
 
-        window.guardarInventarioEnStorage = function() { localStorage.setItem(window.getTenantStorageKey('inventario'), JSON.stringify(window.dbInventario)); };
-        window.guardarVentasEnStorage = function() { localStorage.setItem(window.getTenantStorageKey('ventas'), JSON.stringify(window.dbVentas)); };
-        window.guardarGastosEnStorage = function() { localStorage.setItem(window.getTenantStorageKey('gastos'), JSON.stringify(window.dbGastos)); };
-        window.guardarProveedoresEnStorage = function() { localStorage.setItem(window.getTenantStorageKey('proveedores'), JSON.stringify(window.dbProveedores)); };
-        window.guardarCierresEnStorage = function() { localStorage.setItem(window.getTenantStorageKey('cierres'), JSON.stringify(window.dbCierres)); };
+        window.cargarGastosDesdeStorage = function() {
+            const guardados = localStorage.getItem(window.STORAGE_KEY_GASTOS);
+            if (guardados) { try { window.dbGastos = JSON.parse(guardados); } catch(e) { window.dbGastos = []; } } else {
+                window.dbGastos = []; window.guardarGastosEnStorage();
+            }
+        };
+        window.guardarGastosEnStorage = function() { localStorage.setItem(window.STORAGE_KEY_GASTOS, JSON.stringify(window.dbGastos)); };
+
+        window.cargarProveedoresDesdeStorage = function() {
+            const guardados = localStorage.getItem(window.STORAGE_KEY_PROV);
+            if (guardados) { try { window.dbProveedores = JSON.parse(guardados); } catch(e) { window.dbProveedores = []; } } else {
+                window.dbProveedores = []; window.guardarProveedoresEnStorage();
+            }
+        };
+        window.guardarProveedoresEnStorage = function() { localStorage.setItem(window.STORAGE_KEY_PROV, JSON.stringify(window.dbProveedores)); };
+
+        window.cargarCierresDesdeStorage = function() {
+            const guardados = localStorage.getItem(window.STORAGE_KEY_CIERRES);
+            if (guardados) { try { window.dbCierres = JSON.parse(guardados); } catch(e) { window.dbCierres = []; } } else {
+                window.dbCierres = []; window.guardarCierresEnStorage();
+            }
+        };
+        window.guardarCierresEnStorage = function() { localStorage.setItem(window.STORAGE_KEY_CIERRES, JSON.stringify(window.dbCierres)); };
 
         window.cargarClientesDesdeStorage();
-        window.cargarDatosDelComercioActivo();
+        window.cargarInventarioDesdeStorage();
+        window.cargarVentasDesdeStorage();
+        window.cargarGastosDesdeStorage();
+        window.cargarProveedoresDesdeStorage();
+        window.cargarCierresDesdeStorage();
 
         window.guardarProductoInventario = function() {
             const idEdit = document.getElementById('inv-edit-id').value;
@@ -2765,23 +3423,43 @@
             const totalCOP = window.calcularPesosDesdeUSD(totalUSD);
             const totalBS = window.calcularBsDesdeUSD(totalUSD);
 
-            let mensaje = `🛍️ *NUEVO PEDIDO RECIBIDO — VITRINA WEB*\n`;
-            mensaje += `----------------------------------------\n`;
-            mensaje += `👤 *Cliente:* ${nombre}\n📞 *Teléfono:* ${tel}\n📍 *Dirección:* ${dir}\n🚚 *Entrega:* ${entrega}\n💳 *Pago:* ${pago}\n\n`;
-            mensaje += `📦 *DETALLE DEL PEDIDO:*\n\n`;
+            let mensaje = `🛍️ *NUEVO PEDIDO RECIBIDO — VITRINA WEB*
+`;
+            mensaje += `----------------------------------------
+`;
+            mensaje += `👤 *Cliente:* ${nombre}
+📞 *Teléfono:* ${tel}
+📍 *Dirección:* ${dir}
+🚚 *Entrega:* ${entrega}
+💳 *Pago:* ${pago}
+
+`;
+            mensaje += `📦 *DETALLE DEL PEDIDO:*
+
+`;
 
             window.carritoTienda.forEach(item => {
-                mensaje += `${item.cant}x ${item.nombre}:\n$${(item.precioUSD * item.cant).toFixed(2)} USD\n\n`;
+                mensaje += `${item.cant}x ${item.nombre}:
+$${(item.precioUSD * item.cant).toFixed(2)} USD
+
+`;
             });
 
-            mensaje += `----------------------------------------\n💰 *TOTAL A PAGAR:*\n`;
-            if (window.monedasVisibles.usd) mensaje += `USD: $${totalUSD.toFixed(2)} USD\n`;
-            if (window.monedasVisibles.cop) mensaje += `COP: ${window.formatearMiles(totalCOP)} COP\n`;
-            if (window.monedasVisibles.bs) mensaje += `BS: ${window.formatBS(totalBS)} Bs\n`;
-            mensaje += `----------------------------------------\n⏳ *Estado:* Pendiente por confirmar pago y despacho.\n*Sistema TCL Comercio — TUCOCEL C.A. & PublionlineMK*`;
+            mensaje += `----------------------------------------
+💰 *TOTAL A PAGAR:*
+`;
+            if (window.monedasVisibles.usd) mensaje += `USD: $${totalUSD.toFixed(2)} USD
+`;
+            if (window.monedasVisibles.cop) mensaje += `COP: ${window.formatearMiles(totalCOP)} COP
+`;
+            if (window.monedasVisibles.bs) mensaje += `BS: ${window.formatBS(totalBS)} Bs
+`;
+            mensaje += `----------------------------------------
+⏳ *Estado:* Pendiente por confirmar pago y despacho.
+*Sistema TCL Comercio — TUCOCEL C.A. & PublionlineMK*`;
 
-            const waShop = (window.clienteActivoSesion && window.clienteActivoSesion.wa) ? window.clienteActivoSesion.wa.replace(/[^0-9]/g, "") : "584247357549";
-            window.open(`https://wa.me/${waShop}?text=${encodeURIComponent(mensaje)}`, '_blank');
+            const phone = "584247357549";
+            window.open(`https://wa.me/${phone}?text=${encodeURIComponent(mensaje)}`, '_blank');
             document.getElementById('modal-checkout-pro').classList.add('hidden');
         };
 
@@ -2898,14 +3576,22 @@
 
         window.exportarInventarioWhatsApp = function() {
             if (window.dbInventario.length === 0) { alert("⚠️ El inventario está vacío."); return; }
-            let msj = `📦 *INFORME DE INVENTARIO Y STOCK ACTUAL*\n`;
-            msj += `📅 Fecha: ${new Date().toLocaleDateString()}\n`;
-            msj += `🏢 Local: ${(window.clienteActivoSesion ? window.clienteActivoSesion.nombre : 'TUCOCEL C.A.').toUpperCase()}\n`;
-            msj += `------------------------------------\n`;
+            let msj = `📦 *INFORME DE INVENTARIO Y STOCK ACTUAL*
+`;
+            msj += `📅 Fecha: ${new Date().toLocaleDateString()}
+`;
+            msj += `🏢 Local: ${(window.clienteActivoSesion ? window.clienteActivoSesion.nombre : 'TUCOCEL C.A.').toUpperCase()}
+`;
+            msj += `------------------------------------
+`;
             window.dbInventario.forEach(p => {
-                msj += `• *${p.nombre}*\n  Stock: ${p.stock} un. | Costo: $${(p.precioCosto || 0).toFixed(2)} | Venta: $${(p.precioVenta || 0).toFixed(2)}\n`;
+                msj += `• *${p.nombre}*
+  Stock: ${p.stock} un. | Costo: $${(p.precioCosto || 0).toFixed(2)} | Venta: $${(p.precioVenta || 0).toFixed(2)}
+`;
             });
-            msj += `------------------------------------\n📊 Total Ítems: ${window.dbInventario.length}\n*Sistema TCL Comercio — TUCOCEL C.A. & PublionlineMK*`;
+            msj += `------------------------------------
+📊 Total Ítems: ${window.dbInventario.length}
+*Sistema TCL Comercio — TUCOCEL C.A. & PublionlineMK*`;
             window.open(`https://wa.me/?text=${encodeURIComponent(msj)}`, '_blank');
         };
 
@@ -2918,7 +3604,7 @@
                 document.getElementById('saas-input-wa').value = '';
                 document.getElementById('saas-input-user').value = '';
                 document.getElementById('saas-input-pass').value = '123456';
-                document.getElementById('saas-link-generado').value = window.obtenerEnlaceVitrinaComercio('');
+                document.getElementById('saas-link-generado').value = 'https://tucocel.github.io/tclcomercioweb/...';
                 window.seleccionarPildoraDias(180);
             }
             document.getElementById('modal-configurar-entorno-saas').classList.remove('hidden');
@@ -2991,18 +3677,13 @@
             document.getElementById('saas-input-wa').value = cliente.wa;
             document.getElementById('saas-input-user').value = cliente.user;
             document.getElementById('saas-input-pass').value = cliente.pass;
-            document.getElementById('saas-link-generado').value = window.obtenerEnlaceVitrinaComercio(cliente.slug);
+            document.getElementById('saas-link-generado').value = `https://tucocel.github.io/tclcomercioweb/${cliente.slug}`;
             window.seleccionarPildoraDias(cliente.dias);
             document.getElementById('modal-configurar-entorno-saas').classList.remove('hidden');
         };
 
         window.entrarEnCalienteCliente = function(slug, nombreLocal) {
-            const cliente = window.dbClientesSaaS.find(c => c.slug === slug);
-            if (cliente) {
-                window.clienteActivoSesion = cliente;
-                window.cargarDatosDelComercioActivo();
-            }
-            document.getElementById('header-shop-title').innerText = nombreLocal || (cliente ? cliente.nombre : 'COMERCIO');
+            document.getElementById('header-shop-title').innerText = nombreLocal;
             const banner = document.getElementById('banner-soporte-master-top');
             if (banner) { if (window.esMasterLogueado) banner.classList.remove('hidden'); else banner.classList.add('hidden'); }
             document.getElementById('modal-base-clientes').classList.add('hidden');
@@ -3052,7 +3733,7 @@
         window.openWhatsAppDirectQuery = function() { window.open(`https://wa.me/584247357549?text=${encodeURIComponent("¡Hola! Quisiera consultar disponibilidad de productos.")}`, '_blank'); };
 
         // -------------------------------------------------------------
-        // CÁPSULA INTERACTIVA [ 👁️ VER ] PARA TODA LA AUDITORÍA
+        // CÁPSULA INTERACTIVA [ 👁️ VER ] PARA TODA LA AUDITORÍA (FORMATO HOJA BLANCA TICKET)
         // -------------------------------------------------------------
         window.abrirAuditoriaDetallada = function(tipo, id) {
             window.auditoriaItemActivo = null;
@@ -3206,6 +3887,7 @@
                 printDirecto.innerHTML = preview.innerHTML;
                 printDirecto.classList.remove('hidden');
             }
+            // Ejecución limpia desacoplada para evitar bloqueos en navegador móvil
             setTimeout(() => {
                 window.print();
             }, 100);
@@ -3305,7 +3987,7 @@
         };
 
         // -------------------------------------------------------------
-        // VISOR DETALLADO EN HOJA BLANCA / TICKET PARA CIERRE DEL DÍA
+        // VISOR DETALLADO EN HOJA BLANCA / TICKET PARA CIERRE DEL DÍA (3 VÍAS COMPACTAS)
         // -------------------------------------------------------------
         window.abrirHojaBlancaCierreDia = function() {
             const datos = window.obtenerDatosCierreDia();
@@ -3317,6 +3999,7 @@
             const totalCOP = window.calcularPesosDesdeUSD(datos.totalVentasUSD);
             const totalBs = window.calcularBsDesdeUSD(datos.totalVentasUSD);
 
+            // Agrupar ventas y productos por cada cajero / vendedor
             const ventasPorCajero = {};
             datos.ventasDia.forEach(v => {
                 const caj = v.cajero || 'General';
@@ -3390,6 +4073,7 @@
             if (boxCuerpo) boxCuerpo.innerHTML = htmlTicketCierre;
             if (printDirecto) printDirecto.innerHTML = htmlTicketCierre;
 
+            // Inyectar 3 Cápsulas Compactas para Cierre
             if (boxAcciones) {
                 boxAcciones.innerHTML = `
                     <button onclick="window.ejecutarTresViasCierreDia('GUARDAR')" class="bg-slate-700 hover:bg-slate-600 text-white font-black py-2 px-3 rounded-xl uppercase text-[10px] sm:text-[11px] flex items-center justify-center gap-1 shadow-sm active:scale-95 transition-all">
@@ -3412,6 +4096,7 @@
             const datos = window.obtenerDatosCierreDia();
             if (!datos) return;
 
+            // 1. Guardar el registro formal del cierre
             const registro = {
                 id: 'cie_' + Date.now(),
                 fechaStr: datos.targetDateStr,
@@ -3429,6 +4114,8 @@
             const totalCOP = window.calcularPesosDesdeUSD(datos.totalVentasUSD);
             const totalBs = window.calcularBsDesdeUSD(datos.totalVentasUSD);
             const nombreNegocio = (window.clienteActivoSesion ? window.clienteActivoSesion.nombre : 'TUCOCEL C.A.').toUpperCase();
+
+            // Reconstruir desglose detallado para WhatsApp
             const ventasPorCajero = (window.auditoriaItemActivo && window.auditoriaItemActivo.ventasPorCajero) ? window.auditoriaItemActivo.ventasPorCajero : {};
 
             if (via === 'IMPRIMIR') {
@@ -3468,8 +4155,7 @@
             document.getElementById('modal-detalle-auditoria').classList.add('hidden');
             alert(`🔒 Cierre Diario de Caja para ${datos.targetDateStr} completado y guardado exitosamente.`);
         };
-
-        window.abrirModalReporteZ = function() {
+window.abrirModalReporteZ = function() {
             const hoyStr = new Date().toISOString().split('T')[0];
             document.getElementById('filtro-fecha-reporte-z').value = hoyStr;
             window.generarReporteZDia();
@@ -3626,18 +4312,30 @@
             const totalCOP = window.calcularPesosDesdeUSD(datos.totalVentasUSD);
             const totalBs = window.calcularBsDesdeUSD(datos.totalVentasUSD);
 
-            let msj = `📊 *CIERRE DIARIO DE CAJA — CUADRE DE TURNO*\n`;
-            msj += `🏢 Local: ${(window.clienteActivoSesion ? window.clienteActivoSesion.nombre : 'TUCOCEL C.A.').toUpperCase()}\n`;
-            msj += `📅 Fecha: ${datos.targetDateStr}\n`;
-            msj += `------------------------------------\n`;
-            msj += `💰 *Ventas Totales:* $${datos.totalVentasUSD.toFixed(2)} USD\n`;
-            msj += `🇨🇴 Total COP: ${window.formatearMiles(totalCOP)} COP\n`;
-            msj += `🇻🇪 Total Bs: ${window.formatBS(totalBs)} Bs\n`;
-            msj += `📉 *Gastos y Egresos:* $${datos.totalGastosUSD.toFixed(2)} USD\n`;
-            msj += `💵 *Flujo Neto en Caja:* $${datos.flujoCajaNeto.toFixed(2)} USD\n`;
-            msj += `📄 *Notas Facturadas:* ${datos.ventasDia.length}\n`;
-            msj += `------------------------------------\n`;
-            msj += `¡Cierre de caja consolidado exitosamente!\n*Sistema TCL Comercio — TUCOCEL C.A. & PublionlineMK*`;
+            let msj = `📊 *CIERRE DIARIO DE CAJA — CUADRE DE TURNO*
+`;
+            msj += `🏢 Local: ${(window.clienteActivoSesion ? window.clienteActivoSesion.nombre : 'TUCOCEL C.A.').toUpperCase()}
+`;
+            msj += `📅 Fecha: ${datos.targetDateStr}
+`;
+            msj += `------------------------------------
+`;
+            msj += `💰 *Ventas Totales:* $${datos.totalVentasUSD.toFixed(2)} USD
+`;
+            msj += `🇨🇴 Total COP: ${window.formatearMiles(totalCOP)} COP
+`;
+            msj += `🇻🇪 Total Bs: ${window.formatBS(totalBs)} Bs
+`;
+            msj += `📉 *Gastos y Egresos:* $${datos.totalGastosUSD.toFixed(2)} USD
+`;
+            msj += `💵 *Flujo Neto en Caja:* $${datos.flujoCajaNeto.toFixed(2)} USD
+`;
+            msj += `📄 *Notas Facturadas:* ${datos.ventasDia.length}
+`;
+            msj += `------------------------------------
+`;
+            msj += `¡Cierre de caja consolidado exitosamente!
+*Sistema TCL Comercio — TUCOCEL C.A. & PublionlineMK*`;
 
             window.open(`https://wa.me/?text=${encodeURIComponent(msj)}`, '_blank');
         };
@@ -3748,6 +4446,7 @@
                 if (inputB) {
                     inputB.value = codLimpio;
                     window.renderizarInventarioPOS();
+                    // Si hay coincidencia exacta de 1 solo producto, lo pre-selecciona
                     const coincidencias = window.dbInventario.filter(p => p.stock > 0 && p.nombre.toLowerCase().includes(codLimpio.toLowerCase()));
                     if (coincidencias.length === 1) {
                         window.solicitarCantidadPOS(coincidencias[0].id, coincidencias[0].nombre, coincidencias[0].stock);
@@ -3803,6 +4502,7 @@
                 return;
             }
 
+            // Conversión exacta según la moneda con la que el cliente paga físicamente
             let montoPagaUSD = pagaConVal;
             if (window.monedaPagoVuelto === 'COP') {
                 montoPagaUSD = window.calcularUSDDesdeCOP(pagaConVal);
@@ -3818,7 +4518,7 @@
             lblSub.innerText = `${window.formatCOP(vueltoCOP)} COP | ${window.formatBS(vueltoBs)} Bs`;
         };
 
-        // GESTIÓN DE COMPRAS TIPO CARRITO MULTI-ÍTEM
+        // GESTIÓN DE COMPRAS TIPO CARRITO MULTI-ÍTEM (SIMÉTRICO AL POS)
         window.carritoCompras = [];
         window.operacionPendienteCierre = null;
 
@@ -3922,6 +4622,7 @@
             if (lblTot) lblTot.innerText = `$${totUSD.toFixed(2)} USD`;
         };
 
+        // VENTANA MODAL DE CIERRE CON LAS 3 ACCIONES (IMPRIMIR, WHATSAPP, SOLO CARGAR)
         window.abrirModalAccionesCierreDocumento = function(tipo) {
             if (tipo === 'COMPRA') {
                 const encargado = document.getElementById('prov-input-encargado').value.trim();
@@ -3962,11 +4663,13 @@
             document.getElementById('modal-cierre-acciones-rapidas').classList.remove('hidden');
         };
 
+        // EJECUCIÓN FINAL: ACTUALIZA INVENTARIO, REGISTRA EN REPORTES Y EJECUTA ACCIÓN
         window.ejecutarFinalizacionOperacion = function(accion) {
             if (!window.operacionPendienteCierre) return;
             const op = window.operacionPendienteCierre;
 
             if (op.tipo === 'COMPRA') {
+                // 1. Inyección y suma directa al Inventario
                 op.items.forEach(it => {
                     const idx = window.dbInventario.findIndex(p => p.nombre.toLowerCase() === it.nombre.toLowerCase());
                     if (idx !== -1) {
@@ -3991,9 +4694,11 @@
                 window.recalcularReportesGanancias();
                 window.actualizarBadgeTotalInventario();
 
+                // 2. Registro en Proveedores / Compras
                 window.dbProveedores.unshift(op);
                 window.guardarProveedoresEnStorage();
 
+                // 3. Inyección automática al Módulo de Gastos/Egresos para Cierre Diario
                 window.dbGastos.unshift({
                     id: 'gasto_' + Date.now(),
                     tipo: 'MERCANCIA',
@@ -4003,6 +4708,7 @@
                 });
                 window.guardarGastosEnStorage();
 
+                // 4. Ejecutar la acción elegida
                 if (accion === 'IMPRIMIR') {
                     const printDirecto = document.getElementById('seccion-impresion-termica-directa');
                     if (printDirecto) {
@@ -4030,6 +4736,7 @@
                     window.open(`https://wa.me/?text=${encodeURIComponent(msj)}`, '_blank');
                 }
 
+                // Limpieza de pantallas
                 window.carritoCompras = [];
                 document.getElementById('modal-recepcion-proveedor').classList.add('hidden');
                 document.getElementById('modal-cierre-acciones-rapidas').classList.add('hidden');
@@ -4038,7 +4745,7 @@
             }
         };
 
-        // CIERRE DE PERÍODO GERENCIAL RENOVADO
+        // CIERRE DE PERÍODO GERENCIAL RENOVADO (RECÁLCULO AUTOMÁTICO EN TIEMPO REAL)
         window.abrirModalCierrePeriodo = function() {
             const hoyStr = new Date().toISOString().split('T')[0];
             document.getElementById('filtro-periodo-hasta').value = hoyStr;
@@ -4071,7 +4778,7 @@
             return { desdeVal, hastaVal, ventasRango, gastosRango, comprasRango, cierresRango, totalVentasUSD, totalGastosUSD, gananciaNetaPeriodo };
         };
 
-        window.toggleSeccionAcordeon = function(idContenido, idIcono) {
+                window.toggleSeccionAcordeon = function(idContenido, idIcono) {
             const el = document.getElementById(idContenido);
             const icon = document.getElementById(idIcono);
             if (!el) return;
@@ -4284,7 +4991,7 @@
         window.compartirCatalogoWhatsApp = function() {
             const nombreNegocio = (window.clienteActivoSesion ? window.clienteActivoSesion.nombre : 'TUCOCEL C.A.').toUpperCase();
             const slug = window.clienteActivoSesion ? (window.clienteActivoSesion.slug || 'comercio') : 'demo';
-            const urlCatalogo = window.obtenerEnlaceVitrinaComercio(slug);
+            const urlCatalogo = `https://tucocel.github.io/tclcomercioweb/${slug}`;
 
             let texto = `🛍️ *¡CATÁLOGO DIGITAL DISPONIBLE!* ✨\n`;
             texto += `🏢 *${nombreNegocio}*\n\n`;
@@ -4297,6 +5004,7 @@
             window.open(`https://wa.me/?text=${encodeURIComponent(texto)}`, '_blank');
         };
 
+    
         // -------------------------------------------------------------
         // BÓVEDA Y GESTIÓN DE HISTORIAL DE CIERRES DIARIOS (AUDITORÍA)
         // -------------------------------------------------------------
@@ -4357,6 +5065,7 @@
             const cie = (window.dbCierres || []).find(x => x.id === id);
             if (!cie) return;
 
+            // Filtrar las notas de ese día específico
             const targetDateStr = cie.fechaStr;
             const ventasDia = window.dbVentas.filter(v => {
                 const vDateStr = new Date(v.fechaMs).toLocaleDateString();
@@ -4381,6 +5090,7 @@
             const totalCOP = window.calcularPesosDesdeUSD(datos.totalVentasUSD);
             const totalBs = window.calcularBsDesdeUSD(datos.totalVentasUSD);
 
+            // Agrupar por cajero
             const ventasPorCajero = {};
             datos.ventasDia.forEach(v => {
                 const caj = v.cajero || 'General';
@@ -4476,88 +5186,98 @@
             const totalBs = window.calcularBsDesdeUSD(datos.totalVentasUSD);
             const nombreNegocio = (window.clienteActivoSesion ? window.clienteActivoSesion.nombre : 'TUCOCEL C.A.').toUpperCase();
 
-            let msj = `📊 *COPIA DE CIERRE DIARIO DE CAJA (AUDITORÍA)*\n`;
-            msj += `🏢 Local: *${nombreNegocio}*\n`;
-            msj += `📅 Fecha Auditada: ${datos.targetDateStr}\n`;
-            msj += `------------------------------------\n`;
-            msj += `💰 *TOTAL GENERAL:*\n`;
-            msj += `• USD: $${datos.totalVentasUSD.toFixed(2)} USD\n`;
-            msj += `• COP: ${window.formatCOP(totalCOP)} COP\n`;
-            msj += `• Bs: ${window.formatBS(totalBs)} Bs (Paridad ${window.tasasConfig.paridadBs})\n`;
-            msj += `• Gastos: -$${datos.totalGastosUSD.toFixed(2)} USD\n`;
-            msj += `💵 *FLUJO NETO EN CAJA: $${datos.flujoCajaNeto.toFixed(2)} USD*\n`;
-            msj += `------------------------------------\n`;
-            msj += `👥 *DESGLOSE POR VENDEDOR:*\n\n`;
+            let msj = `📊 *COPIA DE CIERRE DIARIO DE CAJA (AUDITORÍA)*
+`;
+            msj += `🏢 Local: *${nombreNegocio}*
+`;
+            msj += `📅 Fecha Auditada: ${datos.targetDateStr}
+`;
+            msj += `------------------------------------
+`;
+            msj += `💰 *TOTAL GENERAL:*
+`;
+            msj += `• USD: $${datos.totalVentasUSD.toFixed(2)} USD
+`;
+            msj += `• COP: ${window.formatCOP(totalCOP)} COP
+`;
+            msj += `• Bs: ${window.formatBS(totalBs)} Bs (Paridad ${window.tasasConfig.paridadBs})
+`;
+            msj += `• Gastos: -$${datos.totalGastosUSD.toFixed(2)} USD
+`;
+            msj += `💵 *FLUJO NETO EN CAJA: $${datos.flujoCajaNeto.toFixed(2)} USD*
+`;
+            msj += `------------------------------------
+`;
+            msj += `👥 *DESGLOSE POR VENDEDOR:*
+
+`;
 
             for (const [cajero, info] of Object.entries(ventasPorCajero)) {
                 const cCOP = window.calcularPesosDesdeUSD(info.totalUSD);
                 const cBs = window.calcularBsDesdeUSD(info.totalUSD);
-                msj += `👤 *VENDEDOR: ${cajero.toUpperCase()}*\n`;
-                msj += `• Notas: ${info.notas.length}\n`;
-                msj += `• Total: $${info.totalUSD.toFixed(2)} USD (${window.formatCOP(cCOP)} COP | ${window.formatBS(cBs)} Bs)\n`;
-                msj += `• *Productos:*\n`;
+                msj += `👤 *VENDEDOR: ${cajero.toUpperCase()}*
+`;
+                msj += `• Notas: ${info.notas.length}
+`;
+                msj += `• Total: $${info.totalUSD.toFixed(2)} USD (${window.formatCOP(cCOP)} COP | ${window.formatBS(cBs)} Bs)
+`;
+                msj += `• *Productos:*
+`;
                 for (const [pName, pCant] of Object.entries(info.productos)) {
-                    msj += `  - ${pCant}x ${pName}\n`;
+                    msj += `  - ${pCant}x ${pName}
+`;
                 }
-                msj += `\n`;
+                msj += `
+`;
             }
 
-            msj += `------------------------------------\n`;
-            msj += `🔒 Registro extraído de la Bóveda de Cierres.\n*Sistema TCL Comercio — TUCOCEL C.A. & PublionlineMK*`;
+            msj += `------------------------------------
+`;
+            msj += `🔒 Registro extraído de la Bóveda de Cierres.
+*Sistema TCL Comercio — TUCOCEL C.A. & PublionlineMK*`;
             window.open(`https://wa.me/?text=${encodeURIComponent(msj)}`, '_blank');
         };
 
+
         // -------------------------------------------------------------
-        // AUTO-DETECCIÓN Y APERTURA DE VITRINA POR PARÁMETRO DE URL (?comercio=prueba)
+        // INICIALIZACIÓN AUTOMÁTICA DEL SISTEMA Y ENRUTADOR DE URL
         // -------------------------------------------------------------
-        window.addEventListener('DOMContentLoaded', () => {
-            window.cargarClientesDesdeStorage();
-            const urlParams = new URLSearchParams(window.location.search);
-            const slugParam = urlParams.get('comercio') || urlParams.get('tenant') || urlParams.get('u') || urlParams.get('user');
-            
-            if (slugParam) {
-                const slugLimpio = slugParam.toLowerCase().trim();
-                let enc = window.dbClientesSaaS.find(c => (c.slug && c.slug.toLowerCase() === slugLimpio) || (c.user && c.user.toLowerCase() === slugLimpio));
+        window.inicializarRouterURL = function() {
+            try {
+                if (typeof window.cargarTarifasSaasStorage === 'function') window.cargarTarifasSaasStorage();
+                if (typeof window.actualizarSimulador === 'function') window.actualizarSimulador(500);
+
+                const searchParams = new URLSearchParams(window.location.search);
+                const isPropuesta = searchParams.get('propuesta') === 'true' || 
+                                    window.location.hash.includes('propuesta') || 
+                                    window.location.href.includes('propuesta=true') || 
+                                    window.location.search.includes('propuesta=true');
                 
-                if (!enc) {
-                    // Partición limpia automática tipo Netflix si el enlace es nuevo
-                    enc = {
-                        id: 'cli_' + Date.now(),
-                        nombre: slugLimpio.toUpperCase(),
-                        responsable: 'Titular',
-                        wa: '0424-0000000',
-                        user: slugLimpio,
-                        pass: '123456',
-                        slug: slugLimpio,
-                        dias: 180,
-                        estatus: 'ACTIVO',
-                        fechaCreacion: Date.now(),
-                        fechaVencimiento: new Date(Date.now() + 180*24*60*60*1000).toISOString(),
-                        tasas: { cop: 3600, paridadBs: 3.3 }
-                    };
-                    window.dbClientesSaaS.push(enc);
-                    window.guardarClientesEnStorage();
+                if (isPropuesta) {
+                    // Garantizamos que el DOM esté disponible antes de mostrar
+                    setTimeout(function() {
+                        window.mostrarPropuestaDirecta();
+                    }, 50);
+                    return;
                 }
 
-                window.clienteActivoSesion = enc;
-                window.cargarDatosDelComercioActivo();
-                
-                // Ocultar logins y paneles privados para abrir la vitrina pública del comercio
-                document.getElementById('vista-login').classList.add('hidden');
-                document.getElementById('vista-master-admin').classList.add('hidden');
-                document.getElementById('vista-panel-cliente-privado').classList.add('hidden');
-                document.getElementById('vista-pos-fullscreen').classList.add('hidden');
-                document.getElementById('bottom-bar-gerencial').classList.add('hidden');
-                
-                const headerTitle = document.getElementById('header-shop-title');
-                const headerSub = document.getElementById('header-shop-sub');
-                if (headerTitle) headerTitle.innerText = enc.nombre;
-                if (headerSub) headerSub.innerText = `WhatsApp: ${enc.wa || '0424-7357549'}`;
-                
-                document.getElementById('vista-tienda-comercio').classList.remove('hidden');
-                window.renderizarProductosVitrina();
+                const comercioSlug = searchParams.get('comercio');
+                if (comercioSlug) {
+                    const cli = (window.dbClientesSaaS || []).find(c => c.slug === comercioSlug || c.user === comercioSlug);
+                    if (cli) {
+                        window.clienteActivoSesion = cli;
+                        window.verVitrinaComoCliente();
+                    }
+                }
+            } catch(e) {
+                console.error("Error en inicialización de router:", e);
             }
-        });
+        };
+
+        window.addEventListener('DOMContentLoaded', window.inicializarRouterURL);
+        if (document.readyState === 'complete' || document.readyState === 'interactive') {
+            window.inicializarRouterURL();
+        }
     </script>
 </body>
 </html>
