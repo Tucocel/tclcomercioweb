@@ -1265,6 +1265,170 @@
     </div>
 
 
+
+    <!-- 7. VISTA COMPLETA DE CONTRATO DE LICENCIA Y ARRENDAMIENTO (HIJO DIRECTO DEL BODY) -->
+    <div id="vista-contrato-cliente" class="hidden min-h-screen bg-[#020617] text-white p-3 sm:p-6 w-full overflow-y-auto no-print relative z-50">
+        
+        <!-- BARRA SUPERIOR DE RETORNO -->
+        <div class="max-w-4xl mx-auto flex justify-between items-center border-b border-slate-800 pb-3 mb-4">
+            <span class="text-xs font-mono text-amber-400 font-black uppercase tracking-wider flex items-center gap-1.5">
+                <i class="fa-solid fa-file-contract"></i> TCL COMERCIO WEB — CONTRATO DE ARRENDAMIENTO
+            </span>
+            <button onclick="window.cerrarVistaContratoWeb()" class="bg-slate-900 hover:bg-slate-800 text-slate-300 hover:text-white px-3.5 py-2 rounded-xl border border-slate-700 text-xs font-black uppercase flex items-center gap-1 transition-all shadow-md active:scale-95">
+                <i class="fa-solid fa-arrow-left"></i> Volver al Panel
+            </button>
+        </div>
+
+        
+
+    <div class="w-full max-w-2xl mx-auto p-0.5 rounded-3xl bg-gradient-to-br from-blue-600 via-slate-800 to-purple-600 shadow-2xl">
+        <div class="glass-panel rounded-[22px] p-5 sm:p-8 space-y-6">
+            
+            <!-- ENCABEZADO CORPORATIVO -->
+            <div class="border-b border-slate-800 pb-4 text-center space-y-2">
+                <span class="bg-blue-500/10 text-blue-400 border border-blue-500/20 text-[10px] sm:text-xs font-black tracking-widest uppercase px-4 py-1.5 rounded-full inline-block">
+                    CONTRATO DE ARRENDAMIENTO DE LICENCIA DE SOFTWARE COMERCIAL 2026
+                </span>
+                <h1 class="font-black text-2xl sm:text-3xl text-white tracking-tight uppercase">TCL COMERCIO WEB</h1>
+                <p class="text-slate-300 text-xs tracking-wider font-medium">Infraestructura de Mostrador, Inventario y Vitrina Digital bajo la Responsabilidad de TUCOCEL C.A.</p>
+            </div>
+
+            <!-- TEXTO LEGAL -->
+            <div class="space-y-4 text-slate-300 text-xs sm:text-sm text-justify leading-relaxed font-medium">
+                <p class="font-bold text-white">
+                    CONSTE POR EL PRESENTE DOCUMENTO PRIVADO, EL CONTRATO DE ARRENDAMIENTO DE LICENCIA DE USO DE SOFTWARE INTERNO Y VITRINA DIGITAL QUE SE CELEBRA DE MUTUO ACUERDO Y DE FORMA VOLUNTARIA ENTRE LA EMPRESA PROVEEDORA TUCOCEL C.A. Y EL ARRENDATARIO COMERCIANTE QUE SUSCRIBE AL FINAL DE ESTE FORMULARIO, BAJO LAS SIGUIENTES CLÁUSULAS:
+                </p>
+
+                <div class="space-y-4">
+                    <p>
+                        <strong class="block text-[11px] tracking-wide text-blue-400 uppercase mb-1">PRIMERA: OBJETO DEL CONTRATO (ALQUILER DE SOFTWARE Y VITRINA DIGITAL).</strong> 
+                        El objeto del presente contrato es otorgar al comercio una licencia de uso PRIVADA, TEMPORAL Y REVOCABLE para operar el ecosistema informático comercial TCL Comercio Web, compuesto por el Punto de Venta (POS) de mostrador, gestor de inventarios y su Vitrina Digital Web interactiva. Este acceso se concede bajo la modalidad de SUSCRIPCIÓN PREPAGADA ALQUILADA, por los días exactos contratados en el plan de activación, obligándose el cliente a pagar las tarifas vigentes para mantener el servicio activo en el servidor central.
+                    </p>
+
+                    <p>
+                        <strong class="block text-[11px] tracking-wide text-blue-400 uppercase mb-1">SEGUNDA: CONDICIÓN DEL PROGRAMA (REGLAMENTO FISCAL SENIAT EN VENEZUELA).</strong> 
+                        El cliente comerciante declara estar plenamente consciente de que este software es ÚNICA Y EXCLUSIVAMENTE UN PROGRAMA DE INVENTARIO INTERNO, AUDITORÍA DE SALDOS, CONTROL DE TURNOS, RECEPCIÓN DE PEDIDOS DIGITALES Y ORDENACIÓN ADMINISTRATIVA DE MOSTRADOR. BAJO NINGÚN CONCEPTO O CIRCUNSTANCIA ESTE PROGRAMA PRETENDE SUSTITUIR, EVADIR O REEMPLAZAR LOS SISTEMAS DE FACTURACIÓN FISCAL HOMOLOGADOS NI LAS MÁQUINAS FISCALES EXIGIDAS POR LAS LEYES TRIBUTARIAS VIGENTES EN LA REPÚBLICA BAJO LA REGULACIÓN DEL SENIAT. El debido cumplimiento de los deberes formales fiscales corresponde de forma única, soberana y directa a EL ARRENDATARIO.
+                    </p>
+
+                    <p>
+                        <strong class="block text-[11px] tracking-wide text-blue-400 uppercase mb-1">TERCERA: RESPONSABILIDAD DE DATOS Y FLUJOS CONTABLES DE CAJA.</strong> 
+                        La empresa proveedora no asume ninguna responsabilidad civil, comercial ni legal por las discrepancias contables, pérdidas de inventario, descuadres de caja, faltantes de mercancía o errores cometidos por los cajeros o encargados del cliente durante el uso del terminal. El cliente es el ÚNICO CUSTODIO Y RESPONSABLE ABSOLUTO POR LA DATA, PRECIOS, CATÁLOGO EN LÍNEA, REPORTES DE GASTOS Y DINERO FÍSICO O DIGITAL ingresado y administrado a través de su licencia privada.
+                    </p>
+
+                    <p>
+                        <strong class="block text-[11px] tracking-wide text-blue-400 uppercase mb-1">CUARTA: SUSPENSIONES POR VENCIMIENTO DE PLAN PREPAGADO.</strong> 
+                        El cliente acepta que el sistema opera con un contador automático de tiempo en la nube. Al expirar los días del plan contratado, EL TERMINAL DE CAJA Y LA VITRINA DIGITAL SE BLOQUEARÁN DE MANERA INMEDIATA, impidiendo el proceso de nuevas notas de entrega en el mostrador. Para reactivar el entorno y recuperar los accesos de stock, el arrendatario debe tramitar su recibo de renovación únicamente a través del canal oficial de soporte centralizado: 0424-7357549.
+                    </p>
+                </div>
+            </div>
+
+            <!-- FICHA DE REGISTRO DEL CLIENTE -->
+            <form onsubmit="event.preventDefault(); window.procesarContratoClienteComercio();" class="space-y-4 pt-4 border-t border-slate-800 text-xs">
+                <h2 class="text-xs font-black text-blue-400 uppercase tracking-widest flex items-center gap-1.5">
+                    <i class="fa-solid fa-store"></i> Ficha del Establecimiento Comercial (Suscripción Activa)
+                </h2>
+                
+                <div class="space-y-3 font-bold text-white">
+                    <div>
+                        <label class="text-[9px] text-blue-300 uppercase ml-1 block mb-1">Nombre Comercial de la Empresa / Sucursal *</label>
+                        <input type="text" id="cli-input-nombre" required placeholder="Ej: REPUESTOS Y ACCESORIOS EL VALLE C.A." class="w-full border px-4 py-3 rounded-xl focus:outline-none">
+                    </div>
+                    
+                    <div class="grid grid-cols-1 sm:grid-cols-2 gap-3">
+                        <div>
+                            <label class="text-[9px] text-blue-300 uppercase ml-1 block mb-1">Cédula o RIF del Establecimiento *</label>
+                            <input type="text" id="cli-input-rif" required placeholder="Ej: J-12345678-0" class="w-full border px-4 py-3 rounded-xl focus:outline-none font-mono">
+                        </div>
+                        <div>
+                            <label class="text-[9px] text-blue-300 uppercase ml-1 block mb-1">WhatsApp de Contacto del Dueño / Titular *</label>
+                            <input type="tel" id="cli-input-tlf" required placeholder="Ej: 04247357549" class="w-full border px-4 py-3 rounded-xl focus:outline-none font-mono">
+                        </div>
+                    </div>
+
+                    <div>
+                        <label class="text-[9px] text-blue-300 uppercase ml-1 block mb-1">Dirección Física de la Tienda *</label>
+                        <input type="text" id="cli-input-dir" required placeholder="Ej: Calle 5 con Carrera 8, Local #12, Centro..." class="w-full border px-4 py-3 rounded-xl focus:outline-none">
+                    </div>
+
+                    <div class="grid grid-cols-1 sm:grid-cols-2 gap-3">
+                        <div>
+                            <label class="text-[9px] text-blue-300 uppercase ml-1 block mb-1">Usuario Asignado de Acceso (Vitrina Web) *</label>
+                            <input type="text" id="cli-input-user" oninput="window.autodetectarPlanSuscripcion(this.value)" required placeholder="Ej: repuestoselvalle" class="w-full border px-4 py-3 rounded-xl focus:outline-none font-mono text-blue-400">
+                        </div>
+                        <div>
+                            <label class="text-[9px] text-blue-300 uppercase ml-1 block mb-1">Plan de Suscripción Asignado (Automático)</label>
+                            <input type="text" id="cli-input-plan-display" readonly value="Plan 6 Meses — Corporativo (180 Días)" class="w-full border px-4 py-3 rounded-xl font-mono font-black text-amber-400 bg-slate-950/90 cursor-not-allowed border-amber-500/30">
+                            <input type="hidden" id="cli-input-plan" value="180 DIAS">
+                        </div>
+                    </div>
+
+                    <!-- MÓDULO DE FOTO DE CÉDULA / RIF (CAPTURA & COMPRESIÓN) -->
+                    <div class="bg-slate-950/80 p-3 sm:p-4 rounded-2xl border border-slate-800 space-y-3">
+                        <div class="flex items-center justify-between">
+                            <label class="text-[10px] text-blue-400 uppercase font-black tracking-wider flex items-center gap-1.5">
+                                <i class="fa-solid fa-id-card"></i> Foto de Cédula de Identidad / RIF (Verificación)
+                            </label>
+                            <span id="badge-cedula-status" class="text-[9px] text-slate-500 font-mono uppercase">Sin Archivo</span>
+                        </div>
+                        
+                        <div class="flex flex-col sm:flex-row items-center gap-3">
+                            <div id="preview-cedula-box" class="w-full sm:w-28 h-20 bg-slate-900 border border-dashed border-slate-700 rounded-xl flex items-center justify-center text-slate-500 text-2xl overflow-hidden shrink-0">
+                                <i class="fa-solid fa-camera"></i>
+                            </div>
+                            <div class="w-full space-y-1.5">
+                                <input type="file" id="input-foto-cedula" accept="image/*" capture="environment" class="hidden" onchange="window.procesarFotoCedulaCliente(this)">
+                                <input type="hidden" id="cli-input-cedula-base64" value="">
+                                <button type="button" onclick="document.getElementById('input-foto-cedula').click()" class="w-full bg-slate-900 hover:bg-slate-800 border border-slate-700 text-white py-2.5 px-3 rounded-xl font-bold uppercase text-[10px] flex items-center justify-center gap-2 transition-all">
+                                    <i class="fa-solid fa-upload text-blue-400"></i> Tomar Foto o Adjuntar Cédula / RIF
+                                </button>
+                                <p class="text-[9px] text-slate-400 font-medium">Formato admitido: JPG, PNG. La imagen es comprimida automáticamente.</p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <button type="submit" class="w-full bg-gradient-to-r from-blue-600 via-indigo-600 to-purple-600 hover:from-blue-500 hover:to-purple-500 text-white font-black py-4 rounded-xl uppercase tracking-wider text-xs shadow-lg transition-transform transform active:scale-[0.98]">
+                    Aceptar Términos de Licencia y Activar Suscripción 🔒
+                </button>
+            </form>
+
+            <!-- PIE DE PÁGINA CORPORATIVO -->
+            <div class="border-t border-slate-800 pt-4 text-center text-xs text-white bg-slate-950/60 p-4 rounded-2xl border border-slate-800/60 font-sans tracking-wide space-y-1">
+                <p class="font-extrabold uppercase text-white tracking-wider text-[11px]">TCL COMERCIO WEB RESPALDADO POR TUCOCEL C.A.</p>
+                <div class="w-12 h-0.5 bg-blue-500 mx-auto my-1.5 opacity-60"></div>
+                <p class="text-[10px] text-slate-300 font-medium uppercase whitespace-nowrap">RIF J-31378837-6</p>
+                <p class="text-[10px] text-blue-300 font-semibold uppercase tracking-wide">DESARROLLADO Y DISEÑADO POR @PUBLIONLINEMK AGENCIA DE PUBLICIDAD DE TUCOCEL C.A.</p>
+                <p class="text-[8px] text-slate-500 uppercase tracking-widest pt-1 font-mono">© 2026 TCL — PROYECTO INTEGRAL PROPIEDAD DE TUCOCEL C.A.</p>
+            </div>
+            
+        </div>
+    </div>
+
+    
+
+    </div>
+
+
+
+    <!-- MODAL VISOR KYC & CÉDULA DEL CLIENTE (MÁSTER) -->
+    <div id="modal-visor-kyc-cliente" class="fixed inset-0 bg-slate-950/85 backdrop-blur-md z-[210] p-3 sm:p-4 flex items-center justify-center hidden no-print">
+        <div class="bg-[#0d1527] border border-slate-800 w-full max-w-lg rounded-3xl overflow-hidden shadow-2xl flex flex-col max-h-[90vh]">
+            <div class="flex justify-between items-center border-b border-slate-800 p-4 text-white">
+                <div class="flex items-center gap-2 text-amber-400 font-extrabold text-xs uppercase tracking-wider">
+                    <i class="fa-solid fa-id-card text-base"></i>
+                    <span>EXPEDIENTE KYC & CONTRATO DEL COMERCIO</span>
+                </div>
+                <button onclick="document.getElementById('modal-visor-kyc-cliente').classList.add('hidden')" class="text-slate-400 hover:text-white p-1">
+                    <i class="fa-solid fa-xmark text-base"></i>
+                </button>
+            </div>
+            <div class="p-5 overflow-y-auto space-y-4 text-xs font-mono text-slate-300 no-scrollbar flex-grow" id="contenido-visor-kyc">
+                <!-- Se llena dinámicamente -->
+            </div>
+        </div>
+    </div>
+
+
 <!-- MODAL FIJAR TASAS DEL DÍA (APERTURA DE TURNO) -->
     <div id="modal-fijar-tasa-dia" class="fixed inset-0 bg-slate-950/85 backdrop-blur-md z-[160] p-4 flex items-center justify-center hidden no-print">
         <div class="bg-white border border-slate-200 w-full max-w-md rounded-3xl overflow-hidden shadow-2xl p-6 space-y-4 font-bold text-xs">
@@ -2421,7 +2585,11 @@ _Comprobante de Recepción Interna._
                 window.clienteActivoSesion = encontrado;
                 document.getElementById('vista-login').classList.add('hidden');
                 document.getElementById('bottom-bar-gerencial').classList.add('hidden');
-                window.abrirPanelClientePrivadoDirecto();
+                if (!encontrado.contratoAceptado) {
+                    window.mostrarContratoDirecto(encontrado);
+                } else {
+                    window.abrirPanelClientePrivadoDirecto();
+                }
                 return;
             }
 
@@ -2445,7 +2613,11 @@ _Comprobante de Recepción Interna._
                 window.clienteActivoSesion = cliente;
                 document.getElementById('modal-auth-panel-privado').classList.add('hidden');
                 document.getElementById('bottom-bar-gerencial').classList.add('hidden');
-                window.abrirPanelClientePrivadoDirecto();
+                if (!cliente.contratoAceptado) {
+                    window.mostrarContratoDirecto(cliente);
+                } else {
+                    window.abrirPanelClientePrivadoDirecto();
+                }
             } else {
                 alert("⚠️ Usuario ID o Contraseña incorrectos.");
             }
@@ -3215,8 +3387,241 @@ tu suscripción ha sido renovada exitosamente por *${dias} días adicionales*.
         };
 
         window.accionPropuestaContrato = function() {
-            alert("Función en espera");
+            window.cerrarModalZonaPropuesta();
+            window.mostrarContratoDirecto();
         };
+
+        window.mostrarContratoDirecto = function(clienteData = null) {
+            window.cerrarModalZonaPropuesta();
+
+            const vistas = [
+                'vista-login',
+                'vista-master-admin',
+                'vista-panel-cliente-privado',
+                'vista-pos-fullscreen',
+                'vista-tienda-comercio',
+                'vista-propuesta-comercial-catalogo',
+                'bottom-bar-gerencial',
+                'banner-soporte-master-top',
+                'diagnostico-master-flotante'
+            ];
+            vistas.forEach(id => {
+                const el = document.getElementById(id);
+                if (el) {
+                    el.classList.add('hidden');
+                    el.style.setProperty('display', 'none', 'important');
+                }
+            });
+
+            // Pre-llenar campos si es un cliente logueado
+            const cli = clienteData || window.clienteActivoSesion;
+            if (cli) {
+                const inputUser = document.getElementById('cli-input-user');
+                const inputTitular = document.getElementById('cli-input-titular');
+                const inputCedula = document.getElementById('cli-input-cedula');
+                const inputComercio = document.getElementById('cli-input-comercio');
+                const inputWa = document.getElementById('cli-input-wa');
+                const inputDir = document.getElementById('cli-input-dir');
+
+                if (inputUser) inputUser.value = cli.user || cli.slug || '';
+                if (inputTitular) inputTitular.value = cli.responsable || '';
+                if (inputCedula) inputCedula.value = cli.cedulaKYC || '';
+                if (inputComercio) inputComercio.value = cli.nombre || '';
+                if (inputWa) inputWa.value = cli.wa || '';
+                if (inputDir) inputDir.value = cli.direccionKYC || '';
+
+                if (typeof window.autodetectarPlanSuscripcion === 'function') {
+                    window.autodetectarPlanSuscripcion(cli.user || cli.slug);
+                }
+            }
+
+            const vc = document.getElementById('vista-contrato-cliente');
+            if (vc) {
+                vc.classList.remove('hidden');
+                vc.style.setProperty('display', 'block', 'important');
+                vc.style.opacity = '1';
+                vc.style.visibility = 'visible';
+                vc.style.minHeight = '100vh';
+                vc.style.width = '100%';
+            }
+            window.scrollTo({ top: 0, behavior: 'smooth' });
+        };
+
+        window.cerrarVistaContratoWeb = function() {
+            const vc = document.getElementById('vista-contrato-cliente');
+            if (vc) {
+                vc.classList.add('hidden');
+                vc.style.setProperty('display', 'none', 'important');
+            }
+
+            if (window.esMasterLogueado) {
+                const vm = document.getElementById('vista-master-admin');
+                if (vm) {
+                    vm.classList.remove('hidden');
+                    vm.style.setProperty('display', 'block', 'important');
+                }
+            } else if (window.clienteActivoSesion && window.clienteActivoSesion.contratoAceptado) {
+                const vp_cli = document.getElementById('vista-panel-cliente-privado');
+                if (vp_cli) {
+                    vp_cli.classList.remove('hidden');
+                    vp_cli.style.setProperty('display', 'block', 'important');
+                }
+            } else {
+                const vl = document.getElementById('vista-login');
+                if (vl) {
+                    vl.classList.remove('hidden');
+                    vl.style.setProperty('display', 'flex', 'important');
+                }
+            }
+        };
+
+        // Procesamiento de foto de cédula (Cámara o Galería)
+        window.fotoCedulaBase64 = "";
+        window.cargarFotoCedulaCliente = function(input) {
+            if (!input.files || !input.files[0]) return;
+            const file = input.files[0];
+            const reader = new FileReader();
+            reader.onload = function(e) {
+                const img = new Image();
+                img.onload = function() {
+                    const canvas = document.createElement('canvas');
+                    const MAX_WIDTH = 800, MAX_HEIGHT = 600;
+                    let width = img.width, height = img.height;
+                    if (width > height) {
+                        if (width > MAX_WIDTH) { height *= MAX_WIDTH / width; width = MAX_WIDTH; }
+                    } else {
+                        if (height > MAX_HEIGHT) { width *= MAX_HEIGHT / height; height = MAX_HEIGHT; }
+                    }
+                    canvas.width = width; canvas.height = height;
+                    const ctx = canvas.getContext('2d');
+                    ctx.drawImage(img, 0, 0, width, height);
+                    window.fotoCedulaBase64 = canvas.toDataURL('image/jpeg', 0.75);
+
+                    const prev = document.getElementById('box-preview-cedula');
+                    if (prev) {
+                        prev.innerHTML = `<img src="${window.fotoCedulaBase64}" class="w-full h-36 object-cover rounded-xl border border-blue-400/50 shadow-md">`;
+                    }
+                    const chk = document.getElementById('chk-cedula-cargada');
+                    if (chk) chk.checked = true;
+                };
+                img.src = e.target.result;
+            };
+            reader.readAsDataURL(file);
+        };
+
+        // Firma y Aceptación Formal del Contrato
+        window.procesarFirmaContratoCliente = function() {
+            const user = (document.getElementById('cli-input-user') ? document.getElementById('cli-input-user').value.trim() : '');
+            const titular = (document.getElementById('cli-input-titular') ? document.getElementById('cli-input-titular').value.trim() : '');
+            const cedula = (document.getElementById('cli-input-cedula') ? document.getElementById('cli-input-cedula').value.trim() : '');
+            const comercio = (document.getElementById('cli-input-comercio') ? document.getElementById('cli-input-comercio').value.trim() : '');
+            const wa = (document.getElementById('cli-input-wa') ? document.getElementById('cli-input-wa').value.trim() : '');
+            const dir = (document.getElementById('cli-input-dir') ? document.getElementById('cli-input-dir').value.trim() : '');
+            const plan = (document.getElementById('cli-display-plan-nombre') ? document.getElementById('cli-display-plan-nombre').innerText.trim() : '180 Días (6 Meses)');
+
+            if (!user || !titular || !cedula || !comercio || !wa) {
+                alert("⚠️ Por favor complete todos los datos obligatorios del titular y comercio.");
+                return;
+            }
+
+            if (!window.fotoCedulaBase64) {
+                const conf = confirm("⚠️ No ha adjuntado la fotografía de su Cédula / RIF. ¿Desea continuar de todas formas?");
+                if (!conf) return;
+            }
+
+            // Buscar y actualizar cliente en dbClientesSaaS
+            let cliIdx = window.dbClientesSaaS.findIndex(c => c.user === user || c.slug === user);
+            if (cliIdx === -1 && window.clienteActivoSesion) {
+                cliIdx = window.dbClientesSaaS.findIndex(c => c.id === window.clienteActivoSesion.id);
+            }
+
+            const fechaFirmaStr = new Date().toLocaleString();
+
+            if (cliIdx !== -1) {
+                window.dbClientesSaaS[cliIdx].contratoAceptado = true;
+                window.dbClientesSaaS[cliIdx].responsable = titular;
+                window.dbClientesSaaS[cliIdx].cedulaKYC = cedula;
+                window.dbClientesSaaS[cliIdx].nombre = comercio;
+                window.dbClientesSaaS[cliIdx].wa = wa;
+                window.dbClientesSaaS[cliIdx].direccionKYC = dir;
+                window.dbClientesSaaS[cliIdx].fechaFirmaContrato = fechaFirmaStr;
+                if (window.fotoCedulaBase64) {
+                    window.dbClientesSaaS[cliIdx].fotoCedulaKYC = window.fotoCedulaBase64;
+                }
+                window.guardarClientesEnStorage();
+                window.clienteActivoSesion = window.dbClientesSaaS[cliIdx];
+            }
+
+            // Disparador a WhatsApp del Máster
+            let msg = `📄 *ACEPTACIÓN FORMAL DE CONTRATO Y KYC*\n`;
+            msg += `🏢 *Comercio:* ${comercio}\n`;
+            msg += `👤 *Titular / Responsable:* ${titular}\n`;
+            msg += `🪪 *Cédula / RIF:* ${cedula}\n`;
+            msg += `📞 *WhatsApp:* ${wa}\n`;
+            msg += `📍 *Dirección:* ${dir || 'No especificada'}\n`;
+            msg += `🔑 *Usuario ID:* ${user}\n`;
+            msg += `📦 *Plan:* ${plan}\n`;
+            msg += `📅 *Fecha de Firma:* ${fechaFirmaStr}\n`;
+            msg += `🪪 *Documento Adjunto:* ${window.fotoCedulaBase64 ? 'SÍ (Foto Cargada)' : 'NO'}\n`;
+            msg += `--------------------------------------------------\n`;
+            msg += `🔒 *DECLARACIÓN LEGAL DE CONTROL INTERNO:*\n`;
+            msg += `El arrendatario acepta formalmente los términos de uso del software TCL Comercio Web exclusivamente para control administrativo de mostrador, notas de entrega e inventario interno. Declara conocer que el sistema NO sustituye las regulaciones fiscales del SENIAT, eximiendo a TUCOCEL C.A. de responsabilidades contables.\n\n`;
+            msg += `Licencia registrada bajo la infraestructura de TUCOCEL C.A. (RIF J-31378837-6).`;
+
+            window.open(`https://api.whatsapp.com/send?phone=584247357549&text=${encodeURIComponent(msg)}`, '_blank');
+
+            alert("✅ ¡Contrato firmado y verificado exitosamente! Bienvenido a su panel de control comercial.");
+            window.abrirPanelClientePrivadoDirecto();
+        };
+
+        // Ver Expediente KYC en Modal Máster
+        window.verExpedienteKYCCliente = function(id) {
+            const cli = window.dbClientesSaaS.find(c => c.id === id);
+            if (!cli) return;
+
+            const box = document.getElementById('contenido-visor-kyc');
+            if (!box) return;
+
+            const tieneFirma = cli.contratoAceptado;
+            const fotoCed = cli.fotoCedulaKYC || '';
+
+            box.innerHTML = `
+                <div class="bg-slate-900 p-4 rounded-2xl border border-slate-800 space-y-2">
+                    <div class="flex justify-between items-center border-b border-slate-800 pb-2">
+                        <span class="text-white font-black text-sm uppercase">${cli.nombre}</span>
+                        <span class="${tieneFirma ? 'bg-emerald-500/20 text-emerald-400 border-emerald-500/30' : 'bg-red-500/20 text-red-400 border-red-500/30'} text-[10px] font-black uppercase px-2.5 py-1 rounded-lg border">
+                            ${tieneFirma ? '✅ CONTRATO FIRMADO' : '⚠️ PENDIENTE KYC'}
+                        </span>
+                    </div>
+                    <div class="grid grid-cols-1 sm:grid-cols-2 gap-2 pt-1 text-slate-300 text-xs">
+                        <p>👤 <strong>Titular:</strong> ${cli.responsable || 'No registrado'}</p>
+                        <p>🪪 <strong>Cédula/RIF:</strong> ${cli.cedulaKYC || 'No registrado'}</p>
+                        <p>📞 <strong>WhatsApp:</strong> ${cli.wa || 'No registrado'}</p>
+                        <p>🔑 <strong>Usuario ID:</strong> ${cli.user || cli.slug}</p>
+                        <p>📦 <strong>Cobertura:</strong> ${cli.dias || 180} Días</p>
+                        <p>📅 <strong>Fecha Firma:</strong> ${cli.fechaFirmaContrato || 'Pendiente'}</p>
+                    </div>
+                    ${cli.direccionKYC ? `<p class="text-slate-400 text-xs">📍 <strong>Ubicación:</strong> ${cli.direccionKYC}</p>` : ''}
+                </div>
+
+                <div class="space-y-2">
+                    <span class="text-amber-400 font-bold uppercase text-[11px] block">🪪 Fotografía de Cédula / RIF (KYC):</span>
+                    ${fotoCed ? `
+                        <div class="rounded-2xl overflow-hidden border border-slate-700 bg-slate-950 p-2 text-center">
+                            <img src="${fotoCed}" class="w-full max-h-72 object-contain rounded-xl mx-auto">
+                        </div>
+                    ` : `
+                        <div class="bg-slate-900 border border-dashed border-slate-700 rounded-2xl p-6 text-center text-slate-500">
+                            <i class="fa-solid fa-image text-3xl mb-2 block text-slate-600"></i>
+                            <span>No se ha adjuntado fotografía de cédula aún.</span>
+                        </div>
+                    `}
+                </div>
+            `;
+
+            document.getElementById('modal-visor-kyc-cliente').classList.remove('hidden');
+        };
+
 
         window.actualizarSimulador = function(val) {
             const volumen = parseInt(val);
@@ -3647,19 +4052,25 @@ $${(item.precioUSD * item.cant).toFixed(2)} USD
                             <h4 class="font-black text-slate-900 text-sm uppercase tracking-tight truncate">${c.nombre}</h4>
                             <span class="text-[10.5px] text-blue-600 font-mono font-bold block truncate">Enlace: /${c.slug}</span>
                         </div>
-                        <span class="bg-purple-50 text-purple-700 border border-purple-200 text-[10px] font-black uppercase px-2.5 py-1 rounded-lg shrink-0">${window.obtenerFormatoPlanText(c.dias)}</span>
+                        <div class="flex flex-col items-end gap-1 shrink-0">
+                            <span class="bg-purple-50 text-purple-700 border border-purple-200 text-[10px] font-black uppercase px-2.5 py-0.5 rounded-lg">${window.obtenerFormatoPlanText(c.dias)}</span>
+                            <span class="${c.contratoAceptado ? 'bg-emerald-100 text-emerald-800 border-emerald-200' : 'bg-amber-100 text-amber-800 border-amber-200'} border text-[8.5px] font-black uppercase px-2 py-0.5 rounded-md">
+                                ${c.contratoAceptado ? '✓ KYC Firmado' : '⏳ Pendiente KYC'}
+                            </span>
+                        </div>
                     </div>
                     <div class="border-t border-slate-100 pt-2 space-y-1 text-xs font-mono text-slate-700">
                         ${c.responsable ? `<div class="flex items-center gap-2 truncate"><span>👤</span><span>Responsable: <strong class="text-slate-900">${c.responsable}</strong></span></div>` : ''}
                         <div class="flex items-center gap-2 truncate"><span>📞</span><span>WA: ${c.wa || '04XX-0000000'}</span></div>
                         <div class="flex items-center gap-2 truncate"><span>⏳</span><span>Tiempo Restante: <strong class="text-emerald-600 font-bold">${c.dias || 180} Días</strong></span></div>
                     </div>
-                    <div class="grid grid-cols-2 gap-2 pt-2 border-t border-slate-100">
-                        <button onclick="window.editarClienteDirectoDesdeModal('${c.id}')" class="bg-slate-100 hover:bg-slate-200 text-slate-700 font-black text-xs py-2.5 rounded-xl uppercase border border-slate-300 flex items-center justify-center gap-1.5"><i class="fa-solid fa-gear text-slate-500"></i> EDITAR</button>
+                    <div class="grid grid-cols-3 gap-1.5 pt-2 border-t border-slate-100">
+                        <button onclick="window.verExpedienteKYCCliente('${c.id}')" class="bg-amber-50 hover:bg-amber-100 text-amber-900 font-black text-[10px] py-2 rounded-xl uppercase border border-amber-200 flex items-center justify-center gap-1"><i class="fa-solid fa-id-card"></i> KYC</button>
+                        <button onclick="window.editarClienteDirectoDesdeModal('${c.id}')" class="bg-slate-100 hover:bg-slate-200 text-slate-700 font-black text-[10px] py-2 rounded-xl uppercase border border-slate-300 flex items-center justify-center gap-1"><i class="fa-solid fa-gear"></i> EDITAR</button>
                         ${c.estatus === 'ACTIVO' ? `
-                            <button onclick="window.entrarEnCalienteCliente('${c.slug}', '${c.nombre}')" class="bg-slate-950 hover:bg-slate-800 text-white font-black text-xs py-2.5 rounded-xl flex items-center justify-center gap-1.5 shadow-md"><i class="fa-solid fa-right-to-bracket text-amber-400"></i> Entrar</button>
+                            <button onclick="window.entrarEnCalienteCliente('${c.slug}', '${c.nombre}')" class="bg-slate-950 hover:bg-slate-800 text-white font-black text-[10px] py-2 rounded-xl flex items-center justify-center gap-1 shadow-md"><i class="fa-solid fa-right-to-bracket text-amber-400"></i> Entrar</button>
                         ` : `
-                            <button onclick="window.reactivarClienteDesdePapelera('${c.id}')" class="bg-emerald-600 hover:bg-emerald-500 text-white font-black text-xs py-2.5 rounded-xl flex items-center justify-center gap-1.5 shadow-md"><i class="fa-solid fa-rotate-left"></i> Reactivar</button>
+                            <button onclick="window.reactivarClienteDesdePapelera('${c.id}')" class="bg-emerald-600 hover:bg-emerald-500 text-white font-black text-[10px] py-2 rounded-xl flex items-center justify-center gap-1 shadow-md"><i class="fa-solid fa-rotate-left"></i> Reactivar</button>
                         `}
                     </div>
                 </div>
