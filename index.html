@@ -6,227 +6,15 @@
     <title>TCL Sistema Comercio — Panel Máster 2026</title>
 
     <!-- TAILWIND CSS & FONT-AWESOME -->
-    <script src="https://cdn.tailwindcss.com">
-        // -------------------------------------------------------------
-        // AUTO-DETECCIÓN Y APERTURA DE VITRINA POR PARÁMETRO DE URL (?comercio=prueba)
-        // -------------------------------------------------------------
-        window.addEventListener('DOMContentLoaded', () => {
-            window.cargarClientesDesdeStorage();
-            const urlParams = new URLSearchParams(window.location.search);
-            const slugParam = urlParams.get('comercio') || urlParams.get('tenant') || urlParams.get('u') || urlParams.get('user');
-            
-            if (slugParam) {
-                const slugLimpio = slugParam.toLowerCase().trim();
-                let enc = window.dbClientesSaaS.find(c => (c.slug && c.slug.toLowerCase() === slugLimpio) || (c.user && c.user.toLowerCase() === slugLimpio));
-                
-                if (!enc) {
-                    // Partición limpia automática (Efecto Netflix Perfil Nuevo)
-                    enc = {
-                        id: 'cli_' + Date.now(),
-                        nombre: slugLimpio.toUpperCase(),
-                        responsable: 'Titular',
-                        wa: '0424-0000000',
-                        user: slugLimpio,
-                        pass: '123456',
-                        slug: slugLimpio,
-                        dias: 180,
-                        estatus: 'ACTIVO',
-                        fechaCreacion: Date.now(),
-                        fechaVencimiento: new Date(Date.now() + 180*24*60*60*1000).toISOString(),
-                        tasas: { cop: 3600, paridadBs: 3.3 }
-                    };
-                    window.dbClientesSaaS.push(enc);
-                    window.guardarClientesEnStorage();
-                }
-
-                window.clienteActivoSesion = enc;
-                window.cargarDatosDelComercioActivo();
-                
-                // Ocultar login y paneles privados para mostrar la vitrina pública del comercio
-                document.getElementById('vista-login').classList.add('hidden');
-                document.getElementById('vista-master-admin').classList.add('hidden');
-                document.getElementById('vista-panel-cliente-privado').classList.add('hidden');
-                document.getElementById('vista-pos-fullscreen').classList.add('hidden');
-                document.getElementById('bottom-bar-gerencial').classList.add('hidden');
-                
-                const headerTitle = document.getElementById('header-shop-title');
-                const headerSub = document.getElementById('header-shop-sub');
-                if (headerTitle) headerTitle.innerText = enc.nombre;
-                if (headerSub) headerSub.innerText = `WhatsApp: ${enc.wa || '0424-7357549'}`;
-                
-                document.getElementById('vista-tienda-comercio').classList.remove('hidden');
-                window.renderizarProductosVitrina();
-            }
-        });
-
-    </script>
+    <script src="https://cdn.tailwindcss.com"></script>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
 
     <!-- FIREBASE COMPAT -->
-    <script src="https://www.gstatic.com/firebasejs/10.8.0/firebase-app-compat.js">
-        // -------------------------------------------------------------
-        // AUTO-DETECCIÓN Y APERTURA DE VITRINA POR PARÁMETRO DE URL (?comercio=prueba)
-        // -------------------------------------------------------------
-        window.addEventListener('DOMContentLoaded', () => {
-            window.cargarClientesDesdeStorage();
-            const urlParams = new URLSearchParams(window.location.search);
-            const slugParam = urlParams.get('comercio') || urlParams.get('tenant') || urlParams.get('u') || urlParams.get('user');
-            
-            if (slugParam) {
-                const slugLimpio = slugParam.toLowerCase().trim();
-                let enc = window.dbClientesSaaS.find(c => (c.slug && c.slug.toLowerCase() === slugLimpio) || (c.user && c.user.toLowerCase() === slugLimpio));
-                
-                if (!enc) {
-                    // Partición limpia automática (Efecto Netflix Perfil Nuevo)
-                    enc = {
-                        id: 'cli_' + Date.now(),
-                        nombre: slugLimpio.toUpperCase(),
-                        responsable: 'Titular',
-                        wa: '0424-0000000',
-                        user: slugLimpio,
-                        pass: '123456',
-                        slug: slugLimpio,
-                        dias: 180,
-                        estatus: 'ACTIVO',
-                        fechaCreacion: Date.now(),
-                        fechaVencimiento: new Date(Date.now() + 180*24*60*60*1000).toISOString(),
-                        tasas: { cop: 3600, paridadBs: 3.3 }
-                    };
-                    window.dbClientesSaaS.push(enc);
-                    window.guardarClientesEnStorage();
-                }
-
-                window.clienteActivoSesion = enc;
-                window.cargarDatosDelComercioActivo();
-                
-                // Ocultar login y paneles privados para mostrar la vitrina pública del comercio
-                document.getElementById('vista-login').classList.add('hidden');
-                document.getElementById('vista-master-admin').classList.add('hidden');
-                document.getElementById('vista-panel-cliente-privado').classList.add('hidden');
-                document.getElementById('vista-pos-fullscreen').classList.add('hidden');
-                document.getElementById('bottom-bar-gerencial').classList.add('hidden');
-                
-                const headerTitle = document.getElementById('header-shop-title');
-                const headerSub = document.getElementById('header-shop-sub');
-                if (headerTitle) headerTitle.innerText = enc.nombre;
-                if (headerSub) headerSub.innerText = `WhatsApp: ${enc.wa || '0424-7357549'}`;
-                
-                document.getElementById('vista-tienda-comercio').classList.remove('hidden');
-                window.renderizarProductosVitrina();
-            }
-        });
-
-    </script>
-    <script src="https://www.gstatic.com/firebasejs/10.8.0/firebase-firestore-compat.js">
-        // -------------------------------------------------------------
-        // AUTO-DETECCIÓN Y APERTURA DE VITRINA POR PARÁMETRO DE URL (?comercio=prueba)
-        // -------------------------------------------------------------
-        window.addEventListener('DOMContentLoaded', () => {
-            window.cargarClientesDesdeStorage();
-            const urlParams = new URLSearchParams(window.location.search);
-            const slugParam = urlParams.get('comercio') || urlParams.get('tenant') || urlParams.get('u') || urlParams.get('user');
-            
-            if (slugParam) {
-                const slugLimpio = slugParam.toLowerCase().trim();
-                let enc = window.dbClientesSaaS.find(c => (c.slug && c.slug.toLowerCase() === slugLimpio) || (c.user && c.user.toLowerCase() === slugLimpio));
-                
-                if (!enc) {
-                    // Partición limpia automática (Efecto Netflix Perfil Nuevo)
-                    enc = {
-                        id: 'cli_' + Date.now(),
-                        nombre: slugLimpio.toUpperCase(),
-                        responsable: 'Titular',
-                        wa: '0424-0000000',
-                        user: slugLimpio,
-                        pass: '123456',
-                        slug: slugLimpio,
-                        dias: 180,
-                        estatus: 'ACTIVO',
-                        fechaCreacion: Date.now(),
-                        fechaVencimiento: new Date(Date.now() + 180*24*60*60*1000).toISOString(),
-                        tasas: { cop: 3600, paridadBs: 3.3 }
-                    };
-                    window.dbClientesSaaS.push(enc);
-                    window.guardarClientesEnStorage();
-                }
-
-                window.clienteActivoSesion = enc;
-                window.cargarDatosDelComercioActivo();
-                
-                // Ocultar login y paneles privados para mostrar la vitrina pública del comercio
-                document.getElementById('vista-login').classList.add('hidden');
-                document.getElementById('vista-master-admin').classList.add('hidden');
-                document.getElementById('vista-panel-cliente-privado').classList.add('hidden');
-                document.getElementById('vista-pos-fullscreen').classList.add('hidden');
-                document.getElementById('bottom-bar-gerencial').classList.add('hidden');
-                
-                const headerTitle = document.getElementById('header-shop-title');
-                const headerSub = document.getElementById('header-shop-sub');
-                if (headerTitle) headerTitle.innerText = enc.nombre;
-                if (headerSub) headerSub.innerText = `WhatsApp: ${enc.wa || '0424-7357549'}`;
-                
-                document.getElementById('vista-tienda-comercio').classList.remove('hidden');
-                window.renderizarProductosVitrina();
-            }
-        });
-
-    </script>
+    <script src="https://www.gstatic.com/firebasejs/10.8.0/firebase-app-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/10.8.0/firebase-firestore-compat.js"></script>
 
     <!-- ESCÁNER CÓDIGO DE BARRAS HTML5-QRCODE -->
-    <script src="https://unpkg.com/html5-qrcode" type="text/javascript">
-        // -------------------------------------------------------------
-        // AUTO-DETECCIÓN Y APERTURA DE VITRINA POR PARÁMETRO DE URL (?comercio=prueba)
-        // -------------------------------------------------------------
-        window.addEventListener('DOMContentLoaded', () => {
-            window.cargarClientesDesdeStorage();
-            const urlParams = new URLSearchParams(window.location.search);
-            const slugParam = urlParams.get('comercio') || urlParams.get('tenant') || urlParams.get('u') || urlParams.get('user');
-            
-            if (slugParam) {
-                const slugLimpio = slugParam.toLowerCase().trim();
-                let enc = window.dbClientesSaaS.find(c => (c.slug && c.slug.toLowerCase() === slugLimpio) || (c.user && c.user.toLowerCase() === slugLimpio));
-                
-                if (!enc) {
-                    // Partición limpia automática (Efecto Netflix Perfil Nuevo)
-                    enc = {
-                        id: 'cli_' + Date.now(),
-                        nombre: slugLimpio.toUpperCase(),
-                        responsable: 'Titular',
-                        wa: '0424-0000000',
-                        user: slugLimpio,
-                        pass: '123456',
-                        slug: slugLimpio,
-                        dias: 180,
-                        estatus: 'ACTIVO',
-                        fechaCreacion: Date.now(),
-                        fechaVencimiento: new Date(Date.now() + 180*24*60*60*1000).toISOString(),
-                        tasas: { cop: 3600, paridadBs: 3.3 }
-                    };
-                    window.dbClientesSaaS.push(enc);
-                    window.guardarClientesEnStorage();
-                }
-
-                window.clienteActivoSesion = enc;
-                window.cargarDatosDelComercioActivo();
-                
-                // Ocultar login y paneles privados para mostrar la vitrina pública del comercio
-                document.getElementById('vista-login').classList.add('hidden');
-                document.getElementById('vista-master-admin').classList.add('hidden');
-                document.getElementById('vista-panel-cliente-privado').classList.add('hidden');
-                document.getElementById('vista-pos-fullscreen').classList.add('hidden');
-                document.getElementById('bottom-bar-gerencial').classList.add('hidden');
-                
-                const headerTitle = document.getElementById('header-shop-title');
-                const headerSub = document.getElementById('header-shop-sub');
-                if (headerTitle) headerTitle.innerText = enc.nombre;
-                if (headerSub) headerSub.innerText = `WhatsApp: ${enc.wa || '0424-7357549'}`;
-                
-                document.getElementById('vista-tienda-comercio').classList.remove('hidden');
-                window.renderizarProductosVitrina();
-            }
-        });
-
-    </script>
+    <script src="https://unpkg.com/html5-qrcode" type="text/javascript"></script>
 
     <style>
         @import url('https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800;900&display=swap');
@@ -1658,7 +1446,7 @@
 
         window.STORAGE_KEY_SAAS_CLIENTES = 'tcl_master_db_2026';
         
-        // NAMESPACE MULTI-TENANT POR COMERCIO
+        // NAMESPACE MULTI-TENANT POR COMERCIO (PARTICIONES AISLADAS)
         window.getTenantStorageKey = function(entidad) {
             const slug = (window.clienteActivoSesion && window.clienteActivoSesion.slug) 
                          ? window.clienteActivoSesion.slug 
@@ -1683,7 +1471,6 @@
 
         window.vitrinaPrendida = true;
         window.monedasVisibles = { usd: true, cop: true, bs: true };
-        // ESQUEMA CAMBIARIO DE FRONTERA (TÁCHIRA - CÚCUTA)
         window.tasasConfig = { cop: 3600, paridadBs: 3.3 };
 
         // -------------------------------------------------------------
@@ -1710,7 +1497,7 @@
         };
 
         // -------------------------------------------------------------
-        // FORMATEADORES ESTANDARIZADOS (PUNTOS Y COMAS EXACTOS)
+        // FORMATEADORES ESTANDARIZADOS
         // -------------------------------------------------------------
         window.formatearMiles = function(val) { 
             return Math.round(val || 0).toString().replace(/\B(?=(\d{3})+(?!\d))/g, "."); 
@@ -1881,7 +1668,6 @@
             document.getElementById('pos-input-cliente').focus();
         };
 
-        // PAGO MIXTO / MÚLTIPLE
         window.abrirModalPagoMixto = function() {
             const tUSD = window.carritoPOS.reduce((acc, p) => acc + (p.precioUSD * p.cant), 0);
             if (tUSD <= 0) { alert("⚠️ Agregue productos a la nota para configurar el pago mixto."); return; }
@@ -2045,47 +1831,29 @@
                 setTimeout(() => { window.print(); }, 250);
             } else if (accion === 'whatsapp') {
                 window.abrirPreviewNota(window.notaPendiente, 'HISTORIAL', numCorrelativo);
-                let msj = `📄 *NOTA DE ENTREGA #${numCorrelativo}*
-`;
-                msj += `👤 Cajero: ${window.notaPendiente.cajero}
-`;
-                msj += `🪪 RIF/Cédula: ${window.notaPendiente.cedula}
-`;
-                msj += `👤 Cliente: ${window.notaPendiente.cliente}
-`;
-                msj += `💳 Pago: ${window.notaPendiente.pago}
-`;
-                msj += `--------------------------
-`;
+                let msj = `📄 *NOTA DE ENTREGA #${numCorrelativo}*\n`;
+                msj += `👤 Cajero: ${window.notaPendiente.cajero}\n`;
+                msj += `🪪 RIF/Cédula: ${window.notaPendiente.cedula}\n`;
+                msj += `👤 Cliente: ${window.notaPendiente.cliente}\n`;
+                msj += `💳 Pago: ${window.notaPendiente.pago}\n`;
+                msj += `--------------------------\n`;
                 window.notaPendiente.items.forEach(it => {
-                    msj += `${it.cant}x ${it.nombre}: $${(it.precioUSD * it.cant).toFixed(2)}
-`;
+                    msj += `${it.cant}x ${it.nombre}: $${(it.precioUSD * it.cant).toFixed(2)}\n`;
                 });
-                msj += `--------------------------
-💰 *Total: $${window.notaPendiente.totalUSD.toFixed(2)} USD*
-`;
-                msj += `🇨🇴 Total COP: ${window.formatearMiles(totalCOP)}
-`;
-                msj += `🇻🇪 Total Bs: ${window.formatBS(totalBs)}
-`;
+                msj += `--------------------------\n💰 *Total: $${window.notaPendiente.totalUSD.toFixed(2)} USD*\n`;
+                msj += `🇨🇴 Total COP: ${window.formatearMiles(totalCOP)}\n`;
+                msj += `🇻🇪 Total Bs: ${window.formatBS(totalBs)}\n`;
                 if (window.notaPendiente.desgloseMixto) {
-                    msj += `• USD: $${window.notaPendiente.desgloseMixto.abonoUSD.toFixed(2)}
-`;
-                    msj += `• COP: ${window.formatearMiles(window.notaPendiente.desgloseMixto.abonoCOP)}
-`;
-                    msj += `• Bs: ${window.formatBS(window.notaPendiente.desgloseMixto.abonoBS)}
-`;
+                    msj += `• USD: $${window.notaPendiente.desgloseMixto.abonoUSD.toFixed(2)}\n`;
+                    msj += `• COP: ${window.formatearMiles(window.notaPendiente.desgloseMixto.abonoCOP)}\n`;
+                    msj += `• Bs: ${window.formatBS(window.notaPendiente.desgloseMixto.abonoBS)}\n`;
                 }
-                msj += `
-¡Gracias por su compra!
-_Comprobante de Recepción Interna._
-*Sistema TCL Comercio — Un Programa de TUCOCEL C.A. & PublionlineMK*`;
+                msj += `\n¡Gracias por su compra!\n_Comprobante de Recepción Interna._\n*Sistema TCL Comercio — Un Programa de TUCOCEL C.A. & PublionlineMK*`;
                 
                 const targetTel = window.notaPendiente.telefono ? window.notaPendiente.telefono.replace(/[^0-9]/g, "") : '';
                 window.open(`https://wa.me/${targetTel}?text=${encodeURIComponent(msj)}`, '_blank');
             }
 
-            // Limpieza y reseteo total en caliente para mantener al cajero en facturación
             window.carritoPOS = [];
             window.desgloseMixto = null;
             window.notaPendiente = null;
@@ -2095,7 +1863,6 @@ _Comprobante de Recepción Interna._
             window.cargarVentaSinDatos();
             window.renderizarCarritoPOS();
             window.renderizarInventarioPOS();
-            // Permanece en el POS listo para la siguiente factura sin saltos
             alert("✨ Nota de Entrega Emitida con Éxito. Caja lista para la siguiente venta.");
         };
 
@@ -2175,6 +1942,7 @@ _Comprobante de Recepción Interna._
             const cliente = window.dbClientesSaaS.find(c => c.user === userIngresado && c.pass === passIngresada);
             if (cliente) {
                 window.clienteActivoSesion = cliente;
+                window.cargarDatosDelComercioActivo();
                 document.getElementById('modal-auth-panel-privado').classList.add('hidden');
                 document.getElementById('bottom-bar-gerencial').classList.add('hidden');
                 window.abrirPanelClientePrivadoDirecto();
@@ -2270,14 +2038,13 @@ _Comprobante de Recepción Interna._
             
             document.getElementById('vista-panel-cliente-privado').classList.add('hidden');
             document.getElementById('vista-pos-fullscreen').classList.remove('hidden');
-            document.getElementById('bottom-bar-gerencial').classList.remove('hidden'); // VISIBLE SOLO EN POS
+            document.getElementById('bottom-bar-gerencial').classList.remove('hidden');
             
             window.seleccionarMonedaCargaPOS('USD');
             window.seleccionarMonedaPagoVuelto('USD');
             window.cambiarModoPOS('INVENTARIO');
             window.renderizarCarritoPOS();
 
-            // Verificar si se deben fijar las tasas de apertura del día
             window.verificarTasaAperturaDia();
         };
 
@@ -2322,7 +2089,7 @@ _Comprobante de Recepción Interna._
 
         window.cerrarModuloPOS = function() {
             document.getElementById('vista-pos-fullscreen').classList.add('hidden');
-            document.getElementById('bottom-bar-gerencial').classList.add('hidden'); // OCULTO AL SALIR DEL POS
+            document.getElementById('bottom-bar-gerencial').classList.add('hidden');
             document.getElementById('vista-panel-cliente-privado').classList.remove('hidden');
         };
 
@@ -2562,29 +2329,16 @@ _Comprobante de Recepción Interna._
                 const totalCOP = window.calcularPesosDesdeUSD(n.totalUSD);
                 const totalBs = window.calcularBsDesdeUSD(n.totalUSD);
 
-                let msj = `📄 *COPIA: NOTA DE ENTREGA #${n.correlativo}*
-`;
-                if (n.estado === 'ANULADA') msj = `🚫 *NOTA ANULADA #${n.correlativo}*
-`;
-                msj += `👤 Cajero: ${n.cajero}
-`;
-                msj += `🪪 RIF/Cédula: ${n.cedula || 'N/A'}
-`;
-                msj += `👤 Cliente: ${n.cliente}
---------------------------
-`;
-                n.items.forEach(it => { msj += `${it.cant}x ${it.nombre}: $${(it.precioUSD * it.cant).toFixed(2)}
-`; });
-                msj += `--------------------------
-💰 *Total: $${n.totalUSD.toFixed(2)} USD*
-`;
-                msj += `🇨🇴 Total COP: ${window.formatearMiles(totalCOP)}
-`;
-                msj += `🇻🇪 Total Bs: ${window.formatBS(totalBs)}
-
-`;
-                msj += `_Comprobante de Recepción Interna._
-*Sistema TCL Comercio — Un Programa de TUCOCEL C.A. & PublionlineMK*`;
+                let msj = `📄 *COPIA: NOTA DE ENTREGA #${n.correlativo}*\n`;
+                if (n.estado === 'ANULADA') msj = `🚫 *NOTA ANULADA #${n.correlativo}*\n`;
+                msj += `👤 Cajero: ${n.cajero}\n`;
+                msj += `🪪 RIF/Cédula: ${n.cedula || 'N/A'}\n`;
+                msj += `👤 Cliente: ${n.cliente}\n--------------------------\n`;
+                n.items.forEach(it => { msj += `${it.cant}x ${it.nombre}: $${(it.precioUSD * it.cant).toFixed(2)}\n`; });
+                msj += `--------------------------\n💰 *Total: $${n.totalUSD.toFixed(2)} USD*\n`;
+                msj += `🇨🇴 Total COP: ${window.formatearMiles(totalCOP)}\n`;
+                msj += `🇻🇪 Total Bs: ${window.formatBS(totalBs)}\n\n`;
+                msj += `_Comprobante de Recepción Interna._\n*Sistema TCL Comercio — Un Programa de TUCOCEL C.A. & PublionlineMK*`;
                 
                 const targetTel = n.telefono ? n.telefono.replace(/[^0-9]/g, "") : '';
                 window.open(`https://wa.me/${targetTel}?text=${encodeURIComponent(msj)}`, '_blank');
@@ -2596,8 +2350,7 @@ _Comprobante de Recepción Interna._
             const n = window.dbVentas.find(x => x.id === id);
             if (!n) return;
 
-            if (confirm(`⚠️ ¿Seguro que desea ANULAR la Nota #${n.correlativo}?
-El inventario será restaurado.`)) {
+            if (confirm(`⚠️ ¿Seguro que desea ANULAR la Nota #${n.correlativo}?\nEl inventario será restaurado.`)) {
                 n.items.forEach(it => {
                     if (!it.id.startsWith('libre_')) {
                         const p = window.dbInventario.find(inv => inv.id === it.id);
@@ -2619,8 +2372,7 @@ El inventario será restaurado.`)) {
         window.borrarNotaMaster = function() {
             const id = document.getElementById('gestion-nota-real-id').value;
             if (!window.esMasterLogueado) return;
-            if (confirm(`🚨 MÁSTER: ¿Borrar definitivamente este registro?
-Esta acción no devuelve stock.`)) {
+            if (confirm(`🚨 MÁSTER: ¿Borrar definitivamente este registro?\nEsta acción no devuelve stock.`)) {
                 window.dbVentas = window.dbVentas.filter(x => x.id !== id);
                 window.guardarVentasEnStorage();
                 window.renderizarHistorialVentas();
@@ -2628,7 +2380,9 @@ Esta acción no devuelve stock.`)) {
             }
         };
 
+        // -------------------------------------------------------------
         // HELPER GENERADOR DE ENLACES COMPATIBLES GITHUB PAGES (SIN 404)
+        // -------------------------------------------------------------
         window.obtenerEnlaceVitrinaComercio = function(slug) {
             const s = (slug || 'demo').toLowerCase().replace(/[^a-z0-9]/g, '');
             const base = (window.location.origin && window.location.origin !== 'null' && !window.location.origin.includes('file://'))
@@ -2664,6 +2418,9 @@ Esta acción no devuelve stock.`)) {
             }
         };
 
+        // -------------------------------------------------------------
+        // PLANTILLAS APROBADAS PARA WHATSAPP (SISTEMA DE CONTROL E INVENTARIO)
+        // -------------------------------------------------------------
         window.enviarNotificacionAccionWA = function(tipo) {
             const nombre = document.getElementById('saas-input-nombre').value.trim() || "Comercio";
             const user = (document.getElementById('saas-input-user').value.trim() || 'demo').toLowerCase().replace(/[^a-z0-9]/g, "");
@@ -2674,20 +2431,27 @@ Esta acción no devuelve stock.`)) {
 
             let text = "";
             if (tipo === 'activacion') {
-                text = `✅ *ACTIVACIÓN DE PLATAFORMA TCL COMERCIO WEB*\n\n` +
-                       `¡Hola *${nombre}*!\n` +
-                       `Tu servicio ha sido activado con éxito por *${dias} días*.\n\n` +
-                       `🌐 *Tu Vitrina Web:*\n${linkVitrina}\n\n` +
-                       `🔑 *Usuario ID:* ${user}\n` +
-                       `🔒 *Clave de Acceso:* ${pass}\n\n` +
-                       `💡 _Al entrar a tu vitrina, presiona el candado superior para ingresar con tu Usuario y Clave a tu Panel de Facturación y Administración._\n\n` +
-                       `*Desarrollado por PublionlineMK & TUCOCEL C.A.*`;
+                text = `¡Hola, *${nombre}*! 👋\n\n` +
+                       `¡Te damos una cordial bienvenida a la familia de *TCL Comercio Web*! 🎉\n\n` +
+                       `Tu espacio en nuestra plataforma ya está completamente configurado para que comiences a optimizar la gestión de tu negocio. Desde ahora cuentas con una herramienta pensada para facilitar tu día a día con el mejor *sistema de control e inventario*.\n\n` +
+                       `Aquí tienes tus datos de acceso:\n\n` +
+                       `🔗 *Enlace de tu vitrina:* ${linkVitrina}\n` +
+                       `👤 *Usuario:* ${user}\n` +
+                       `🔑 *Contraseña:* ${pass}\n\n` +
+                       `💡 _Al ingresar a tu vitrina, presiona el candado superior para acceder a tu panel de control y administración._\n\n` +
+                       `📌 *Recomendaciones importantes:*\n` +
+                       `• Por tu seguridad, no compartas estas credenciales con terceras personas.\n` +
+                       `• Guarda este enlace en tus favoritos para acceder rápido cuando lo necesites.\n\n` +
+                       `¡Mucho éxito en tus operaciones! 🚀`;
             } else {
-                text = `🔄 *RENOVACIÓN DE SERVICIO TCL COMERCIO WEB*\n\n` +
-                       `Estimado *${nombre}*,\n` +
-                       `Tu suscripción ha sido renovada exitosamente por *${dias} días adicionales*.\n\n` +
-                       `🌐 *Acceso a tu Vitrina:*\n${linkVitrina}\n\n` +
-                       `*Desarrollado por PublionlineMK & TUCOCEL C.A.*`;
+                text = `¡Hola, *${nombre}*! 🤝✨\n\n` +
+                       `¡Nos alegra mucho seguir acompañando el crecimiento de tu negocio en *TCL Comercio Web*! 🚀\n\n` +
+                       `Te confirmamos que la suscripción de tu *sistema de control e inventario* ha sido renovada exitosamente por *${dias} días* adicionales. Tu catálogo, movimientos y registros continúan 100% activos y sincronizados.\n\n` +
+                       `🔗 *Tu vitrina y acceso directo:*\n${linkVitrina}\n\n` +
+                       `👤 *Usuario:* ${user}\n` +
+                       `🔒 *Clave:* ${pass}\n\n` +
+                       `💡 _Recuerda presionar el candado en tu vitrina para ingresar a tu panel de administración cuando lo necesites._\n\n` +
+                       `¡Gracias por seguir confiando en nosotros para potenciar y organizar tu comercio! 🙌📦`;
             }
 
             let waTarget = rawWa;
@@ -2700,14 +2464,17 @@ Esta acción no devuelve stock.`)) {
             window.open(`https://wa.me/${waTarget}?text=${encodeURIComponent(text)}`, '_blank');
         };
 
+        // -------------------------------------------------------------
+        // GUARDAR CAMBIOS: MANTIENE EL MODAL ABIERTO PARA ENVIAR WHATSAPP DE INMEDIATO
+        // -------------------------------------------------------------
         window.guardarNuevoComercioEntornoSaaS = function() {
             const idEdit = document.getElementById('saas-editing-id').value;
             const nombre = document.getElementById('saas-input-nombre').value.trim();
             const responsable = document.getElementById('saas-input-responsable').value.trim();
             const wa = document.getElementById('saas-input-wa').value.trim();
-            const user = document.getElementById('saas-input-user').value.trim();
+            const user = (document.getElementById('saas-input-user').value.trim() || 'demo').toLowerCase().replace(/[^a-z0-9]/g, "");
             const pass = document.getElementById('saas-input-pass').value.trim();
-            const dias = window.diasSuscripcionSeleccionados;
+            const dias = window.diasSuscripcionSeleccionados || 180;
 
             if (!nombre || !user || !pass) { alert("⚠️ Complete Nombre Comercial, Usuario ID y Contraseña."); return; }
 
@@ -2728,8 +2495,9 @@ Esta acción no devuelve stock.`)) {
                     };
                 }
             } else {
+                const nuevoId = 'cli_' + Date.now();
                 const nuevoTenant = { 
-                    id: 'cli_' + Date.now(), 
+                    id: nuevoId, 
                     nombre, responsable, wa, user, pass, slug: user, dias, 
                     estatus: 'ACTIVO',
                     fechaCreacion: Date.now(),
@@ -2737,12 +2505,14 @@ Esta acción no devuelve stock.`)) {
                     tasas: { cop: 3600, paridadBs: 3.3 }
                 };
                 window.dbClientesSaaS.push(nuevoTenant);
+                // Asignar idEdit para que si vuelve a pulsar guardar no duplique
+                document.getElementById('saas-editing-id').value = nuevoId;
 
-                // Inicializar espacio de datos aislado para el nuevo comercio
+                // Partición limpia inicial para el comercio
                 const prevSesion = window.clienteActivoSesion;
                 window.clienteActivoSesion = nuevoTenant;
                 window.dbInventario = [
-                    { id: 'p1_' + Date.now(), nombre: 'PRODUCTO INICIAL ' + nombre.toUpperCase(), desc: 'Catálogo de bienvenida', precioCosto: 1.00, precioVenta: 2.00, stock: 10, foto: '' }
+                    { id: 'p1_' + Date.now(), nombre: 'PRODUCTO INICIAL (' + nombre.toUpperCase() + ')', desc: 'Artículo de muestra listo para editar', precioCosto: 1.00, precioVenta: 2.00, stock: 10, foto: '' }
                 ];
                 window.guardarInventarioEnStorage();
                 window.clienteActivoSesion = prevSesion;
@@ -2750,8 +2520,10 @@ Esta acción no devuelve stock.`)) {
 
             window.guardarClientesEnStorage();
             window.recalcularTotalesYBadgesComercios();
-            document.getElementById('modal-configurar-entorno-saas').classList.add('hidden');
-            alert("✨ Cuenta de comercio creada con aislamiento de base de datos exitoso.");
+            
+            // Mantiene el modal abierto y actualiza enlace
+            document.getElementById('saas-link-generado').value = window.obtenerEnlaceVitrinaComercio(user);
+            alert("✨ Datos guardados exitosamente. Ahora puedes pulsar 'ENVIAR ACTIVACIÓN' o 'ENVIAR RENOVACIÓN'.");
         };
 
         window.eliminarPerfilComercioSaas = function() {
@@ -2820,18 +2592,18 @@ Esta acción no devuelve stock.`)) {
         };
         window.guardarClientesEnStorage = function() { localStorage.setItem(window.STORAGE_KEY_SAAS_CLIENTES, JSON.stringify(window.dbClientesSaaS)); };
 
-        // CARGA DINÁMICA DE CONTEXTO AISLADO POR COMERCIO (MULTI-TENANT)
+        // CARGA DINÁMICA DE CONTEXTO AISLADO POR COMERCIO (MULTI-TENANT PARTICIÓN LIMPIA)
         window.cargarDatosDelComercioActivo = function() {
             if (!window.clienteActivoSesion && window.dbClientesSaaS && window.dbClientesSaaS.length > 0) {
                 window.clienteActivoSesion = window.dbClientesSaaS[0];
             }
             if (!window.clienteActivoSesion) return;
 
-            // Inventario Aislado
             const gInv = localStorage.getItem(window.getTenantStorageKey('inventario'));
             if (gInv) { 
                 try { window.dbInventario = JSON.parse(gInv); } catch(e) { window.dbInventario = []; } 
             } else {
+                const nombreComercio = window.clienteActivoSesion.nombre ? window.clienteActivoSesion.nombre.toUpperCase() : 'COMERCIO';
                 window.dbInventario = [
                     { id: 'p1_' + Date.now(), nombre: 'ACEITE VEGETAL 1L', desc: 'Comestible vegetal de primera.', precioCosto: 1.80, precioVenta: 2.50, stock: 15, foto: '' },
                     { id: 'p2_' + Date.now(), nombre: 'HARINA PAN 1KG', desc: 'Harina de maíz blanco precocida.', precioCosto: 0.85, precioVenta: 1.10, stock: 25, foto: '' }
@@ -2839,23 +2611,18 @@ Esta acción no devuelve stock.`)) {
                 window.guardarInventarioEnStorage();
             }
 
-            // Ventas Aisladas
             const gVentas = localStorage.getItem(window.getTenantStorageKey('ventas'));
             window.dbVentas = gVentas ? JSON.parse(gVentas) : [];
 
-            // Gastos Aislados
             const gGastos = localStorage.getItem(window.getTenantStorageKey('gastos'));
             window.dbGastos = gGastos ? JSON.parse(gGastos) : [];
 
-            // Compras / Proveedores Aislados
             const gProv = localStorage.getItem(window.getTenantStorageKey('proveedores'));
             window.dbProveedores = gProv ? JSON.parse(gProv) : [];
 
-            // Cierres Diarios Aislados
             const gCierres = localStorage.getItem(window.getTenantStorageKey('cierres'));
             window.dbCierres = gCierres ? JSON.parse(gCierres) : [];
 
-            // Sincronizar Tasas si el cliente tiene configuración particular
             if (window.clienteActivoSesion.tasas) {
                 window.tasasConfig = { ...window.clienteActivoSesion.tasas };
             }
@@ -2998,43 +2765,23 @@ Esta acción no devuelve stock.`)) {
             const totalCOP = window.calcularPesosDesdeUSD(totalUSD);
             const totalBS = window.calcularBsDesdeUSD(totalUSD);
 
-            let mensaje = `🛍️ *NUEVO PEDIDO RECIBIDO — VITRINA WEB*
-`;
-            mensaje += `----------------------------------------
-`;
-            mensaje += `👤 *Cliente:* ${nombre}
-📞 *Teléfono:* ${tel}
-📍 *Dirección:* ${dir}
-🚚 *Entrega:* ${entrega}
-💳 *Pago:* ${pago}
-
-`;
-            mensaje += `📦 *DETALLE DEL PEDIDO:*
-
-`;
+            let mensaje = `🛍️ *NUEVO PEDIDO RECIBIDO — VITRINA WEB*\n`;
+            mensaje += `----------------------------------------\n`;
+            mensaje += `👤 *Cliente:* ${nombre}\n📞 *Teléfono:* ${tel}\n📍 *Dirección:* ${dir}\n🚚 *Entrega:* ${entrega}\n💳 *Pago:* ${pago}\n\n`;
+            mensaje += `📦 *DETALLE DEL PEDIDO:*\n\n`;
 
             window.carritoTienda.forEach(item => {
-                mensaje += `${item.cant}x ${item.nombre}:
-$${(item.precioUSD * item.cant).toFixed(2)} USD
-
-`;
+                mensaje += `${item.cant}x ${item.nombre}:\n$${(item.precioUSD * item.cant).toFixed(2)} USD\n\n`;
             });
 
-            mensaje += `----------------------------------------
-💰 *TOTAL A PAGAR:*
-`;
-            if (window.monedasVisibles.usd) mensaje += `USD: $${totalUSD.toFixed(2)} USD
-`;
-            if (window.monedasVisibles.cop) mensaje += `COP: ${window.formatearMiles(totalCOP)} COP
-`;
-            if (window.monedasVisibles.bs) mensaje += `BS: ${window.formatBS(totalBS)} Bs
-`;
-            mensaje += `----------------------------------------
-⏳ *Estado:* Pendiente por confirmar pago y despacho.
-*Sistema TCL Comercio — TUCOCEL C.A. & PublionlineMK*`;
+            mensaje += `----------------------------------------\n💰 *TOTAL A PAGAR:*\n`;
+            if (window.monedasVisibles.usd) mensaje += `USD: $${totalUSD.toFixed(2)} USD\n`;
+            if (window.monedasVisibles.cop) mensaje += `COP: ${window.formatearMiles(totalCOP)} COP\n`;
+            if (window.monedasVisibles.bs) mensaje += `BS: ${window.formatBS(totalBS)} Bs\n`;
+            mensaje += `----------------------------------------\n⏳ *Estado:* Pendiente por confirmar pago y despacho.\n*Sistema TCL Comercio — TUCOCEL C.A. & PublionlineMK*`;
 
-            const phone = "584247357549";
-            window.open(`https://wa.me/${phone}?text=${encodeURIComponent(mensaje)}`, '_blank');
+            const waShop = (window.clienteActivoSesion && window.clienteActivoSesion.wa) ? window.clienteActivoSesion.wa.replace(/[^0-9]/g, "") : "584247357549";
+            window.open(`https://wa.me/${waShop}?text=${encodeURIComponent(mensaje)}`, '_blank');
             document.getElementById('modal-checkout-pro').classList.add('hidden');
         };
 
@@ -3151,22 +2898,14 @@ $${(item.precioUSD * item.cant).toFixed(2)} USD
 
         window.exportarInventarioWhatsApp = function() {
             if (window.dbInventario.length === 0) { alert("⚠️ El inventario está vacío."); return; }
-            let msj = `📦 *INFORME DE INVENTARIO Y STOCK ACTUAL*
-`;
-            msj += `📅 Fecha: ${new Date().toLocaleDateString()}
-`;
-            msj += `🏢 Local: ${(window.clienteActivoSesion ? window.clienteActivoSesion.nombre : 'TUCOCEL C.A.').toUpperCase()}
-`;
-            msj += `------------------------------------
-`;
+            let msj = `📦 *INFORME DE INVENTARIO Y STOCK ACTUAL*\n`;
+            msj += `📅 Fecha: ${new Date().toLocaleDateString()}\n`;
+            msj += `🏢 Local: ${(window.clienteActivoSesion ? window.clienteActivoSesion.nombre : 'TUCOCEL C.A.').toUpperCase()}\n`;
+            msj += `------------------------------------\n`;
             window.dbInventario.forEach(p => {
-                msj += `• *${p.nombre}*
-  Stock: ${p.stock} un. | Costo: $${(p.precioCosto || 0).toFixed(2)} | Venta: $${(p.precioVenta || 0).toFixed(2)}
-`;
+                msj += `• *${p.nombre}*\n  Stock: ${p.stock} un. | Costo: $${(p.precioCosto || 0).toFixed(2)} | Venta: $${(p.precioVenta || 0).toFixed(2)}\n`;
             });
-            msj += `------------------------------------
-📊 Total Ítems: ${window.dbInventario.length}
-*Sistema TCL Comercio — TUCOCEL C.A. & PublionlineMK*`;
+            msj += `------------------------------------\n📊 Total Ítems: ${window.dbInventario.length}\n*Sistema TCL Comercio — TUCOCEL C.A. & PublionlineMK*`;
             window.open(`https://wa.me/?text=${encodeURIComponent(msj)}`, '_blank');
         };
 
@@ -3179,7 +2918,7 @@ $${(item.precioUSD * item.cant).toFixed(2)} USD
                 document.getElementById('saas-input-wa').value = '';
                 document.getElementById('saas-input-user').value = '';
                 document.getElementById('saas-input-pass').value = '123456';
-                document.getElementById('saas-link-generado').value = 'https://tucocel.github.io/tclcomercioweb/...';
+                document.getElementById('saas-link-generado').value = window.obtenerEnlaceVitrinaComercio('');
                 window.seleccionarPildoraDias(180);
             }
             document.getElementById('modal-configurar-entorno-saas').classList.remove('hidden');
@@ -3252,7 +2991,7 @@ $${(item.precioUSD * item.cant).toFixed(2)} USD
             document.getElementById('saas-input-wa').value = cliente.wa;
             document.getElementById('saas-input-user').value = cliente.user;
             document.getElementById('saas-input-pass').value = cliente.pass;
-            document.getElementById('saas-link-generado').value = `https://tucocel.github.io/tclcomercioweb/${cliente.slug}`;
+            document.getElementById('saas-link-generado').value = window.obtenerEnlaceVitrinaComercio(cliente.slug);
             window.seleccionarPildoraDias(cliente.dias);
             document.getElementById('modal-configurar-entorno-saas').classList.remove('hidden');
         };
@@ -3313,7 +3052,7 @@ $${(item.precioUSD * item.cant).toFixed(2)} USD
         window.openWhatsAppDirectQuery = function() { window.open(`https://wa.me/584247357549?text=${encodeURIComponent("¡Hola! Quisiera consultar disponibilidad de productos.")}`, '_blank'); };
 
         // -------------------------------------------------------------
-        // CÁPSULA INTERACTIVA [ 👁️ VER ] PARA TODA LA AUDITORÍA (FORMATO HOJA BLANCA TICKET)
+        // CÁPSULA INTERACTIVA [ 👁️ VER ] PARA TODA LA AUDITORÍA
         // -------------------------------------------------------------
         window.abrirAuditoriaDetallada = function(tipo, id) {
             window.auditoriaItemActivo = null;
@@ -3467,7 +3206,6 @@ $${(item.precioUSD * item.cant).toFixed(2)} USD
                 printDirecto.innerHTML = preview.innerHTML;
                 printDirecto.classList.remove('hidden');
             }
-            // Ejecución limpia desacoplada para evitar bloqueos en navegador móvil
             setTimeout(() => {
                 window.print();
             }, 100);
@@ -3567,7 +3305,7 @@ $${(item.precioUSD * item.cant).toFixed(2)} USD
         };
 
         // -------------------------------------------------------------
-        // VISOR DETALLADO EN HOJA BLANCA / TICKET PARA CIERRE DEL DÍA (3 VÍAS COMPACTAS)
+        // VISOR DETALLADO EN HOJA BLANCA / TICKET PARA CIERRE DEL DÍA
         // -------------------------------------------------------------
         window.abrirHojaBlancaCierreDia = function() {
             const datos = window.obtenerDatosCierreDia();
@@ -3579,7 +3317,6 @@ $${(item.precioUSD * item.cant).toFixed(2)} USD
             const totalCOP = window.calcularPesosDesdeUSD(datos.totalVentasUSD);
             const totalBs = window.calcularBsDesdeUSD(datos.totalVentasUSD);
 
-            // Agrupar ventas y productos por cada cajero / vendedor
             const ventasPorCajero = {};
             datos.ventasDia.forEach(v => {
                 const caj = v.cajero || 'General';
@@ -3653,7 +3390,6 @@ $${(item.precioUSD * item.cant).toFixed(2)} USD
             if (boxCuerpo) boxCuerpo.innerHTML = htmlTicketCierre;
             if (printDirecto) printDirecto.innerHTML = htmlTicketCierre;
 
-            // Inyectar 3 Cápsulas Compactas para Cierre
             if (boxAcciones) {
                 boxAcciones.innerHTML = `
                     <button onclick="window.ejecutarTresViasCierreDia('GUARDAR')" class="bg-slate-700 hover:bg-slate-600 text-white font-black py-2 px-3 rounded-xl uppercase text-[10px] sm:text-[11px] flex items-center justify-center gap-1 shadow-sm active:scale-95 transition-all">
@@ -3676,7 +3412,6 @@ $${(item.precioUSD * item.cant).toFixed(2)} USD
             const datos = window.obtenerDatosCierreDia();
             if (!datos) return;
 
-            // 1. Guardar el registro formal del cierre
             const registro = {
                 id: 'cie_' + Date.now(),
                 fechaStr: datos.targetDateStr,
@@ -3694,8 +3429,6 @@ $${(item.precioUSD * item.cant).toFixed(2)} USD
             const totalCOP = window.calcularPesosDesdeUSD(datos.totalVentasUSD);
             const totalBs = window.calcularBsDesdeUSD(datos.totalVentasUSD);
             const nombreNegocio = (window.clienteActivoSesion ? window.clienteActivoSesion.nombre : 'TUCOCEL C.A.').toUpperCase();
-
-            // Reconstruir desglose detallado para WhatsApp
             const ventasPorCajero = (window.auditoriaItemActivo && window.auditoriaItemActivo.ventasPorCajero) ? window.auditoriaItemActivo.ventasPorCajero : {};
 
             if (via === 'IMPRIMIR') {
@@ -3735,7 +3468,8 @@ $${(item.precioUSD * item.cant).toFixed(2)} USD
             document.getElementById('modal-detalle-auditoria').classList.add('hidden');
             alert(`🔒 Cierre Diario de Caja para ${datos.targetDateStr} completado y guardado exitosamente.`);
         };
-window.abrirModalReporteZ = function() {
+
+        window.abrirModalReporteZ = function() {
             const hoyStr = new Date().toISOString().split('T')[0];
             document.getElementById('filtro-fecha-reporte-z').value = hoyStr;
             window.generarReporteZDia();
@@ -3892,30 +3626,18 @@ window.abrirModalReporteZ = function() {
             const totalCOP = window.calcularPesosDesdeUSD(datos.totalVentasUSD);
             const totalBs = window.calcularBsDesdeUSD(datos.totalVentasUSD);
 
-            let msj = `📊 *CIERRE DIARIO DE CAJA — CUADRE DE TURNO*
-`;
-            msj += `🏢 Local: ${(window.clienteActivoSesion ? window.clienteActivoSesion.nombre : 'TUCOCEL C.A.').toUpperCase()}
-`;
-            msj += `📅 Fecha: ${datos.targetDateStr}
-`;
-            msj += `------------------------------------
-`;
-            msj += `💰 *Ventas Totales:* $${datos.totalVentasUSD.toFixed(2)} USD
-`;
-            msj += `🇨🇴 Total COP: ${window.formatearMiles(totalCOP)} COP
-`;
-            msj += `🇻🇪 Total Bs: ${window.formatBS(totalBs)} Bs
-`;
-            msj += `📉 *Gastos y Egresos:* $${datos.totalGastosUSD.toFixed(2)} USD
-`;
-            msj += `💵 *Flujo Neto en Caja:* $${datos.flujoCajaNeto.toFixed(2)} USD
-`;
-            msj += `📄 *Notas Facturadas:* ${datos.ventasDia.length}
-`;
-            msj += `------------------------------------
-`;
-            msj += `¡Cierre de caja consolidado exitosamente!
-*Sistema TCL Comercio — TUCOCEL C.A. & PublionlineMK*`;
+            let msj = `📊 *CIERRE DIARIO DE CAJA — CUADRE DE TURNO*\n`;
+            msj += `🏢 Local: ${(window.clienteActivoSesion ? window.clienteActivoSesion.nombre : 'TUCOCEL C.A.').toUpperCase()}\n`;
+            msj += `📅 Fecha: ${datos.targetDateStr}\n`;
+            msj += `------------------------------------\n`;
+            msj += `💰 *Ventas Totales:* $${datos.totalVentasUSD.toFixed(2)} USD\n`;
+            msj += `🇨🇴 Total COP: ${window.formatearMiles(totalCOP)} COP\n`;
+            msj += `🇻🇪 Total Bs: ${window.formatBS(totalBs)} Bs\n`;
+            msj += `📉 *Gastos y Egresos:* $${datos.totalGastosUSD.toFixed(2)} USD\n`;
+            msj += `💵 *Flujo Neto en Caja:* $${datos.flujoCajaNeto.toFixed(2)} USD\n`;
+            msj += `📄 *Notas Facturadas:* ${datos.ventasDia.length}\n`;
+            msj += `------------------------------------\n`;
+            msj += `¡Cierre de caja consolidado exitosamente!\n*Sistema TCL Comercio — TUCOCEL C.A. & PublionlineMK*`;
 
             window.open(`https://wa.me/?text=${encodeURIComponent(msj)}`, '_blank');
         };
@@ -4026,7 +3748,6 @@ window.abrirModalReporteZ = function() {
                 if (inputB) {
                     inputB.value = codLimpio;
                     window.renderizarInventarioPOS();
-                    // Si hay coincidencia exacta de 1 solo producto, lo pre-selecciona
                     const coincidencias = window.dbInventario.filter(p => p.stock > 0 && p.nombre.toLowerCase().includes(codLimpio.toLowerCase()));
                     if (coincidencias.length === 1) {
                         window.solicitarCantidadPOS(coincidencias[0].id, coincidencias[0].nombre, coincidencias[0].stock);
@@ -4082,7 +3803,6 @@ window.abrirModalReporteZ = function() {
                 return;
             }
 
-            // Conversión exacta según la moneda con la que el cliente paga físicamente
             let montoPagaUSD = pagaConVal;
             if (window.monedaPagoVuelto === 'COP') {
                 montoPagaUSD = window.calcularUSDDesdeCOP(pagaConVal);
@@ -4098,7 +3818,7 @@ window.abrirModalReporteZ = function() {
             lblSub.innerText = `${window.formatCOP(vueltoCOP)} COP | ${window.formatBS(vueltoBs)} Bs`;
         };
 
-        // GESTIÓN DE COMPRAS TIPO CARRITO MULTI-ÍTEM (SIMÉTRICO AL POS)
+        // GESTIÓN DE COMPRAS TIPO CARRITO MULTI-ÍTEM
         window.carritoCompras = [];
         window.operacionPendienteCierre = null;
 
@@ -4202,7 +3922,6 @@ window.abrirModalReporteZ = function() {
             if (lblTot) lblTot.innerText = `$${totUSD.toFixed(2)} USD`;
         };
 
-        // VENTANA MODAL DE CIERRE CON LAS 3 ACCIONES (IMPRIMIR, WHATSAPP, SOLO CARGAR)
         window.abrirModalAccionesCierreDocumento = function(tipo) {
             if (tipo === 'COMPRA') {
                 const encargado = document.getElementById('prov-input-encargado').value.trim();
@@ -4243,13 +3962,11 @@ window.abrirModalReporteZ = function() {
             document.getElementById('modal-cierre-acciones-rapidas').classList.remove('hidden');
         };
 
-        // EJECUCIÓN FINAL: ACTUALIZA INVENTARIO, REGISTRA EN REPORTES Y EJECUTA ACCIÓN
         window.ejecutarFinalizacionOperacion = function(accion) {
             if (!window.operacionPendienteCierre) return;
             const op = window.operacionPendienteCierre;
 
             if (op.tipo === 'COMPRA') {
-                // 1. Inyección y suma directa al Inventario
                 op.items.forEach(it => {
                     const idx = window.dbInventario.findIndex(p => p.nombre.toLowerCase() === it.nombre.toLowerCase());
                     if (idx !== -1) {
@@ -4274,11 +3991,9 @@ window.abrirModalReporteZ = function() {
                 window.recalcularReportesGanancias();
                 window.actualizarBadgeTotalInventario();
 
-                // 2. Registro en Proveedores / Compras
                 window.dbProveedores.unshift(op);
                 window.guardarProveedoresEnStorage();
 
-                // 3. Inyección automática al Módulo de Gastos/Egresos para Cierre Diario
                 window.dbGastos.unshift({
                     id: 'gasto_' + Date.now(),
                     tipo: 'MERCANCIA',
@@ -4288,7 +4003,6 @@ window.abrirModalReporteZ = function() {
                 });
                 window.guardarGastosEnStorage();
 
-                // 4. Ejecutar la acción elegida
                 if (accion === 'IMPRIMIR') {
                     const printDirecto = document.getElementById('seccion-impresion-termica-directa');
                     if (printDirecto) {
@@ -4316,7 +4030,6 @@ window.abrirModalReporteZ = function() {
                     window.open(`https://wa.me/?text=${encodeURIComponent(msj)}`, '_blank');
                 }
 
-                // Limpieza de pantallas
                 window.carritoCompras = [];
                 document.getElementById('modal-recepcion-proveedor').classList.add('hidden');
                 document.getElementById('modal-cierre-acciones-rapidas').classList.add('hidden');
@@ -4325,7 +4038,7 @@ window.abrirModalReporteZ = function() {
             }
         };
 
-        // CIERRE DE PERÍODO GERENCIAL RENOVADO (RECÁLCULO AUTOMÁTICO EN TIEMPO REAL)
+        // CIERRE DE PERÍODO GERENCIAL RENOVADO
         window.abrirModalCierrePeriodo = function() {
             const hoyStr = new Date().toISOString().split('T')[0];
             document.getElementById('filtro-periodo-hasta').value = hoyStr;
@@ -4358,7 +4071,7 @@ window.abrirModalReporteZ = function() {
             return { desdeVal, hastaVal, ventasRango, gastosRango, comprasRango, cierresRango, totalVentasUSD, totalGastosUSD, gananciaNetaPeriodo };
         };
 
-                window.toggleSeccionAcordeon = function(idContenido, idIcono) {
+        window.toggleSeccionAcordeon = function(idContenido, idIcono) {
             const el = document.getElementById(idContenido);
             const icon = document.getElementById(idIcono);
             if (!el) return;
@@ -4571,7 +4284,7 @@ window.abrirModalReporteZ = function() {
         window.compartirCatalogoWhatsApp = function() {
             const nombreNegocio = (window.clienteActivoSesion ? window.clienteActivoSesion.nombre : 'TUCOCEL C.A.').toUpperCase();
             const slug = window.clienteActivoSesion ? (window.clienteActivoSesion.slug || 'comercio') : 'demo';
-            const urlCatalogo = `${window.location.origin}${window.location.pathname}?tenant=${slug}`;
+            const urlCatalogo = window.obtenerEnlaceVitrinaComercio(slug);
 
             let texto = `🛍️ *¡CATÁLOGO DIGITAL DISPONIBLE!* ✨\n`;
             texto += `🏢 *${nombreNegocio}*\n\n`;
@@ -4584,23 +4297,6 @@ window.abrirModalReporteZ = function() {
             window.open(`https://wa.me/?text=${encodeURIComponent(texto)}`, '_blank');
         };
 
-        // AUTO-DETECCIÓN DE COMERCIO POR PARÁMETRO URL (?tenant=slug)
-        window.addEventListener('DOMContentLoaded', () => {
-            window.cargarClientesDesdeStorage();
-            const urlParams = new URLSearchParams(window.location.search);
-            const tenantParam = urlParams.get('tenant') || urlParams.get('u');
-            if (tenantParam) {
-                const enc = window.dbClientesSaaS.find(c => c.slug === tenantParam || c.user === tenantParam);
-                if (enc) {
-                    window.clienteActivoSesion = enc;
-                    window.cargarDatosDelComercioActivo();
-                    document.getElementById('vista-login').classList.add('hidden');
-                    window.verVitrinaComoCliente();
-                }
-            }
-        });
-
-    
         // -------------------------------------------------------------
         // BÓVEDA Y GESTIÓN DE HISTORIAL DE CIERRES DIARIOS (AUDITORÍA)
         // -------------------------------------------------------------
@@ -4661,7 +4357,6 @@ window.abrirModalReporteZ = function() {
             const cie = (window.dbCierres || []).find(x => x.id === id);
             if (!cie) return;
 
-            // Filtrar las notas de ese día específico
             const targetDateStr = cie.fechaStr;
             const ventasDia = window.dbVentas.filter(v => {
                 const vDateStr = new Date(v.fechaMs).toLocaleDateString();
@@ -4686,7 +4381,6 @@ window.abrirModalReporteZ = function() {
             const totalCOP = window.calcularPesosDesdeUSD(datos.totalVentasUSD);
             const totalBs = window.calcularBsDesdeUSD(datos.totalVentasUSD);
 
-            // Agrupar por cajero
             const ventasPorCajero = {};
             datos.ventasDia.forEach(v => {
                 const caj = v.cajero || 'General';
@@ -4782,59 +4476,37 @@ window.abrirModalReporteZ = function() {
             const totalBs = window.calcularBsDesdeUSD(datos.totalVentasUSD);
             const nombreNegocio = (window.clienteActivoSesion ? window.clienteActivoSesion.nombre : 'TUCOCEL C.A.').toUpperCase();
 
-            let msj = `📊 *COPIA DE CIERRE DIARIO DE CAJA (AUDITORÍA)*
-`;
-            msj += `🏢 Local: *${nombreNegocio}*
-`;
-            msj += `📅 Fecha Auditada: ${datos.targetDateStr}
-`;
-            msj += `------------------------------------
-`;
-            msj += `💰 *TOTAL GENERAL:*
-`;
-            msj += `• USD: $${datos.totalVentasUSD.toFixed(2)} USD
-`;
-            msj += `• COP: ${window.formatCOP(totalCOP)} COP
-`;
-            msj += `• Bs: ${window.formatBS(totalBs)} Bs (Paridad ${window.tasasConfig.paridadBs})
-`;
-            msj += `• Gastos: -$${datos.totalGastosUSD.toFixed(2)} USD
-`;
-            msj += `💵 *FLUJO NETO EN CAJA: $${datos.flujoCajaNeto.toFixed(2)} USD*
-`;
-            msj += `------------------------------------
-`;
-            msj += `👥 *DESGLOSE POR VENDEDOR:*
-
-`;
+            let msj = `📊 *COPIA DE CIERRE DIARIO DE CAJA (AUDITORÍA)*\n`;
+            msj += `🏢 Local: *${nombreNegocio}*\n`;
+            msj += `📅 Fecha Auditada: ${datos.targetDateStr}\n`;
+            msj += `------------------------------------\n`;
+            msj += `💰 *TOTAL GENERAL:*\n`;
+            msj += `• USD: $${datos.totalVentasUSD.toFixed(2)} USD\n`;
+            msj += `• COP: ${window.formatCOP(totalCOP)} COP\n`;
+            msj += `• Bs: ${window.formatBS(totalBs)} Bs (Paridad ${window.tasasConfig.paridadBs})\n`;
+            msj += `• Gastos: -$${datos.totalGastosUSD.toFixed(2)} USD\n`;
+            msj += `💵 *FLUJO NETO EN CAJA: $${datos.flujoCajaNeto.toFixed(2)} USD*\n`;
+            msj += `------------------------------------\n`;
+            msj += `👥 *DESGLOSE POR VENDEDOR:*\n\n`;
 
             for (const [cajero, info] of Object.entries(ventasPorCajero)) {
                 const cCOP = window.calcularPesosDesdeUSD(info.totalUSD);
                 const cBs = window.calcularBsDesdeUSD(info.totalUSD);
-                msj += `👤 *VENDEDOR: ${cajero.toUpperCase()}*
-`;
-                msj += `• Notas: ${info.notas.length}
-`;
-                msj += `• Total: $${info.totalUSD.toFixed(2)} USD (${window.formatCOP(cCOP)} COP | ${window.formatBS(cBs)} Bs)
-`;
-                msj += `• *Productos:*
-`;
+                msj += `👤 *VENDEDOR: ${cajero.toUpperCase()}*\n`;
+                msj += `• Notas: ${info.notas.length}\n`;
+                msj += `• Total: $${info.totalUSD.toFixed(2)} USD (${window.formatCOP(cCOP)} COP | ${window.formatBS(cBs)} Bs)\n`;
+                msj += `• *Productos:*\n`;
                 for (const [pName, pCant] of Object.entries(info.productos)) {
-                    msj += `  - ${pCant}x ${pName}
-`;
+                    msj += `  - ${pCant}x ${pName}\n`;
                 }
-                msj += `
-`;
+                msj += `\n`;
             }
 
-            msj += `------------------------------------
-`;
-            msj += `🔒 Registro extraído de la Bóveda de Cierres.
-*Sistema TCL Comercio — TUCOCEL C.A. & PublionlineMK*`;
+            msj += `------------------------------------\n`;
+            msj += `🔒 Registro extraído de la Bóveda de Cierres.\n*Sistema TCL Comercio — TUCOCEL C.A. & PublionlineMK*`;
             window.open(`https://wa.me/?text=${encodeURIComponent(msj)}`, '_blank');
         };
 
-    
         // -------------------------------------------------------------
         // AUTO-DETECCIÓN Y APERTURA DE VITRINA POR PARÁMETRO DE URL (?comercio=prueba)
         // -------------------------------------------------------------
@@ -4848,7 +4520,7 @@ window.abrirModalReporteZ = function() {
                 let enc = window.dbClientesSaaS.find(c => (c.slug && c.slug.toLowerCase() === slugLimpio) || (c.user && c.user.toLowerCase() === slugLimpio));
                 
                 if (!enc) {
-                    // Partición limpia automática (Efecto Netflix Perfil Nuevo)
+                    // Partición limpia automática tipo Netflix si el enlace es nuevo
                     enc = {
                         id: 'cli_' + Date.now(),
                         nombre: slugLimpio.toUpperCase(),
@@ -4870,7 +4542,7 @@ window.abrirModalReporteZ = function() {
                 window.clienteActivoSesion = enc;
                 window.cargarDatosDelComercioActivo();
                 
-                // Ocultar login y paneles privados para mostrar la vitrina pública del comercio
+                // Ocultar logins y paneles privados para abrir la vitrina pública del comercio
                 document.getElementById('vista-login').classList.add('hidden');
                 document.getElementById('vista-master-admin').classList.add('hidden');
                 document.getElementById('vista-panel-cliente-privado').classList.add('hidden');
@@ -4886,7 +4558,6 @@ window.abrirModalReporteZ = function() {
                 window.renderizarProductosVitrina();
             }
         });
-
     </script>
 </body>
 </html>
