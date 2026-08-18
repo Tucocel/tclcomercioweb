@@ -89,6 +89,23 @@
 </head>
 <body class="min-h-screen flex flex-col bg-slate-50 w-full overflow-x-hidden">
 
+    <!-- OVERLAY VISUAL DE CONEXIÓN CON EL SERVIDOR EN LA NUBE -->
+    <div id="overlay-sincronizacion-servidor" class="fixed inset-0 bg-slate-950/80 backdrop-blur-md z-[99999] flex items-center justify-center hidden no-print transition-all duration-300">
+        <div class="bg-[#0f172a] border border-blue-500/40 rounded-3xl p-6 sm:p-8 max-w-sm w-full mx-4 text-center shadow-2xl space-y-4">
+            <div id="sync-icon-container" class="w-16 h-16 mx-auto rounded-2xl bg-blue-500/10 border border-blue-500/30 flex items-center justify-center text-3xl text-blue-400">
+                <i class="fa-solid fa-cloud-arrow-up animate-bounce"></i>
+            </div>
+            <div class="space-y-1">
+                <h4 id="sync-title-text" class="text-sm font-black text-white uppercase tracking-wider">Conectando al Servidor</h4>
+                <p id="sync-sub-text" class="text-xs font-mono text-slate-400">Sincronizando base de datos en tiempo real...</p>
+            </div>
+            <div class="w-full bg-slate-800 rounded-full h-1.5 overflow-hidden">
+                <div id="sync-progress-bar" class="bg-gradient-to-r from-blue-500 via-indigo-500 to-emerald-400 h-full w-2/3 animate-pulse"></div>
+            </div>
+        </div>
+    </div>
+
+
     <!-- CONTENEDOR EXCLUSIVO PARA IMPRESIÓN DIRECTA -->
     <div id="seccion-impresion-termica-directa" class="hidden"></div>
 
@@ -2080,20 +2097,120 @@
     <!-- SCRIPT PRINCIPAL CON LÓGICA DE NEGOCIO INTEGRADA -->
     <script>
         const firebaseConfig = {
-            apiKey: "AIzaSy_CONFIGURAR_API_KEY",
+            apiKey: "AIzaSyDytP_5UQyyRUT7wFC2bDIYz5t70z_pQV4",
             authDomain: "tucocel-vitrina.firebaseapp.com",
             projectId: "tucocel-vitrina",
-            storageBucket: "tucocel-vitrina.appspot.com",
-            messagingSenderId: "1234567890",
-            appId: "1:1234567890:web:abcdef"
+            storageBucket: "tucocel-vitrina.firebasestorage.app",
+            messagingSenderId: "1033621613862",
+            appId: "1:1033621613862:web:c279d663418a5cb0c5e5e7",
+            measurementId: "G-B1T781R1HB"
         };
 
+        window.dbNube = null;
         if (typeof firebase !== 'undefined' && firebase.initializeApp) {
             try {
-                firebase.initializeApp(firebaseConfig);
+                if (!firebase.apps.length) {
+                    firebase.initializeApp(firebaseConfig);
+                }
                 window.dbNube = firebase.firestore();
-            } catch(e) { console.log("Modo offline / local reactivado."); }
+                console.log("☁️ Conectado a Google Firebase Firestore exitosamente.");
+            } catch(e) { 
+                console.warn("Modo local reactivado:", e); 
+            }
         }
+
+        // MOTOR DE PROTECCIÓN ANTI-SOBRESCRITURA (READ-BEFORE-WRITE) MULTI-TENANT
+        window.sincronizarTenantConFirebase = async function(entidad) {
+            if (!window.dbNube || !window.clienteActivoSesion) return;
+            const slug = window.clienteActivoSesion.slug || 'demo';
+            const docRef = window.dbNube.collection('comercios_saas').doc(slug).collection('data').doc(entidad);
+
+            let dataLocal = [];
+            if (entidad === 'inventario') dataLocal = window.dbInventario || [];
+            else if (entidad === 'ventas') dataLocal = window.dbVentas || [];
+            else if (entidad === 'gastos') dataLocal = window.dbGastos || [];
+            else if (entidad === 'proveedores') dataLocal = window.dbProveedores || [];
+            else if (entidad === 'cierres') dataLocal = window.dbCierres || [];
+
+            try {
+                // Read-Before-Write: Verificación previa del servidor
+                const docSnap = await docRef.get();
+                if (docSnap.exists) {
+                    const serverData = docSnap.data() && docSnap.data().items ? docSnap.data().items : [];
+                    // Si el servidor tiene datos y local está vacío por fallo de red, NO sobreescribir en blanco: restaurar
+                    if (serverData.length > 0 && dataLocal.length === 0) {
+                        console.warn(`🛡️ Protección Anti-Sobrescritura activada para ${entidad}: Restaurando desde la nube.`);
+                        if (entidad === 'inventario') {
+                            window.dbInventario = serverData;
+                            window.guardarInventarioEnStorage();
+                            window.renderizarProductosVitrina();
+                            window.actualizarBadgeTotalInventario();
+                        } else if (entidad === 'ventas') {
+                            window.dbVentas = serverData;
+                            window.guardarVentasEnStorage();
+                        } else if (entidad === 'gastos') {
+                            window.dbGastos = serverData;
+                            window.guardarGastosEnStorage();
+                        } else if (entidad === 'proveedores') {
+                            window.dbProveedores = serverData;
+                            window.guardarProveedoresEnStorage();
+                        } else if (entidad === 'cierres') {
+                            window.dbCierres = serverData;
+                            window.guardarCierresEnStorage();
+                        }
+                        return;
+                    }
+                }
+                // Si la data local es válida, escribir a Firestore
+                await docRef.set({
+                    items: dataLocal,
+                    ultimoUpdateMs: Date.now(),
+                    slug: slug,
+                    nombre: window.clienteActivoSesion.nombre || 'COMERCIO'
+                }, { merge: true });
+                console.log(`☁️ ${entidad.toUpperCase()} sincronizado en la nube para ${slug}.`);
+            } catch(err) {
+                console.warn(`Aviso de sincronización nube (${entidad}):`, err);
+            }
+        };
+
+        window.descargarTenantDesdeFirebase = async function() {
+            if (!window.dbNube || !window.clienteActivoSesion) return;
+            const slug = window.clienteActivoSesion.slug || 'demo';
+            const coleccionData = window.dbNube.collection('comercios_saas').doc(slug).collection('data');
+
+            try {
+                const entidades = ['inventario', 'ventas', 'gastos', 'proveedores', 'cierres'];
+                for (const ent of entidades) {
+                    const snap = await coleccionData.doc(ent).get();
+                    if (snap.exists && snap.data() && snap.data().items) {
+                        const itemsServidor = snap.data().items;
+                        if (ent === 'inventario' && itemsServidor.length > 0) {
+                            window.dbInventario = itemsServidor;
+                            window.guardarInventarioEnStorage();
+                        } else if (ent === 'ventas' && itemsServidor.length > 0) {
+                            window.dbVentas = itemsServidor;
+                            window.guardarVentasEnStorage();
+                        } else if (ent === 'gastos' && itemsServidor.length > 0) {
+                            window.dbGastos = itemsServidor;
+                            window.guardarGastosEnStorage();
+                        } else if (ent === 'proveedores' && itemsServidor.length > 0) {
+                            window.dbProveedores = itemsServidor;
+                            window.guardarProveedoresEnStorage();
+                        } else if (ent === 'cierres' && itemsServidor.length > 0) {
+                            window.dbCierres = itemsServidor;
+                            window.guardarCierresEnStorage();
+                        }
+                    }
+                }
+                window.renderizarProductosVitrina();
+                window.actualizarBadgeTotalInventario();
+                window.recalcularReportesGanancias();
+                console.log(`☁️ Datos completos descargados y sincronizados desde la nube para ${slug}.`);
+            } catch(e) {
+                console.warn("Aviso descarga nube:", e);
+            }
+        };
 
         window.STORAGE_KEY_SAAS_CLIENTES = 'tcl_master_db_2026';
         window.getTenantStorageKey = function(entidad) { const slug = (window.clienteActivoSesion && window.clienteActivoSesion.slug) ? window.clienteActivoSesion.slug : 'demo'; return `tcl_tenant_${slug}_${entidad}_2026`; };
@@ -2702,23 +2819,66 @@ _Comprobante de Recepción Interna._
         // -------------------------------------------------------------
         // MÓDULO PUNTO DE VENTA FULLSCREEN CONTROLES (BARRA NEÓN AISLADA AQUÍ)
         // -------------------------------------------------------------
-        window.abrirModuloPOS = function() {
-            if (window.cajeroActual) document.getElementById('pos-input-cajero').value = window.cajeroActual;
-            window.carritoPOS = [];
-            document.getElementById('pos-busqueda-input').value = '';
-            window.cargarVentaSinDatos();
-            
-            document.getElementById('vista-panel-cliente-privado').classList.add('hidden');
-            document.getElementById('vista-pos-fullscreen').classList.remove('hidden');
-            document.getElementById('bottom-bar-gerencial').classList.remove('hidden'); // VISIBLE SOLO EN POS
-            
-            window.seleccionarMonedaCargaPOS('USD');
-            window.seleccionarMonedaPagoVuelto('USD');
-            window.cambiarModoPOS('INVENTARIO');
-            window.renderizarCarritoPOS();
+        
+        // ANIMACIÓN VISUAL DE CONEXIÓN CON EL SERVIDOR
+        window.mostrarAnimacionConexionServidor = function(titulo = "Conectando al Servidor", callback = null) {
+            const overlay = document.getElementById('overlay-sincronizacion-servidor');
+            const iconBox = document.getElementById('sync-icon-container');
+            const titleEl = document.getElementById('sync-title-text');
+            const subEl = document.getElementById('sync-sub-text');
+            const bar = document.getElementById('sync-progress-bar');
 
-            // Verificar si se deben fijar las tasas de apertura del día
-            window.verificarTasaAperturaDia();
+            if (!overlay || !iconBox) {
+                if (callback) callback();
+                return;
+            }
+
+            // Estado 1: Conectando
+            iconBox.className = "w-16 h-16 mx-auto rounded-2xl bg-blue-500/10 border border-blue-500/30 flex items-center justify-center text-3xl text-blue-400";
+            iconBox.innerHTML = `<i class="fa-solid fa-cloud-arrow-up animate-bounce"></i>`;
+            if (titleEl) titleEl.innerText = titulo;
+            if (subEl) subEl.innerText = "Verificando base de datos en la nube...";
+            if (bar) {
+                bar.className = "bg-blue-500 h-full w-1/2 animate-pulse";
+            }
+            overlay.classList.remove('hidden');
+
+            setTimeout(() => {
+                // Estado 2: Conexión Exitosa (Chulito verde)
+                iconBox.className = "w-16 h-16 mx-auto rounded-2xl bg-emerald-500/20 border border-emerald-500/40 flex items-center justify-center text-3xl text-emerald-400";
+                iconBox.innerHTML = `<i class="fa-solid fa-circle-check animate-scale"></i>`;
+                if (titleEl) titleEl.innerText = "¡Conexión Segura!";
+                if (subEl) subEl.innerText = "Servidor sincronizado al 100%";
+                if (bar) {
+                    bar.className = "bg-emerald-500 h-full w-full transition-all duration-300";
+                }
+
+                setTimeout(() => {
+                    overlay.classList.add('hidden');
+                    if (callback) callback();
+                }, 500);
+            }, 600);
+        };
+
+        window.abrirModuloPOS = function() {
+            window.mostrarAnimacionConexionServidor("Conectando al Servidor", () => {
+                if (window.cajeroActual) document.getElementById('pos-input-cajero').value = window.cajeroActual;
+                window.carritoPOS = [];
+                document.getElementById('pos-busqueda-input').value = '';
+                window.cargarVentaSinDatos();
+                
+                document.getElementById('vista-panel-cliente-privado').classList.add('hidden');
+                document.getElementById('vista-pos-fullscreen').classList.remove('hidden');
+                document.getElementById('bottom-bar-gerencial').classList.remove('hidden'); // VISIBLE SOLO EN POS
+                
+                window.seleccionarMonedaCargaPOS('USD');
+                window.seleccionarMonedaPagoVuelto('USD');
+                window.cambiarModoPOS('INVENTARIO');
+                window.renderizarCarritoPOS();
+
+                // Verificar si se deben fijar las tasas de apertura del día
+                window.verificarTasaAperturaDia();
+            });
         };
 
         window.verificarTasaAperturaDia = function() {
@@ -3172,14 +3332,27 @@ Esta acción no devuelve stock.`)) {
                 }
             } else {
                 idEdit = 'cli_' + Date.now();
+                const fechaVencimiento = new Date(Date.now() + dias * 24 * 60 * 60 * 1000).toISOString();
                 clienteGuardado = { 
                     id: idEdit, 
                     nombre, responsable, wa, user, pass, slug: user, dias, 
                     estatus: 'ACTIVO', 
-                    contratoAceptado: false 
+                    contratoAceptado: false,
+                    fechaCreacion: Date.now(),
+                    fechaVencimiento: fechaVencimiento,
+                    tasas: { cop: window.tasasConfig.cop || 3600, paridadBs: window.tasasConfig.paridadBs || 3.3 }
                 };
                 window.dbClientesSaaS.push(clienteGuardado);
                 document.getElementById('saas-editing-id').value = idEdit;
+
+                // Inicializar inventario aislado para el nuevo comercio
+                const prevSesion = window.clienteActivoSesion;
+                window.clienteActivoSesion = clienteGuardado;
+                window.dbInventario = [
+                    { id: 'p1_' + Date.now(), nombre: 'PRODUCTO INICIAL ' + nombre.toUpperCase(), desc: 'Catálogo de bienvenida', precioCosto: 1.00, precioVenta: 2.00, stock: 10, foto: '' }
+                ];
+                window.guardarInventarioEnStorage();
+                window.clienteActivoSesion = prevSesion;
             }
 
             window.guardarClientesEnStorage();
@@ -3699,64 +3872,102 @@ Esta acción no devuelve stock.`)) {
         };
 
         window.cargarClientesDesdeStorage = function() {
-            const guardados = localStorage.getItem(window.STORAGE_KEY);
-            if (guardados) { try { window.dbClientesSaaS = JSON.parse(guardados); } catch(e) { window.dbClientesSaaS = []; } } else {
-                window.dbClientesSaaS = [ { id: 'cli_001', nombre: 'COMERCIO EJEMPLO C.A.', responsable: 'Juan Pérez', wa: '04XX-0000000', user: 'demo', pass: '123456', slug: 'demo', dias: 180, estatus: 'ACTIVO' } ];
+            const guardados = localStorage.getItem(window.STORAGE_KEY_SAAS_CLIENTES) || localStorage.getItem('tcl_master_db_2026');
+            if (guardados) { 
+                try { window.dbClientesSaaS = JSON.parse(guardados); } catch(e) { window.dbClientesSaaS = []; } 
+            } else {
+                window.dbClientesSaaS = [ 
+                    { id: 'cli_001', nombre: 'COMERCIO EJEMPLO C.A.', responsable: 'Juan Pérez', wa: '0424-7357549', user: 'demo', pass: '123456', slug: 'demo', dias: 180, estatus: 'ACTIVO', fechaCreacion: Date.now(), fechaVencimiento: new Date(Date.now() + 180*24*60*60*1000).toISOString(), tasas: { cop: 3600, paridadBs: 3.3 }, contratoAceptado: true } 
+                ];
                 window.guardarClientesEnStorage();
             }
         };
-        window.guardarClientesEnStorage = function() { localStorage.setItem(window.STORAGE_KEY, JSON.stringify(window.dbClientesSaaS)); };
-        
-        window.cargarInventarioDesdeStorage = function() {
-            const guardados = localStorage.getItem(window.STORAGE_KEY_INV);
-            if (guardados) { try { window.dbInventario = JSON.parse(guardados); } catch(e) { window.dbInventario = []; } } else {
+        window.guardarClientesEnStorage = function() { localStorage.setItem(window.STORAGE_KEY_SAAS_CLIENTES, JSON.stringify(window.dbClientesSaaS)); };
+
+        // CARGA DINÁMICA DE CONTEXTO AISLADO POR COMERCIO (MULTI-TENANT REAL)
+        window.cargarDatosDelComercioActivo = function() {
+            if (!window.clienteActivoSesion && window.dbClientesSaaS && window.dbClientesSaaS.length > 0) {
+                window.clienteActivoSesion = window.dbClientesSaaS[0];
+            }
+            if (!window.clienteActivoSesion) return;
+
+            // 1. Inventario Aislado por Comercio
+            const gInv = localStorage.getItem(window.getTenantStorageKey('inventario'));
+            if (gInv) { 
+                try { window.dbInventario = JSON.parse(gInv); } catch(e) { window.dbInventario = []; } 
+            } else {
                 window.dbInventario = [
-                    { id: 'p1', nombre: 'ACEITE VEGETAL 1L', desc: 'Soya.', precioCosto: 1.80, precioVenta: 2.50, stock: 15, foto: '' },
-                    { id: 'p2', nombre: 'HARINA PAN 1KG', desc: 'Maíz.', precioCosto: 0.85, precioVenta: 1.10, stock: 0, foto: '' }
+                    { id: 'p1_' + Date.now(), nombre: 'ACEITE VEGETAL 1L', desc: 'Comestible vegetal de primera.', precioCosto: 1.80, precioVenta: 2.50, stock: 15, foto: '' },
+                    { id: 'p2_' + Date.now(), nombre: 'HARINA PAN 1KG', desc: 'Harina de maíz blanco precocida.', precioCosto: 0.85, precioVenta: 1.10, stock: 25, foto: '' }
                 ];
                 window.guardarInventarioEnStorage();
             }
-        };
-        window.guardarInventarioEnStorage = function() { localStorage.setItem(window.STORAGE_KEY_INV, JSON.stringify(window.dbInventario)); };
 
-        window.cargarVentasDesdeStorage = function() {
-            const guardados = localStorage.getItem(window.STORAGE_KEY_VENTAS);
-            if (guardados) { try { window.dbVentas = JSON.parse(guardados); } catch(e) { window.dbVentas = []; } } else {
-                window.dbVentas = []; window.guardarVentasEnStorage();
+            // 2. Ventas / Notas Aisladas por Comercio
+            const gVentas = localStorage.getItem(window.getTenantStorageKey('ventas'));
+            window.dbVentas = gVentas ? JSON.parse(gVentas) : [];
+
+            // 3. Gastos / Egresos Aislados por Comercio
+            const gGastos = localStorage.getItem(window.getTenantStorageKey('gastos'));
+            window.dbGastos = gGastos ? JSON.parse(gGastos) : [];
+
+            // 4. Compras / Proveedores Aislados por Comercio
+            const gProv = localStorage.getItem(window.getTenantStorageKey('proveedores'));
+            window.dbProveedores = gProv ? JSON.parse(gProv) : [];
+
+            // 5. Cierres Diarios Aislados por Comercio
+            const gCierres = localStorage.getItem(window.getTenantStorageKey('cierres'));
+            window.dbCierres = gCierres ? JSON.parse(gCierres) : [];
+
+            // Sincronizar en segundo plano con la nube de Google Firebase
+            if (typeof window.descargarTenantDesdeFirebase === 'function') {
+                window.descargarTenantDesdeFirebase();
+            }
+
+            // 6. Sincronizar Tasas si el comercio tiene su propia configuración cambiaria
+            if (window.clienteActivoSesion.tasas) {
+                window.tasasConfig = { ...window.clienteActivoSesion.tasas };
+                const mtCop = document.getElementById('master-tasa-cop');
+                const mtBs = document.getElementById('master-tasa-bs');
+                const copCli = document.getElementById('inv-tasa-cop');
+                const bsCli = document.getElementById('inv-tasa-bs');
+                if (mtCop) mtCop.value = window.tasasConfig.cop || 3600;
+                if (mtBs) mtBs.value = window.tasasConfig.paridadBs || 3.3;
+                if (copCli) copCli.value = window.tasasConfig.cop || 3600;
+                if (bsCli) bsCli.value = window.tasasConfig.paridadBs || 3.3;
             }
         };
-        window.guardarVentasEnStorage = function() { localStorage.setItem(window.STORAGE_KEY_VENTAS, JSON.stringify(window.dbVentas)); };
 
-        window.cargarGastosDesdeStorage = function() {
-            const guardados = localStorage.getItem(window.STORAGE_KEY_GASTOS);
-            if (guardados) { try { window.dbGastos = JSON.parse(guardados); } catch(e) { window.dbGastos = []; } } else {
-                window.dbGastos = []; window.guardarGastosEnStorage();
-            }
+        window.guardarInventarioEnStorage = function() { 
+            localStorage.setItem(window.getTenantStorageKey('inventario'), JSON.stringify(window.dbInventario));
+            if (typeof window.sincronizarTenantConFirebase === 'function') window.sincronizarTenantConFirebase('inventario');
         };
-        window.guardarGastosEnStorage = function() { localStorage.setItem(window.STORAGE_KEY_GASTOS, JSON.stringify(window.dbGastos)); };
+        window.guardarVentasEnStorage = function() { 
+            localStorage.setItem(window.getTenantStorageKey('ventas'), JSON.stringify(window.dbVentas));
+            if (typeof window.sincronizarTenantConFirebase === 'function') window.sincronizarTenantConFirebase('ventas');
+        };
+        window.guardarGastosEnStorage = function() { 
+            localStorage.setItem(window.getTenantStorageKey('gastos'), JSON.stringify(window.dbGastos));
+            if (typeof window.sincronizarTenantConFirebase === 'function') window.sincronizarTenantConFirebase('gastos');
+        };
+        window.guardarProveedoresEnStorage = function() { 
+            localStorage.setItem(window.getTenantStorageKey('proveedores'), JSON.stringify(window.dbProveedores));
+            if (typeof window.sincronizarTenantConFirebase === 'function') window.sincronizarTenantConFirebase('proveedores');
+        };
+        window.guardarCierresEnStorage = function() { 
+            localStorage.setItem(window.getTenantStorageKey('cierres'), JSON.stringify(window.dbCierres));
+            if (typeof window.sincronizarTenantConFirebase === 'function') window.sincronizarTenantConFirebase('cierres');
+        };
 
-        window.cargarProveedoresDesdeStorage = function() {
-            const guardados = localStorage.getItem(window.STORAGE_KEY_PROV);
-            if (guardados) { try { window.dbProveedores = JSON.parse(guardados); } catch(e) { window.dbProveedores = []; } } else {
-                window.dbProveedores = []; window.guardarProveedoresEnStorage();
-            }
-        };
-        window.guardarProveedoresEnStorage = function() { localStorage.setItem(window.STORAGE_KEY_PROV, JSON.stringify(window.dbProveedores)); };
-
-        window.cargarCierresDesdeStorage = function() {
-            const guardados = localStorage.getItem(window.STORAGE_KEY_CIERRES);
-            if (guardados) { try { window.dbCierres = JSON.parse(guardados); } catch(e) { window.dbCierres = []; } } else {
-                window.dbCierres = []; window.guardarCierresEnStorage();
-            }
-        };
-        window.guardarCierresEnStorage = function() { localStorage.setItem(window.STORAGE_KEY_CIERRES, JSON.stringify(window.dbCierres)); };
+        // Compatibilidad retroactiva
+        window.cargarInventarioDesdeStorage = window.cargarDatosDelComercioActivo;
+        window.cargarVentasDesdeStorage = window.cargarDatosDelComercioActivo;
+        window.cargarGastosDesdeStorage = window.cargarDatosDelComercioActivo;
+        window.cargarProveedoresDesdeStorage = window.cargarDatosDelComercioActivo;
+        window.cargarCierresDesdeStorage = window.cargarDatosDelComercioActivo;
 
         window.cargarClientesDesdeStorage();
-        window.cargarInventarioDesdeStorage();
-        window.cargarVentasDesdeStorage();
-        window.cargarGastosDesdeStorage();
-        window.cargarProveedoresDesdeStorage();
-        window.cargarCierresDesdeStorage();
+        window.cargarDatosDelComercioActivo();
 
         window.guardarProductoInventario = function() {
             const idEdit = document.getElementById('inv-edit-id').value;
@@ -5730,13 +5941,32 @@ window.abrirModalReporteZ = function() {
                     return;
                 }
 
-                const comercioSlug = searchParams.get('comercio');
+                const comercioSlug = searchParams.get('comercio') || searchParams.get('tenant') || searchParams.get('u') || searchParams.get('user');
                 if (comercioSlug) {
-                    const cli = (window.dbClientesSaaS || []).find(c => c.slug === comercioSlug || c.user === comercioSlug);
-                    if (cli) {
-                        window.clienteActivoSesion = cli;
-                        window.verVitrinaComoCliente();
+                    const slugLimpio = comercioSlug.toLowerCase().trim();
+                    let cli = (window.dbClientesSaaS || []).find(c => (c.slug && c.slug.toLowerCase() === slugLimpio) || (c.user && c.user.toLowerCase() === slugLimpio));
+                    if (!cli) {
+                        cli = {
+                            id: 'cli_' + Date.now(),
+                            nombre: slugLimpio.toUpperCase(),
+                            responsable: 'Titular',
+                            wa: '0424-7357549',
+                            user: slugLimpio,
+                            pass: '123456',
+                            slug: slugLimpio,
+                            dias: 180,
+                            estatus: 'ACTIVO',
+                            contratoAceptado: false,
+                            fechaCreacion: Date.now(),
+                            fechaVencimiento: new Date(Date.now() + 180*24*60*60*1000).toISOString(),
+                            tasas: { cop: 3600, paridadBs: 3.3 }
+                        };
+                        window.dbClientesSaaS.push(cli);
+                        window.guardarClientesEnStorage();
                     }
+                    window.clienteActivoSesion = cli;
+                    window.cargarDatosDelComercioActivo();
+                    window.verVitrinaComoCliente();
                 }
             } catch(e) {
                 console.error("Error en inicialización de router:", e);
