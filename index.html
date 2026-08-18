@@ -498,8 +498,15 @@
                             <input type="number" step="0.01" id="inv-input-venta" placeholder="Ej: 2.50 o 12000" class="input-clean font-mono text-blue-600">
                         </div>
                         <div>
+                            <label class="text-[10px] text-slate-500 uppercase block mb-1">Unidad / Tipo *</label>
+                            <select id="inv-input-unidad" class="input-clean font-bold text-xs">
+                                <option value="UND">Unidad (UND)</option>
+                                <option value="KG">Kilogramo (KG - Charcutería / Carnes / Víveres)</option>
+                            </select>
+                        </div>
+                        <div>
                             <label class="text-[10px] text-slate-500 uppercase block mb-1">Stock Disponible *</label>
-                            <input type="number" id="inv-input-stock" placeholder="Ej: 15" class="input-clean font-mono">
+                            <input type="number" step="any" id="inv-input-stock" placeholder="Ej: 15 o 12.450" class="input-clean font-mono">
                         </div>
                     </div>
 
@@ -617,7 +624,7 @@
 
                 <!-- SELECTOR DE MONEDA DE CARGA (PÍLDORA MULTIMONEDA) -->
                 <div class="bg-slate-50 p-2 rounded-xl border border-slate-200 space-y-1">
-                    <span class="text-[9px] text-slate-500 uppercase font-mono font-bold block">1. MONEDA PRINCIPAL DE CARGA Y VISUALIZACIÓN:</span>
+                    <span class="text-[9.5px] text-slate-700 uppercase font-mono font-black block">1. ¿EN QUÉ MONEDA VAS A FACTURAR?</span>
                     <div class="grid grid-cols-3 gap-1.5 font-bold text-[10px]">
                         <button type="button" onclick="window.seleccionarMonedaCargaPOS('USD')" id="btn-m-usd" class="py-2 rounded-lg border border-blue-600 bg-blue-600 text-white text-center font-black shadow-sm">💵 USD</button>
                         <button type="button" onclick="window.seleccionarMonedaCargaPOS('COP')" id="btn-m-cop" class="py-2 rounded-lg border border-slate-300 bg-white text-slate-700 text-center">🇨🇴 COP</button>
@@ -652,20 +659,42 @@
             </div>
 
             <div id="sec-pos-modo-libre" class="card-light p-4 bg-white space-y-3 hidden">
-                <span class="text-[10px] text-amber-600 font-black uppercase tracking-wider block">⚡ Venta Libre (Facturar Producto Fuera de Inventario)</span>
-                <div class="grid grid-cols-1 sm:grid-cols-3 gap-2 text-xs font-bold">
+                <div class="flex justify-between items-center border-b border-slate-100 pb-1.5">
+                    <span class="text-[10px] text-amber-600 font-black uppercase tracking-wider block">⚡ Venta Libre (Facturar al Vuelo sin Afectar Inventario)</span>
+                    <span class="text-[9px] text-slate-400 font-mono">Pesaje o Unidad</span>
+                </div>
+                <div class="grid grid-cols-1 sm:grid-cols-4 gap-2 text-xs font-bold">
                     <div class="sm:col-span-2">
-                        <label class="text-[9.5px] text-slate-500 uppercase block mb-1">Descripción del Producto / Servicio *</label>
-                        <input type="text" id="pos-libre-nombre" placeholder="Ej: Servicio Técnico / Producto Ocasional" class="input-clean font-mono">
+                        <label class="text-[9.5px] text-slate-500 uppercase block mb-1">Descripción del Producto / Charcutería *</label>
+                        <input type="text" id="pos-libre-nombre" placeholder="Ej: Queso Paisa / Jamón / Carne / Insumo" class="input-clean font-mono">
                     </div>
                     <div>
-                        <label id="lbl-moneda-monto-libre" class="text-[9.5px] text-slate-500 uppercase block mb-1">Monto en Dólares ($ USD) *</label>
-                        <input type="number" step="0.01" id="pos-libre-precio" placeholder="Ej: 5.00" class="input-clean font-mono text-blue-600 font-black">
+                        <label class="text-[9.5px] text-slate-500 uppercase block mb-1">Tipo / Unidad *</label>
+                        <select id="pos-libre-unidad" class="input-clean font-bold text-xs" onchange="window.actualizarLabelsVentaLibre()">
+                            <option value="UND">Unidad (UND)</option>
+                            <option value="KG">Kilogramo (KG / Gramos)</option>
+                        </select>
+                    </div>
+                    <div>
+                        <label id="lbl-moneda-monto-libre" class="text-[9.5px] text-slate-500 uppercase block mb-1">Precio Unit / Kg ($ USD) *</label>
+                        <input type="number" step="any" id="pos-libre-precio" placeholder="0.00" class="input-clean font-mono text-blue-600 font-black">
                     </div>
                 </div>
-                <button onclick="window.agregarVentaLibrePOS()" class="btn-brand w-full py-3 text-xs shadow-md">
-                    + AGREGAR A LA NOTA
-                </button>
+                <div class="grid grid-cols-1 sm:grid-cols-3 gap-2 text-xs font-bold items-end pt-1">
+                    <div>
+                        <label id="lbl-pos-libre-cant" class="text-[9.5px] text-slate-500 uppercase block mb-1">Cantidad / Peso en Kilos *</label>
+                        <input type="number" step="any" id="pos-libre-cant" placeholder="Ej: 1 o 0.350" value="1" class="input-clean font-mono text-emerald-600 font-black">
+                    </div>
+                    <div>
+                        <label class="text-[9.5px] text-slate-500 uppercase block mb-1">O Vender por Dinero Directo</label>
+                        <input type="number" step="any" id="pos-libre-monto-directo" oninput="window.calcularKilosDesdeMontoLibre()" placeholder="Ej: $2 o 10.000 COP" class="input-clean font-mono text-purple-600">
+                    </div>
+                    <div>
+                        <button type="button" onclick="window.agregarVentaLibrePOS()" class="btn-brand w-full py-3 text-xs shadow-md">
+                            + Agregar a la Nota
+                        </button>
+                    </div>
+                </div>
             </div>
 
             <div class="card-light p-3.5 bg-white space-y-2 flex-grow flex flex-col justify-between">
@@ -1727,7 +1756,8 @@
                     </div>
                     <div>
                         <label class="text-[9.5px] text-slate-500 uppercase block mb-0.5">Proveedor / Empresa *</label>
-                        <input type="text" id="prov-input-nombre" placeholder="Ej: Distribuidora Los Andes C.A." class="input-clean font-mono">
+                        <input type="text" id="prov-input-nombre" list="lista-proveedores-guardados" oninput="window.autocompletarDatosProveedor(this.value)" placeholder="Ej: Distribuidora Los Andes C.A." class="input-clean font-mono">
+                        <datalist id="lista-proveedores-guardados"></datalist>
                     </div>
                     <div>
                         <label class="text-[9.5px] text-slate-500 uppercase block mb-0.5">Teléfono / WhatsApp</label>
@@ -1757,18 +1787,25 @@
                             <i class="fa-solid fa-barcode"></i> Escanear Código
                         </button>
                     </div>
-                    <div class="grid grid-cols-1 sm:grid-cols-4 gap-2">
+                    <div class="grid grid-cols-1 sm:grid-cols-5 gap-2">
                         <div class="sm:col-span-2">
                             <label class="text-[9px] text-slate-500 uppercase block mb-0.5">Nombre del Producto *</label>
-                            <input type="text" id="prov-prod-nombre" placeholder="Ej: Harina PAN 1kg / Filtro 20W50" class="input-clean font-mono">
+                            <input type="text" id="prov-prod-nombre" placeholder="Ej: Queso Paisa / Jamón / Harina / Filtro" class="input-clean font-mono">
                         </div>
                         <div>
-                            <label class="text-[9px] text-slate-500 uppercase block mb-0.5">Cantidad *</label>
-                            <input type="number" id="prov-prod-cant" value="1" min="1" class="input-clean font-mono text-center font-black">
+                            <label class="text-[9px] text-slate-500 uppercase block mb-0.5">Unidad / Tipo *</label>
+                            <select id="prov-prod-unidad" class="input-clean font-bold text-xs">
+                                <option value="UND">Unidad (UND)</option>
+                                <option value="KG">Kilos (KG / Peso)</option>
+                            </select>
+                        </div>
+                        <div>
+                            <label class="text-[9px] text-slate-500 uppercase block mb-0.5">Cant / Kilos *</label>
+                            <input type="number" step="any" id="prov-prod-cant" value="1" placeholder="Ej: 15 o 24.500" class="input-clean font-mono text-center font-black">
                         </div>
                         <div>
                             <label id="lbl-compra-costo-moneda" class="text-[9px] text-slate-500 uppercase block mb-0.5">P. Costo ($ USD) *</label>
-                            <input type="number" step="0.01" id="prov-prod-costo" placeholder="0.00" class="input-clean font-mono text-slate-800 font-black">
+                            <input type="number" step="any" id="prov-prod-costo" placeholder="0.00" class="input-clean font-mono text-slate-800 font-black">
                         </div>
                     </div>
                     <div class="flex justify-between items-center gap-2 pt-1">
@@ -1982,17 +2019,36 @@
         </div>
     </div>
 
-    <!-- SUBMODAL CANTIDAD RÁPIDA -->
+    <!-- SUBMODAL CANTIDAD Y PESAJE RÁPIDO EN POS -->
     <div id="submodal-cant-pos" class="fixed inset-0 bg-slate-950/80 backdrop-blur-md z-[110] p-4 flex items-center justify-center hidden no-print">
-        <div class="bg-white border border-slate-200 w-full max-w-xs rounded-3xl p-5 space-y-4 text-center font-bold text-xs">
-            <h4 id="lbl-cant-pos-nombre" class="font-black text-slate-900 uppercase text-xs truncate">ACEITE VEGETAL</h4>
-            <input type="hidden" id="cant-pos-id-prod" value="">
-            <div>
-                <label class="text-[10px] text-slate-500 uppercase block mb-1">Unidades a Facturar *</label>
-                <input type="number" id="input-cant-pos-val" value="1" min="1" class="input-clean font-mono text-center text-lg font-black text-blue-600">
+        <div class="bg-white border border-slate-200 w-full max-w-xs rounded-3xl p-5 space-y-3.5 text-center font-bold text-xs">
+            <div class="border-b border-slate-100 pb-2">
+                <h4 id="lbl-cant-pos-nombre" class="font-black text-slate-900 uppercase text-xs truncate">PRODUCTO</h4>
+                <span id="lbl-cant-pos-precio-ref" class="text-[10px] font-mono text-blue-600 font-bold block">$0.00 USD</span>
             </div>
-            <div class="grid grid-cols-2 gap-2">
-                <button onclick="document.getElementById('submodal-cant-pos').classList.add('hidden')" class="bg-slate-100 text-slate-700 py-3 rounded-xl uppercase text-xs">Cancelar</button>
+            <input type="hidden" id="cant-pos-id-prod" value="">
+            <input type="hidden" id="cant-pos-unidad" value="UND">
+            <input type="hidden" id="cant-pos-precio-val" value="0">
+            
+            <div class="space-y-2">
+                <div>
+                    <label id="lbl-cant-pos-tipo-label" class="text-[10px] text-slate-500 uppercase block mb-1">Cantidad / Peso (Kilos exactos) *</label>
+                    <input type="number" step="any" id="input-cant-pos-val" oninput="window.recalcularTotalModalCantidad()" value="1" class="input-clean font-mono text-center text-lg font-black text-blue-600">
+                </div>
+                
+                <div id="box-pos-calculadora-monto" class="bg-slate-50 p-2.5 rounded-xl border border-slate-200 space-y-1 hidden">
+                    <label class="text-[9px] text-slate-500 uppercase block font-bold">O escribir dinero recibido:</label>
+                    <input type="number" step="any" id="input-cant-pos-monto-dinero" oninput="window.calcularKilosDesdeDineroModal()" placeholder="Ej: $3 o 10.000 COP" class="input-clean font-mono text-center text-xs font-black text-purple-600">
+                </div>
+            </div>
+
+            <div class="bg-slate-100 p-2 rounded-xl text-slate-700 font-mono text-xs flex justify-between items-center">
+                <span class="text-[9.5px] uppercase font-bold text-slate-500">Subtotal:</span>
+                <strong id="lbl-subtotal-modal-cant" class="text-blue-600 font-black">$0.00 USD</strong>
+            </div>
+
+            <div class="grid grid-cols-2 gap-2 pt-1">
+                <button onclick="document.getElementById('submodal-cant-pos').classList.add('hidden')" class="bg-slate-100 hover:bg-slate-200 text-slate-700 py-3 rounded-xl uppercase text-xs">Cancelar</button>
                 <button onclick="window.confirmarCantidadMasivaPOS()" class="btn-brand py-3 text-xs shadow-md">Confirmar</button>
             </div>
         </div>
@@ -3585,53 +3641,178 @@ Saldo restante: $${nota.credito.saldoPendienteUSD.toFixed(2)} USD`);
                     precioDisplay = `${window.formatBS(window.calcularBsDesdeUSD(ventaUSD))} Bs`;
                 }
 
+                const unidadStr = p.unidad === 'KG' ? 'Kg' : 'Und';
                 return `
                     <div class="bg-white border border-slate-200 rounded-2xl p-2.5 flex justify-between items-center shadow-sm hover:border-blue-300">
                         <div class="min-w-0 flex-1">
-                            <h4 class="text-[11px] font-black uppercase text-slate-900 truncate">${p.nombre}</h4>
-                            <div class="text-[9.5px] font-mono font-bold text-slate-500">Disp: ${p.stock} | <span class="text-blue-600 font-black">${precioDisplay}</span></div>
+                            <h4 class="text-[11px] font-black uppercase text-slate-900 truncate">${p.nombre} ${p.unidad === 'KG' ? '<span class="text-[9px] text-amber-600 bg-amber-50 px-1 py-0.2 rounded border border-amber-200">/ Kg</span>' : ''}</h4>
+                            <div class="text-[9.5px] font-mono font-bold text-slate-500">Stock: ${p.stock} ${unidadStr} | <span class="text-blue-600 font-black">${precioDisplay}</span></div>
                         </div>
-                        <button onclick="window.solicitarCantidadPOS('${p.id}', '${p.nombre}', ${p.stock})" class="bg-emerald-600 hover:bg-emerald-500 text-white w-9 h-9 rounded-xl flex items-center justify-center font-black text-xs shrink-0 shadow transition-all">+ Add</button>
+                        <button onclick="window.solicitarCantidadPOS('${p.id}', '${p.nombre}', ${p.stock}, '${p.unidad || 'UND'}')" class="bg-emerald-600 hover:bg-emerald-500 text-white px-3 py-1.5 rounded-xl flex items-center justify-center font-black text-xs shrink-0 shadow transition-all">+ Add</button>
                     </div>
                 `;
             }).join('');
         };
 
-        window.solicitarCantidadPOS = function(id, nombre, stock) {
+        window.solicitarCantidadPOS = function(id, nombre, stock, unidad = 'UND') {
+            const prod = window.dbInventario.find(p => p.id === id);
+            const precioUSD = prod ? (prod.precioVenta || prod.precioUSD || 0) : 0;
+            const u = prod ? (prod.unidad || unidad || 'UND') : unidad;
+
             document.getElementById('lbl-cant-pos-nombre').innerText = nombre;
             document.getElementById('cant-pos-id-prod').value = id;
-            document.getElementById('input-cant-pos-val').value = 1;
-            document.getElementById('input-cant-pos-val').max = stock;
+            document.getElementById('cant-pos-unidad').value = u;
+            document.getElementById('cant-pos-precio-val').value = precioUSD;
+            
+            let displayPrecio = `$${precioUSD.toFixed(2)} USD`;
+            if (window.monedaCargaPOS === 'COP') displayPrecio = `${window.formatearMiles(window.calcularPesosDesdeUSD(precioUSD))} COP`;
+            else if (window.monedaCargaPOS === 'BS') displayPrecio = `${window.formatBS(window.calcularBsDesdeUSD(precioUSD))} Bs`;
+
+            document.getElementById('lbl-cant-pos-precio-ref').innerText = `${displayPrecio} / ${u === 'KG' ? 'Kg' : 'Und'}`;
+
+            const boxCalcMonto = document.getElementById('box-pos-calculadora-monto');
+            const lblTipo = document.getElementById('lbl-cant-pos-tipo-label');
+            const inputDinero = document.getElementById('input-cant-pos-monto-dinero');
+            if (inputDinero) inputDinero.value = '';
+
+            if (u === 'KG') {
+                if (lblTipo) lblTipo.innerText = "Peso en Kilogramos (Ej: 0.350 o 1.250) *";
+                document.getElementById('input-cant-pos-val').value = "0.500";
+                if (boxCalcMonto) boxCalcMonto.classList.remove('hidden');
+            } else {
+                if (lblTipo) lblTipo.innerText = "Unidades a Facturar *";
+                document.getElementById('input-cant-pos-val').value = "1";
+                if (boxCalcMonto) boxCalcMonto.classList.add('hidden');
+            }
+
+            window.recalcularTotalModalCantidad();
             document.getElementById('submodal-cant-pos').classList.remove('hidden');
+        };
+
+        window.recalcularTotalModalCantidad = function() {
+            const cant = parseFloat(document.getElementById('input-cant-pos-val').value) || 0;
+            const precioUSD = parseFloat(document.getElementById('cant-pos-precio-val').value) || 0;
+            const subtotal = cant * precioUSD;
+            const lbl = document.getElementById('lbl-subtotal-modal-cant');
+            if (lbl) {
+                if (window.monedaCargaPOS === 'COP') lbl.innerText = `${window.formatearMiles(window.calcularPesosDesdeUSD(subtotal))} COP`;
+                else if (window.monedaCargaPOS === 'BS') lbl.innerText = `${window.formatBS(window.calcularBsDesdeUSD(subtotal))} Bs`;
+                else lbl.innerText = `$${subtotal.toFixed(2)} USD`;
+            }
+        };
+
+        window.calcularKilosDesdeDineroModal = function() {
+            const dineroIngresado = parseFloat(document.getElementById('input-cant-pos-monto-dinero').value) || 0;
+            const precioUSD = parseFloat(document.getElementById('cant-pos-precio-val').value) || 0;
+            if (precioUSD <= 0 || dineroIngresado <= 0) return;
+
+            let montoUSD = dineroIngresado;
+            if (window.monedaCargaPOS === 'COP') montoUSD = window.calcularUSDDesdeCOP(dineroIngresado);
+            else if (window.monedaCargaPOS === 'BS') montoUSD = window.calcularUSDDesdeBs(dineroIngresado);
+
+            const kilosCalculados = montoUSD / precioUSD;
+            document.getElementById('input-cant-pos-val').value = kilosCalculados.toFixed(3);
+            window.recalcularTotalModalCantidad();
         };
 
         window.confirmarCantidadMasivaPOS = function() {
             const id = document.getElementById('cant-pos-id-prod').value;
-            const cant = parseInt(document.getElementById('input-cant-pos-val').value) || 1;
+            const cant = parseFloat(document.getElementById('input-cant-pos-val').value) || 1;
             const prod = window.dbInventario.find(p => p.id === id);
             
-            if (!prod) return;
+            if (!prod || cant <= 0) return;
 
             const idx = window.carritoPOS.findIndex(item => item.id === id);
             if (idx !== -1) {
-                const totalNueva = window.carritoPOS[idx].cant + cant;
-                if (totalNueva <= prod.stock) window.carritoPOS[idx].cant = totalNueva;
-                else alert("⚠️ Límite de stock alcanzado.");
+                window.carritoPOS[idx].cant += cant;
             } else {
-                window.carritoPOS.push({ id: prod.id, nombre: prod.nombre, precioUSD: (prod.precioVenta || 0), cant: cant, max: prod.stock });
+                window.carritoPOS.push({ 
+                    id: prod.id, 
+                    nombre: prod.nombre, 
+                    precioUSD: (prod.precioVenta || prod.precioUSD || 0), 
+                    cant: cant, 
+                    unidad: prod.unidad || 'UND',
+                    max: prod.stock || 9999 
+                });
             }
 
             document.getElementById('submodal-cant-pos').classList.add('hidden');
             window.renderizarCarritoPOS();
         };
 
-        window.agregarVentaLibrePOS = function() {
-            const nombre = document.getElementById('pos-libre-nombre').value.trim();
-            const precioIngresado = parseFloat(document.getElementById('pos-libre-precio').value) || 0;
+        window.actualizarLabelsVentaLibre = function() {
+            const u = document.getElementById('pos-libre-unidad').value;
+            const lblCant = document.getElementById('lbl-pos-libre-cant');
+            if (lblCant) lblCant.innerText = u === 'KG' ? "Peso en Kilos (Ej: 0.350 o 1.250) *" : "Cantidad de Unidades *";
+        };
 
-            if (!nombre || precioIngresado <= 0) {
-                alert("⚠️ Ingrese una descripción válida y un precio mayor a 0.");
+        window.calcularKilosDesdeMontoLibre = function() {
+            const dinero = parseFloat(document.getElementById('pos-libre-monto-directo').value) || 0;
+            const precioIngresado = parseFloat(document.getElementById('pos-libre-precio').value) || 0;
+            if (dinero <= 0 || precioIngresado <= 0) return;
+
+            let montoUSD = dinero;
+            let precioUSD = precioIngresado;
+            if (window.monedaCargaPOS === 'COP') {
+                montoUSD = window.calcularUSDDesdeCOP(dinero);
+                precioUSD = window.calcularUSDDesdeCOP(precioIngresado);
+            } else if (window.monedaCargaPOS === 'BS') {
+                montoUSD = window.calcularUSDDesdeBs(dinero);
+                precioUSD = window.calcularUSDDesdeBs(precioIngresado);
+            }
+
+            const kilos = montoUSD / precioUSD;
+            document.getElementById('pos-libre-cant').value = kilos.toFixed(3);
+        };
+
+        window.parseNumeroFlexible = function(val) {
+            if (val === undefined || val === null) return 0;
+            let str = String(val).trim().replace(/\s/g, '');
+            if (!str) return 0;
+            if (str.includes('.') && str.includes(',')) {
+                if (str.indexOf('.') < str.indexOf(',')) str = str.replace(/\./g, '').replace(',', '.');
+                else str = str.replace(/,/g, '');
+            } else if (str.includes(',')) {
+                str = str.replace(',', '.');
+            }
+            return parseFloat(str) || 0;
+        };
+
+        window.agregarVentaLibrePOS = function() {
+            const elNom = document.getElementById('pos-libre-nombre');
+            const elUni = document.getElementById('pos-libre-unidad');
+            const elPre = document.getElementById('pos-libre-precio');
+            const elCan = document.getElementById('pos-libre-cant');
+            const elMon = document.getElementById('pos-libre-monto-directo');
+
+            const nombre = (elNom ? elNom.value : '').trim();
+            const unidad = (elUni ? elUni.value : 'UND') || 'UND';
+            let precioIngresado = window.parseNumeroFlexible(elPre ? elPre.value : 0);
+            let cant = window.parseNumeroFlexible(elCan ? elCan.value : 0);
+            const montoDirecto = window.parseNumeroFlexible(elMon ? elMon.value : 0);
+
+            // Si el usuario ingresó monto directo sin precio por kilo, asumimos venta de monto directo (precio = monto, cant = 1)
+            if (montoDirecto > 0 && precioIngresado <= 0) {
+                precioIngresado = montoDirecto;
+                cant = 1;
+            } else if (montoDirecto > 0 && precioIngresado > 0 && cant <= 0) {
+                cant = parseFloat((montoDirecto / precioIngresado).toFixed(3)) || 1;
+            }
+
+            if (!nombre) {
+                if (elNom) elNom.focus();
+                alert("⚠️ Por favor escribe la descripción del producto o servicio.");
                 return;
+            }
+
+            if (precioIngresado <= 0) {
+                if (elPre) elPre.focus();
+                alert("⚠️ Ingrese el precio unitario / precio por kilo o el monto a cobrar.");
+                return;
+            }
+
+            if (cant <= 0) {
+                cant = 1;
             }
 
             let precioFinalUSD = precioIngresado;
@@ -3641,9 +3822,19 @@ Saldo restante: $${nota.credito.saldoPendienteUSD.toFixed(2)} USD`);
                 precioFinalUSD = window.calcularUSDDesdeBs(precioIngresado);
             }
 
-            window.carritoPOS.push({ id: 'libre_' + Date.now(), nombre, precioUSD: precioFinalUSD, cant: 1, max: 999 });
-            document.getElementById('pos-libre-nombre').value = '';
-            document.getElementById('pos-libre-precio').value = '';
+            window.carritoPOS.push({ 
+                id: 'libre_' + Date.now(), 
+                nombre: `${nombre.toUpperCase()} (${unidad})`, 
+                precioUSD: precioFinalUSD, 
+                cant: cant, 
+                unidad: unidad, 
+                max: 9999 
+            });
+
+            if (elNom) elNom.value = '';
+            if (elPre) elPre.value = '';
+            if (elCan) elCan.value = '1';
+            if (elMon) elMon.value = '';
             window.renderizarCarritoPOS();
         };
 
@@ -3674,16 +3865,20 @@ Saldo restante: $${nota.credito.saldoPendienteUSD.toFixed(2)} USD`);
                     displaySubtotal = `${window.formatBS(window.calcularBsDesdeUSD(item.precioUSD * item.cant))} Bs`;
                 }
 
+                const cantLabel = item.unidad === 'KG' ? `${item.cant} Kg` : `${item.cant} Und`;
+                const stepChange = item.unidad === 'KG' ? 0.250 : 1;
                 return `
                     <div class="bg-white p-2.5 rounded-xl border border-slate-200 flex justify-between items-center shadow-sm">
                         <div class="min-w-0 flex-1">
                             <h5 class="text-[11px] font-black uppercase text-slate-900 truncate">${item.nombre}</h5>
-                            <div class="text-[10px] font-mono text-blue-600 font-bold">${displaySubtotal}</div>
+                            <div class="text-[10px] font-mono text-blue-600 font-bold">
+                                ${cantLabel} × $${item.precioUSD.toFixed(2)} = ${displaySubtotal}
+                            </div>
                         </div>
                         <div class="flex items-center gap-1.5 shrink-0">
-                            <button onclick="window.cambiarCantPOS(${idx}, -1)" class="w-7 h-7 bg-slate-200 hover:bg-slate-300 text-slate-800 rounded-lg font-black text-xs flex items-center justify-center">-</button>
-                            <span class="font-mono font-black text-xs px-1.5">${item.cant}</span>
-                            <button onclick="window.cambiarCantPOS(${idx}, 1)" class="w-7 h-7 bg-emerald-100 hover:bg-emerald-200 text-emerald-800 rounded-lg font-black text-xs flex items-center justify-center">+</button>
+                            <button onclick="window.cambiarCantPOS(${idx}, -${stepChange})" class="w-7 h-7 bg-slate-200 hover:bg-slate-300 text-slate-800 rounded-lg font-black text-xs flex items-center justify-center">-</button>
+                            <span class="font-mono font-black text-[11px] px-1">${item.cant}</span>
+                            <button onclick="window.cambiarCantPOS(${idx}, ${stepChange})" class="w-7 h-7 bg-emerald-100 hover:bg-emerald-200 text-emerald-800 rounded-lg font-black text-xs flex items-center justify-center">+</button>
                         </div>
                     </div>
                 `;
@@ -4581,6 +4776,7 @@ Esta acción no devuelve stock.`)) {
 
         window.cargarClientesDesdeStorage();
         window.cargarDatosDelComercioActivo();
+        if (typeof window.cargarDirectorioProveedores === "function") window.cargarDirectorioProveedores();
 
         window.guardarProductoInventario = function() {
             const idEdit = document.getElementById('inv-edit-id').value;
@@ -4588,7 +4784,9 @@ Esta acción no devuelve stock.`)) {
             const monedaBase = document.getElementById('inv-input-moneda-base').value;
             let valCosto = parseFloat(document.getElementById('inv-input-costo').value) || 0;
             let valVenta = parseFloat(document.getElementById('inv-input-venta').value) || 0;
-            const stock = parseInt(document.getElementById('inv-input-stock').value) || 0;
+            const unidadEl = document.getElementById('inv-input-unidad');
+            const unidad = unidadEl ? unidadEl.value : 'UND';
+            const stock = parseFloat(document.getElementById('inv-input-stock').value) || 0;
             const desc = document.getElementById('inv-input-desc').value.trim() || 'Sin descripción';
             const foto = document.getElementById('inv-input-foto-base64').value || '';
 
@@ -4605,10 +4803,10 @@ Esta acción no devuelve stock.`)) {
 
             if (idEdit) {
                 const idx = window.dbInventario.findIndex(p => p.id === idEdit);
-                if (idx !== -1) window.dbInventario[idx] = { ...window.dbInventario[idx], nombre, desc, precioCosto: precioCostoUSD, precioVenta: precioVentaUSD, stock, foto: foto || window.dbInventario[idx].foto || '' };
+                if (idx !== -1) window.dbInventario[idx] = { ...window.dbInventario[idx], nombre, desc, precioCosto: precioCostoUSD, precioVenta: precioVentaUSD, stock, unidad, foto: foto || window.dbInventario[idx].foto || '' };
                 alert("✨ Producto actualizado en inventario.");
             } else {
-                window.dbInventario.push({ id: 'p_' + Date.now(), nombre, desc, precioCosto: precioCostoUSD, precioVenta: precioVentaUSD, stock, foto });
+                window.dbInventario.push({ id: 'p_' + Date.now(), nombre, desc, precioCosto: precioCostoUSD, precioVenta: precioVentaUSD, stock, unidad, foto });
                 alert("✅ Producto agregado al inventario.");
             }
 
@@ -4771,9 +4969,9 @@ $${(item.precioUSD * item.cant).toFixed(2)} USD
                             <div class="space-y-1.5">
                                 <div class="w-full aspect-[3/4] bg-slate-100 rounded-2xl overflow-hidden flex items-center justify-center text-slate-400 text-3xl relative">
                                     ${p.foto ? `<img src="${p.foto}" class="w-full h-full object-cover">` : `<i class="fa-solid fa-box-open"></i>`}
-                                    ${!disponible ? `<span class="absolute top-2 right-2 bg-red-600 text-white font-black text-[8px] sm:text-[9px] px-2 py-0.5 rounded-lg uppercase shadow">Agotado</span>` : `<span class="absolute top-2 right-2 bg-emerald-600 text-white font-black text-[8px] sm:text-[9px] px-2 py-0.5 rounded-lg uppercase font-mono shadow">${p.stock} Disponibles</span>`}
+                                    ${!disponible ? `<span class="absolute top-2 right-2 bg-red-600 text-white font-black text-[8px] sm:text-[9px] px-2 py-0.5 rounded-lg uppercase shadow">Agotado</span>` : (p.unidad === 'KG' ? `<span class="absolute top-2 right-2 bg-emerald-600 text-white font-black text-[8px] sm:text-[9px] px-2 py-0.5 rounded-lg uppercase font-mono shadow">🟢 Disponible</span>` : `<span class="absolute top-2 right-2 bg-emerald-600 text-white font-black text-[8px] sm:text-[9px] px-2 py-0.5 rounded-lg uppercase font-mono shadow">${p.stock} Disponibles</span>`)}
                                 </div>
-                                <h3 class="font-black text-slate-900 text-[11px] sm:text-xs uppercase truncate pt-1">${p.nombre}</h3>
+                                <h3 class="font-black text-slate-900 text-[11px] sm:text-xs uppercase truncate pt-1">${p.nombre} ${p.unidad === 'KG' ? '<span class="text-[9px] text-amber-600 bg-amber-50 px-1 py-0.5 rounded border border-amber-200">/ Kg</span>' : ''}</h3>
                                 <p class="text-[9px] sm:text-[10px] text-slate-500 leading-tight line-clamp-2">${p.desc || ''}</p>
                             </div>
                             <div class="space-y-2 pt-1.5 border-t border-slate-100 font-mono">
@@ -5849,6 +6047,51 @@ window.abrirModalReporteZ = function() {
             }
         };
 
+        
+        // -------------------------------------------------------------
+        // DIRECTORIO INTELIGENTE Y MEMORIA AUTOMÁTICA DE PROVEEDORES
+        // -------------------------------------------------------------
+        window.STORAGE_KEY_DIRECTORIO_PROV = 'tcl_directorio_proveedores_2026';
+        window.directorioProveedores = [];
+
+        window.cargarDirectorioProveedores = function() {
+            const guardados = localStorage.getItem(window.STORAGE_KEY_DIRECTORIO_PROV);
+            if (guardados) {
+                try { window.directorioProveedores = JSON.parse(guardados); } catch(e) { window.directorioProveedores = []; }
+            }
+            window.actualizarDatalistProveedores();
+        };
+
+        window.guardarProveedorEnDirectorio = function(nombre, tel, dir) {
+            if (!nombre || nombre.trim().length < 2) return;
+            const nombreClean = nombre.trim();
+            const idx = window.directorioProveedores.findIndex(p => p.nombre.toLowerCase() === nombreClean.toLowerCase());
+            if (idx !== -1) {
+                window.directorioProveedores[idx] = { nombre: nombreClean, tel: tel || window.directorioProveedores[idx].tel || '', dir: dir || window.directorioProveedores[idx].dir || '' };
+            } else {
+                window.directorioProveedores.unshift({ nombre: nombreClean, tel: tel || '', dir: dir || '' });
+            }
+            localStorage.setItem(window.STORAGE_KEY_DIRECTORIO_PROV, JSON.stringify(window.directorioProveedores));
+            window.actualizarDatalistProveedores();
+        };
+
+        window.actualizarDatalistProveedores = function() {
+            const dl = document.getElementById('lista-proveedores-guardados');
+            if (!dl) return;
+            dl.innerHTML = (window.directorioProveedores || []).map(p => `<option value="${p.nombre}">${p.tel ? `Tel: ${p.tel}` : ''}</option>`).join('');
+        };
+
+        window.autocompletarDatosProveedor = function(nombreIngresado) {
+            if (!nombreIngresado || !window.directorioProveedores) return;
+            const encontrado = window.directorioProveedores.find(p => p.nombre.toLowerCase() === nombreIngresado.trim().toLowerCase());
+            if (encontrado) {
+                const inpTel = document.getElementById('prov-input-tel');
+                const inpDir = document.getElementById('prov-input-dir');
+                if (inpTel && encontrado.tel) inpTel.value = encontrado.tel;
+                if (inpDir && encontrado.dir) inpDir.value = encontrado.dir;
+            }
+        };
+
         window.abrirModalRecepcionProveedor = function() {
             window.carritoCompras = [];
             window.seleccionarMonedaCargaCompra('USD');
@@ -5919,7 +6162,14 @@ window.abrirModalReporteZ = function() {
             `).join('');
 
             const totUSD = window.carritoCompras.reduce((acc, x) => acc + x.subtotalUSD, 0);
+            const totCOP = window.calcularPesosDesdeUSD(totUSD);
+            const totBS = window.calcularBsDesdeUSD(totUSD);
+
             if (lblTot) lblTot.innerText = `$${totUSD.toFixed(2)} USD`;
+            const lblCop = document.getElementById('lbl-total-compra-cop');
+            const lblBs = document.getElementById('lbl-total-compra-bs');
+            if (lblCop) lblCop.innerText = `${window.formatearMiles(totCOP)} COP`;
+            if (lblBs) lblBs.innerText = `${window.formatBS(totBS)} Bs`;
         };
 
         // VENTANA MODAL DE CIERRE CON LAS 3 ACCIONES (IMPRIMIR, WHATSAPP, SOLO CARGAR)
@@ -5997,6 +6247,7 @@ window.abrirModalReporteZ = function() {
                 // 2. Registro en Proveedores / Compras
                 window.dbProveedores.unshift(op);
                 window.guardarProveedoresEnStorage();
+                window.guardarProveedorEnDirectorio(op.provNombre, op.provTel, op.provDir);
 
                 // 3. Inyección automática al Módulo de Gastos/Egresos para Cierre Diario
                 window.dbGastos.unshift({
@@ -6638,6 +6889,7 @@ window.abrirModalReporteZ = function() {
                     }
                     window.clienteActivoSesion = cli;
                     window.cargarDatosDelComercioActivo();
+        if (typeof window.cargarDirectorioProveedores === "function") window.cargarDirectorioProveedores();
                     window.verVitrinaComoCliente();
                 }
             } catch(e) {
