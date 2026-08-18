@@ -3,6 +3,15 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <!-- CONFIGURACIÓN PWA NATIVA (STANDALONE FULLSCREEN & APP ICON) -->
+    <meta name="theme-color" content="#0f172a">
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+    <meta name="apple-mobile-web-app-title" content="TCL Comercio">
+    <link rel="icon" type="image/svg+xml" href="data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHZpZXdCb3g9IjAgMCA1MTIgNTEyIj4KICA8cmVjdCB3aWR0aD0iNTEyIiBoZWlnaHQ9IjUxMiIgcng9IjEyMCIgZmlsbD0iIzBmMTcyYSIvPgogIDxyZWN0IHg9IjIwIiB5PSIyMCIgd2lkdGg9IjQ3MiIgaGVpZ2h0PSI0NzIiIHJ4PSIxMDAiIGZpbGw9Im5vbmUiIHN0cm9rZT0iIzNiODJmNiIgc3Ryb2tlLXdpZHRoPSIxMiIvPgogIDxwYXRoIGQ9Ik0xMjAgMTgwIEwzOTIgMTgwIEwzNjAgMzgwIEwxNTIgMzgwIFoiIGZpbGw9IiMyNTYzZWIiIG9wYWNpdHk9IjAuOSIvPgogIDxwYXRoIGQ9Ik0xODAgMTgwIFEyNTYgOTAgMzMyIDE4MCIgZmlsbD0ibm9uZSIgc3Ryb2tlPSIjZjU5ZTBiIiBzdHJva2Utd2lkdGg9IjI0IiBzdHJva2UtbGluZWNhcD0icm91bmQiLz4KICA8Y2lyY2xlIGN4PSIyNTYiIGN5PSIyNzAiIHI9IjMyIiBmaWxsPSIjZmZmZmZmIi8+CiAgPHBhdGggZD0iTTIzNiAzMjAgTDI3NiAzMjAiIHN0cm9rZT0iI2ZmZmZmZiIgc3Ryb2tlLXdpZHRoPSIxMiIgc3Ryb2tlLWxpbmVjYXA9InJvdW5kIi8+Cjwvc3ZnPg==">
+    <link rel="apple-touch-icon" href="data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHZpZXdCb3g9IjAgMCA1MTIgNTEyIj4KICA8cmVjdCB3aWR0aD0iNTEyIiBoZWlnaHQ9IjUxMiIgcng9IjEyMCIgZmlsbD0iIzBmMTcyYSIvPgogIDxyZWN0IHg9IjIwIiB5PSIyMCIgd2lkdGg9IjQ3MiIgaGVpZ2h0PSI0NzIiIHJ4PSIxMDAiIGZpbGw9Im5vbmUiIHN0cm9rZT0iIzNiODJmNiIgc3Ryb2tlLXdpZHRoPSIxMiIvPgogIDxwYXRoIGQ9Ik0xMjAgMTgwIEwzOTIgMTgwIEwzNjAgMzgwIEwxNTIgMzgwIFoiIGZpbGw9IiMyNTYzZWIiIG9wYWNpdHk9IjAuOSIvPgogIDxwYXRoIGQ9Ik0xODAgMTgwIFEyNTYgOTAgMzMyIDE4MCIgZmlsbD0ibm9uZSIgc3Ryb2tlPSIjZjU5ZTBiIiBzdHJva2Utd2lkdGg9IjI0IiBzdHJva2UtbGluZWNhcD0icm91bmQiLz4KICA8Y2lyY2xlIGN4PSIyNTYiIGN5PSIyNzAiIHI9IjMyIiBmaWxsPSIjZmZmZmZmIi8+CiAgPHBhdGggZD0iTTIzNiAzMjAgTDI3NiAzMjAiIHN0cm9rZT0iI2ZmZmZmZiIgc3Ryb2tlLXdpZHRoPSIxMiIgc3Ryb2tlLWxpbmVjYXA9InJvdW5kIi8+Cjwvc3ZnPg==">
+    <link rel="manifest" href="data:application/manifest+json;base64,eyJuYW1lIjogIlRDTCBTaXN0ZW1hIENvbWVyY2lvIiwgInNob3J0X25hbWUiOiAiVENMIENvbWVyY2lvIiwgImRlc2NyaXB0aW9uIjogIlNpc3RlbWEgXHUwMGMxZ2lsIGRlIEZhY3R1cmFjaVx1MDBmM24sIFBPUyBlIEludmVudGFyaW8gTXVsdGltb25lZGEiLCAic3RhcnRfdXJsIjogIi4vIiwgImRpc3BsYXkiOiAic3RhbmRhbG9uZSIsICJiYWNrZ3JvdW5kX2NvbG9yIjogIiMwZjE3MmEiLCAidGhlbWVfY29sb3IiOiAiIzBmMTcyYSIsICJvcmllbnRhdGlvbiI6ICJwb3J0cmFpdC1wcmltYXJ5IiwgImljb25zIjogW3sic3JjIjogImRhdGE6aW1hZ2Uvc3ZnK3htbDtiYXNlNjQsUEhOMlp5QjRiV3h1Y3owaWFIUjBjRG92TDNkM2R5NTNNeTV2Y21jdk1qQXdNQzl6ZG1jaUlIWnBaWGRDYjNnOUlqQWdNQ0ExTVRJZ05URXlJajRLSUNBOGNtVmpkQ0IzYVdSMGFEMGlOVEV5SWlCb1pXbG5hSFE5SWpVeE1pSWdjbmc5SWpFeU1DSWdabWxzYkQwaUl6Qm1NVGN5WVNJdlBnb2dJRHh5WldOMElIZzlJakl3SWlCNVBTSXlNQ0lnZDJsa2RHZzlJalEzTWlJZ2FHVnBaMmgwUFNJME56SWlJSEo0UFNJeE1EQWlJR1pwYkd3OUltNXZibVVpSUhOMGNtOXJaVDBpSXpOaU9ESm1OaUlnYzNSeWIydGxMWGRwWkhSb1BTSXhNaUl2UGdvZ0lEeHdZWFJvSUdROUlrMHhNakFnTVRnd0lFd3pPVElnTVRnd0lFd3pOakFnTXpnd0lFd3hOVElnTXpnd0lGb2lJR1pwYkd3OUlpTXlOVFl6WldJaUlHOXdZV05wZEhrOUlqQXVPU0l2UGdvZ0lEeHdZWFJvSUdROUlrMHhPREFnTVRnd0lGRXlOVFlnT1RBZ016TXlJREU0TUNJZ1ptbHNiRDBpYm05dVpTSWdjM1J5YjJ0bFBTSWpaalU1WlRCaUlpQnpkSEp2YTJVdGQybGtkR2c5SWpJMElpQnpkSEp2YTJVdGJHbHVaV05oY0QwaWNtOTFibVFpTHo0S0lDQThZMmx5WTJ4bElHTjRQU0l5TlRZaUlHTjVQU0l5TnpBaUlISTlJak15SWlCbWFXeHNQU0lqWm1abVptWm1JaTgrQ2lBZ1BIQmhkR2dnWkQwaVRUSXpOaUF6TWpBZ1RESTNOaUF6TWpBaUlITjBjbTlyWlQwaUkyWm1abVptWmlJZ2MzUnliMnRsTFhkcFpIUm9QU0l4TWlJZ2MzUnliMnRsTFd4cGJtVmpZWEE5SW5KdmRXNWtJaTgrQ2p3dmMzWm5QZz09IiwgInNpemVzIjogIjUxMng1MTIiLCAidHlwZSI6ICJpbWFnZS9zdmcreG1sIiwgInB1cnBvc2UiOiAiYW55IG1hc2thYmxlIn1dfQ==">
+
     <title>TCL Sistema Comercio — Panel Máster 2026</title>
 
     <!-- TAILWIND CSS & FONT-AWESOME -->
@@ -454,7 +463,7 @@
 
                     <div>
                         <label class="text-[10px] text-slate-500 uppercase block mb-1">Nombre del Producto *</label>
-                        <input type="text" id="inv-input-nombre" placeholder="Ej: Harina PAN 1kg / Aceite 1L" class="input-clean">
+                        <input type="text" id="inv-input-nombre" placeholder="Ej: Harina PAN 1kg / Filtro Aceite 20W50 / Aceite Vegetal 1L" class="input-clean">
                     </div>
 
                     <div class="bg-blue-50/60 p-3 rounded-2xl border border-blue-200 space-y-2">
@@ -483,7 +492,7 @@
 
                     <div>
                         <label class="text-[10px] text-slate-500 uppercase block mb-1">Descripción Breve / Compatibilidad</label>
-                        <input type="text" id="inv-input-desc" placeholder="Ej: Repuesto original / Descripción breve" class="input-clean">
+                        <input type="text" id="inv-input-desc" placeholder="Ej: Repuesto original, comestible de soya..." class="input-clean">
                     </div>
 
                     <div class="flex gap-2 pt-1 w-full">
@@ -590,7 +599,7 @@
             <div class="card-light p-3 bg-white space-y-2">
                 <div class="flex items-center gap-2">
                     <i class="fa-solid fa-user-tie text-blue-600 text-lg"></i>
-                    <input type="text" id="pos-input-cajero" placeholder="Nombre del Cajero de Turno *" class="input-clean font-black text-xs uppercase border-blue-200">
+                    <input type="text" id="pos-input-cajero" placeholder="Escriba Nombre del Cajero de Turno *" class="input-clean font-black text-xs uppercase border-blue-200">
                 </div>
 
                 <!-- SELECTOR DE MONEDA DE CARGA (PÍLDORA MULTIMONEDA) -->
@@ -617,7 +626,7 @@
                 <div class="flex gap-2">
                     <div class="relative flex-grow">
                         <i class="fa-solid fa-magnifying-glass absolute left-3.5 top-3.5 text-slate-400 text-sm"></i>
-                        <input type="text" id="pos-busqueda-input" onkeyup="window.renderizarInventarioPOS()" placeholder="Buscar producto o código..." class="input-clean pl-9 py-2.5 bg-white font-sans text-[11px] sm:text-xs border-slate-300 truncate">
+                        <input type="text" id="pos-busqueda-input" onkeyup="window.renderizarInventarioPOS()" placeholder="Buscar por nombre o código de barra..." class="input-clean pl-10 py-3 bg-white font-mono text-xs border-slate-300">
                     </div>
                     <button type="button" onclick="window.iniciarEscanerCamara('POS')" class="bg-slate-900 hover:bg-slate-800 text-white px-3.5 rounded-xl text-sm font-black flex items-center justify-center gap-1.5 shrink-0 shadow-md">
                         <i class="fa-solid fa-barcode text-base text-amber-400"></i>
@@ -1418,7 +1427,7 @@
 
                     <div>
                         <label class="text-[9px] text-blue-300 uppercase ml-1 block mb-1">Dirección Física de la Tienda *</label>
-                        <input type="text" id="cli-input-dir" required placeholder="Ej: Calle 5 con Carrera 8, Local 12" class="w-full border px-4 py-3 rounded-xl focus:outline-none">
+                        <input type="text" id="cli-input-dir" required placeholder="Ej: Calle 5 con Carrera 8, Local #12, Centro..." class="w-full border px-4 py-3 rounded-xl focus:outline-none">
                     </div>
 
                     <div class="grid grid-cols-1 sm:grid-cols-2 gap-3">
@@ -1913,7 +1922,7 @@
             <div class="p-3 bg-slate-100 border-b border-slate-200 shrink-0">
                 <div class="relative">
                     <i class="fa-solid fa-magnifying-glass absolute left-3.5 top-3 text-slate-400 text-xs"></i>
-                    <input type="text" id="busqueda-inventario-input" onkeyup="window.renderizarTablaModalInventario()" placeholder="Buscar producto o descripción..." class="input-clean pl-9 bg-white font-sans text-[11px] sm:text-xs truncate">
+                    <input type="text" id="busqueda-inventario-input" onkeyup="window.renderizarTablaModalInventario()" placeholder="Escriba para buscar: harina, aceite, filtro..." class="input-clean pl-9 bg-white font-mono text-xs">
                 </div>
             </div>
             <div class="p-3 sm:p-5 overflow-y-auto no-scrollbar flex-grow space-y-3">
@@ -2016,7 +2025,7 @@
             <div class="p-3 bg-slate-100 border-b border-slate-200 shrink-0">
                 <div class="relative">
                     <i class="fa-solid fa-magnifying-glass absolute left-3.5 top-3 text-slate-400 text-xs"></i>
-                    <input type="text" id="busqueda-historial-input" onkeyup="window.renderizarHistorialVentas()" placeholder="Buscar nota, cliente o cajero..." class="input-clean pl-9 bg-white font-sans text-[11px] sm:text-xs truncate">
+                    <input type="text" id="busqueda-historial-input" onkeyup="window.renderizarHistorialVentas()" placeholder="Buscar por cliente, N° nota o cajero..." class="input-clean pl-9 bg-white font-mono text-xs">
                 </div>
             </div>
 
@@ -2150,6 +2159,47 @@
 
     <!-- SCRIPT PRINCIPAL CON LÓGICA DE NEGOCIO INTEGRADA -->
     <script>
+
+        // -------------------------------------------------------------
+        // MOTOR PWA & INSTALACIÓN DIRECTA DE APLICACIÓN (ANDROID / IOS / PC)
+        // -------------------------------------------------------------
+        window.deferredPromptPWA = null;
+        window.addEventListener('beforeinstallprompt', function(e) {
+            e.preventDefault();
+            window.deferredPromptPWA = e;
+            console.log('📲 PWA: Evento de instalación capturado exitosamente.');
+        });
+
+        window.instalarAppDispositivo = function(rol = 'CLIENTE') {
+            if (window.deferredPromptPWA) {
+                window.deferredPromptPWA.prompt();
+                window.deferredPromptPWA.userChoice.then(function(choiceResult) {
+                    if (choiceResult.outcome === 'accepted') {
+                        console.log('✅ Usuario aceptó la instalación.');
+                    }
+                    window.deferredPromptPWA = null;
+                });
+            } else {
+                const esAndroid = /android/i.test(navigator.userAgent);
+                const esIOS = /iphone|ipad|ipod/i.test(navigator.userAgent);
+                
+                let instrucciones = "📲 INSTALACIÓN DE APLICACIÓN EN TU DISPOSITIVO:\n\n";
+                if (esIOS) {
+                    instrucciones += "1. Toca el botón 'Compartir' (el cuadro con una flecha hacia arriba) en Safari.\n";
+                    instrucciones += "2. Selecciona 'Agregar al inicio' (+).\n";
+                    instrucciones += "3. ¡Listo! Ya tendrás el icono de la App en tu pantalla.";
+                } else if (esAndroid) {
+                    instrucciones += "1. Toca los tres puntos (⋮) en la esquina superior de Chrome.\n";
+                    instrucciones += "2. Selecciona 'Instalar aplicación' o 'Agregar a la pantalla principal'.\n";
+                    instrucciones += "3. ¡Listo! Se instalará como una App nativa a pantalla completa.";
+                } else {
+                    instrucciones += "1. Toca el icono de instalación (pantalla con flecha) en la barra de direcciones de tu navegador (Chrome / Edge).\n";
+                    instrucciones += "2. Presiona 'Instalar'.";
+                }
+                alert(instrucciones);
+            }
+        };
+
 
         // -------------------------------------------------------------
         // BLINDAJE DE SEGURIDAD FRONTEND (ANTI-INSPECCIÓN, ANTI-CLIC DERECHO, ANTI-F12)
@@ -6428,47 +6478,6 @@ window.abrirModalReporteZ = function() {
         // -------------------------------------------------------------
         // INICIALIZACIÓN AUTOMÁTICA DEL SISTEMA Y ENRUTADOR DE URL
         // -------------------------------------------------------------
-        
-        // -------------------------------------------------------------
-        // MOTOR PWA (INSTALACIÓN DIRECTA EN ANDROID / IOS / PC)
-        // -------------------------------------------------------------
-        window.deferredPromptPWA = null;
-        window.addEventListener('beforeinstallprompt', function(e) {
-            e.preventDefault();
-            window.deferredPromptPWA = e;
-            console.log('📲 PWA: Evento de instalación capturado.');
-        });
-
-        window.instalarAppDispositivo = function(rol = 'CLIENTE') {
-            if (window.deferredPromptPWA) {
-                window.deferredPromptPWA.prompt();
-                window.deferredPromptPWA.userChoice.then(function(choiceResult) {
-                    if (choiceResult.outcome === 'accepted') {
-                        console.log('✅ Usuario aceptó la instalación.');
-                    }
-                    window.deferredPromptPWA = null;
-                });
-            } else {
-                const esAndroid = /android/i.test(navigator.userAgent);
-                const esIOS = /iphone|ipad|ipod/i.test(navigator.userAgent);
-                
-                let instrucciones = "📲 INSTALACIÓN DE APLICACIÓN EN TU DISPOSITIVO:\n\n";
-                if (esIOS) {
-                    instrucciones += "1. Toca el botón 'Compartir' (el cuadro con una flecha hacia arriba) en Safari.\n";
-                    instrucciones += "2. Selecciona 'Agregar al inicio' (+).\n";
-                    instrucciones += "3. ¡Listo! Ya tendrás el icono de la App en tu pantalla.";
-                } else if (esAndroid) {
-                    instrucciones += "1. Toca los tres puntos (⋮) en la esquina superior de Chrome.\n";
-                    instrucciones += "2. Selecciona 'Instalar aplicación' o 'Agregar a la pantalla principal'.\n";
-                    instrucciones += "3. ¡Listo! Se instalará como una App nativa a pantalla completa.";
-                } else {
-                    instrucciones += "1. Toca el icono de instalación (pantalla con flecha) en la barra de direcciones de tu navegador (Chrome / Edge).\n";
-                    instrucciones += "2. Presiona 'Instalar'.";
-                }
-                alert(instrucciones);
-            }
-        };
-
         window.inicializarRouterURL = function() {
             try {
                 if (typeof window.cargarTarifasSaasStorage === 'function') window.cargarTarifasSaasStorage();
