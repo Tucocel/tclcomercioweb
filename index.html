@@ -189,9 +189,14 @@
             </button>
         </div>
 
-        <button onclick="window.abrirModalConfigurarEntornoSaaS('NUEVO')" class="btn-brand w-full sm:w-auto py-3.5 px-6 font-black text-xs flex items-center justify-center gap-2 shadow-md">
-            <i class="fa-solid fa-plus text-sm"></i> <span>REGISTRAR NUEVA SUCURSAL / COMERCIO</span>
-        </button>
+        <div class="flex flex-col sm:flex-row gap-2.5 w-full">
+            <button onclick="window.abrirModalConfigurarEntornoSaaS('NUEVO')" class="btn-brand w-full sm:w-auto py-3.5 px-6 font-black text-xs flex items-center justify-center gap-2 shadow-md">
+                <i class="fa-solid fa-plus text-sm"></i> <span>REGISTRAR NUEVA SUCURSAL / COMERCIO</span>
+            </button>
+            <button onclick="window.instalarAppDispositivo('MASTER')" class="bg-slate-900 hover:bg-slate-800 text-amber-400 border border-amber-400/40 w-full sm:w-auto py-3.5 px-5 rounded-xl font-black text-xs flex items-center justify-center gap-2 shadow-md transition-all active:scale-95">
+                <i class="fa-solid fa-mobile-screen-button text-sm"></i> <span>📲 DESCARGAR / INSTALAR APP MÁSTER</span>
+            </button>
+        </div>
 
         <div class="grid grid-cols-1 sm:grid-cols-3 gap-4">
             <div class="card-light p-5 space-y-1">
@@ -400,6 +405,9 @@
                 <button onclick="window.verVitrinaComoCliente()" class="flex-1 sm:flex-none bg-blue-600 hover:bg-blue-500 text-white px-4 py-2.5 rounded-xl text-[10.5px] sm:text-xs font-black uppercase shadow-md flex items-center justify-center gap-1.5 transition-all">
                     <i class="fa-solid fa-eye text-sm"></i> <span class="truncate">Ver Vitrina Web</span>
                 </button>
+                <button onclick="window.instalarAppDispositivo('CLIENTE')" class="flex-1 sm:flex-none bg-gradient-to-r from-amber-500 to-amber-600 hover:from-amber-400 hover:to-amber-500 text-slate-950 px-4 py-2.5 rounded-xl text-[10.5px] sm:text-xs font-black uppercase shadow-md flex items-center justify-center gap-1.5 transition-all active:scale-95">
+                    <i class="fa-solid fa-download text-sm"></i> <span class="truncate">📲 Descargar App Caja</span>
+                </button>
             </div>
         </div>
 
@@ -446,7 +454,7 @@
 
                     <div>
                         <label class="text-[10px] text-slate-500 uppercase block mb-1">Nombre del Producto *</label>
-                        <input type="text" id="inv-input-nombre" placeholder="Ej: Harina PAN 1kg / Filtro Aceite 20W50 / Aceite Vegetal 1L" class="input-clean">
+                        <input type="text" id="inv-input-nombre" placeholder="Ej: Harina PAN 1kg / Aceite 1L" class="input-clean">
                     </div>
 
                     <div class="bg-blue-50/60 p-3 rounded-2xl border border-blue-200 space-y-2">
@@ -475,7 +483,7 @@
 
                     <div>
                         <label class="text-[10px] text-slate-500 uppercase block mb-1">Descripción Breve / Compatibilidad</label>
-                        <input type="text" id="inv-input-desc" placeholder="Ej: Repuesto original, comestible de soya..." class="input-clean">
+                        <input type="text" id="inv-input-desc" placeholder="Ej: Repuesto original / Descripción breve" class="input-clean">
                     </div>
 
                     <div class="flex gap-2 pt-1 w-full">
@@ -582,7 +590,7 @@
             <div class="card-light p-3 bg-white space-y-2">
                 <div class="flex items-center gap-2">
                     <i class="fa-solid fa-user-tie text-blue-600 text-lg"></i>
-                    <input type="text" id="pos-input-cajero" placeholder="Escriba Nombre del Cajero de Turno *" class="input-clean font-black text-xs uppercase border-blue-200">
+                    <input type="text" id="pos-input-cajero" placeholder="Nombre del Cajero de Turno *" class="input-clean font-black text-xs uppercase border-blue-200">
                 </div>
 
                 <!-- SELECTOR DE MONEDA DE CARGA (PÍLDORA MULTIMONEDA) -->
@@ -609,7 +617,7 @@
                 <div class="flex gap-2">
                     <div class="relative flex-grow">
                         <i class="fa-solid fa-magnifying-glass absolute left-3.5 top-3.5 text-slate-400 text-sm"></i>
-                        <input type="text" id="pos-busqueda-input" onkeyup="window.renderizarInventarioPOS()" placeholder="Buscar por nombre o código de barra..." class="input-clean pl-10 py-3 bg-white font-mono text-xs border-slate-300">
+                        <input type="text" id="pos-busqueda-input" onkeyup="window.renderizarInventarioPOS()" placeholder="Buscar producto o código..." class="input-clean pl-9 py-2.5 bg-white font-sans text-[11px] sm:text-xs border-slate-300 truncate">
                     </div>
                     <button type="button" onclick="window.iniciarEscanerCamara('POS')" class="bg-slate-900 hover:bg-slate-800 text-white px-3.5 rounded-xl text-sm font-black flex items-center justify-center gap-1.5 shrink-0 shadow-md">
                         <i class="fa-solid fa-barcode text-base text-amber-400"></i>
@@ -698,6 +706,52 @@
                                 <option value="🇻🇪 Transferencia / Pago Móvil (Bs)">🇻🇪 Transferencia / Pago Móvil (Bs)</option>
                                 <option value="🔀 Pago Mixto / Múltiple">🔀 Pago Mixto / Múltiple</option>
                             </select>
+                        </div>
+
+                        <!-- SELECTOR DE CONDICIÓN DE VENTA: CONTADO / A CRÉDITO MULTIMONEDA -->
+                        <div class="bg-slate-100 p-2.5 rounded-2xl border border-slate-300 space-y-2">
+                            <span class="text-[9.5px] text-slate-600 uppercase font-mono font-bold block">CONDICIÓN DE LA VENTA:</span>
+                            <div class="grid grid-cols-2 gap-2 font-black text-xs">
+                                <button type="button" id="btn-cond-contado" onclick="window.seleccionarCondicionVentaPOS('CONTADO')" class="py-2 rounded-xl bg-blue-600 text-white shadow-sm flex items-center justify-center gap-1.5 transition-all">
+                                    <i class="fa-solid fa-money-bill"></i> Contado
+                                </button>
+                                <button type="button" id="btn-cond-credito" onclick="window.seleccionarCondicionVentaPOS('CREDITO')" class="py-2 rounded-xl bg-white text-slate-700 border border-slate-300 flex items-center justify-center gap-1.5 transition-all">
+                                    <i class="fa-solid fa-clock"></i> A Crédito
+                                </button>
+                            </div>
+
+                            <!-- CAMPOS DESPLEGABLES EXCLUSIVOS DE VENTA A CRÉDITO -->
+                            <div id="sec-pos-campos-credito" class="hidden space-y-2 pt-2 border-t border-slate-200">
+                                <div class="grid grid-cols-1 sm:grid-cols-2 gap-2 text-xs font-bold">
+                                    <div>
+                                        <label class="text-[9px] text-amber-700 uppercase block mb-0.5">Plazo / Días de Crédito *</label>
+                                        <select id="pos-credito-dias" class="input-clean font-mono font-black text-xs">
+                                            <option value="7">7 Días</option>
+                                            <option value="15" selected>15 Días</option>
+                                            <option value="30">30 Días</option>
+                                            <option value="60">60 Días</option>
+                                        </select>
+                                    </div>
+                                    <div>
+                                        <div class="flex justify-between items-center mb-0.5">
+                                            <label class="text-[9px] text-amber-700 uppercase font-bold">Abono Inicial Recibido:</label>
+                                            <div class="flex gap-1 font-bold text-[8.5px]">
+                                                <button type="button" onclick="window.seleccionarMonedaAbonoCredito('USD')" id="btn-abono-usd" class="px-1.5 py-0.5 rounded border border-blue-600 bg-blue-600 text-white font-black">USD</button>
+                                                <button type="button" onclick="window.seleccionarMonedaAbonoCredito('COP')" id="btn-abono-cop" class="px-1.5 py-0.5 rounded border border-slate-300 bg-white text-slate-700 font-bold">COP</button>
+                                                <button type="button" onclick="window.seleccionarMonedaAbonoCredito('BS')" id="btn-abono-bs" class="px-1.5 py-0.5 rounded border border-slate-300 bg-white text-slate-700 font-bold">BS</button>
+                                            </div>
+                                        </div>
+                                        <input type="text" id="pos-credito-abono" oninput="window.formatearInputAbonoCredito(this)" placeholder="0" value="0" class="input-clean font-mono text-emerald-600 font-black text-sm">
+                                    </div>
+                                </div>
+                                <div class="bg-amber-50 p-2.5 rounded-xl border border-amber-200 flex justify-between items-center text-xs font-mono">
+                                    <span class="text-amber-800 font-bold uppercase text-[10px]">Saldo Pendiente por Cobrar:</span>
+                                    <div class="text-right">
+                                        <strong id="lbl-pos-credito-saldo-pendiente" class="text-amber-700 font-black text-sm block">$0.00 USD</strong>
+                                        <span id="lbl-pos-credito-saldo-conv" class="text-[9px] text-slate-500 font-bold">0 COP | 0,00 Bs</span>
+                                    </div>
+                                </div>
+                            </div>
                         </div>
 
                         <!-- CÁLCULO DE VUELTO / CAMBIO EN CALIENTE MULTIMONEDA EXACTO -->
@@ -1364,7 +1418,7 @@
 
                     <div>
                         <label class="text-[9px] text-blue-300 uppercase ml-1 block mb-1">Dirección Física de la Tienda *</label>
-                        <input type="text" id="cli-input-dir" required placeholder="Ej: Calle 5 con Carrera 8, Local #12, Centro..." class="w-full border px-4 py-3 rounded-xl focus:outline-none">
+                        <input type="text" id="cli-input-dir" required placeholder="Ej: Calle 5 con Carrera 8, Local 12" class="w-full border px-4 py-3 rounded-xl focus:outline-none">
                     </div>
 
                     <div class="grid grid-cols-1 sm:grid-cols-2 gap-3">
@@ -1859,7 +1913,7 @@
             <div class="p-3 bg-slate-100 border-b border-slate-200 shrink-0">
                 <div class="relative">
                     <i class="fa-solid fa-magnifying-glass absolute left-3.5 top-3 text-slate-400 text-xs"></i>
-                    <input type="text" id="busqueda-inventario-input" onkeyup="window.renderizarTablaModalInventario()" placeholder="Escriba para buscar: harina, aceite, filtro..." class="input-clean pl-9 bg-white font-mono text-xs">
+                    <input type="text" id="busqueda-inventario-input" onkeyup="window.renderizarTablaModalInventario()" placeholder="Buscar producto o descripción..." class="input-clean pl-9 bg-white font-sans text-[11px] sm:text-xs truncate">
                 </div>
             </div>
             <div class="p-3 sm:p-5 overflow-y-auto no-scrollbar flex-grow space-y-3">
@@ -1962,7 +2016,7 @@
             <div class="p-3 bg-slate-100 border-b border-slate-200 shrink-0">
                 <div class="relative">
                     <i class="fa-solid fa-magnifying-glass absolute left-3.5 top-3 text-slate-400 text-xs"></i>
-                    <input type="text" id="busqueda-historial-input" onkeyup="window.renderizarHistorialVentas()" placeholder="Buscar por cliente, N° nota o cajero..." class="input-clean pl-9 bg-white font-mono text-xs">
+                    <input type="text" id="busqueda-historial-input" onkeyup="window.renderizarHistorialVentas()" placeholder="Buscar nota, cliente o cajero..." class="input-clean pl-9 bg-white font-sans text-[11px] sm:text-xs truncate">
                 </div>
             </div>
 
@@ -2096,6 +2150,48 @@
 
     <!-- SCRIPT PRINCIPAL CON LÓGICA DE NEGOCIO INTEGRADA -->
     <script>
+
+        // -------------------------------------------------------------
+        // BLINDAJE DE SEGURIDAD FRONTEND (ANTI-INSPECCIÓN, ANTI-CLIC DERECHO, ANTI-F12)
+        // -------------------------------------------------------------
+        (function() {
+            // 1. Desactivar menú contextual (Clic Derecho)
+            document.addEventListener('contextmenu', function(e) {
+                e.preventDefault();
+                return false;
+            }, false);
+
+            // 2. Bloquear atajos de teclado de desarrollo e inspección
+            document.addEventListener('keydown', function(e) {
+                // F12
+                if (e.keyCode === 123 || e.key === 'F12') {
+                    e.preventDefault();
+                    e.stopPropagation();
+                    return false;
+                }
+                // Ctrl + Shift + I (Inspeccionar)
+                // Ctrl + Shift + J (Consola)
+                // Ctrl + Shift + C (Selector de elementos)
+                if (e.ctrlKey && e.shiftKey && (e.keyCode === 73 || e.keyCode === 74 || e.keyCode === 67 || e.key === 'I' || e.key === 'J' || e.key === 'C' || e.key === 'i' || e.key === 'j' || e.key === 'c')) {
+                    e.preventDefault();
+                    e.stopPropagation();
+                    return false;
+                }
+                // Ctrl + U (Ver código fuente HTML)
+                if (e.ctrlKey && (e.keyCode === 85 || e.key === 'u' || e.key === 'U')) {
+                    e.preventDefault();
+                    e.stopPropagation();
+                    return false;
+                }
+                // Ctrl + S (Guardar página)
+                if (e.ctrlKey && (e.keyCode === 83 || e.key === 's' || e.key === 'S')) {
+                    e.preventDefault();
+                    e.stopPropagation();
+                    return false;
+                }
+            }, false);
+        })();
+
         const firebaseConfig = {
             apiKey: "AIzaSyDytP_5UQyyRUT7wFC2bDIYz5t70z_pQV4",
             authDomain: "tucocel-vitrina.firebaseapp.com",
@@ -2219,6 +2315,165 @@
         window.STORAGE_KEY_GASTOS = 'tcl_gastos_db_2026';
         window.STORAGE_KEY_PROV = 'tcl_proveedores_db_2026';
         window.STORAGE_KEY_CIERRES = 'tcl_cierres_diarios_db_2026';
+
+        
+        // -------------------------------------------------------------
+        // SINTETIZADOR DE SONIDO BEEP LÁSER NATIVO (WEB AUDIO API)
+        // -------------------------------------------------------------
+        window.reproducirBeepEscaner = function() {
+            try {
+                const AudioContext = window.AudioContext || window.webkitAudioContext;
+                if (!AudioContext) return;
+                const ctx = new AudioContext();
+                const osc = ctx.createOscillator();
+                const gain = ctx.createGain();
+
+                osc.type = "sine";
+                osc.frequency.setValueAtTime(900, ctx.currentTime);
+                gain.gain.setValueAtTime(0.3, ctx.currentTime);
+                gain.gain.exponentialRampToValueAtTime(0.01, ctx.currentTime + 0.09);
+
+                osc.connect(gain);
+                gain.connect(ctx.destination);
+
+                osc.start();
+                osc.stop(ctx.currentTime + 0.09);
+
+                if (navigator.vibrate) {
+                    navigator.vibrate(50);
+                }
+            } catch(e) {
+                console.log("Audio beep no disponible");
+            }
+        };
+
+        // -------------------------------------------------------------
+        // LÓGICA DE CONDICIÓN DE VENTA: CONTADO VS A CRÉDITO MULTIMONEDA
+        // -------------------------------------------------------------
+        window.condicionVentaPOS = 'CONTADO';
+        window.monedaAbonoCredito = 'USD';
+
+        window.seleccionarCondicionVentaPOS = function(cond) {
+            window.condicionVentaPOS = cond;
+            const btnContado = document.getElementById('btn-cond-contado');
+            const btnCredito = document.getElementById('btn-cond-credito');
+            const secCamposCredito = document.getElementById('sec-pos-campos-credito');
+
+            if (cond === 'CONTADO') {
+                if (btnContado) btnContado.className = "py-2 rounded-xl bg-blue-600 text-white shadow-sm flex items-center justify-center gap-1.5 transition-all";
+                if (btnCredito) btnCredito.className = "py-2 rounded-xl bg-white text-slate-700 border border-slate-300 flex items-center justify-center gap-1.5 transition-all";
+                if (secCamposCredito) secCamposCredito.classList.add('hidden');
+                document.getElementById('pos-credito-abono').value = '0';
+            } else {
+                if (btnCredito) btnCredito.className = "py-2 rounded-xl bg-amber-500 text-slate-950 font-black shadow-sm flex items-center justify-center gap-1.5 transition-all";
+                if (btnContado) btnContado.className = "py-2 rounded-xl bg-white text-slate-700 border border-slate-300 flex items-center justify-center gap-1.5 transition-all";
+                if (secCamposCredito) secCamposCredito.classList.remove('hidden');
+                window.calcularSaldoCreditoPOS();
+            }
+        };
+
+        window.seleccionarMonedaAbonoCredito = function(moneda) {
+            window.monedaAbonoCredito = moneda;
+            const bUSD = document.getElementById('btn-abono-usd');
+            const bCOP = document.getElementById('btn-abono-cop');
+            const bBS = document.getElementById('btn-abono-bs');
+
+            [bUSD, bCOP, bBS].forEach(b => {
+                if (b) b.className = "px-1.5 py-0.5 rounded border border-slate-300 bg-white text-slate-700 font-bold";
+            });
+
+            if (moneda === 'USD') {
+                if (bUSD) bUSD.className = "px-1.5 py-0.5 rounded border border-blue-600 bg-blue-600 text-white font-black";
+            } else if (moneda === 'COP') {
+                if (bCOP) bCOP.className = "px-1.5 py-0.5 rounded border border-slate-800 bg-slate-800 text-white font-black";
+            } else {
+                if (bBS) bBS.className = "px-1.5 py-0.5 rounded border border-emerald-600 bg-emerald-600 text-white font-black";
+            }
+            window.calcularSaldoCreditoPOS();
+        };
+
+        window.formatearInputAbonoCredito = function(input) {
+            let valorRaw = input.value.replace(/[^0-9.]/g, '');
+            if (window.monedaAbonoCredito === 'COP') {
+                let num = parseInt(input.value.replace(/[^0-9]/g, '')) || 0;
+                input.value = num > 0 ? window.formatearMiles(num) : '0';
+            }
+            window.calcularSaldoCreditoPOS();
+        };
+
+        window.calcularSaldoCreditoPOS = function() {
+            const tUSD = window.carritoPOS.reduce((acc, p) => acc + (p.precioUSD * p.cant), 0);
+            const inputVal = document.getElementById('pos-credito-abono').value;
+            let abonoNumerico = 0;
+
+            if (window.monedaAbonoCredito === 'COP') {
+                abonoNumerico = parseFloat(inputVal.replace(/\./g, '')) || 0;
+            } else {
+                abonoNumerico = parseFloat(inputVal) || 0;
+            }
+
+            let abonoUSD = abonoNumerico;
+            if (window.monedaAbonoCredito === 'COP') {
+                abonoUSD = window.calcularUSDDesdeCOP(abonoNumerico);
+            } else if (window.monedaAbonoCredito === 'BS') {
+                abonoUSD = window.calcularUSDDesdeBs(abonoNumerico);
+            }
+
+            const saldoUSD = Math.max(0, tUSD - abonoUSD);
+            const saldoCOP = window.calcularPesosDesdeUSD(saldoUSD);
+            const saldoBS = window.calcularBsDesdeUSD(saldoUSD);
+
+            const lblSaldo = document.getElementById('lbl-pos-credito-saldo-pendiente');
+            const lblConv = document.getElementById('lbl-pos-credito-saldo-conv');
+
+            if (lblSaldo) lblSaldo.innerText = `$${saldoUSD.toFixed(2)} USD`;
+            if (lblConv) lblConv.innerText = `${window.formatCOP(saldoCOP)} COP | ${window.formatBS(saldoBS)} Bs`;
+        };
+
+        window.registrarAbonoCreditoNota = function(id) {
+            const nota = window.dbVentas.find(x => x.id === id);
+            if (!nota || !nota.credito) return;
+
+            const saldoActual = nota.credito.saldoPendienteUSD;
+            const abonoNuevo = parseFloat(prompt(`Registrar Abono a la Nota #${nota.correlativo}
+Cliente: ${nota.cliente}
+Saldo Pendiente: $${saldoActual.toFixed(2)} USD
+
+Ingrese monto abonado ($ USD):`, saldoActual.toFixed(2))) || 0;
+
+            if (abonoNuevo <= 0) return;
+
+            nota.credito.abonoInicialUSD = (nota.credito.abonoInicialUSD || 0) + abonoNuevo;
+            nota.credito.saldoPendienteUSD = Math.max(0, saldoActual - abonoNuevo);
+            if (nota.credito.saldoPendienteUSD === 0) {
+                nota.credito.estadoCredito = 'PAGADO';
+            }
+
+            window.guardarVentasEnStorage();
+            if (typeof window.calcularCierrePeriodoGerencial === 'function') {
+                window.calcularCierrePeriodoGerencial();
+            }
+
+            alert(`✅ Abono de $${abonoNuevo.toFixed(2)} USD registrado con éxito.
+Saldo restante: $${nota.credito.saldoPendienteUSD.toFixed(2)} USD`);
+        };
+
+        window.marcarDeudaSaldadaCompleta = function(id) {
+            const nota = window.dbVentas.find(x => x.id === id);
+            if (!nota || !nota.credito) return;
+
+            if (confirm(`¿Marcar la Nota #${nota.correlativo} del cliente "${nota.cliente}" como DEUDA TOTALMENTE SALDADA?`)) {
+                nota.credito.abonoInicialUSD = nota.totalUSD;
+                nota.credito.saldoPendienteUSD = 0;
+                nota.credito.estadoCredito = 'PAGADO';
+
+                window.guardarVentasEnStorage();
+                if (typeof window.calcularCierrePeriodoGerencial === 'function') {
+                    window.calcularCierrePeriodoGerencial();
+                }
+                alert(`✨ ¡Deuda Saldada! La nota #${nota.correlativo} ha sido retirada de las cuentas pendientes.`);
+            }
+        };
 
         window.esMasterLogueado = false;
         window.clienteActivoSesion = null;
@@ -2517,6 +2772,14 @@
                     <p style="margin: 1px 0;"><strong>TELÉFONO:</strong> ${nota.telefono || 'N/A'}</p>
                     <p style="margin: 1px 0;"><strong>DIRECCIÓN:</strong> ${nota.direccion || 'N/A'}</p>
                     <p style="margin: 1px 0;"><strong>FORMA DE PAGO:</strong> ${nota.pago}</p>
+                    <p style="margin: 1px 0;"><strong>CONDICIÓN:</strong> <span style="font-weight: 900; color: ${nota.condicionVenta === 'CREDITO' ? '#b45309' : '#059669'};">${nota.condicionVenta === 'CREDITO' ? 'VENTA A CRÉDITO ⏳' : 'CONTADO 💵'}</span></p>
+                    ${nota.credito ? `
+                        <div style="background: #fef3c7; border: 1px solid #f59e0b; padding: 3px; margin: 3px 0; border-radius: 4px;">
+                            <p style="margin: 0; font-weight: 900; color: #92400e;">PLAZO DE CRÉDITO: ${nota.credito.diasCredito} DÍAS</p>
+                            <p style="margin: 0;">ABONO RECIBIDO: $${(nota.credito.abonoInicialUSD || 0).toFixed(2)} USD</p>
+                            <p style="margin: 0; font-weight: 900; color: #b91c1c;">SALDO PENDIENTE: $${(nota.credito.saldoPendienteUSD || 0).toFixed(2)} USD</p>
+                        </div>
+                    ` : ''}
                 </div>
                 <table style="width: 100%; margin-bottom: 8px; font-size: 9px; font-family: monospace; border-collapse: collapse; color: #000;">
                     <thead>
@@ -2647,6 +2910,7 @@ _Comprobante de Recepción Interna._
             document.getElementById('pos-input-paga-con').value = '';
             window.calcularVueltoPOS();
             window.cargarVentaSinDatos();
+            window.seleccionarCondicionVentaPOS('CONTADO');
             window.renderizarCarritoPOS();
             window.renderizarInventarioPOS();
             // Permanece en el POS listo para la siguiente factura sin saltos
@@ -2666,9 +2930,36 @@ _Comprobante de Recepción Interna._
             const pago = document.getElementById('pos-input-pago').value;
 
             const tUSD = window.carritoPOS.reduce((acc, p) => acc + (p.precioUSD * p.cant), 0);
+            const esCredito = window.condicionVentaPOS === 'CREDITO';
+            let datosCredito = null;
+
+            if (esCredito) {
+                const diasCredito = parseInt(document.getElementById('pos-credito-dias').value) || 15;
+                const inputVal = document.getElementById('pos-credito-abono').value;
+                let abonoNum = 0;
+                if (window.monedaAbonoCredito === 'COP') abonoNum = parseFloat(inputVal.replace(/\./g, '')) || 0;
+                else abonoNum = parseFloat(inputVal) || 0;
+
+                let abonoUSD = abonoNum;
+                if (window.monedaAbonoCredito === 'COP') abonoUSD = window.calcularUSDDesdeCOP(abonoNum);
+                else if (window.monedaAbonoCredito === 'BS') abonoUSD = window.calcularUSDDesdeBs(abonoNum);
+
+                const saldoPendiente = Math.max(0, tUSD - abonoUSD);
+                datosCredito = {
+                    esCredito: true,
+                    diasCredito: diasCredito,
+                    monedaAbono: window.monedaAbonoCredito || 'USD',
+                    abonoInicialUSD: abonoUSD,
+                    saldoPendienteUSD: saldoPendiente,
+                    fechaVencimientoMs: Date.now() + (diasCredito * 24 * 60 * 60 * 1000),
+                    estadoCredito: saldoPendiente === 0 ? 'PAGADO' : 'PENDIENTE'
+                };
+            }
             
             window.notaPendiente = {
                 cajero, cedula, cliente, telefono, direccion, pago, 
+                condicionVenta: window.condicionVentaPOS || 'CONTADO',
+                credito: datosCredito,
                 items: JSON.parse(JSON.stringify(window.carritoPOS)),
                 totalUSD: tUSD, 
                 desgloseMixto: window.desgloseMixto ? { ...window.desgloseMixto } : null,
@@ -2741,7 +3032,166 @@ _Comprobante de Recepción Interna._
         };
 
         window.cerrarSesionCompleta = function() {
-            window.esMasterLogueado = false;
+            
+        // -------------------------------------------------------------
+        // SINTETIZADOR DE SONIDO BEEP LÁSER NATIVO (WEB AUDIO API)
+        // -------------------------------------------------------------
+        window.reproducirBeepEscaner = function() {
+            try {
+                const AudioContext = window.AudioContext || window.webkitAudioContext;
+                if (!AudioContext) return;
+                const ctx = new AudioContext();
+                const osc = ctx.createOscillator();
+                const gain = ctx.createGain();
+
+                osc.type = "sine";
+                osc.frequency.setValueAtTime(900, ctx.currentTime);
+                gain.gain.setValueAtTime(0.3, ctx.currentTime);
+                gain.gain.exponentialRampToValueAtTime(0.01, ctx.currentTime + 0.09);
+
+                osc.connect(gain);
+                gain.connect(ctx.destination);
+
+                osc.start();
+                osc.stop(ctx.currentTime + 0.09);
+
+                if (navigator.vibrate) {
+                    navigator.vibrate(50);
+                }
+            } catch(e) {
+                console.log("Audio beep no disponible");
+            }
+        };
+
+        // -------------------------------------------------------------
+        // LÓGICA DE CONDICIÓN DE VENTA: CONTADO VS A CRÉDITO MULTIMONEDA
+        // -------------------------------------------------------------
+        window.condicionVentaPOS = 'CONTADO';
+        window.monedaAbonoCredito = 'USD';
+
+        window.seleccionarCondicionVentaPOS = function(cond) {
+            window.condicionVentaPOS = cond;
+            const btnContado = document.getElementById('btn-cond-contado');
+            const btnCredito = document.getElementById('btn-cond-credito');
+            const secCamposCredito = document.getElementById('sec-pos-campos-credito');
+
+            if (cond === 'CONTADO') {
+                if (btnContado) btnContado.className = "py-2 rounded-xl bg-blue-600 text-white shadow-sm flex items-center justify-center gap-1.5 transition-all";
+                if (btnCredito) btnCredito.className = "py-2 rounded-xl bg-white text-slate-700 border border-slate-300 flex items-center justify-center gap-1.5 transition-all";
+                if (secCamposCredito) secCamposCredito.classList.add('hidden');
+                document.getElementById('pos-credito-abono').value = '0';
+            } else {
+                if (btnCredito) btnCredito.className = "py-2 rounded-xl bg-amber-500 text-slate-950 font-black shadow-sm flex items-center justify-center gap-1.5 transition-all";
+                if (btnContado) btnContado.className = "py-2 rounded-xl bg-white text-slate-700 border border-slate-300 flex items-center justify-center gap-1.5 transition-all";
+                if (secCamposCredito) secCamposCredito.classList.remove('hidden');
+                window.calcularSaldoCreditoPOS();
+            }
+        };
+
+        window.seleccionarMonedaAbonoCredito = function(moneda) {
+            window.monedaAbonoCredito = moneda;
+            const bUSD = document.getElementById('btn-abono-usd');
+            const bCOP = document.getElementById('btn-abono-cop');
+            const bBS = document.getElementById('btn-abono-bs');
+
+            [bUSD, bCOP, bBS].forEach(b => {
+                if (b) b.className = "px-1.5 py-0.5 rounded border border-slate-300 bg-white text-slate-700 font-bold";
+            });
+
+            if (moneda === 'USD') {
+                if (bUSD) bUSD.className = "px-1.5 py-0.5 rounded border border-blue-600 bg-blue-600 text-white font-black";
+            } else if (moneda === 'COP') {
+                if (bCOP) bCOP.className = "px-1.5 py-0.5 rounded border border-slate-800 bg-slate-800 text-white font-black";
+            } else {
+                if (bBS) bBS.className = "px-1.5 py-0.5 rounded border border-emerald-600 bg-emerald-600 text-white font-black";
+            }
+            window.calcularSaldoCreditoPOS();
+        };
+
+        window.formatearInputAbonoCredito = function(input) {
+            let valorRaw = input.value.replace(/[^0-9.]/g, '');
+            if (window.monedaAbonoCredito === 'COP') {
+                let num = parseInt(input.value.replace(/[^0-9]/g, '')) || 0;
+                input.value = num > 0 ? window.formatearMiles(num) : '0';
+            }
+            window.calcularSaldoCreditoPOS();
+        };
+
+        window.calcularSaldoCreditoPOS = function() {
+            const tUSD = window.carritoPOS.reduce((acc, p) => acc + (p.precioUSD * p.cant), 0);
+            const inputVal = document.getElementById('pos-credito-abono').value;
+            let abonoNumerico = 0;
+
+            if (window.monedaAbonoCredito === 'COP') {
+                abonoNumerico = parseFloat(inputVal.replace(/\./g, '')) || 0;
+            } else {
+                abonoNumerico = parseFloat(inputVal) || 0;
+            }
+
+            let abonoUSD = abonoNumerico;
+            if (window.monedaAbonoCredito === 'COP') {
+                abonoUSD = window.calcularUSDDesdeCOP(abonoNumerico);
+            } else if (window.monedaAbonoCredito === 'BS') {
+                abonoUSD = window.calcularUSDDesdeBs(abonoNumerico);
+            }
+
+            const saldoUSD = Math.max(0, tUSD - abonoUSD);
+            const saldoCOP = window.calcularPesosDesdeUSD(saldoUSD);
+            const saldoBS = window.calcularBsDesdeUSD(saldoUSD);
+
+            const lblSaldo = document.getElementById('lbl-pos-credito-saldo-pendiente');
+            const lblConv = document.getElementById('lbl-pos-credito-saldo-conv');
+
+            if (lblSaldo) lblSaldo.innerText = `$${saldoUSD.toFixed(2)} USD`;
+            if (lblConv) lblConv.innerText = `${window.formatCOP(saldoCOP)} COP | ${window.formatBS(saldoBS)} Bs`;
+        };
+
+        window.registrarAbonoCreditoNota = function(id) {
+            const nota = window.dbVentas.find(x => x.id === id);
+            if (!nota || !nota.credito) return;
+
+            const saldoActual = nota.credito.saldoPendienteUSD;
+            const abonoNuevo = parseFloat(prompt(`Registrar Abono a la Nota #${nota.correlativo}
+Cliente: ${nota.cliente}
+Saldo Pendiente: $${saldoActual.toFixed(2)} USD
+
+Ingrese monto abonado ($ USD):`, saldoActual.toFixed(2))) || 0;
+
+            if (abonoNuevo <= 0) return;
+
+            nota.credito.abonoInicialUSD = (nota.credito.abonoInicialUSD || 0) + abonoNuevo;
+            nota.credito.saldoPendienteUSD = Math.max(0, saldoActual - abonoNuevo);
+            if (nota.credito.saldoPendienteUSD === 0) {
+                nota.credito.estadoCredito = 'PAGADO';
+            }
+
+            window.guardarVentasEnStorage();
+            if (typeof window.calcularCierrePeriodoGerencial === 'function') {
+                window.calcularCierrePeriodoGerencial();
+            }
+
+            alert(`✅ Abono de $${abonoNuevo.toFixed(2)} USD registrado con éxito.
+Saldo restante: $${nota.credito.saldoPendienteUSD.toFixed(2)} USD`);
+        };
+
+        window.marcarDeudaSaldadaCompleta = function(id) {
+            const nota = window.dbVentas.find(x => x.id === id);
+            if (!nota || !nota.credito) return;
+
+            if (confirm(`¿Marcar la Nota #${nota.correlativo} del cliente "${nota.cliente}" como DEUDA TOTALMENTE SALDADA?`)) {
+                nota.credito.abonoInicialUSD = nota.totalUSD;
+                nota.credito.saldoPendienteUSD = 0;
+                nota.credito.estadoCredito = 'PAGADO';
+
+                window.guardarVentasEnStorage();
+                if (typeof window.calcularCierrePeriodoGerencial === 'function') {
+                    window.calcularCierrePeriodoGerencial();
+                }
+                alert(`✨ ¡Deuda Saldada! La nota #${nota.correlativo} ha sido retirada de las cuentas pendientes.`);
+            }
+        };
+
+        window.esMasterLogueado = false;
             window.clienteActivoSesion = null;
             document.getElementById('vista-master-admin').classList.add('hidden');
             document.getElementById('vista-panel-cliente-privado').classList.add('hidden');
@@ -2866,6 +3316,7 @@ _Comprobante de Recepción Interna._
                 window.carritoPOS = [];
                 document.getElementById('pos-busqueda-input').value = '';
                 window.cargarVentaSinDatos();
+            window.seleccionarCondicionVentaPOS('CONTADO');
                 
                 document.getElementById('vista-panel-cliente-privado').classList.add('hidden');
                 document.getElementById('vista-pos-fullscreen').classList.remove('hidden');
@@ -5121,6 +5572,9 @@ window.abrirModalReporteZ = function() {
             const codLimpio = (codigo || '').trim();
             if (!codLimpio) return;
 
+            // Reproducir Beep láser de lectura exitosa
+            window.reproducirBeepEscaner();
+
             if (window.scannerDestino === 'POS') {
                 const inputB = document.getElementById('pos-busqueda-input');
                 if (inputB) {
@@ -5451,11 +5905,14 @@ window.abrirModalReporteZ = function() {
                 return tCie >= tDesde && tCie <= tHasta;
             });
 
+            const creditosRango = ventasRango.filter(v => v.condicionVenta === 'CREDITO' || (v.credito && v.credito.esCredito));
+            const totalPorCobrarUSD = creditosRango.reduce((acc, v) => acc + (v.credito ? v.credito.saldoPendienteUSD : 0), 0);
+
             const totalVentasUSD = ventasRango.reduce((acc, v) => acc + v.totalUSD, 0);
             const totalGastosUSD = gastosRango.reduce((acc, g) => acc + g.montoUSD, 0);
             const gananciaNetaPeriodo = totalVentasUSD - totalGastosUSD;
 
-            return { desdeVal, hastaVal, ventasRango, gastosRango, comprasRango, cierresRango, totalVentasUSD, totalGastosUSD, gananciaNetaPeriodo };
+            return { desdeVal, hastaVal, ventasRango, gastosRango, comprasRango, cierresRango, creditosRango, totalPorCobrarUSD, totalVentasUSD, totalGastosUSD, gananciaNetaPeriodo };
         };
 
                 window.toggleSeccionAcordeon = function(idContenido, idIcono) {
@@ -5514,6 +5971,38 @@ window.abrirModalReporteZ = function() {
                     </div>
                 </div>
             `).join('');
+
+            let listaCreditosHtml = (datos.creditosRango || []).map(c => {
+                const saldo = c.credito ? c.credito.saldoPendienteUSD : 0;
+                const estaPagado = saldo === 0;
+                const saldoCOP = window.calcularPesosDesdeUSD(saldo);
+                const saldoBS = window.calcularBsDesdeUSD(saldo);
+
+                return `
+                    <div class="flex flex-col sm:flex-row justify-between items-start sm:items-center bg-white p-3 rounded-2xl border ${estaPagado ? 'border-emerald-200 bg-emerald-50/20' : 'border-amber-200 bg-amber-50/20'} text-[10.5px] font-mono gap-2 shadow-sm">
+                        <div class="space-y-0.5">
+                            <div class="flex items-center gap-1.5 flex-wrap">
+                                <strong class="text-slate-900 font-black">#${c.correlativo}</strong>
+                                <span class="text-slate-800 font-bold uppercase">${c.cliente}</span>
+                                <span class="${estaPagado ? 'bg-emerald-100 text-emerald-800' : 'bg-amber-100 text-amber-800'} text-[8.5px] font-black px-1.5 py-0.5 rounded">${estaPagado ? 'PAGADO' : 'PENDIENTE'}</span>
+                            </div>
+                            <div class="text-[9.5px] text-slate-500 font-bold">
+                                Total: $${c.totalUSD.toFixed(2)} | Abono: $${(c.credito ? c.credito.abonoInicialUSD : 0).toFixed(2)} | <span class="${estaPagado ? 'text-emerald-600' : 'text-red-600'} font-black">Resta: $${saldo.toFixed(2)} USD</span>
+                            </div>
+                            <div class="text-[9px] text-slate-400">
+                                Equivalente: ${window.formatCOP(saldoCOP)} COP | ${window.formatBS(saldoBS)} Bs
+                            </div>
+                        </div>
+                        <div class="flex items-center gap-1.5 self-end sm:self-center flex-wrap">
+                            <button onclick="window.abrirAuditoriaDetallada('VENTA', '${c.id}')" class="bg-blue-50 text-blue-700 hover:bg-blue-100 border border-blue-200 px-2.5 py-1 rounded-xl text-[9px] font-black uppercase"><i class="fa-solid fa-eye"></i> Ver</button>
+                            ${!estaPagado ? `
+                                <button onclick="window.registrarAbonoCreditoNota('${c.id}')" class="bg-emerald-600 hover:bg-emerald-500 text-white px-2.5 py-1 rounded-xl text-[9px] font-black uppercase flex items-center gap-1 shadow-sm"><i class="fa-solid fa-hand-holding-dollar"></i> Cobrar</button>
+                                <button onclick="window.marcarDeudaSaldadaCompleta('${c.id}')" class="bg-amber-500 hover:bg-amber-400 text-slate-950 px-2.5 py-1 rounded-xl text-[9px] font-black uppercase flex items-center gap-1 shadow-sm"><i class="fa-solid fa-check"></i> Deuda Saldada</button>
+                            ` : ''}
+                        </div>
+                    </div>
+                `;
+            }).join('');
 
             container.innerHTML = `
                 <div class="bg-slate-50 p-3 sm:p-4 rounded-2xl border border-slate-200 space-y-3">
@@ -5582,6 +6071,23 @@ window.abrirModalReporteZ = function() {
                         </button>
                         <div id="box-acordeon-cierres" class="p-3 border-t border-slate-100 space-y-1.5 max-h-48 overflow-y-auto no-scrollbar hidden">
                             ${listaCierresHtml || '<p class="text-slate-400 text-[10px] text-center py-1 font-bold">Sin cierres guardados en este rango.</p>'}
+                        </div>
+                    </div>
+
+                    <!-- 5. ACORDEÓN CUENTAS POR COBRAR / CRÉDITOS -->
+                    <div class="bg-white rounded-2xl border border-amber-300 overflow-hidden shadow-sm">
+                        <button type="button" onclick="window.toggleSeccionAcordeon('box-acordeon-creditos', 'icon-acordeon-creditos')" class="w-full p-3 flex justify-between items-center text-left hover:bg-amber-50/50 transition-colors bg-amber-50/30">
+                            <div class="flex items-center gap-1.5">
+                                <i class="fa-solid fa-hand-holding-dollar text-amber-600"></i>
+                                <span class="text-[10.5px] font-black uppercase text-amber-950 tracking-wider">5. CUENTAS POR COBRAR / CRÉDITOS (${(datos.creditosRango || []).length})</span>
+                            </div>
+                            <div class="flex items-center gap-2">
+                                <span class="text-red-600 font-mono font-black text-xs">-$${window.formatUSD(datos.totalPorCobrarUSD)} USD</span>
+                                <i id="icon-acordeon-creditos" class="fa-solid fa-chevron-down text-slate-400 text-xs transition-transform duration-200"></i>
+                            </div>
+                        </button>
+                        <div id="box-acordeon-creditos" class="p-3 border-t border-amber-200 space-y-1.5 max-h-56 overflow-y-auto no-scrollbar hidden">
+                            ${listaCreditosHtml || '<p class="text-slate-400 text-[10px] text-center py-1 font-bold">No hay ventas a crédito en este rango.</p>'}
                         </div>
                     </div>
                 </div>
@@ -5922,6 +6428,47 @@ window.abrirModalReporteZ = function() {
         // -------------------------------------------------------------
         // INICIALIZACIÓN AUTOMÁTICA DEL SISTEMA Y ENRUTADOR DE URL
         // -------------------------------------------------------------
+        
+        // -------------------------------------------------------------
+        // MOTOR PWA (INSTALACIÓN DIRECTA EN ANDROID / IOS / PC)
+        // -------------------------------------------------------------
+        window.deferredPromptPWA = null;
+        window.addEventListener('beforeinstallprompt', function(e) {
+            e.preventDefault();
+            window.deferredPromptPWA = e;
+            console.log('📲 PWA: Evento de instalación capturado.');
+        });
+
+        window.instalarAppDispositivo = function(rol = 'CLIENTE') {
+            if (window.deferredPromptPWA) {
+                window.deferredPromptPWA.prompt();
+                window.deferredPromptPWA.userChoice.then(function(choiceResult) {
+                    if (choiceResult.outcome === 'accepted') {
+                        console.log('✅ Usuario aceptó la instalación.');
+                    }
+                    window.deferredPromptPWA = null;
+                });
+            } else {
+                const esAndroid = /android/i.test(navigator.userAgent);
+                const esIOS = /iphone|ipad|ipod/i.test(navigator.userAgent);
+                
+                let instrucciones = "📲 INSTALACIÓN DE APLICACIÓN EN TU DISPOSITIVO:\n\n";
+                if (esIOS) {
+                    instrucciones += "1. Toca el botón 'Compartir' (el cuadro con una flecha hacia arriba) en Safari.\n";
+                    instrucciones += "2. Selecciona 'Agregar al inicio' (+).\n";
+                    instrucciones += "3. ¡Listo! Ya tendrás el icono de la App en tu pantalla.";
+                } else if (esAndroid) {
+                    instrucciones += "1. Toca los tres puntos (⋮) en la esquina superior de Chrome.\n";
+                    instrucciones += "2. Selecciona 'Instalar aplicación' o 'Agregar a la pantalla principal'.\n";
+                    instrucciones += "3. ¡Listo! Se instalará como una App nativa a pantalla completa.";
+                } else {
+                    instrucciones += "1. Toca el icono de instalación (pantalla con flecha) en la barra de direcciones de tu navegador (Chrome / Edge).\n";
+                    instrucciones += "2. Presiona 'Instalar'.";
+                }
+                alert(instrucciones);
+            }
+        };
+
         window.inicializarRouterURL = function() {
             try {
                 if (typeof window.cargarTarifasSaasStorage === 'function') window.cargarTarifasSaasStorage();
