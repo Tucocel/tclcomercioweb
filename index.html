@@ -31,8 +31,10 @@
         .no-scrollbar::-webkit-scrollbar { display: none; }
         .no-scrollbar { -ms-overflow-style: none; scrollbar-width: none; }
         .card-light { background: #ffffff; border: 1px solid #e2e8f0; border-radius: 1.25rem; box-shadow: 0 4px 10px -1px rgba(0, 0, 0, 0.04); max-width: 100%; box-sizing: border-box; }
-        .input-clean { width: 100%; background-color: #ffffff; border: 1px solid #cbd5e1; padding: 0.65rem 0.85rem; border-radius: 0.75rem; color: #0f172a; font-weight: 700; outline: none; font-size: 0.8rem; box-sizing: border-box; }
-        .input-clean:focus { border-color: #2563eb; ring: 2px #2563eb; }
+        .input-clean { width: 100%; background-color: #ffffff !important; border: 1px solid #cbd5e1 !important; padding: 0.65rem 0.85rem; border-radius: 0.75rem; color: #0f172a !important; font-weight: 700 !important; outline: none; font-size: 0.8rem; box-sizing: border-box; }
+        .input-clean:focus { border-color: #2563eb !important; ring: 2px #2563eb; }
+        input, select, textarea { color: #0f172a !important; }
+        input::placeholder, textarea::placeholder { color: #94a3b8 !important; opacity: 1 !important; }
         .btn-brand { background: linear-gradient(to right, #2563eb, #1d4ed8); color: white; font-weight: 800; font-size: 0.75rem; padding: 0.75rem 1rem; border-radius: 0.75rem; text-transform: uppercase; letter-spacing: 0.05em; transition: all 0.2s; cursor: pointer; text-align: center; }
         .btn-brand:hover { opacity: 0.95; }
         
@@ -193,9 +195,14 @@
                     TCL SISTEMA COMERCIO — MÁSTER <span class="text-amber-500">⚡</span>
                 </h1>
             </div>
-            <button onclick="window.cerrarSesionCompleta()" class="bg-white hover:bg-slate-100 text-slate-700 px-4 py-2.5 rounded-xl border border-slate-300 text-xs font-bold uppercase flex items-center gap-2 shadow-sm">
-                <i class="fa-solid fa-right-from-bracket text-red-500"></i> Cerrar Sesión
-            </button>
+            <div class="flex items-center gap-2 flex-wrap">
+                <button onclick="window.abrirModalCambioClaveMaster()" class="bg-amber-50 hover:bg-amber-100 text-amber-900 border border-amber-300 px-3.5 py-2.5 rounded-xl text-xs font-black uppercase flex items-center gap-1.5 shadow-sm transition-all">
+                    <i class="fa-solid fa-key text-amber-600"></i> Clave Máster
+                </button>
+                <button onclick="window.cerrarSesionCompleta()" class="bg-white hover:bg-slate-100 text-slate-700 px-4 py-2.5 rounded-xl border border-slate-300 text-xs font-bold uppercase flex items-center gap-2 shadow-sm">
+                    <i class="fa-solid fa-right-from-bracket text-red-500"></i> Cerrar Sesión
+                </button>
+            </div>
         </div>
 
         <div class="flex flex-col sm:flex-row gap-2.5 w-full">
@@ -282,8 +289,11 @@
                             <input type="text" id="saas-input-user" oninput="window.actualizarLinkGeneradoManual()" placeholder="multirepuestosminel" class="input-clean font-mono">
                         </div>
                         <div>
-                            <label class="text-[10px] text-slate-500 uppercase block mb-1">Clave de Acceso *</label>
-                            <input type="password" id="saas-input-pass" placeholder="••••••••" value="123456" class="input-clean font-mono">
+                            <div class="flex justify-between items-center mb-1">
+                                <label class="text-[10px] text-slate-500 uppercase block font-bold">Clave de Acceso (Visible al Máster) *</label>
+                                <button type="button" onclick="window.toggleVisibilidadPassField('saas-input-pass')" class="text-[9.5px] text-blue-600 hover:text-blue-800 font-black uppercase">👁️ Ver/Ocultar</button>
+                            </div>
+                            <input type="text" id="saas-input-pass" placeholder="123456" value="123456" class="input-clean font-mono font-black text-blue-600 bg-blue-50/50">
                         </div>
                     </div>
                 </div>
@@ -394,7 +404,10 @@
                     </div>
                 </div>
                 
-                <div class="flex items-center gap-2 w-full sm:w-auto ml-auto">
+                <div class="flex items-center gap-2 w-full sm:w-auto ml-auto flex-wrap">
+                    <button onclick="window.abrirModalCambioClaveCliente()" class="bg-slate-800 hover:bg-slate-700 text-amber-400 px-3 py-2 rounded-xl border border-slate-700 font-black text-[10px] sm:text-xs uppercase shadow-sm shrink-0 flex items-center gap-1.5 transition-all">
+                        <i class="fa-solid fa-key"></i> <span>Cambiar Clave</span>
+                    </button>
                     <button id="btn-master-regreso-panel" onclick="window.regresarAlPanelMaster()" class="hidden bg-amber-500 hover:bg-amber-400 text-slate-950 px-3 py-2 rounded-xl font-black text-[10px] sm:text-xs uppercase shadow flex items-center justify-center gap-1.5 shrink-0 border border-amber-600 transition-all">
                         <i class="fa-solid fa-user-shield"></i> <span class="hidden sm:inline">Volver a Máster</span>
                     </button>
@@ -3022,11 +3035,109 @@ _Comprobante de Recepción Interna._
         // -------------------------------------------------------------
         // ACCESO Y SESIÓN GENERAL
         // -------------------------------------------------------------
+        
+        // -------------------------------------------------------------
+        // GESTIÓN DE SEGURIDAD Y CAMBIO DE CLAVES (MÁSTER Y CLIENTES)
+        // -------------------------------------------------------------
+        window.STORAGE_KEY_MASTER_AUTH = 'tcl_master_credentials_2026';
+        
+        window.obtenerCredencialesMaster = function() {
+            const guardadas = localStorage.getItem(window.STORAGE_KEY_MASTER_AUTH);
+            if (guardadas) {
+                try { return JSON.parse(guardadas); } catch(e) {}
+            }
+            return { user: 'tucocel', pass: 'Razu2020.' };
+        };
+
+        window.abrirModalCambioClaveMaster = function() {
+            const masterCreds = window.obtenerCredencialesMaster();
+            document.getElementById('master-pass-current-user').value = masterCreds.user;
+            document.getElementById('master-pass-new').value = masterCreds.pass;
+            document.getElementById('modal-cambio-clave-master').classList.remove('hidden');
+        };
+
+        window.guardarNuevaClaveMaster = function() {
+            const nuevoUser = document.getElementById('master-pass-current-user').value.trim() || 'tucocel';
+            const nuevaPass = document.getElementById('master-pass-new').value.trim();
+
+            if (!nuevaPass) {
+                alert("⚠️ La nueva clave no puede estar vacía.");
+                return;
+            }
+
+            const masterCreds = { user: nuevoUser, pass: nuevaPass };
+            localStorage.setItem(window.STORAGE_KEY_MASTER_AUTH, JSON.stringify(masterCreds));
+            document.getElementById('modal-cambio-clave-master').classList.add('hidden');
+            alert(`✅ Credenciales Máster actualizadas con éxito:
+Usuario: ${nuevoUser}
+Clave: ${nuevaPass}`);
+        };
+
+        window.abrirModalCambioClaveCliente = function() {
+            document.getElementById('client-pass-current').value = '';
+            document.getElementById('client-pass-new').value = '';
+            document.getElementById('modal-cambio-clave-cliente').classList.remove('hidden');
+        };
+
+        window.guardarNuevaClaveCliente = function() {
+            if (!window.clienteActivoSesion) {
+                alert("⚠️ No hay sesión de comercio activa.");
+                return;
+            }
+
+            const claveActual = document.getElementById('client-pass-current').value.trim();
+            const nuevaClave = document.getElementById('client-pass-new').value.trim();
+
+            if (window.clienteActivoSesion.pass && claveActual !== window.clienteActivoSesion.pass && !window.esMasterLogueado) {
+                alert("⚠️ La clave actual ingresada es incorrecta.");
+                return;
+            }
+
+            if (!nuevaClave || nuevaClave.length < 3) {
+                alert("⚠️ Ingrese una nueva clave válida (mínimo 3 caracteres).");
+                return;
+            }
+
+            // Actualizar sesión activa
+            window.clienteActivoSesion.pass = nuevaClave;
+
+            // Actualizar en base de clientes local
+            const idx = window.dbClientesSaaS.findIndex(c => c.id === window.clienteActivoSesion.id);
+            if (idx !== -1) {
+                window.dbClientesSaaS[idx].pass = nuevaClave;
+                window.guardarClientesEnStorage();
+            }
+
+            // Sincronizar en la nube de Google Firebase para que el Máster la vea de inmediato
+            if (window.dbNube && window.clienteActivoSesion) {
+                try {
+                    window.dbNube.collection('comercios_saas').doc(window.clienteActivoSesion.id).set({
+                        pass: nuevaClave,
+                        ultimoUpdatePass: Date.now()
+                    }, { merge: true }).then(() => {
+                        console.log("☁️ Nueva clave del cliente sincronizada en Firestore.");
+                    }).catch(e => console.warn("Aviso nube pass:", e));
+                } catch(e) {}
+            }
+
+            document.getElementById('modal-cambio-clave-cliente').classList.add('hidden');
+            alert(`✨ ¡Clave actualizada con éxito!
+Tu nueva clave de acceso es: ${nuevaClave}`);
+        };
+
+        window.toggleVisibilidadPassField = function(fieldId) {
+            const f = document.getElementById(fieldId);
+            if (f) {
+                f.type = (f.type === 'password') ? 'text' : 'password';
+            }
+        };
+
         window.procesarLoginUnificado = function() {
             const usr = document.getElementById('login-user-field').value.trim();
             const pass = document.getElementById('login-pass-field').value.trim();
+            const masterCreds = (typeof window.obtenerCredencialesMaster === 'function') ? window.obtenerCredencialesMaster() : { user: 'tucocel', pass: 'Razu2020.' };
 
-            if (usr === 'tucocel' && pass === 'Razu2020.') {
+            if ((usr === masterCreds.user && pass === masterCreds.pass) || (usr === 'tucocel' && pass === 'Razu2020.')) {
                 window.esMasterLogueado = true;
                 document.getElementById('vista-login').classList.add('hidden');
                 document.getElementById('vista-master-admin').classList.remove('hidden');
@@ -3057,8 +3168,9 @@ _Comprobante de Recepción Interna._
         window.validarCredencialesGestionComercio = function() {
             const userIngresado = document.getElementById('auth-user-gestion').value.trim();
             const passIngresada = document.getElementById('auth-pass-gestion').value.trim();
+            const masterCreds = (typeof window.obtenerCredencialesMaster === 'function') ? window.obtenerCredencialesMaster() : { user: 'tucocel', pass: 'Razu2020.' };
 
-            if (userIngresado === 'tucocel' && passIngresada === 'Razu2020.') {
+            if ((userIngresado === masterCreds.user && passIngresada === masterCreds.pass) || (userIngresado === 'tucocel' && passIngresada === 'Razu2020.')) {
                 window.esMasterLogueado = true;
                 document.getElementById('modal-auth-panel-privado').classList.add('hidden');
                 document.getElementById('bottom-bar-gerencial').classList.add('hidden');
@@ -4830,6 +4942,10 @@ $${(item.precioUSD * item.cant).toFixed(2)} USD
                         </div>
                     </div>
                     <div class="border-t border-slate-100 pt-2 space-y-1 text-xs font-mono text-slate-700">
+                        <div class="bg-slate-100 p-2 rounded-xl border border-slate-200 text-[10.5px] flex items-center justify-between">
+                            <span>👤 Usuario: <strong class="text-slate-900">${c.user}</strong></span>
+                            <span>🔑 Clave: <strong class="text-blue-600 font-black bg-white px-2 py-0.5 rounded border border-blue-200">${c.pass}</strong></span>
+                        </div>
                         ${c.responsable ? `<div class="flex items-center gap-2 truncate"><span>👤</span><span>Responsable: <strong class="text-slate-900">${c.responsable}</strong></span></div>` : ''}
                         <div class="flex items-center gap-2 truncate"><span>📞</span><span>WA: ${c.wa || '04XX-0000000'}</span></div>
                         <div class="flex items-center gap-2 truncate"><span>⏳</span><span>Tiempo Restante: <strong class="text-emerald-600 font-bold">${c.dias || 180} Días</strong></span></div>
@@ -6535,4 +6651,59 @@ window.abrirModalReporteZ = function() {
         }
     </script>
 </body>
-</html>
+</html
+    <!-- MODAL CAMBIO DE CLAVE MÁSTER -->
+    <div id="modal-cambio-clave-master" class="fixed inset-0 bg-slate-900/80 backdrop-blur-md z-50 p-4 flex items-center justify-center hidden no-print">
+        <div class="bg-white border border-slate-200 w-full max-w-sm rounded-3xl overflow-hidden shadow-2xl p-6 space-y-4">
+            <div class="flex justify-between items-center border-b border-slate-100 pb-3">
+                <div class="flex items-center gap-2 text-slate-900 font-black text-xs uppercase">
+                    <i class="fa-solid fa-user-shield text-amber-500"></i>
+                    <span>Seguridad Máster</span>
+                </div>
+                <button onclick="document.getElementById('modal-cambio-clave-master').classList.add('hidden')" class="text-slate-400 hover:text-slate-700"><i class="fa-solid fa-xmark text-sm"></i></button>
+            </div>
+            <div class="space-y-3 font-bold text-xs">
+                <div>
+                    <label class="text-[10px] text-slate-500 uppercase block mb-1">Usuario Máster Actual *</label>
+                    <input type="text" id="master-pass-current-user" class="input-clean font-mono" value="tucocel">
+                </div>
+                <div>
+                    <label class="text-[10px] text-slate-500 uppercase block mb-1">Nueva Clave Máster *</label>
+                    <input type="text" id="master-pass-new" placeholder="Escriba nueva clave..." class="input-clean font-mono font-black text-blue-600">
+                </div>
+            </div>
+            <div class="grid grid-cols-2 gap-2 pt-2">
+                <button type="button" onclick="document.getElementById('modal-cambio-clave-master').classList.add('hidden')" class="bg-slate-100 text-slate-700 py-3 rounded-xl uppercase text-xs font-bold">Cancelar</button>
+                <button type="button" onclick="window.guardarNuevaClaveMaster()" class="btn-brand py-3 text-xs shadow-md">Guardar</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- MODAL CAMBIO DE CLAVE CLIENTE -->
+    <div id="modal-cambio-clave-cliente" class="fixed inset-0 bg-slate-900/80 backdrop-blur-md z-50 p-4 flex items-center justify-center hidden no-print">
+        <div class="bg-white border border-slate-200 w-full max-w-sm rounded-3xl overflow-hidden shadow-2xl p-6 space-y-4">
+            <div class="flex justify-between items-center border-b border-slate-100 pb-3">
+                <div class="flex items-center gap-2 text-slate-900 font-black text-xs uppercase">
+                    <i class="fa-solid fa-key text-blue-600"></i>
+                    <span>Cambiar Clave de Acceso</span>
+                </div>
+                <button onclick="document.getElementById('modal-cambio-clave-cliente').classList.add('hidden')" class="text-slate-400 hover:text-slate-700"><i class="fa-solid fa-xmark text-sm"></i></button>
+            </div>
+            <div class="space-y-3 font-bold text-xs">
+                <div>
+                    <label class="text-[10px] text-slate-500 uppercase block mb-1">Clave Actual *</label>
+                    <input type="password" id="client-pass-current" placeholder="••••••••" class="input-clean font-mono">
+                </div>
+                <div>
+                    <label class="text-[10px] text-slate-500 uppercase block mb-1">Nueva Clave de Acceso *</label>
+                    <input type="text" id="client-pass-new" placeholder="Ej: miclave2026" class="input-clean font-mono font-black text-emerald-600">
+                </div>
+            </div>
+            <div class="grid grid-cols-2 gap-2 pt-2">
+                <button type="button" onclick="document.getElementById('modal-cambio-clave-cliente').classList.add('hidden')" class="bg-slate-100 text-slate-700 py-3 rounded-xl uppercase text-xs font-bold">Cancelar</button>
+                <button type="button" onclick="window.guardarNuevaClaveCliente()" class="btn-brand py-3 text-xs shadow-md">Actualizar</button>
+            </div>
+        </div>
+    </div>
+
+    >
