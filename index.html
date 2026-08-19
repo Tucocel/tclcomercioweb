@@ -3252,7 +3252,7 @@ Tu nueva clave de acceso es: ${nuevaClave}`);
         };
 
         window.procesarLoginUnificado = function() {
-            const usr = document.getElementById('login-user-field').value.trim();
+            const usr = (document.getElementById('login-user-field') ? document.getElementById('login-user-field').value : '').trim().toLowerCase();
             const pass = document.getElementById('login-pass-field').value.trim();
             const masterCreds = (typeof window.obtenerCredencialesMaster === 'function') ? window.obtenerCredencialesMaster() : { user: 'tucocel', pass: 'Razu2020.' };
 
@@ -3268,7 +3268,7 @@ Tu nueva clave de acceso es: ${nuevaClave}`);
                 return;
             }
 
-            const encontrado = window.dbClientesSaaS.find(c => c.user === usr && c.pass === pass);
+            const encontrado = window.dbClientesSaaS.find(c => (c.user && c.user.toLowerCase() === usr) && c.pass === pass);
             if (encontrado) {
                 if (encontrado.estatus === 'INACTIVO') {
                     alert("🚫 CUENTA SUSPENDIDA\n\nEsta cuenta se encuentra temporalmente inactiva o suspendida por vencimiento de suscripción.\n\nPor favor contacte a la administración central de soporte (0424-7357549) para reactivar su servicio.");
@@ -3289,7 +3289,7 @@ Tu nueva clave de acceso es: ${nuevaClave}`);
         };
 
         window.validarCredencialesGestionComercio = function() {
-            const userIngresado = document.getElementById('auth-user-gestion').value.trim();
+            const userIngresado = (document.getElementById('auth-user-gestion') ? document.getElementById('auth-user-gestion').value : '').trim().toLowerCase();
             const passIngresada = document.getElementById('auth-pass-gestion').value.trim();
             const masterCreds = (typeof window.obtenerCredencialesMaster === 'function') ? window.obtenerCredencialesMaster() : { user: 'tucocel', pass: 'Razu2020.' };
 
@@ -3301,7 +3301,7 @@ Tu nueva clave de acceso es: ${nuevaClave}`);
                 return;
             }
 
-            const cliente = window.dbClientesSaaS.find(c => c.user === userIngresado && c.pass === passIngresada);
+            const cliente = window.dbClientesSaaS.find(c => (c.user && c.user.toLowerCase() === userIngresado) && c.pass === passIngresada);
             if (cliente) {
                 if (cliente.estatus === 'INACTIVO') {
                     alert("🚫 ACCESO DENEGADO — CUENTA SUSPENDIDA\n\nEste comercio se encuentra inactivo en la bóveda por vencimiento.\n\nContacte a la administración (0424-7357549) para reactivar su licencia.");
@@ -4679,9 +4679,7 @@ Esta acción no devuelve stock.`)) {
 
         // CARGA DINÁMICA DE CONTEXTO AISLADO POR COMERCIO (MULTI-TENANT REAL)
         window.cargarDatosDelComercioActivo = function() {
-            if (!window.clienteActivoSesion && window.dbClientesSaaS && window.dbClientesSaaS.length > 0) {
-                window.clienteActivoSesion = window.dbClientesSaaS[0];
-            }
+            if (!window.clienteActivoSesion) return;
             if (!window.clienteActivoSesion) return;
 
             // 1. Inventario Aislado por Comercio
@@ -6983,4 +6981,3 @@ window.abrirModalReporteZ = function() {
 
 </body>
 </html>
-
