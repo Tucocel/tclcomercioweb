@@ -1478,32 +1478,41 @@
                             <input type="text" id="cli-input-user" oninput="window.autodetectarPlanSuscripcion(this.value)" required placeholder="Ej: repuestoselvalle" class="w-full border px-4 py-3 rounded-xl focus:outline-none font-mono text-blue-400">
                         </div>
                         <div>
-                            <label class="text-[9px] text-blue-300 uppercase ml-1 block mb-1">Plan de Suscripción Asignado (Automático)</label>
-                            <input type="text" id="cli-input-plan-display" readonly value="Plan 6 Meses — Corporativo (180 Días)" class="w-full border px-4 py-3 rounded-xl font-mono font-black text-amber-400 bg-slate-950/90 cursor-not-allowed border-amber-500/30">
+                            <label class="text-[9px] text-blue-300 uppercase ml-1 block mb-1 font-bold">Plan de Suscripción Asignado (Automático)</label>
+                            <input type="text" id="cli-input-plan-display" readonly value="Plan 6 Meses — Corporativo (180 Días)" style="color: #ffffff !important; -webkit-text-fill-color: #ffffff !important; opacity: 1 !important;" class="w-full border px-4 py-3 rounded-xl font-mono font-black text-white bg-slate-900 border-blue-500/50 shadow-inner">
                             <input type="hidden" id="cli-input-plan" value="180 DIAS">
                         </div>
                     </div>
 
-                    <!-- MÓDULO DE FOTO DE CÉDULA / RIF (CAPTURA & COMPRESIÓN) -->
-                    <div class="bg-slate-950/80 p-3 sm:p-4 rounded-2xl border border-slate-800 space-y-3">
+                    <!-- MÓDULO DE FOTO DE CÉDULA / RIF (CAPTURA & COMPRESIÓN CON DOS BOTONES) -->
+                    <div class="bg-slate-950/90 p-3 sm:p-4 rounded-2xl border border-slate-800 space-y-3">
                         <div class="flex items-center justify-between">
                             <label class="text-[10px] text-blue-400 uppercase font-black tracking-wider flex items-center gap-1.5">
                                 <i class="fa-solid fa-id-card"></i> Foto de Cédula de Identidad / RIF (Verificación)
                             </label>
-                            <span id="badge-cedula-status" class="text-[9px] text-slate-500 font-mono uppercase">Sin Archivo</span>
+                            <span id="badge-cedula-status" class="text-[9px] text-slate-400 font-mono uppercase font-bold">Sin Archivo</span>
                         </div>
                         
                         <div class="flex flex-col sm:flex-row items-center gap-3">
                             <div id="preview-cedula-box" class="w-full sm:w-28 h-20 bg-slate-900 border border-dashed border-slate-700 rounded-xl flex items-center justify-center text-slate-500 text-2xl overflow-hidden shrink-0">
                                 <i class="fa-solid fa-camera"></i>
                             </div>
-                            <div class="w-full space-y-1.5">
-                                <input type="file" id="input-foto-cedula" accept="image/*" capture="environment" class="hidden" onchange="window.procesarFotoCedulaCliente(this)">
+                            <div class="w-full space-y-2">
+                                <!-- 1. Input Cámara con capture -->
+                                <input type="file" id="input-camara-cedula" accept="image/*" capture="environment" class="hidden" onchange="window.cargarFotoCedulaCliente(this)">
+                                <!-- 2. Input Galería / Archivo -->
+                                <input type="file" id="input-archivo-cedula" accept="image/*,application/pdf" class="hidden" onchange="window.cargarFotoCedulaCliente(this)">
                                 <input type="hidden" id="cli-input-cedula-base64" value="">
-                                <button type="button" onclick="document.getElementById('input-foto-cedula').click()" class="w-full bg-slate-900 hover:bg-slate-800 border border-slate-700 text-white py-2.5 px-3 rounded-xl font-bold uppercase text-[10px] flex items-center justify-center gap-2 transition-all">
-                                    <i class="fa-solid fa-upload text-blue-400"></i> Tomar Foto o Adjuntar Cédula / RIF
-                                </button>
-                                <p class="text-[9px] text-slate-400 font-medium">Formato admitido: JPG, PNG. La imagen es comprimida automáticamente.</p>
+                                
+                                <div class="grid grid-cols-1 sm:grid-cols-2 gap-2">
+                                    <button type="button" onclick="document.getElementById('input-camara-cedula').click()" class="w-full bg-blue-600 hover:bg-blue-500 text-white py-2.5 px-3 rounded-xl font-black uppercase text-[10px] flex items-center justify-center gap-2 transition-all shadow-md active:scale-95">
+                                        <i class="fa-solid fa-camera"></i> <span>Tomar Foto</span>
+                                    </button>
+                                    <button type="button" onclick="document.getElementById('input-archivo-cedula').click()" class="w-full bg-slate-800 hover:bg-slate-700 border border-slate-700 text-slate-200 hover:text-white py-2.5 px-3 rounded-xl font-bold uppercase text-[10px] flex items-center justify-center gap-2 transition-all shadow-md active:scale-95">
+                                        <i class="fa-solid fa-paperclip text-amber-400"></i> <span>Adjuntar Archivo</span>
+                                    </button>
+                                </div>
+                                <p class="text-[9px] text-slate-400 font-medium">Formatos admitidos: JPG, PNG, PDF. La imagen se comprime automáticamente.</p>
                             </div>
                         </div>
                     </div>
