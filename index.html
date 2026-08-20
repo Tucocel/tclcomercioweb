@@ -1,6 +1,43 @@
 <!DOCTYPE html>
 <html lang="es">
 <head>
+    <!-- 
+    =============================================================================
+    REGLAS DE SEGURIDAD RECOMENDADAS PARA FIRESTORE (firestore.rules)
+    =============================================================================
+    rules_version = '2';
+    service cloud.firestore {
+      match /databases/{database}/documents {
+        
+        // Función para validar usuario autenticado
+        function isAuthenticated() {
+          return request.auth != null;
+        }
+        
+        // Función para validar que el usuario pertenece al comercio
+        function isTenantOwner(tenantId) {
+          return isAuthenticated() && (
+            request.auth.token.tenantId == tenantId || 
+            request.auth.token.admin == true
+          );
+        }
+
+        // Colección principal de comercios SaaS
+        match /comercios_saas/{comercioId} {
+          // Solo lectura para clientes activos o administradores
+          allow read: if isAuthenticated();
+          allow write: if isTenantOwner(comercioId);
+          
+          // Subcolección aislada multi-tenant para inventario, ventas, gastos, cierres
+          match /data/{document=**} {
+            allow read, write: if isTenantOwner(comercioId);
+          }
+        }
+      }
+    }
+    =============================================================================
+    -->
+
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <!-- CONFIGURACIÓN PWA NATIVA (STANDALONE FULLSCREEN & APP ICON) -->
@@ -173,11 +210,11 @@
             <form onsubmit="event.preventDefault(); window.procesarLoginUnificado();" class="space-y-4 text-xs font-bold">
                 <div>
                     <label class="text-[10px] text-slate-500 uppercase block mb-1">Usuario de Acceso *</label>
-                    <input type="text" id="login-user-field" class="input-clean font-mono" placeholder="Ej: demo / tucocel" value="tucocel">
+                    <input type="text" id="login-user-field" class="input-clean font-mono" placeholder="Ej: demo / tucocel" value="">
                 </div>
                 <div>
                     <label class="text-[10px] text-slate-500 uppercase block mb-1">Contraseña de Seguridad *</label>
-                    <input type="password" id="login-pass-field" class="input-clean font-mono" placeholder="••••••••" value="Razu2020.">
+                    <input type="password" id="login-pass-field" class="input-clean font-mono" placeholder="••••••••" value="">
                 </div>
                 <button type="submit" class="btn-brand w-full py-3.5 shadow-md">Ingresar al Sistema 🔒</button>
             </form>
@@ -293,7 +330,7 @@
                                 <label class="text-[10px] text-slate-500 uppercase block font-bold">Clave de Acceso (Visible al Máster) *</label>
                                 <button type="button" onclick="window.toggleVisibilidadPassField('saas-input-pass')" class="text-[9.5px] text-blue-600 hover:text-blue-800 font-black uppercase">👁️ Ver/Ocultar</button>
                             </div>
-                            <input type="text" id="saas-input-pass" placeholder="123456" value="123456" class="input-clean font-mono font-black text-blue-600 bg-blue-50/50">
+                            <input type="password" id="saas-input-pass" placeholder="Ingrese contraseña segura" class="input-clean font-mono font-black text-blue-600 bg-blue-50/50">
                         </div>
                     </div>
                 </div>
@@ -2250,7 +2287,7 @@
             <div class="space-y-3 font-bold text-xs">
                 <div>
                     <label class="text-[10px] text-slate-500 uppercase block mb-1">Usuario Máster Actual *</label>
-                    <input type="text" id="master-pass-current-user" class="input-clean font-mono" value="tucocel">
+                    <input type="text" id="master-pass-current-user" class="input-clean font-mono" value="">
                 </div>
                 <div>
                     <label class="text-[10px] text-slate-500 uppercase block mb-1">Nueva Clave Máster *</label>
@@ -2371,56 +2408,79 @@
             }
         }
 
-        // MOTOR DE PROTECCIÓN ANTI-SOBRESCRITURA (READ-BEFORE-WRITE) MULTI-TENANT
-        window.sincronizarTenantConFirebase = async function(entidad) {
+                // -------------------------------------------------------------
+        // 9. MECANISMO CENTRALIZADO DE NÚMEROS CORRELATIVOS (ANTI-COLISIÓN MULTIDISPOSITIVO)
+        // -------------------------------------------------------------
+        window.obtenerSiguienteCorrelativoCentralizado = async function(slug) {
+            if (!window.dbNube) {
+                const max = window.dbVentas.reduce((acc, v) => {
+                    const n = parseInt(v.correlativo || 0, 10);
+                    return !isNaN(n) && n > acc ? n : acc;
+                }, 0);
+                return (max + 1).toString().padStart(5, '0');
+            }
+
+            const counterRef = window.dbNube.collection('comercios_saas').doc(slug).collection('data').doc('control_correlativos');
+            try {
+                return await window.dbNube.runTransaction(async (transaction) => {
+                    const counterDoc = await transaction.get(counterRef);
+                    let nuevoCorrelativo = 1;
+                    if (counterDoc.exists && counterDoc.data() && counterDoc.data().ultimoCorrelativo) {
+                        nuevoCorrelativo = parseInt(counterDoc.data().ultimoCorrelativo, 10) + 1;
+                    } else {
+                        const maxLocal = window.dbVentas.reduce((acc, v) => {
+                            const n = parseInt(v.correlativo || 0, 10);
+                            return !isNaN(n) && n > acc ? n : acc;
+                        }, 0);
+                        nuevoCorrelativo = Math.max(1, maxLocal + 1);
+                    }
+                    transaction.set(counterRef, { ultimoCorrelativo: nuevoCorrelativo, actualizadoMs: Date.now() }, { merge: true });
+                    return nuevoCorrelativo.toString().padStart(5, '0');
+                });
+            } catch (error) {
+                console.warn("Transacción Firestore no disponible, usando correlativo local seguro:", error);
+                const max = window.dbVentas.reduce((acc, v) => {
+                    const n = parseInt(v.correlativo || 0, 10);
+                    return !isNaN(n) && n > acc ? n : acc;
+                }, 0);
+                return (max + 1).toString().padStart(5, '0');
+            }
+        };
+
+        // -------------------------------------------------------------
+        // 8. SINCRONIZACIÓN FIREBASE POR DOCUMENTOS INDIVIDUALES POR TRANSACCIÓN
+        // -------------------------------------------------------------
+        window.sincronizarTenantConFirebase = async function(entidad, itemIndividual = null) {
             if (!window.dbNube || !window.clienteActivoSesion) return;
             const slug = window.clienteActivoSesion.slug || 'demo';
-            const docRef = window.dbNube.collection('comercios_saas').doc(slug).collection('data').doc(entidad);
-
-            let dataLocal = [];
-            if (entidad === 'inventario') dataLocal = window.dbInventario || [];
-            else if (entidad === 'ventas') dataLocal = window.dbVentas || [];
-            else if (entidad === 'gastos') dataLocal = window.dbGastos || [];
-            else if (entidad === 'proveedores') dataLocal = window.dbProveedores || [];
-            else if (entidad === 'cierres') dataLocal = window.dbCierres || [];
+            const tenantBase = window.dbNube.collection('comercios_saas').doc(slug);
 
             try {
-                // Read-Before-Write: Verificación previa del servidor
-                const docSnap = await docRef.get();
-                if (docSnap.exists) {
-                    const serverData = docSnap.data() && docSnap.data().items ? docSnap.data().items : [];
-                    // Si el servidor tiene datos y local está vacío por fallo de red, NO sobreescribir en blanco: restaurar
-                    if (serverData.length > 0 && dataLocal.length === 0) {
-                        console.warn(`🛡️ Protección Anti-Sobrescritura activada para ${entidad}: Restaurando desde la nube.`);
-                        if (entidad === 'inventario') {
-                            window.dbInventario = serverData;
-                            window.guardarInventarioEnStorage();
-                            window.renderizarProductosVitrina();
-                            window.actualizarBadgeTotalInventario();
-                        } else if (entidad === 'ventas') {
-                            window.dbVentas = serverData;
-                            window.guardarVentasEnStorage();
-                        } else if (entidad === 'gastos') {
-                            window.dbGastos = serverData;
-                            window.guardarGastosEnStorage();
-                        } else if (entidad === 'proveedores') {
-                            window.dbProveedores = serverData;
-                            window.guardarProveedoresEnStorage();
-                        } else if (entidad === 'cierres') {
-                            window.dbCierres = serverData;
-                            window.guardarCierresEnStorage();
+                if (itemIndividual && itemIndividual.id) {
+                    // Guardado individual atómico por documento (previene sobreescrituras concurrentes)
+                    await tenantBase.collection(entidad).doc(itemIndividual.id).set(itemIndividual, { merge: true });
+                    console.log(`☁️ ${entidad.toUpperCase()} individual (${itemIndividual.id}) guardado en Firestore.`);
+                } else {
+                    // Sincronización en subcolección de documentos individuales
+                    let dataLocal = [];
+                    if (entidad === 'inventario') dataLocal = window.dbInventario || [];
+                    else if (entidad === 'ventas') dataLocal = window.dbVentas || [];
+                    else if (entidad === 'gastos') dataLocal = window.dbGastos || [];
+                    else if (entidad === 'proveedores') dataLocal = window.dbProveedores || [];
+                    else if (entidad === 'cierres') dataLocal = window.dbCierres || [];
+
+                    const batch = window.dbNube.batch();
+                    const subCol = tenantBase.collection(entidad);
+                    
+                    dataLocal.slice(0, 100).forEach(it => {
+                        if (it && it.id) {
+                            const docRef = subCol.doc(it.id);
+                            batch.set(docRef, it, { merge: true });
                         }
-                        return;
-                    }
+                    });
+                    await batch.commit();
+                    console.log(`☁️ ${entidad.toUpperCase()} sincronizado individualmente en subcolección.`);
                 }
-                // Si la data local es válida, escribir a Firestore
-                await docRef.set({
-                    items: dataLocal,
-                    ultimoUpdateMs: Date.now(),
-                    slug: slug,
-                    nombre: window.clienteActivoSesion.nombre || 'COMERCIO'
-                }, { merge: true });
-                console.log(`☁️ ${entidad.toUpperCase()} sincronizado en la nube para ${slug}.`);
             } catch(err) {
                 console.warn(`Aviso de sincronización nube (${entidad}):`, err);
             }
@@ -2429,41 +2489,44 @@
         window.descargarTenantDesdeFirebase = async function() {
             if (!window.dbNube || !window.clienteActivoSesion) return;
             const slug = window.clienteActivoSesion.slug || 'demo';
-            const coleccionData = window.dbNube.collection('comercios_saas').doc(slug).collection('data');
+            const tenantBase = window.dbNube.collection('comercios_saas').doc(slug);
 
             try {
                 const entidades = ['inventario', 'ventas', 'gastos', 'proveedores', 'cierres'];
                 for (const ent of entidades) {
-                    const snap = await coleccionData.doc(ent).get();
-                    if (snap.exists && snap.data() && snap.data().items) {
-                        const itemsServidor = snap.data().items;
-                        if (ent === 'inventario' && itemsServidor.length > 0) {
-                            window.dbInventario = itemsServidor;
-                            window.guardarInventarioEnStorage();
-                        } else if (ent === 'ventas' && itemsServidor.length > 0) {
-                            window.dbVentas = itemsServidor;
-                            window.guardarVentasEnStorage();
-                        } else if (ent === 'gastos' && itemsServidor.length > 0) {
-                            window.dbGastos = itemsServidor;
-                            window.guardarGastosEnStorage();
-                        } else if (ent === 'proveedores' && itemsServidor.length > 0) {
-                            window.dbProveedores = itemsServidor;
-                            window.guardarProveedoresEnStorage();
-                        } else if (ent === 'cierres' && itemsServidor.length > 0) {
-                            window.dbCierres = itemsServidor;
-                            window.guardarCierresEnStorage();
+                    const querySnap = await tenantBase.collection(ent).get();
+                    if (!querySnap.empty) {
+                        const docsServidor = [];
+                        querySnap.forEach(d => docsServidor.push(d.data()));
+                        
+                        if (docsServidor.length > 0) {
+                            if (ent === 'inventario') {
+                                window.dbInventario = docsServidor;
+                                localStorage.setItem(window.getTenantStorageKey('inventario'), JSON.stringify(window.dbInventario));
+                            } else if (ent === 'ventas') {
+                                window.dbVentas = docsServidor.sort((a, b) => (b.fechaMs || 0) - (a.fechaMs || 0));
+                                localStorage.setItem(window.getTenantStorageKey('ventas'), JSON.stringify(window.dbVentas));
+                            } else if (ent === 'gastos') {
+                                window.dbGastos = docsServidor.sort((a, b) => (b.fechaMs || 0) - (a.fechaMs || 0));
+                                localStorage.setItem(window.getTenantStorageKey('gastos'), JSON.stringify(window.dbGastos));
+                            } else if (ent === 'proveedores') {
+                                window.dbProveedores = docsServidor.sort((a, b) => (b.fechaMs || 0) - (a.fechaMs || 0));
+                                localStorage.setItem(window.getTenantStorageKey('proveedores'), JSON.stringify(window.dbProveedores));
+                            } else if (ent === 'cierres') {
+                                window.dbCierres = docsServidor.sort((a, b) => (b.timestamp || b.fechaMs || 0) - (a.timestamp || a.fechaMs || 0));
+                                localStorage.setItem(window.getTenantStorageKey('cierres'), JSON.stringify(window.dbCierres));
+                            }
                         }
                     }
                 }
                 window.renderizarProductosVitrina();
                 window.actualizarBadgeTotalInventario();
                 window.recalcularReportesGanancias();
-                console.log(`☁️ Datos completos descargados y sincronizados desde la nube para ${slug}.`);
+                console.log(`☁️ Datos multi-dispositivo descargados y sincronizados desde Firestore para ${slug}.`);
             } catch(e) {
                 console.warn("Aviso descarga nube:", e);
             }
         };
-
         window.STORAGE_KEY_SAAS_CLIENTES = 'tcl_master_db_2026';
         window.getTenantStorageKey = function(entidad) { const slug = (window.clienteActivoSesion && window.clienteActivoSesion.slug) ? window.clienteActivoSesion.slug : 'demo'; return `tcl_tenant_${slug}_${entidad}_2026`; };
         window.STORAGE_KEY_INV = 'tcl_inventario_db_2026';
@@ -2912,8 +2975,9 @@ Saldo restante: $${nota.credito.saldoPendienteUSD.toFixed(2)} USD`);
             const nombreNegocio = (window.clienteActivoSesion ? window.clienteActivoSesion.nombre : 'TUCOCEL C.A.').toUpperCase();
             const nroDoc = window.clienteActivoSesion ? (window.clienteActivoSesion.wa || '0424-0000000') : '0424-7357549';
 
-            const totalCOP = window.calcularPesosDesdeUSD(nota.totalUSD);
-            const totalBs = window.calcularBsDesdeUSD(nota.totalUSD);
+            // 5. Usar montos históricos congelados si existen para preservar inmutabilidad
+            const totalCOP = (nota.tasasMomento && nota.tasasMomento.totalCOP !== undefined) ? nota.tasasMomento.totalCOP : window.calcularPesosDesdeUSD(nota.totalUSD);
+            const totalBs = (nota.tasasMomento && nota.tasasMomento.totalBs !== undefined) ? nota.tasasMomento.totalBs : window.calcularBsDesdeUSD(nota.totalUSD);
 
             let desgloseHtml = '';
             if (nota.desgloseMixto) {
@@ -3004,16 +3068,28 @@ Saldo restante: $${nota.credito.saldoPendienteUSD.toFixed(2)} USD`);
             document.getElementById('modal-preview-nota').classList.add('hidden');
         };
 
-        window.ejecutarAccionNotaNueva = function(accion) {
-            // Generación robusta de correlativo secuencial
-            const maxCorr = window.dbVentas.reduce((max, item) => {
-                const num = parseInt(item.correlativo || 0, 10);
-                return !isNaN(num) && num > max ? num : max;
-            }, 0);
-            const numCorrelativo = (maxCorr + 1).toString().padStart(5, '0');
-            window.notaPendiente.id = 'not_' + Date.now();
+        window.ejecutarAccionNotaNueva = async function(accion) {
+            const slug = (window.clienteActivoSesion && window.clienteActivoSesion.slug) ? window.clienteActivoSesion.slug : 'demo';
+            
+            // 9. Asignación Centralizada de Correlativo Anti-Duplicados
+            const numCorrelativo = await window.obtenerSiguienteCorrelativoCentralizado(slug);
+            
+            window.notaPendiente.id = 'not_' + Date.now() + '_' + Math.random().toString(36).substr(2, 4);
             window.notaPendiente.correlativo = numCorrelativo;
             window.notaPendiente.estado = 'EMITIDA';
+
+            // 5. Congelar Tasa de Cambio del Momento dentro del Registro Histórico Inmutable
+            const tasaMomentoCOP = parseFloat(window.tasasConfig.cop) || 3600;
+            const factorMomentoBs = parseFloat(window.tasasConfig.paridadBs) || 3.3;
+            const totalMomentoCOP = window.calcularPesosDesdeUSD(window.notaPendiente.totalUSD, tasaMomentoCOP);
+            const totalMomentoBs = window.calcularBsDesdeUSD(window.notaPendiente.totalUSD, tasaMomentoCOP, factorMomentoBs);
+
+            window.notaPendiente.tasasMomento = {
+                tasaCOP: tasaMomentoCOP,
+                factorParidadBs: factorMomentoBs,
+                totalCOP: totalMomentoCOP,
+                totalBs: totalMomentoBs
+            };
 
             window.notaPendiente.items.forEach(it => {
                 if (!it.id.startsWith('libre_')) {
@@ -3028,8 +3104,13 @@ Saldo restante: $${nota.credito.saldoPendienteUSD.toFixed(2)} USD`);
             window.dbVentas.unshift(window.notaPendiente);
             window.guardarVentasEnStorage();
 
-            const totalCOP = window.calcularPesosDesdeUSD(window.notaPendiente.totalUSD);
-            const totalBs = window.calcularBsDesdeUSD(window.notaPendiente.totalUSD);
+            // 8. Sincronizar documento individual por transacción en Firestore
+            if (typeof window.sincronizarTenantConFirebase === 'function') {
+                window.sincronizarTenantConFirebase('ventas', window.notaPendiente);
+            }
+
+            const totalCOP = totalMomentoCOP;
+            const totalBs = totalMomentoBs;
 
             if (accion === 'imprimir') {
                 window.abrirPreviewNota(window.notaPendiente, 'HISTORIAL', numCorrelativo);
@@ -3157,7 +3238,7 @@ _Comprobante de Recepción Interna._
             if (guardadas) {
                 try { return JSON.parse(guardadas); } catch(e) {}
             }
-            return { user: 'tucocel', pass: 'Razu2020.' };
+            return { user: 'tucocel', pass: '' };
         };
 
         window.abrirModalCambioClaveMaster = function() {
@@ -4181,6 +4262,7 @@ Esta acción no devuelve stock.`)) {
             if (dias >= 365) return '1 AÑO'; if (dias >= 180) return '6 MESES'; if (dias >= 90) return '3 MESES'; return `${dias} DÍAS`;
         };
 
+        // 6. OPTIMIZACIÓN DE ALMACENAMIENTO DE IMÁGENES (< 35KB por foto para no exceder cuota LocalStorage 5MB)
         window.procesarYComprimirImagen = function(input) {
             if (!input.files || !input.files[0]) return;
             const file = input.files[0];
@@ -4189,12 +4271,19 @@ Esta acción no devuelve stock.`)) {
                 const img = new Image();
                 img.onload = function() {
                     const canvas = document.createElement('canvas');
-                    const MAX_WIDTH = 450, MAX_HEIGHT = 600;
+                    const MAX_WIDTH = 320, MAX_HEIGHT = 400; // Resolución optimizada para catálogo móvil
                     let width = img.width, height = img.height;
-                    if (width > height) { if (width > MAX_WIDTH) { height *= MAX_WIDTH / width; width = MAX_WIDTH; } } else { if (height > MAX_HEIGHT) { width *= MAX_HEIGHT / height; height = MAX_HEIGHT; } }
-                    canvas.width = width; canvas.height = height;
-                    const ctx = canvas.getContext('2d'); ctx.drawImage(img, 0, 0, width, height);
-                    const base64Optimizado = canvas.toDataURL('image/jpeg', 0.70);
+                    if (width > height) { 
+                        if (width > MAX_WIDTH) { height *= MAX_WIDTH / width; width = MAX_WIDTH; } 
+                    } else { 
+                        if (height > MAX_HEIGHT) { width *= MAX_HEIGHT / height; height = MAX_HEIGHT; } 
+                    }
+                    canvas.width = Math.round(width); 
+                    canvas.height = Math.round(height);
+                    const ctx = canvas.getContext('2d'); 
+                    ctx.drawImage(img, 0, 0, canvas.width, canvas.height);
+                    // Compresión JPEG optimizada a 60%
+                    const base64Optimizado = canvas.toDataURL('image/jpeg', 0.60);
                     document.getElementById('inv-input-foto-base64').value = base64Optimizado;
                     document.getElementById('box-preview-foto').innerHTML = `<img src="${base64Optimizado}" class="w-full h-full object-cover">`;
                 };
@@ -5191,7 +5280,7 @@ $${(item.precioUSD * item.cant).toFixed(2)} USD
                     <div class="border-t border-slate-100 pt-2 space-y-1 text-xs font-mono text-slate-700">
                         <div class="bg-slate-100 p-2 rounded-xl border border-slate-200 text-[10.5px] flex items-center justify-between">
                             <span>👤 Usuario: <strong class="text-slate-900">${c.user}</strong></span>
-                            <span>🔑 Clave: <strong class="text-blue-600 font-black bg-white px-2 py-0.5 rounded border border-blue-200">${c.pass}</strong></span>
+                            <span>🔑 Clave: <strong class="text-blue-600 font-black bg-white px-2 py-0.5 rounded border border-blue-200">••••••••</strong></span>
                         </div>
                         ${c.responsable ? `<div class="flex items-center gap-2 truncate"><span>👤</span><span>Responsable: <strong class="text-slate-900">${c.responsable}</strong></span></div>` : ''}
                         <div class="flex items-center gap-2 truncate"><span>📞</span><span>WA: ${c.wa || '04XX-0000000'}</span></div>
@@ -7049,4 +7138,3 @@ window.abrirModalReporteZ = function() {
 
 </body>
 </html>
-
