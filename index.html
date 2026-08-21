@@ -1742,7 +1742,7 @@
         </div>
     </div>
 
-    <!-- MODAL GASTOS Y EGRESOS -->
+    <!-- MODAL GASTOS Y EGRESOS MULTIMONEDA -->
     <div id="modal-gastos-egresos" class="fixed inset-0 bg-slate-900/80 backdrop-blur-md z-50 p-3 sm:p-4 flex items-center justify-center hidden no-print">
         <div class="bg-white border border-slate-200 w-full max-w-2xl rounded-3xl overflow-hidden shadow-2xl flex flex-col max-h-[90vh]">
             <div class="bg-slate-900 px-5 py-4 text-white flex justify-between items-center shrink-0">
@@ -1753,26 +1753,42 @@
             </div>
 
             <div class="p-4 bg-slate-50 border-b border-slate-200 space-y-3">
-                <h4 class="text-[10px] font-black uppercase text-slate-500 tracking-wider">Registrar Nuevo Egreso / Gasto</h4>
+                <div class="flex flex-wrap justify-between items-center gap-2">
+                    <h4 class="text-[10px] font-black uppercase text-slate-600 tracking-wider">Registrar Nuevo Egreso / Gasto</h4>
+                    <!-- PÍLDORA MULTIMONEDA DE GASTOS -->
+                    <div class="flex items-center gap-1 bg-white p-1 rounded-xl border border-slate-200">
+                        <span class="text-[9px] text-slate-500 uppercase font-mono font-bold px-1.5">Moneda:</span>
+                        <button type="button" onclick="window.seleccionarMonedaGasto('USD')" id="btn-gasto-usd" class="px-2.5 py-1 rounded-lg border border-rose-600 bg-rose-600 text-white font-black text-[9.5px]">💵 USD</button>
+                        <button type="button" onclick="window.seleccionarMonedaGasto('COP')" id="btn-gasto-cop" class="px-2.5 py-1 rounded-lg border border-slate-300 bg-white text-slate-700 font-bold text-[9.5px]">🇨🇴 COP</button>
+                        <button type="button" onclick="window.seleccionarMonedaGasto('BS')" id="btn-gasto-bs" class="px-2.5 py-1 rounded-lg border border-slate-300 bg-white text-slate-700 font-bold text-[9.5px]">🇻🇪 BS</button>
+                    </div>
+                </div>
+
                 <div class="grid grid-cols-1 sm:grid-cols-3 gap-2">
                     <div>
                         <label class="text-[9.5px] text-slate-500 uppercase block mb-1">Tipo de Salida *</label>
                         <select id="gasto-input-tipo" class="input-clean font-bold text-xs">
                             <option value="OPERATIVO">🏢 Gasto Operativo (Alquiler, Servicios, Nómina)</option>
-                            <option value="MERCANCIA">📦 Inversión en Mercancía / Compras</option>
+                            <option value="MERCANCIA">📦 Inversión en Mercancía / Compras Menores</option>
                             <option value="VARIOS">⚡ Gasto Menor / Varios</option>
                         </select>
                     </div>
                     <div>
                         <label class="text-[9.5px] text-slate-500 uppercase block mb-1">Descripción del Concepto *</label>
-                        <input type="text" id="gasto-input-desc" placeholder="Ej: Pago de Luz / Flete / Insumos" class="input-clean">
+                        <input type="text" id="gasto-input-desc" placeholder="Ej: Pago de Luz / Flete / Insumos" class="input-clean font-bold">
                     </div>
                     <div>
-                        <label class="text-[9.5px] text-slate-500 uppercase block mb-1">Monto en Dólares ($ USD) *</label>
-                        <input type="number" step="0.01" id="gasto-input-monto" placeholder="Ej: 15.00" class="input-clean font-mono text-rose-600 font-black">
+                        <label id="lbl-gasto-monto-moneda" class="text-[9.5px] text-slate-500 uppercase block mb-1">Monto en Dólares ($ USD) *</label>
+                        <input type="number" step="any" id="gasto-input-monto" oninput="window.recalcularEquivalenciaGasto()" placeholder="0.00" class="input-clean font-mono text-rose-600 font-black">
                     </div>
                 </div>
-                <button onclick="window.guardarNuevoGasto()" class="w-full bg-rose-600 hover:bg-rose-500 text-white font-black py-2.5 rounded-xl uppercase text-xs shadow flex items-center justify-center gap-1.5">
+
+                <div id="box-gasto-equivalente-preview" class="bg-rose-50 p-2.5 rounded-xl border border-rose-200 flex justify-between items-center text-xs font-mono text-rose-900 hidden">
+                    <span class="text-[9.5px] uppercase font-bold">Equivalente Contable en Caja:</span>
+                    <strong id="lbl-gasto-calc-usd" class="text-sm font-black">$0.00 USD</strong>
+                </div>
+
+                <button onclick="window.guardarNuevoGasto()" class="w-full bg-rose-600 hover:bg-rose-500 text-white font-black py-2.5 rounded-xl uppercase text-xs shadow flex items-center justify-center gap-1.5 transition-all active:scale-95">
                     <i class="fa-solid fa-circle-minus"></i> REGISTRAR SALIDA DE DINERO
                 </button>
             </div>
@@ -1795,15 +1811,19 @@
 
             <div class="p-4 overflow-y-auto space-y-3 text-xs font-bold text-slate-800 no-scrollbar flex-grow">
                 <!-- 1. ENCARGADO Y PROVEEDOR CON DIRECCIÓN -->
-                <div class="bg-amber-50 p-3 rounded-2xl border border-amber-200 grid grid-cols-1 sm:grid-cols-2 md:grid-cols-4 gap-2">
+                <div class="bg-amber-50 p-3 rounded-2xl border border-amber-200 grid grid-cols-1 sm:grid-cols-2 md:grid-cols-5 gap-2">
                     <div>
                         <label class="text-[9.5px] text-slate-500 uppercase block mb-0.5">¿Quién ingresa la mercancía? *</label>
-                        <input type="text" id="prov-input-encargado" placeholder="Ej: Robert / Nelson / Martha" class="input-clean font-mono">
+                        <input type="text" id="prov-input-encargado" placeholder="Ej: Carlos / María / Pedro" class="input-clean font-mono">
                     </div>
                     <div>
                         <label class="text-[9.5px] text-slate-500 uppercase block mb-0.5">Proveedor / Empresa *</label>
                         <input type="text" id="prov-input-nombre" list="lista-proveedores-guardados" oninput="window.autocompletarDatosProveedor(this.value)" placeholder="Ej: Distribuidora Los Andes C.A." class="input-clean font-mono">
                         <datalist id="lista-proveedores-guardados"></datalist>
+                    </div>
+                    <div>
+                        <label class="text-[9.5px] text-slate-500 uppercase block mb-0.5">RIF / Cédula *</label>
+                        <input type="text" id="prov-input-rif" placeholder="Ej: J-12345678-0" class="input-clean font-mono">
                     </div>
                     <div>
                         <label class="text-[9.5px] text-slate-500 uppercase block mb-0.5">Teléfono / WhatsApp</label>
@@ -1847,7 +1867,7 @@
                         </div>
                         <div>
                             <label class="text-[9px] text-slate-500 uppercase block mb-0.5">Cant / Kilos *</label>
-                            <input type="number" step="any" id="prov-prod-cant" value="1" placeholder="Ej: 15 o 24.500" class="input-clean font-mono text-center font-black">
+                            <input type="number" step="any" id="prov-prod-cant" value="0" placeholder="0" class="input-clean font-mono text-center font-black">
                         </div>
                         <div>
                             <label id="lbl-compra-costo-moneda" class="text-[9px] text-slate-500 uppercase block mb-0.5">P. Costo ($ USD) *</label>
@@ -2457,11 +2477,9 @@
 
             try {
                 if (itemIndividual && itemIndividual.id) {
-                    // Guardado individual atómico por documento (previene sobreescrituras concurrentes)
                     await tenantBase.collection(entidad).doc(itemIndividual.id).set(itemIndividual, { merge: true });
                     console.log(`☁️ ${entidad.toUpperCase()} individual (${itemIndividual.id}) guardado en Firestore.`);
                 } else {
-                    // Sincronización en subcolección de documentos individuales
                     let dataLocal = [];
                     if (entidad === 'inventario') dataLocal = window.dbInventario || [];
                     else if (entidad === 'ventas') dataLocal = window.dbVentas || [];
@@ -6048,7 +6066,56 @@ window.abrirModalReporteZ = function() {
         };
 
         // GASTOS CON CÁPSULA [VER]
+        window.monedaGastoActual = 'USD';
+
+        window.seleccionarMonedaGasto = function(moneda) {
+            window.monedaGastoActual = moneda;
+            const bUSD = document.getElementById('btn-gasto-usd');
+            const bCOP = document.getElementById('btn-gasto-cop');
+            const bBS = document.getElementById('btn-gasto-bs');
+            const lblMonto = document.getElementById('lbl-gasto-monto-moneda');
+
+            [bUSD, bCOP, bBS].forEach(b => {
+                if (b) b.className = "px-2.5 py-1 rounded-lg border border-slate-300 bg-white text-slate-700 font-bold text-[9.5px]";
+            });
+
+            if (moneda === 'USD') {
+                if (bUSD) bUSD.className = "px-2.5 py-1 rounded-lg border border-rose-600 bg-rose-600 text-white font-black text-[9.5px]";
+                if (lblMonto) lblMonto.innerText = "Monto en Dólares ($ USD) *";
+            } else if (moneda === 'COP') {
+                if (bCOP) bCOP.className = "px-2.5 py-1 rounded-lg border border-slate-800 bg-slate-800 text-white font-black text-[9.5px]";
+                if (lblMonto) lblMonto.innerText = "Monto en Pesos (COP) *";
+            } else {
+                if (bBS) bBS.className = "px-2.5 py-1 rounded-lg border border-emerald-600 bg-emerald-600 text-white font-black text-[9.5px]";
+                if (lblMonto) lblMonto.innerText = "Monto en Bolívares (Bs Paridad) *";
+            }
+            window.recalcularEquivalenciaGasto();
+        };
+
+        window.recalcularEquivalenciaGasto = function() {
+            const inp = document.getElementById('gasto-input-monto');
+            const boxPrev = document.getElementById('box-gasto-equivalente-preview');
+            const lblCalc = document.getElementById('lbl-gasto-calc-usd');
+            const val = parseFloat(inp ? inp.value : 0) || 0;
+
+            if (window.monedaGastoActual === 'USD' || val <= 0) {
+                if (boxPrev) boxPrev.classList.add('hidden');
+                return;
+            }
+
+            let montoUSD = val;
+            if (window.monedaGastoActual === 'COP') {
+                montoUSD = window.calcularUSDDesdeCOP(val);
+            } else if (window.monedaGastoActual === 'BS') {
+                montoUSD = window.calcularUSDDesdeBs(val);
+            }
+
+            if (lblCalc) lblCalc.innerText = `$${montoUSD.toFixed(2)} USD`;
+            if (boxPrev) boxPrev.classList.remove('hidden');
+        };
+
         window.abrirModalGastos = function() {
+            window.seleccionarMonedaGasto('USD');
             window.renderizarListaGastos();
             document.getElementById('modal-gastos-egresos').classList.remove('hidden');
         };
@@ -6056,16 +6123,37 @@ window.abrirModalReporteZ = function() {
         window.guardarNuevoGasto = function() {
             const tipo = document.getElementById('gasto-input-tipo').value;
             const desc = document.getElementById('gasto-input-desc').value.trim();
-            const monto = parseFloat(document.getElementById('gasto-input-monto').value) || 0;
+            const montoIngresado = parseFloat(document.getElementById('gasto-input-monto').value) || 0;
 
-            if (!desc || monto <= 0) { alert("⚠️ Ingrese una descripción válida y monto mayor a 0."); return; }
+            if (!desc || montoIngresado <= 0) { 
+                alert("⚠️ Ingrese una descripción válida y un monto mayor a 0."); 
+                return; 
+            }
 
-            window.dbGastos.unshift({ id: 'gasto_' + Date.now(), tipo, desc, montoUSD: monto, fechaMs: Date.now() });
+            let montoUSD = montoIngresado;
+            if (window.monedaGastoActual === 'COP') {
+                montoUSD = window.calcularUSDDesdeCOP(montoIngresado);
+            } else if (window.monedaGastoActual === 'BS') {
+                montoUSD = window.calcularUSDDesdeBs(montoIngresado);
+            }
+
+            window.dbGastos.unshift({ 
+                id: 'gasto_' + Date.now(), 
+                tipo, 
+                desc, 
+                monedaOriginal: window.monedaGastoActual || 'USD',
+                montoOriginal: montoIngresado,
+                montoUSD: montoUSD, 
+                fechaMs: Date.now() 
+            });
+
             window.guardarGastosEnStorage();
             document.getElementById('gasto-input-desc').value = '';
             document.getElementById('gasto-input-monto').value = '';
+            const boxPrev = document.getElementById('box-gasto-equivalente-preview');
+            if (boxPrev) boxPrev.classList.add('hidden');
             window.renderizarListaGastos();
-            alert("✅ Egreso registrado exitosamente.");
+            alert(`✅ Salida de dinero registrada:\n• Moneda: ${window.monedaGastoActual}\n• Monto: ${montoIngresado}\n• Equivalente Contable: $${montoUSD.toFixed(2)} USD`);
         };
 
         window.renderizarListaGastos = function() {
@@ -6078,17 +6166,29 @@ window.abrirModalReporteZ = function() {
             container.innerHTML = window.dbGastos.map(g => {
                 const d = new Date(g.fechaMs);
                 const fechaStr = `${d.getDate()}/${d.getMonth()+1}/${d.getFullYear()} ${d.getHours()}:${d.getMinutes().toString().padStart(2,'0')}`;
+                const mon = g.monedaOriginal || 'USD';
+                let detalleMoneda = '';
+                if (mon === 'COP') {
+                    detalleMoneda = `<span class="text-[9px] text-slate-500 font-mono font-bold">(${window.formatearMiles(g.montoOriginal || 0)} COP)</span>`;
+                } else if (mon === 'BS') {
+                    detalleMoneda = `<span class="text-[9px] text-emerald-600 font-mono font-bold">(${window.formatBS(g.montoOriginal || 0)} Bs)</span>`;
+                }
+
                 return `
                     <div class="bg-white p-3 rounded-xl border border-slate-200 flex justify-between items-center shadow-sm">
                         <div>
                             <div class="flex items-center gap-2">
                                 <span class="bg-rose-100 text-rose-800 text-[9px] font-black px-2 py-0.5 rounded-md uppercase font-mono">${g.tipo}</span>
+                                <span class="bg-slate-100 text-slate-700 text-[8.5px] font-mono font-black px-1.5 py-0.2 rounded uppercase">${mon}</span>
                                 <span class="text-[9.5px] text-slate-400 font-mono">${fechaStr}</span>
                             </div>
                             <h5 class="text-xs font-bold text-slate-900 mt-1">${g.desc}</h5>
                         </div>
-                        <div class="flex items-center gap-2">
-                            <span class="text-xs font-black text-rose-600 font-mono">-$${g.montoUSD.toFixed(2)} USD</span>
+                        <div class="flex items-center gap-2 text-right">
+                            <div>
+                                <span class="text-xs font-black text-rose-600 font-mono block">-$${(g.montoUSD || 0).toFixed(2)} USD</span>
+                                ${detalleMoneda}
+                            </div>
                             <button onclick="window.abrirAuditoriaDetallada('GASTO', '${g.id}')" class="bg-slate-100 hover:bg-slate-200 text-slate-700 font-black px-2 py-1 rounded-lg text-[9.5px] uppercase"><i class="fa-solid fa-eye"></i> Ver</button>
                         </div>
                     </div>
