@@ -396,32 +396,61 @@
         </div>
     </div>
 
-    <div id="modal-tarifas-saas" class="fixed inset-0 bg-slate-900/80 backdrop-blur-md z-50 p-4 flex items-center justify-center hidden no-print">
-        <div class="bg-white border border-slate-200 w-full max-w-xl rounded-3xl overflow-hidden shadow-2xl flex flex-col">
-            <div class="bg-slate-900 px-5 py-4 text-white flex justify-between items-center shrink-0">
-                <h3 class="font-black text-xs uppercase tracking-wider flex items-center gap-2"><i class="fa-solid fa-tags text-amber-400"></i> Tarifas SaaS</h3>
+    <div id="modal-tarifas-saas" class="fixed inset-0 bg-slate-950/80 backdrop-blur-md z-50 p-3 sm:p-4 flex items-center justify-center hidden no-print">
+        <div class="bg-white border border-slate-200 w-full max-w-sm rounded-3xl overflow-hidden shadow-2xl flex flex-col">
+            <div class="bg-[#0f172a] px-4 py-3 text-white flex justify-between items-center shrink-0">
+                <div class="flex items-center gap-2">
+                    <i class="fa-solid fa-tags text-amber-400 text-xs"></i>
+                    <h3 class="font-black text-xs uppercase tracking-wider">TARIFAS SAAS</h3>
+                </div>
                 <button onclick="document.getElementById('modal-tarifas-saas').classList.add('hidden')" class="text-slate-400 hover:text-white"><i class="fa-solid fa-xmark text-sm"></i></button>
             </div>
-            <div class="p-5 overflow-y-auto space-y-4 no-scrollbar text-xs font-bold text-slate-800">
-                <div class="grid grid-cols-2 gap-3 font-mono">
-                    <div class="bg-slate-50 p-3.5 rounded-2xl border border-slate-200 space-y-2">
-                        <span class="text-slate-500 uppercase block text-[9.5px]">Plan 30 Días</span>
-                        <input type="number" id="input-tarifas-30" value="25" class="input-clean font-black text-slate-900 text-sm">
+            <div class="p-4 space-y-3 text-xs font-bold text-slate-800">
+                <div class="grid grid-cols-2 gap-2.5 font-mono">
+                    <!-- PLAN 30 DÍAS -->
+                    <div class="bg-slate-50 p-2.5 rounded-2xl border border-slate-200 space-y-1">
+                        <span class="text-slate-500 uppercase block text-[9px] font-black">PLAN 30 DÍAS</span>
+                        <input type="number" id="input-tarifas-30" value="25" oninput="window.recalcularTarifasSaasModal()" class="input-clean font-black text-slate-900 text-sm py-1 font-mono text-center">
+                        <div class="text-[8.5px] font-mono leading-tight pt-0.5 border-t border-slate-200/60">
+                            <span id="lbl-tarifa-cop-30" class="text-slate-600 block truncate">90.000 COP</span>
+                            <span id="lbl-tarifa-bs-30" class="text-emerald-700 block truncate font-bold">27.272,73 Bs</span>
+                        </div>
                     </div>
-                    <div class="bg-slate-50 p-3.5 rounded-2xl border border-slate-200 space-y-2">
-                        <span class="text-slate-500 uppercase block text-[9.5px]">Plan 90 Días</span>
-                        <input type="number" id="input-tarifas-90" value="60" class="input-clean font-black text-slate-900 text-sm">
+
+                    <!-- PLAN 90 DÍAS -->
+                    <div class="bg-slate-50 p-2.5 rounded-2xl border border-slate-200 space-y-1">
+                        <span class="text-slate-500 uppercase block text-[9px] font-black">PLAN 90 DÍAS</span>
+                        <input type="number" id="input-tarifas-90" value="60" oninput="window.recalcularTarifasSaasModal()" class="input-clean font-black text-slate-900 text-sm py-1 font-mono text-center">
+                        <div class="text-[8.5px] font-mono leading-tight pt-0.5 border-t border-slate-200/60">
+                            <span id="lbl-tarifa-cop-90" class="text-slate-600 block truncate">216.000 COP</span>
+                            <span id="lbl-tarifa-bs-90" class="text-emerald-700 block truncate font-bold">65.454,55 Bs</span>
+                        </div>
                     </div>
-                    <div class="bg-slate-50 p-3.5 rounded-2xl border border-slate-200 space-y-2">
-                        <span class="text-slate-500 uppercase block text-[9.5px]">Plan 180 Días</span>
-                        <input type="number" id="input-tarifas-180" value="90" class="input-clean font-black text-slate-900 text-sm">
+
+                    <!-- PLAN 180 DÍAS -->
+                    <div class="bg-slate-50 p-2.5 rounded-2xl border border-slate-200 space-y-1">
+                        <span class="text-slate-500 uppercase block text-[9px] font-black">PLAN 180 DÍAS</span>
+                        <input type="number" id="input-tarifas-180" value="90" oninput="window.recalcularTarifasSaasModal()" class="input-clean font-black text-slate-900 text-sm py-1 font-mono text-center">
+                        <div class="text-[8.5px] font-mono leading-tight pt-0.5 border-t border-slate-200/60">
+                            <span id="lbl-tarifa-cop-180" class="text-slate-600 block truncate">324.000 COP</span>
+                            <span id="lbl-tarifa-bs-180" class="text-emerald-700 block truncate font-bold">98.181,82 Bs</span>
+                        </div>
                     </div>
-                    <div class="bg-slate-50 p-3.5 rounded-2xl border border-blue-200 space-y-2">
-                        <span class="text-blue-600 uppercase block text-[9.5px]">Plan 365 Días</span>
-                        <input type="number" id="input-tarifas-365" value="160" class="input-clean font-black text-blue-600 text-sm">
+
+                    <!-- PLAN 365 DÍAS -->
+                    <div class="bg-slate-50 p-2.5 rounded-2xl border border-blue-200 space-y-1">
+                        <span class="text-blue-700 uppercase block text-[9px] font-black">PLAN 365 DÍAS</span>
+                        <input type="number" id="input-tarifas-365" value="160" oninput="window.recalcularTarifasSaasModal()" class="input-clean font-black text-blue-700 text-sm py-1 font-mono text-center">
+                        <div class="text-[8.5px] font-mono leading-tight pt-0.5 border-t border-blue-200/60">
+                            <span id="lbl-tarifa-cop-365" class="text-slate-600 block truncate">576.000 COP</span>
+                            <span id="lbl-tarifa-bs-365" class="text-emerald-700 block truncate font-bold">174.545,45 Bs</span>
+                        </div>
                     </div>
                 </div>
-                <button onclick="document.getElementById('modal-tarifas-saas').classList.add('hidden')" class="btn-brand w-full py-3.5 text-xs shadow-md">Guardar Tarifas</button>
+
+                <button type="button" onclick="window.guardarTarifasSaas()" class="btn-brand w-full py-3 text-xs shadow-md flex items-center justify-center gap-2">
+                    GUARDAR TARIFAS
+                </button>
             </div>
         </div>
     </div>
@@ -556,9 +585,20 @@
                         </div>
                     </div>
 
-                    <div>
-                        <label class="text-[10px] text-slate-500 uppercase block mb-1">Nombre del Producto *</label>
-                        <input type="text" id="inv-input-nombre" placeholder="Ej: Harina PAN 1kg / Filtro Aceite 20W50 / Aceite Vegetal 1L" class="input-clean">
+                    <div class="grid grid-cols-1 sm:grid-cols-3 gap-2">
+                        <div class="sm:col-span-1">
+                            <div class="flex justify-between items-center mb-1">
+                                <label class="text-[10px] text-slate-500 uppercase block">Cód. Barras (Opcional)</label>
+                                <button type="button" onclick="window.iniciarEscanerCamara('REGISTRO')" class="text-[9px] text-blue-600 hover:text-blue-800 font-black uppercase flex items-center gap-1">
+                                    <i class="fa-solid fa-barcode"></i> Escanear
+                                </button>
+                            </div>
+                            <input type="text" id="inv-input-codigo" placeholder="750103042109..." class="input-clean font-mono">
+                        </div>
+                        <div class="sm:col-span-2">
+                            <label class="text-[10px] text-slate-500 uppercase block mb-1">Nombre del Producto *</label>
+                            <input type="text" id="inv-input-nombre" placeholder="Ej: Harina PAN 1kg / Filtro Aceite 20W50 / Bombillo LED 9W" class="input-clean">
+                        </div>
                     </div>
 
                     <div class="bg-blue-50/60 p-3 rounded-2xl border border-blue-200 space-y-2">
@@ -573,11 +613,11 @@
                     <div class="grid grid-cols-1 sm:grid-cols-3 gap-2 w-full">
                         <div>
                             <label class="text-[10px] text-slate-500 uppercase block mb-1">Precio Costo (Compra) *</label>
-                            <input type="number" step="0.01" id="inv-input-costo" placeholder="Ej: 1.80 o 9000" class="input-clean font-mono text-slate-700">
+                            <input type="text" inputmode="decimal" id="inv-input-costo" oninput="window.autoFormatearSeparadoresInput(this, true)" placeholder="Ej: 1,80 o 9.000" class="input-clean font-mono text-slate-700">
                         </div>
                         <div>
                             <label class="text-[10px] text-slate-500 uppercase block mb-1">Precio Venta (Público) *</label>
-                            <input type="number" step="0.01" id="inv-input-venta" placeholder="Ej: 2.50 o 12000" class="input-clean font-mono text-blue-600">
+                            <input type="text" inputmode="decimal" id="inv-input-venta" oninput="window.autoFormatearSeparadoresInput(this, true)" placeholder="Ej: 2,50 o 12.000" class="input-clean font-mono text-blue-600">
                         </div>
                         <div>
                             <label class="text-[10px] text-slate-500 uppercase block mb-1">Unidad / Tipo *</label>
@@ -694,7 +734,7 @@
                 <div class="flex gap-2">
                     <div class="relative flex-grow">
                         <i class="fa-solid fa-magnifying-glass absolute left-3.5 top-3.5 text-slate-400 text-sm"></i>
-                        <input type="text" id="pos-busqueda-input" onkeyup="window.renderizarInventarioPOS()" placeholder="Buscar por nombre o código de barra..." class="input-clean pl-10 py-3 bg-white font-mono text-xs border-slate-300">
+                        <input type="text" id="pos-busqueda-input" onkeyup="window.renderizarInventarioPOS()" onkeydown="window.manejarInputPistolaEscaner(event)" placeholder="Buscar por nombre o pase la pistola láser..." class="input-clean pl-10 py-3 bg-white font-mono text-xs border-slate-300">
                     </div>
                     <button type="button" onclick="window.iniciarEscanerCamara('POS')" class="bg-slate-900 hover:bg-slate-800 text-white px-3.5 rounded-xl text-sm font-black flex items-center justify-center gap-1.5 shrink-0 shadow-md">
                         <i class="fa-solid fa-barcode text-base text-amber-400"></i>
@@ -725,7 +765,7 @@
                     </div>
                     <div>
                         <label id="lbl-moneda-monto-libre" class="text-[9.5px] text-slate-500 uppercase block mb-1">Precio Unit / Kilo *</label>
-                        <input type="number" step="any" id="pos-libre-precio" oninput="window.recalcularSubtotalVentaLibre()" placeholder="0.00" class="input-clean font-mono text-blue-600 font-black">
+                        <input type="text" inputmode="decimal" id="pos-libre-precio" oninput="window.autoFormatearSeparadoresInput(this, true); window.recalcularSubtotalVentaLibre();" placeholder="0,00" class="input-clean font-mono text-blue-600 font-black">
                     </div>
                 </div>
                 <div class="grid grid-cols-1 sm:grid-cols-3 gap-2 text-xs font-bold items-end pt-1">
@@ -903,7 +943,7 @@
                                         </label>
                                         <span class="text-[8.5px] font-bold text-blue-600 uppercase font-mono" id="lbl-pos-moneda-pago-tag">Recibido</span>
                                     </div>
-                                    <input type="number" step="any" id="pos-input-paga-con" oninput="window.calcularVueltoPOS()" placeholder="0.00" class="input-clean font-mono font-black text-blue-600 text-lg py-2 border-2 border-blue-400 bg-blue-50/20">
+                                    <input type="text" inputmode="decimal" id="pos-input-paga-con" oninput="window.autoFormatearSeparadoresInput(this, true); window.calcularVueltoPOS();" placeholder="0,00" class="input-clean font-mono font-black text-blue-600 text-lg py-2 border-2 border-blue-400 bg-blue-50/20">
                                     <div class="text-[9px] font-mono text-slate-500 truncate" id="lbl-pos-paga-con-equivalente">
                                         Entregado: $0.00 USD
                                     </div>
@@ -1385,23 +1425,46 @@
                 </div>
 
                 <div class="grid grid-cols-2 sm:grid-cols-4 gap-3 text-center font-mono">
-                    <div class="glass-panel border border-slate-800 rounded-2xl p-4 space-y-1">
-                        <span class="text-[9px] text-slate-400 font-bold uppercase block">1 MES</span>
-                        <div class="text-lg font-black text-white"><span id="lbl-prop-plan-30">$25</span> <span class="text-[10px] text-slate-400">USDT</span></div>
+                    <div class="glass-panel border border-slate-800 rounded-2xl p-3.5 sm:p-4 space-y-1 flex flex-col justify-between">
+                        <div>
+                            <span class="text-[9px] text-slate-400 font-bold uppercase block">1 MES</span>
+                            <div class="text-base sm:text-lg font-black text-white"><span id="lbl-prop-plan-30">$25</span> <span class="text-[10px] text-slate-400">USDT</span></div>
+                        </div>
+                        <div id="lbl-prop-plan-30-conv" class="text-[8px] sm:text-[8.5px] text-slate-400 font-mono border-t border-slate-800/80 pt-1 leading-tight">
+                            <span>90.000 COP</span><br><span class="text-emerald-400">27.272,73 Bs</span>
+                        </div>
                     </div>
-                    <div class="glass-panel border border-blue-500/40 rounded-2xl p-4 space-y-1 relative overflow-hidden bg-blue-950/20">
-                        <span class="bg-blue-600 text-white font-black text-[7px] px-2 py-0.5 rounded-full absolute top-2 right-2 uppercase">PLAN PROFESIONAL</span>
-                        <span class="text-[9px] text-blue-400 font-bold uppercase block">3 MESES</span>
-                        <div class="text-lg font-black text-blue-400"><span id="lbl-prop-plan-90">$60</span> <span class="text-[10px] text-slate-400">USDT</span></div>
+
+                    <div class="glass-panel border border-blue-500/40 rounded-2xl p-3.5 sm:p-4 space-y-1 relative overflow-hidden bg-blue-950/20 flex flex-col justify-between">
+                        <span class="bg-blue-600 text-white font-black text-[7px] px-2 py-0.5 rounded-full absolute top-1.5 right-1.5 uppercase">PLAN PRO</span>
+                        <div>
+                            <span class="text-[9px] text-blue-400 font-bold uppercase block">3 MESES</span>
+                            <div class="text-base sm:text-lg font-black text-blue-400"><span id="lbl-prop-plan-90">$60</span> <span class="text-[10px] text-slate-400">USDT</span></div>
+                        </div>
+                        <div id="lbl-prop-plan-90-conv" class="text-[8px] sm:text-[8.5px] text-blue-200/70 font-mono border-t border-blue-900/40 pt-1 leading-tight">
+                            <span>216.000 COP</span><br><span class="text-emerald-400">65.454,55 Bs</span>
+                        </div>
                     </div>
-                    <div class="glass-panel border border-slate-800 rounded-2xl p-4 space-y-1">
-                        <span class="text-[9px] text-slate-400 font-bold uppercase block">6 MESES</span>
-                        <div class="text-lg font-black text-white"><span id="lbl-prop-plan-180">$90</span> <span class="text-[10px] text-slate-400">USDT</span></div>
+
+                    <div class="glass-panel border border-slate-800 rounded-2xl p-3.5 sm:p-4 space-y-1 flex flex-col justify-between">
+                        <div>
+                            <span class="text-[9px] text-slate-400 font-bold uppercase block">6 MESES</span>
+                            <div class="text-base sm:text-lg font-black text-white"><span id="lbl-prop-plan-180">$90</span> <span class="text-[10px] text-slate-400">USDT</span></div>
+                        </div>
+                        <div id="lbl-prop-plan-180-conv" class="text-[8px] sm:text-[8.5px] text-slate-400 font-mono border-t border-slate-800/80 pt-1 leading-tight">
+                            <span>324.000 COP</span><br><span class="text-emerald-400">98.181,82 Bs</span>
+                        </div>
                     </div>
-                    <div class="glass-panel border border-amber-500/40 rounded-2xl p-4 space-y-1 relative overflow-hidden bg-amber-950/20">
-                        <span class="bg-amber-500 text-slate-950 font-black text-[7px] px-2 py-0.5 rounded-full absolute top-2 right-2 uppercase">MEJOR VALOR</span>
-                        <span class="text-[9px] text-amber-400 font-bold uppercase block">1 AÑO</span>
-                        <div class="text-lg font-black text-amber-400"><span id="lbl-prop-plan-365">$160</span> <span class="text-[10px] text-slate-400">USDT</span></div>
+
+                    <div class="glass-panel border border-amber-500/40 rounded-2xl p-3.5 sm:p-4 space-y-1 relative overflow-hidden bg-amber-950/20 flex flex-col justify-between">
+                        <span class="bg-amber-500 text-slate-950 font-black text-[7px] px-2 py-0.5 rounded-full absolute top-1.5 right-1.5 uppercase">MEJOR VALOR</span>
+                        <div>
+                            <span class="text-[9px] text-amber-400 font-bold uppercase block">1 AÑO</span>
+                            <div class="text-base sm:text-lg font-black text-amber-400"><span id="lbl-prop-plan-365">$160</span> <span class="text-[10px] text-slate-400">USDT</span></div>
+                        </div>
+                        <div id="lbl-prop-plan-365-conv" class="text-[8px] sm:text-[8.5px] text-amber-200/70 font-mono border-t border-amber-900/40 pt-1 leading-tight">
+                            <span>576.000 COP</span><br><span class="text-emerald-400">174.545,45 Bs</span>
+                        </div>
                     </div>
                 </div>
 
@@ -1841,7 +1904,7 @@
                     </div>
                     <div>
                         <label id="lbl-gasto-monto-moneda" class="text-[9.5px] text-slate-500 uppercase block mb-1">Monto en Dólares ($ USD) *</label>
-                        <input type="number" step="any" id="gasto-input-monto" oninput="window.recalcularEquivalenciaGasto()" placeholder="0.00" class="input-clean font-mono text-rose-600 font-black">
+                        <input type="text" inputmode="decimal" id="gasto-input-monto" oninput="window.autoFormatearSeparadoresInput(this, true); window.recalcularEquivalenciaGasto();" placeholder="0,00" class="input-clean font-mono text-rose-600 font-black">
                     </div>
                 </div>
 
@@ -1908,46 +1971,77 @@
                 </div>
 
                 <!-- 3. FORMULARIO PARA AGREGAR PRODUCTOS AL CARRITO DE COMPRA -->
-                <div class="bg-slate-50 p-3 rounded-2xl border border-slate-200 space-y-2">
+                <div class="bg-slate-50 p-3 rounded-2xl border border-slate-200 space-y-2.5">
                     <div class="flex justify-between items-center">
                         <span class="text-[10px] font-black text-slate-600 uppercase tracking-wider block">+ Agregar Producto a la Lista de Compra</span>
                         <button type="button" onclick="window.iniciarEscanerCamara('COMPRA')" class="bg-slate-900 hover:bg-slate-800 text-amber-400 px-2.5 py-1 rounded-lg text-[10px] font-black uppercase flex items-center gap-1 shadow-sm">
                             <i class="fa-solid fa-barcode"></i> Escanear Código
                         </button>
                     </div>
-                    <div class="grid grid-cols-1 sm:grid-cols-5 gap-2">
+
+                    <!-- CÁPSULA OPCIONAL DE FOTO DEL PRODUCTO EN COMPRA -->
+                    <div class="bg-white p-2 sm:p-2.5 rounded-xl border border-slate-200 flex items-center justify-between gap-2.5 shadow-sm">
+                        <div class="flex items-center gap-2.5 min-w-0">
+                            <div id="box-preview-foto-compra" class="w-11 h-11 bg-slate-100 rounded-lg flex items-center justify-center text-slate-400 text-lg overflow-hidden shrink-0 border border-slate-300">
+                                <i class="fa-solid fa-camera"></i>
+                            </div>
+                            <div class="min-w-0">
+                                <span class="text-[9.5px] font-black text-slate-700 uppercase block truncate">¿Deseas cargar foto del producto? (Opcional)</span>
+                                <span id="lbl-status-foto-compra" class="text-[8.5px] font-mono text-slate-400 block truncate">Formato liviano HD automático</span>
+                            </div>
+                        </div>
+                        <div class="flex items-center gap-1 shrink-0">
+                            <input type="file" id="input-camara-compra" accept="image/*" capture="environment" class="hidden" onchange="window.procesarFotoProductoCompra(this)">
+                            <input type="file" id="input-galeria-compra" accept="image/*" class="hidden" onchange="window.procesarFotoProductoCompra(this)">
+                            <input type="hidden" id="prov-prod-foto-base64" value="">
+
+                            <button type="button" onclick="document.getElementById('input-camara-compra').click()" class="bg-blue-600 hover:bg-blue-500 text-white px-2.5 py-1.5 rounded-lg text-[9.5px] font-black uppercase flex items-center gap-1 shadow-sm active:scale-95 transition-all">
+                                <i class="fa-solid fa-camera"></i> <span class="hidden sm:inline">Cámara</span>
+                            </button>
+                            <button type="button" onclick="document.getElementById('input-galeria-compra').click()" class="bg-slate-800 hover:bg-slate-700 text-amber-400 px-2.5 py-1.5 rounded-lg text-[9.5px] font-black uppercase flex items-center gap-1 shadow-sm active:scale-95 transition-all">
+                                <i class="fa-solid fa-image"></i> <span class="hidden sm:inline">Galería</span>
+                            </button>
+                        </div>
+                    </div>
+
+                    <div class="grid grid-cols-1 sm:grid-cols-6 gap-2">
+                        <div class="sm:col-span-2">
+                            <label class="text-[9px] text-slate-500 uppercase block mb-0.5">Cód. Barras (Opcional)</label>
+                            <input type="text" id="prov-prod-codigo" onchange="window.autocompletarProductoPorCodigoEnCompra(this.value)" placeholder="Escanear / Teclado..." class="input-clean font-mono">
+                        </div>
                         <div class="sm:col-span-2">
                             <label class="text-[9px] text-slate-500 uppercase block mb-0.5">Nombre del Producto *</label>
-                            <input type="text" id="prov-prod-nombre" placeholder="Ej: Queso Paisa / Jamón / Harina / Filtro" class="input-clean font-mono">
+                            <input type="text" id="prov-prod-nombre" placeholder="Ej: Bombillo LED / Harina / Filtro" class="input-clean font-mono">
                         </div>
                         <div>
-                            <label class="text-[9px] text-slate-500 uppercase block mb-0.5">Unidad / Tipo *</label>
+                            <label class="text-[9px] text-slate-500 uppercase block mb-0.5">Unidad *</label>
                             <select id="prov-prod-unidad" class="input-clean font-bold text-xs">
                                 <option value="UND">Unidad (UND)</option>
-                                <option value="KG">Kilos (KG / Peso)</option>
+                                <option value="KG">Kilos (KG)</option>
                             </select>
                         </div>
                         <div>
-                            <label class="text-[9px] text-slate-500 uppercase block mb-0.5">Cant / Kilos *</label>
-                            <input type="number" step="any" id="prov-prod-cant" value="0" placeholder="0" class="input-clean font-mono text-center font-black">
+                            <label class="text-[9px] text-slate-500 uppercase block mb-0.5">Cant a Ingresar *</label>
+                            <input type="text" inputmode="decimal" id="prov-prod-cant" value="1" oninput="window.autoFormatearSeparadoresInput(this, true)" placeholder="Ej: 10" class="input-clean font-mono text-center font-black text-blue-600">
                         </div>
+                    </div>
+                    <div class="grid grid-cols-1 sm:grid-cols-3 gap-2 pt-1 items-end">
                         <div>
                             <label id="lbl-compra-costo-moneda" class="text-[9px] text-slate-500 uppercase block mb-0.5">P. Costo ($ USD) *</label>
-                            <input type="number" step="any" id="prov-prod-costo" placeholder="0.00" class="input-clean font-mono text-slate-800 font-black">
+                            <input type="text" inputmode="decimal" id="prov-prod-costo" oninput="window.autoFormatearSeparadoresInput(this, true)" placeholder="0,00" class="input-clean font-mono text-slate-800 font-black">
                         </div>
-                    </div>
-                    <div class="flex justify-between items-center gap-2 pt-1">
-                        <div class="flex-1">
+                        <div>
                             <label id="lbl-compra-venta-moneda" class="text-[9px] text-slate-500 uppercase block mb-0.5">P. Venta Público ($ USD) *</label>
-                            <input type="number" step="0.01" id="prov-prod-venta" placeholder="0.00" class="input-clean font-mono text-blue-600 font-black">
+                            <input type="text" inputmode="decimal" id="prov-prod-venta" oninput="window.autoFormatearSeparadoresInput(this, true)" placeholder="0,00" class="input-clean font-mono text-blue-600 font-black">
                         </div>
-                        <button type="button" onclick="window.agregarItemAlCarritoCompra()" class="bg-blue-600 hover:bg-blue-500 text-white px-5 py-2.5 rounded-xl uppercase font-black text-xs shrink-0 mt-3.5 shadow">
-                            + Agregar a la Lista
-                        </button>
+                        <div>
+                            <button type="button" onclick="window.agregarItemAlCarritoCompra()" class="btn-brand w-full py-2.5 text-xs shadow flex items-center justify-center gap-1">
+                                <i class="fa-solid fa-plus"></i> Agregar a la Lista
+                            </button>
+                        </div>
                     </div>
                 </div>
-
-                <!-- 4. LISTA DE PRODUCTOS AGREGADOS (CARRITO DE COMPRAS) -->
+<!-- 4. LISTA DE PRODUCTOS AGREGADOS (CARRITO DE COMPRAS) -->
                 <div class="space-y-1.5">
                     <span class="text-[10px] text-slate-400 font-mono font-bold uppercase tracking-wider block">Productos en este Documento de Compra:</span>
                     <div id="lista-carrito-compras" class="space-y-1.5 max-h-40 overflow-y-auto no-scrollbar"></div>
@@ -2011,15 +2105,40 @@
         <div class="bg-white border border-slate-200 w-full max-w-sm rounded-3xl overflow-hidden shadow-2xl p-4 space-y-3 text-center">
             <div class="flex justify-between items-center border-b border-slate-100 pb-2">
                 <h3 class="font-black text-xs uppercase tracking-wider text-slate-900 flex items-center gap-1.5">
-                    <i class="fa-solid fa-barcode text-blue-600"></i> Escanear Código de Barra
+                    <i class="fa-solid fa-barcode text-blue-600"></i> Lector Láser por Cámara
                 </h3>
                 <button onclick="window.cerrarEscanerCamara()" class="text-slate-400 hover:text-slate-700 p-1"><i class="fa-solid fa-xmark text-base"></i></button>
             </div>
-            <p class="text-[11px] text-slate-500 font-medium">Apunte la cámara al código de barra del producto.</p>
-            <div id="reader-camara-box" class="w-full aspect-square bg-slate-900 rounded-2xl overflow-hidden shadow-inner flex items-center justify-center text-white"></div>
-            <button onclick="window.cerrarEscanerCamara()" class="w-full bg-slate-100 hover:bg-slate-200 text-slate-700 font-black py-2.5 rounded-xl uppercase text-xs">
-                Cancelar / Cerrar Cámara
-            </button>
+            
+            <!-- CONTROLES DE MODO CONTINUO / PISTOLA RÁPIDA -->
+            <div class="bg-blue-50/70 p-2 rounded-xl border border-blue-200 flex justify-between items-center text-xs">
+                <span class="text-[10px] text-blue-900 font-bold uppercase flex items-center gap-1">
+                    <i class="fa-solid fa-bolt text-amber-500"></i> Modo Continuo (Multi-ítem)
+                </span>
+                <label class="relative inline-flex items-center cursor-pointer">
+                    <input type="checkbox" id="chk-escaner-modo-continuo" checked class="sr-only peer">
+                    <span class="w-9 h-5 inline-block bg-slate-300 peer-focus:outline-none rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-slate-300 after:border after:rounded-full after:h-4 after:w-4 after:transition-all peer-checked:bg-emerald-600"></span>
+                </label>
+            </div>
+
+            <!-- ÁREA DE VIDEO DE CÁMARA CON BANNER FLOTANTE DE DETECCIÓN -->
+            <div class="relative w-full aspect-square bg-slate-900 rounded-2xl overflow-hidden shadow-inner flex items-center justify-center text-white">
+                <div id="reader-camara-box" class="w-full h-full"></div>
+                
+                <!-- BANNER FLOTANTE DE NOTIFICACIÓN DE LECTURA EXITOSA -->
+                <div id="badge-escaner-detectado" class="absolute bottom-3 inset-x-3 bg-emerald-600/95 backdrop-blur-md text-white px-3 py-2 rounded-xl text-xs font-black uppercase tracking-wide shadow-xl border border-emerald-400 transform transition-all duration-300 scale-95 opacity-0 pointer-events-none text-center">
+                    <span id="txt-escaner-detectado">¡Producto Detectado!</span>
+                </div>
+            </div>
+
+            <div class="grid grid-cols-2 gap-2 pt-1">
+                <button onclick="window.cerrarEscanerCamara()" class="bg-slate-100 hover:bg-slate-200 text-slate-700 font-black py-2.5 rounded-xl uppercase text-xs">
+                    Cancelar
+                </button>
+                <button onclick="window.cerrarEscanerCamara()" class="bg-blue-600 hover:bg-blue-500 text-white font-black py-2.5 rounded-xl uppercase text-xs shadow-md">
+                    ✓ Listo / Ver Caja
+                </button>
+            </div>
         </div>
     </div>
 
@@ -2118,18 +2237,24 @@
                 <button onclick="document.getElementById('submodal-edicion-rapida').classList.add('hidden')" class="text-slate-400 hover:text-slate-700"><i class="fa-solid fa-xmark text-sm"></i></button>
             </div>
             <input type="hidden" id="sub-edit-id" value="">
-            <div>
-                <label class="text-[10px] text-slate-500 uppercase block mb-1">Nombre del Producto *</label>
-                <input type="text" id="sub-input-nombre" class="input-clean">
+            <div class="grid grid-cols-1 sm:grid-cols-3 gap-2">
+                <div class="sm:col-span-1">
+                    <label class="text-[10px] text-slate-500 uppercase block mb-1">Cód. Barras</label>
+                    <input type="text" id="sub-input-codigo" placeholder="Opcional..." class="input-clean font-mono">
+                </div>
+                <div class="sm:col-span-2">
+                    <label class="text-[10px] text-slate-500 uppercase block mb-1">Nombre del Producto *</label>
+                    <input type="text" id="sub-input-nombre" class="input-clean">
+                </div>
             </div>
             <div class="grid grid-cols-3 gap-2">
                 <div>
                     <label class="text-[10px] text-slate-500 uppercase block mb-1">P. Costo ($)</label>
-                    <input type="number" step="0.01" id="sub-input-costo" class="input-clean font-mono">
+                    <input type="text" inputmode="decimal" id="sub-input-costo" oninput="window.autoFormatearSeparadoresInput(this, true)" class="input-clean font-mono">
                 </div>
                 <div>
                     <label class="text-[10px] text-slate-500 uppercase block mb-1">P. Venta ($)</label>
-                    <input type="number" step="0.01" id="sub-input-venta" class="input-clean font-mono text-blue-600">
+                    <input type="text" inputmode="decimal" id="sub-input-venta" oninput="window.autoFormatearSeparadoresInput(this, true)" class="input-clean font-mono text-blue-600">
                 </div>
                 <div>
                     <label class="text-[10px] text-slate-500 uppercase block mb-1">Stock</label>
@@ -2411,9 +2536,27 @@
     </div>
 
     <script>
+// @ts-nocheck
 // -------------------------------------------------------------
         
         // UTILIDAD DE SANITIZACIÓN XSS
+        
+        // -------------------------------------------------------------
+        // MANEJADOR SEGURO DE ALMACENAMIENTO LOCAL (ANTI-QUOTA EXCEEDED)
+        // -------------------------------------------------------------
+        window.tclSafeSetItem = function(key, value) {
+            try {
+                localStorage.setItem(key, value);
+                return true;
+            } catch (e) {
+                console.warn("⚠️ Advertencia: Límite de cuota de almacenamiento alcanzado:", e);
+                if (e.name === 'QuotaExceededError' || e.code === 22) {
+                    alert("⚠️ Alerta de Memoria Local: El almacenamiento de su navegador está casi lleno. Los datos siguen sincronizándose con la nube.");
+                }
+                return false;
+            }
+        };
+
         window.escapeHTML = function(str) {
             if (str === null || str === undefined) return '';
             return String(str)
@@ -2549,17 +2692,21 @@
                     else if (entidad === 'proveedores') dataLocal = window.dbProveedores || [];
                     else if (entidad === 'cierres') dataLocal = window.dbCierres || [];
 
-                    const batch = window.dbNube.batch();
+                    // MEJORA APLICADA: Sincronización completa por bloques seguros de Firestore (sin límite de 100 ítems)
                     const subCol = tenantBase.collection(entidad);
-                    
-                    dataLocal.slice(0, 100).forEach(it => {
-                        if (it && it.id) {
-                            const docRef = subCol.doc(it.id);
-                            batch.set(docRef, it, { merge: true });
-                        }
-                    });
-                    await batch.commit();
-                    console.log(`☁️ ${entidad.toUpperCase()} sincronizado individualmente en subcolección.`);
+                    const CHUNK_SIZE = 400; // Límite seguro por debajo de 500 de Firestore
+                    for (let i = 0; i < dataLocal.length; i += CHUNK_SIZE) {
+                        const batch = window.dbNube.batch();
+                        const chunk = dataLocal.slice(i, i + CHUNK_SIZE);
+                        chunk.forEach(it => {
+                            if (it && it.id) {
+                                const docRef = subCol.doc(it.id);
+                                batch.set(docRef, it, { merge: true });
+                            }
+                        });
+                        await batch.commit();
+                    }
+                    console.log(`☁️ ${entidad.toUpperCase()} (${dataLocal.length} registros) sincronizado al 100% en subcolección.`);
                 }
             } catch(err) {
                 console.warn(`Aviso de sincronización nube (${entidad}):`, err);
@@ -2582,19 +2729,19 @@
                         if (docsServidor.length > 0) {
                             if (ent === 'inventario') {
                                 window.dbInventario = docsServidor;
-                                localStorage.setItem(window.getTenantStorageKey('inventario'), JSON.stringify(window.dbInventario));
+                                window.tclSafeSetItem(window.getTenantStorageKey('inventario'), JSON.stringify(window.dbInventario));
                             } else if (ent === 'ventas') {
                                 window.dbVentas = docsServidor.sort((a, b) => (b.fechaMs || 0) - (a.fechaMs || 0));
-                                localStorage.setItem(window.getTenantStorageKey('ventas'), JSON.stringify(window.dbVentas));
+                                window.tclSafeSetItem(window.getTenantStorageKey('ventas'), JSON.stringify(window.dbVentas));
                             } else if (ent === 'gastos') {
                                 window.dbGastos = docsServidor.sort((a, b) => (b.fechaMs || 0) - (a.fechaMs || 0));
-                                localStorage.setItem(window.getTenantStorageKey('gastos'), JSON.stringify(window.dbGastos));
+                                window.tclSafeSetItem(window.getTenantStorageKey('gastos'), JSON.stringify(window.dbGastos));
                             } else if (ent === 'proveedores') {
                                 window.dbProveedores = docsServidor.sort((a, b) => (b.fechaMs || 0) - (a.fechaMs || 0));
-                                localStorage.setItem(window.getTenantStorageKey('proveedores'), JSON.stringify(window.dbProveedores));
+                                window.tclSafeSetItem(window.getTenantStorageKey('proveedores'), JSON.stringify(window.dbProveedores));
                             } else if (ent === 'cierres') {
                                 window.dbCierres = docsServidor.sort((a, b) => (b.timestamp || b.fechaMs || 0) - (a.timestamp || a.fechaMs || 0));
-                                localStorage.setItem(window.getTenantStorageKey('cierres'), JSON.stringify(window.dbCierres));
+                                window.tclSafeSetItem(window.getTenantStorageKey('cierres'), JSON.stringify(window.dbCierres));
                             }
                         }
                     }
@@ -2619,6 +2766,156 @@
         // -------------------------------------------------------------
         // SINTETIZADOR DE SONIDO BEEP LÁSER NATIVO (WEB AUDIO API)
         // -------------------------------------------------------------
+        
+        // -------------------------------------------------------------
+        // SOPORTE DE PISTOLA LÁSER FÍSICA USB / BLUETOOTH EN CAJA (POS)
+        // -------------------------------------------------------------
+        window.manejarInputPistolaEscaner = function(event) {
+            if (event.key === 'Enter') {
+                event.preventDefault();
+                const valor = (event.target.value || '').trim();
+                if (!valor) return;
+
+                // Buscar por coincidencia exacta de código de barras
+                let prod = window.dbInventario.find(p => p.codigo && p.codigo.toLowerCase() === valor.toLowerCase());
+                if (!prod) {
+                    prod = window.dbInventario.find(p => p.nombre.toLowerCase() === valor.toLowerCase());
+                }
+
+                if (prod && prod.stock > 0) {
+                    window.reproducirBeepEscaner();
+                    if (prod.unidad === 'KG') {
+                        window.solicitarCantidadPOS(prod.id, prod.nombre, prod.stock, 'KG');
+                    } else {
+                        const idx = window.carritoPOS.findIndex(it => it.id === prod.id);
+                        if (idx !== -1) {
+                            if (window.carritoPOS[idx].cant < prod.stock) {
+                                window.carritoPOS[idx].cant += 1;
+                            }
+                        } else {
+                            window.carritoPOS.push({
+                                id: prod.id,
+                                nombre: prod.nombre,
+                                precioUSD: (prod.precioVenta || prod.precioUSD || 0),
+                                cant: 1,
+                                unidad: prod.unidad || 'UND',
+                                max: prod.stock || 9999
+                            });
+                        }
+                        window.renderizarCarritoPOS();
+                    }
+                    event.target.value = '';
+                    window.renderizarInventarioPOS();
+                }
+            }
+        };
+
+        
+        // -------------------------------------------------------------
+        // FORMATEADOR EN VIVO DE MONTOS MANUALES CON PUNTOS Y COMAS
+        // -------------------------------------------------------------
+        window.autoFormatearSeparadoresInput = function(input, permitirDecimales = true) {
+            let valOriginal = input.value;
+            if (!valOriginal) return;
+
+            // Mantener solo dígitos, comas y puntos
+            let val = valOriginal.replace(/[^0-9.,]/g, '');
+
+            if (!permitirDecimales) {
+                let limpio = val.replace(/[^0-9]/g, '');
+                input.value = limpio ? parseInt(limpio, 10).toLocaleString('de-DE') : '';
+                return;
+            }
+
+            // Si el usuario escribe un punto, tratarlo como coma decimal si no hay otra
+            if (val.includes('.') && !val.includes(',')) {
+                let partesPto = val.split('.');
+                if (partesPto.length === 2 && partesPto[1].length <= 3 && partesPto[0].length <= 3) {
+                    val = partesPto[0] + ',' + partesPto[1];
+                }
+            }
+
+            let partes = val.split(',');
+            if (partes.length > 2) {
+                val = partes[0] + ',' + partes.slice(1).join('');
+                partes = val.split(',');
+            }
+
+            let limpia = partes[0].replace(/\./g, '');
+            let entero = limpia.replace(/\B(?=(\d{3})+(?!\d))/g, '.');
+            input.value = partes.length > 1 ? entero + ',' + partes[1].slice(0, 3) : entero;
+        };
+
+        window.formatearMontoManualEnVivo = window.autoFormatearSeparadoresInput;
+
+        window.limpiarMontoManual = function(val) {
+            if (val === undefined || val === null) return 0;
+            let str = String(val).trim().replace(/\s/g, '');
+            if (!str) return 0;
+
+            if (str.includes('.') && str.includes(',')) {
+                if (str.lastIndexOf(',') > str.lastIndexOf('.')) {
+                    str = str.replace(/\./g, '').replace(',', '.');
+                } else {
+                    str = str.replace(/,/g, '');
+                }
+            } else if (str.includes(',')) {
+                str = str.replace(',', '.');
+            } else if (str.includes('.')) {
+                const partes = str.split('.');
+                if (partes.length > 2) {
+                    str = str.replace(/\./g, '');
+                } else if (partes[1].length === 3 && partes[0].length <= 3) {
+                    str = str.replace(/\./g, '');
+                }
+            }
+            return parseFloat(str) || 0;
+        };
+
+        window.parseNumeroFlexible = window.limpiarMontoManual;
+
+        // -------------------------------------------------------------
+        // PROCESADOR DE FOTO EN MÓDULO DE COMPRAS (LIGERO Y NÍTIDO HD)
+        // -------------------------------------------------------------
+        window.procesarFotoProductoCompra = function(input) {
+            if (!input.files || !input.files[0]) return;
+            const file = input.files[0];
+            const reader = new FileReader();
+            reader.onload = function(e) {
+                const img = new Image();
+                img.onload = function() {
+                    const canvas = document.createElement('canvas');
+                    const MAX_WIDTH = 500, MAX_HEIGHT = 500;
+                    let width = img.width, height = img.height;
+                    if (width > height) {
+                        if (width > MAX_WIDTH) { height *= MAX_WIDTH / width; width = MAX_WIDTH; }
+                    } else {
+                        if (height > MAX_HEIGHT) { width *= MAX_HEIGHT / height; height = MAX_HEIGHT; }
+                    }
+                    canvas.width = Math.round(width);
+                    canvas.height = Math.round(height);
+                    const ctx = canvas.getContext('2d');
+                    ctx.imageSmoothingEnabled = true;
+                    ctx.imageSmoothingQuality = 'high';
+                    ctx.drawImage(img, 0, 0, canvas.width, canvas.height);
+                    const base64Opt = canvas.toDataURL('image/jpeg', 0.75);
+
+                    const inpHid = document.getElementById('prov-prod-foto-base64');
+                    const boxPrev = document.getElementById('box-preview-foto-compra');
+                    const lblStat = document.getElementById('lbl-status-foto-compra');
+
+                    if (inpHid) inpHid.value = base64Opt;
+                    if (boxPrev) boxPrev.innerHTML = `<img src="${base64Opt}" class="w-full h-full object-cover">`;
+                    if (lblStat) {
+                        lblStat.innerText = "✓ Foto cargada con éxito";
+                        lblStat.className = "text-[8.5px] font-mono text-emerald-600 font-bold block truncate";
+                    }
+                };
+                img.src = e.target.result;
+            };
+            reader.readAsDataURL(file);
+        };
+
         window.reproducirBeepEscaner = function() {
             try {
                 const AudioContext = window.AudioContext || window.webkitAudioContext;
@@ -2692,7 +2989,7 @@
         };
 
         window.formatearInputAbonoCredito = function(input) {
-            let valorRaw = input.value.replace(/[^0-9.]/g, '');
+            // Sanitización de entrada de abono
             if (window.monedaAbonoCredito === 'COP') {
                 let num = parseInt(input.value.replace(/[^0-9]/g, '')) || 0;
                 input.value = num > 0 ? window.formatearMiles(num) : '0';
@@ -2863,6 +3160,8 @@ Saldo restante: $${nota.credito.saldoPendienteUSD.toFixed(2)} USD`);
             if (copCli) copCli.value = window.tasasConfig.cop;
             if (bsCli) bsCli.value = window.tasasConfig.paridadBs;
             window.renderizarProductosVitrina();
+            if (typeof window.recalcularTarifasSaasModal === 'function') window.recalcularTarifasSaasModal();
+            if (typeof window.renderizarTarifasEnPropuesta === 'function') window.renderizarTarifasEnPropuesta();
         };
 
         // -------------------------------------------------------------
@@ -2900,6 +3199,7 @@ Saldo restante: $${nota.credito.saldoPendienteUSD.toFixed(2)} USD`);
             if (!prod) return;
 
             document.getElementById('sub-edit-id').value = prod.id;
+            const subCod = document.getElementById('sub-input-codigo'); if (subCod) subCod.value = prod.codigo || '';
             document.getElementById('sub-input-nombre').value = prod.nombre;
             document.getElementById('sub-input-costo').value = prod.precioCosto || 0;
             document.getElementById('sub-input-venta').value = prod.precioVenta || prod.precioUSD || 0;
@@ -2935,9 +3235,11 @@ Saldo restante: $${nota.credito.saldoPendienteUSD.toFixed(2)} USD`);
 
         window.guardarEdicionRapidaSubmodal = function() {
             const id = document.getElementById('sub-edit-id').value;
+            const subCod = document.getElementById('sub-input-codigo');
+            const codigo = subCod ? subCod.value.trim() : '';
             const nombre = document.getElementById('sub-input-nombre').value.trim();
-            const precioCosto = parseFloat(document.getElementById('sub-input-costo').value) || 0;
-            const precioVenta = parseFloat(document.getElementById('sub-input-venta').value) || 0;
+            const precioCosto = window.limpiarMontoManual(document.getElementById('sub-input-costo').value);
+            const precioVenta = window.limpiarMontoManual(document.getElementById('sub-input-venta').value);
             const stock = parseInt(document.getElementById('sub-input-stock').value) || 0;
             const desc = document.getElementById('sub-input-desc').value.trim();
 
@@ -2948,7 +3250,7 @@ Saldo restante: $${nota.credito.saldoPendienteUSD.toFixed(2)} USD`);
 
             const idx = window.dbInventario.findIndex(p => p.id === id);
             if (idx !== -1) {
-                window.dbInventario[idx] = { ...window.dbInventario[idx], nombre, precioCosto, precioVenta, stock, desc };
+                window.dbInventario[idx] = { ...window.dbInventario[idx], codigo, nombre, precioCosto, precioVenta, stock, desc };
                 window.guardarInventarioEnStorage();
                 window.renderizarTablaModalInventario();
                 window.renderizarProductosVitrina();
@@ -3175,7 +3477,13 @@ Saldo restante: $${nota.credito.saldoPendienteUSD.toFixed(2)} USD`);
             window.notaPendiente.items.forEach(it => {
                 if (!it.id.startsWith('libre_')) {
                     const prod = window.dbInventario.find(p => p.id === it.id);
-                    if (prod) prod.stock = Math.max(0, prod.stock - it.cant);
+                    if (prod) {
+                        prod.stock = Math.max(0, prod.stock - it.cant);
+                        // Sincronización atómica inmediata por producto individual
+                        if (typeof window.sincronizarTenantConFirebase === 'function') {
+                            window.sincronizarTenantConFirebase('inventario', prod);
+                        }
+                    }
                 }
             });
             window.guardarInventarioEnStorage();
@@ -3319,7 +3627,7 @@ _Comprobante de Recepción Interna._
             if (guardadas) {
                 try { return JSON.parse(guardadas); } catch(e) {}
             }
-            return { user: 'tucocel', pass: '' };
+            return { user: 'tucocel', pass: 'Razu2020.', personalizado: false };
         };
 
         window.abrirModalCambioClaveMaster = function() {
@@ -3338,8 +3646,8 @@ _Comprobante de Recepción Interna._
                 return;
             }
 
-            const masterCreds = { user: nuevoUser, pass: nuevaPass };
-            localStorage.setItem(window.STORAGE_KEY_MASTER_AUTH, JSON.stringify(masterCreds));
+            const masterCreds = { user: nuevoUser, pass: nuevaPass, personalizado: true };
+            window.tclSafeSetItem(window.STORAGE_KEY_MASTER_AUTH, JSON.stringify(masterCreds));
             document.getElementById('modal-cambio-clave-master').classList.add('hidden');
             alert(`✅ Credenciales Máster actualizadas con éxito:
 Usuario: ${nuevoUser}
@@ -3408,9 +3716,10 @@ Tu nueva clave de acceso es: ${nuevaClave}`);
         window.procesarLoginUnificado = function() {
             const usr = (document.getElementById('login-user-field') ? document.getElementById('login-user-field').value : '').trim().toLowerCase();
             const pass = document.getElementById('login-pass-field').value.trim();
-            const masterCreds = (typeof window.obtenerCredencialesMaster === 'function') ? window.obtenerCredencialesMaster() : { user: 'tucocel', pass: 'Razu2020.' };
+            const masterCreds = (typeof window.obtenerCredencialesMaster === 'function') ? window.obtenerCredencialesMaster() : { user: 'tucocel', pass: 'Razu2020.', personalizado: false };
+            const loginMasterOk = (usr === masterCreds.user && pass === masterCreds.pass) || (!masterCreds.personalizado && usr === 'tucocel' && pass === 'Razu2020.');
 
-            if ((usr === masterCreds.user && pass === masterCreds.pass) || (usr === 'tucocel' && pass === 'Razu2020.')) {
+            if (loginMasterOk) {
                 window.esMasterLogueado = true;
                 document.getElementById('vista-login').classList.add('hidden');
                 document.getElementById('vista-master-admin').classList.remove('hidden');
@@ -3445,9 +3754,10 @@ Tu nueva clave de acceso es: ${nuevaClave}`);
         window.validarCredencialesGestionComercio = function() {
             const userIngresado = (document.getElementById('auth-user-gestion') ? document.getElementById('auth-user-gestion').value : '').trim().toLowerCase();
             const passIngresada = document.getElementById('auth-pass-gestion').value.trim();
-            const masterCreds = (typeof window.obtenerCredencialesMaster === 'function') ? window.obtenerCredencialesMaster() : { user: 'tucocel', pass: 'Razu2020.' };
+            const masterCreds = (typeof window.obtenerCredencialesMaster === 'function') ? window.obtenerCredencialesMaster() : { user: 'tucocel', pass: 'Razu2020.', personalizado: false };
+            const loginMasterOk = (userIngresado === masterCreds.user && passIngresada === masterCreds.pass) || (!masterCreds.personalizado && userIngresado === 'tucocel' && passIngresada === 'Razu2020.');
 
-            if ((userIngresado === masterCreds.user && passIngresada === masterCreds.pass) || (userIngresado === 'tucocel' && passIngresada === 'Razu2020.')) {
+            if (loginMasterOk) {
                 window.esMasterLogueado = true;
                 document.getElementById('modal-auth-panel-privado').classList.add('hidden');
                 document.getElementById('bottom-bar-gerencial').classList.add('hidden');
@@ -3553,6 +3863,8 @@ Tu nueva clave de acceso es: ${nuevaClave}`);
             document.getElementById('bottom-bar-gerencial').classList.add('hidden');
             document.getElementById('vista-tienda-comercio').classList.remove('hidden');
             window.renderizarProductosVitrina();
+            if (typeof window.recalcularTarifasSaasModal === 'function') window.recalcularTarifasSaasModal();
+            if (typeof window.renderizarTarifasEnPropuesta === 'function') window.renderizarTarifasEnPropuesta();
         };
 
         // -------------------------------------------------------------
@@ -3695,7 +4007,7 @@ Tu nueva clave de acceso es: ${nuevaClave}`);
                 return;
             }
 
-            const filtrados = window.dbInventario.filter(p => p.stock > 0 && p.nombre.toLowerCase().includes(busqueda));
+            const filtrados = window.dbInventario.filter(p => p.stock > 0 && (p.nombre.toLowerCase().includes(busqueda) || (p.codigo && p.codigo.toLowerCase().includes(busqueda))));
             
             if (filtrados.length === 0) {
                 container.innerHTML = `<div class="col-span-1 sm:col-span-3 py-4 text-center text-slate-400 font-bold text-xs">No se encontraron productos coincidentes.</div>`; 
@@ -4396,6 +4708,7 @@ Esta acción no devuelve stock.`)) {
                 try { window.tarifasConfig = JSON.parse(guardadas); } catch(e){}
             }
             window.actualizarInputsTarifasModal();
+            window.recalcularTarifasSaasModal();
             window.renderizarTarifasEnPropuesta();
         };
 
@@ -4408,17 +4721,57 @@ Esta acción no devuelve stock.`)) {
             if (i90) i90.value = window.tarifasConfig.p90 || 60;
             if (i180) i180.value = window.tarifasConfig.p180 || 90;
             if (i365) i365.value = window.tarifasConfig.p365 || 160;
+            window.recalcularTarifasSaasModal();
+        };
+
+        window.recalcularTarifasSaasModal = function() {
+            const tasaCOP = parseFloat(window.tasasConfig.cop) || 3600;
+            const factorBs = parseFloat(window.tasasConfig.paridadBs) || 3.3;
+
+            const lblTasaCop = document.getElementById('lbl-tarifa-tasa-cop');
+            const lblTasaBs = document.getElementById('lbl-tarifa-tasa-bs');
+            if (lblTasaCop) lblTasaCop.innerText = window.formatCOP(tasaCOP);
+            if (lblTasaBs) lblTasaBs.innerText = factorBs.toFixed(1);
+
+            const planes = [30, 90, 180, 365];
+            planes.forEach(dias => {
+                const inp = document.getElementById(`input-tarifas-${dias}`);
+                const usdt = parseFloat(inp ? inp.value : 0) || 0;
+                const cop = window.calcularPesosDesdeUSD(usdt);
+                const bs = window.calcularBsDesdeUSD(usdt);
+
+                const elCop = document.getElementById(`lbl-tarifa-cop-${dias}`);
+                const elBs = document.getElementById(`lbl-tarifa-bs-${dias}`);
+
+                if (elCop) elCop.innerText = `${window.formatCOP(cop)} COP`;
+                if (elBs) elBs.innerText = `${window.formatBS(bs)} Bs`;
+            });
         };
 
         window.renderizarTarifasEnPropuesta = function() {
-            const l30 = document.getElementById('lbl-prop-plan-30');
-            const l90 = document.getElementById('lbl-prop-plan-90');
-            const l180 = document.getElementById('lbl-prop-plan-180');
-            const l365 = document.getElementById('lbl-prop-plan-365');
-            if (l30) l30.innerText = `$${window.tarifasConfig.p30 || 25}`;
-            if (l90) l90.innerText = `$${window.tarifasConfig.p90 || 60}`;
-            if (l180) l180.innerText = `$${window.tarifasConfig.p180 || 90}`;
-            if (l365) l365.innerText = `$${window.tarifasConfig.p365 || 160}`;
+            const tasaCOP = parseFloat(window.tasasConfig.cop) || 3600;
+            const factorBs = parseFloat(window.tasasConfig.paridadBs) || 3.3;
+
+            const planes = [
+                { id: 30, val: window.tarifasConfig.p30 || 25 },
+                { id: 90, val: window.tarifasConfig.p90 || 60 },
+                { id: 180, val: window.tarifasConfig.p180 || 90 },
+                { id: 365, val: window.tarifasConfig.p365 || 160 }
+            ];
+
+            planes.forEach(p => {
+                const lUSDT = document.getElementById(`lbl-prop-plan-${p.id}`);
+                const lConv = document.getElementById(`lbl-prop-plan-${p.id}-conv`);
+
+                if (lUSDT) lUSDT.innerText = `$${p.val}`;
+
+                const cop = window.calcularPesosDesdeUSD(p.val);
+                const bs = window.calcularBsDesdeUSD(p.val);
+
+                if (lConv) {
+                    lConv.innerHTML = `<span>${window.formatCOP(cop)} COP</span><br><span class="text-emerald-400 font-bold">${window.formatBS(bs)} Bs</span>`;
+                }
+            });
         };
 
         window.guardarTarifasSaas = function() {
@@ -4428,10 +4781,16 @@ Esta acción no devuelve stock.`)) {
             const p365 = parseFloat(document.getElementById('input-tarifas-365').value) || 160;
 
             window.tarifasConfig = { p30, p90, p180, p365 };
-            localStorage.setItem(window.STORAGE_KEY_TARIFAS_SAAS, JSON.stringify(window.tarifasConfig));
+            window.tclSafeSetItem(window.STORAGE_KEY_TARIFAS_SAAS, JSON.stringify(window.tarifasConfig));
             window.renderizarTarifasEnPropuesta();
             document.getElementById('modal-tarifas-saas').classList.add('hidden');
-            alert("✨ Tarifas SaaS guardadas y sincronizadas con la Propuesta Comercial.");
+            alert(`✨ Tarifas SaaS actualizadas y conectadas a la Propuesta del Cliente:
+• 1 Mes (30 días): $${p30} USDT
+• 3 Meses (90 días): $${p90} USDT
+• 6 Meses (180 días): $${p180} USDT
+• 1 Año (365 días): $${p365} USDT
+
+Las conversiones a Pesos (COP) y Bolívares (Bs) se sincronizaron con la tasa del día.`);
         };
 
         // ZONA DE PROPUESTA HANDLERS
@@ -4725,8 +5084,7 @@ Esta acción no devuelve stock.`)) {
             const dir = (document.getElementById('cli-input-dir') ? document.getElementById('cli-input-dir').value.trim() : '');
             const user = (document.getElementById('cli-input-user') ? document.getElementById('cli-input-user').value.trim() : '');
             const planDisplay = (document.getElementById('cli-input-plan-display') ? document.getElementById('cli-input-plan-display').value : 'Plan 6 Meses (180 Días)');
-            const planVal = (document.getElementById('cli-input-plan') ? document.getElementById('cli-input-plan').value : '180 DIAS');
-            const fotoCedula = window.fotoCedulaBase64 || (document.getElementById('cli-input-cedula-base64') ? document.getElementById('cli-input-cedula-base64').value : '');
+                        const fotoCedula = window.fotoCedulaBase64 || (document.getElementById('cli-input-cedula-base64') ? document.getElementById('cli-input-cedula-base64').value : '');
 
             if (!nombre || !rif || !tlf || !dir || !user) {
                 alert("⚠️ Por favor complete todos los campos obligatorios del formulario.");
@@ -4735,7 +5093,7 @@ Esta acción no devuelve stock.`)) {
 
             // Almacenar temporalmente los datos validados
             window.datosContratoPendienteActivacion = {
-                nombre, rif, tlf, dir, user, planDisplay, planVal, fotoCedula
+                nombre, rif, tlf, dir, user, planDisplay, fotoCedula
             };
 
             // Abrir ventana flotante que invita a descargar la aplicación primero
@@ -4749,7 +5107,7 @@ Esta acción no devuelve stock.`)) {
 
         window.confirmarActivacionFinalYDespacharWA = function() {
             if (!window.datosContratoPendienteActivacion) return;
-            const { nombre, rif, tlf, dir, user, planDisplay, planVal, fotoCedula } = window.datosContratoPendienteActivacion;
+            const { nombre, rif, tlf, dir, user, planDisplay, fotoCedula } = window.datosContratoPendienteActivacion;
 
             // Ocultar modal PWA previo
             const modalPWA = document.getElementById('modal-instalacion-previa-contrato');
@@ -4911,7 +5269,7 @@ Esta acción no devuelve stock.`)) {
                 window.guardarClientesEnStorage();
             }
         };
-        window.guardarClientesEnStorage = function() { localStorage.setItem(window.STORAGE_KEY_SAAS_CLIENTES, JSON.stringify(window.dbClientesSaaS)); };
+        window.guardarClientesEnStorage = function() { window.tclSafeSetItem(window.STORAGE_KEY_SAAS_CLIENTES, JSON.stringify(window.dbClientesSaaS)); };
 
         // CARGA DINÁMICA DE CONTEXTO AISLADO POR COMERCIO (MULTI-TENANT REAL)
         window.cargarDatosDelComercioActivo = function() {
@@ -4974,23 +5332,23 @@ Esta acción no devuelve stock.`)) {
         };
 
         window.guardarInventarioEnStorage = function() { 
-            localStorage.setItem(window.getTenantStorageKey('inventario'), JSON.stringify(window.dbInventario));
+            window.tclSafeSetItem(window.getTenantStorageKey('inventario'), JSON.stringify(window.dbInventario));
             if (typeof window.sincronizarTenantConFirebase === 'function') window.sincronizarTenantConFirebase('inventario');
         };
         window.guardarVentasEnStorage = function() { 
-            localStorage.setItem(window.getTenantStorageKey('ventas'), JSON.stringify(window.dbVentas));
+            window.tclSafeSetItem(window.getTenantStorageKey('ventas'), JSON.stringify(window.dbVentas));
             if (typeof window.sincronizarTenantConFirebase === 'function') window.sincronizarTenantConFirebase('ventas');
         };
         window.guardarGastosEnStorage = function() { 
-            localStorage.setItem(window.getTenantStorageKey('gastos'), JSON.stringify(window.dbGastos));
+            window.tclSafeSetItem(window.getTenantStorageKey('gastos'), JSON.stringify(window.dbGastos));
             if (typeof window.sincronizarTenantConFirebase === 'function') window.sincronizarTenantConFirebase('gastos');
         };
         window.guardarProveedoresEnStorage = function() { 
-            localStorage.setItem(window.getTenantStorageKey('proveedores'), JSON.stringify(window.dbProveedores));
+            window.tclSafeSetItem(window.getTenantStorageKey('proveedores'), JSON.stringify(window.dbProveedores));
             if (typeof window.sincronizarTenantConFirebase === 'function') window.sincronizarTenantConFirebase('proveedores');
         };
         window.guardarCierresEnStorage = function() { 
-            localStorage.setItem(window.getTenantStorageKey('cierres'), JSON.stringify(window.dbCierres));
+            window.tclSafeSetItem(window.getTenantStorageKey('cierres'), JSON.stringify(window.dbCierres));
             if (typeof window.sincronizarTenantConFirebase === 'function') window.sincronizarTenantConFirebase('cierres');
         };
 
@@ -5006,10 +5364,11 @@ Esta acción no devuelve stock.`)) {
 
         window.guardarProductoInventario = function() {
             const idEdit = document.getElementById('inv-edit-id').value;
+            const codigo = (document.getElementById('inv-input-codigo') ? document.getElementById('inv-input-codigo').value.trim() : '');
             const nombre = document.getElementById('inv-input-nombre').value.trim();
             const monedaBase = document.getElementById('inv-input-moneda-base').value;
-            let valCosto = parseFloat(document.getElementById('inv-input-costo').value) || 0;
-            let valVenta = parseFloat(document.getElementById('inv-input-venta').value) || 0;
+            let valCosto = window.limpiarMontoManual(document.getElementById('inv-input-costo').value);
+            let valVenta = window.limpiarMontoManual(document.getElementById('inv-input-venta').value);
             const unidadEl = document.getElementById('inv-input-unidad');
             const unidad = unidadEl ? unidadEl.value : 'UND';
             const stock = parseFloat(document.getElementById('inv-input-stock').value) || 0;
@@ -5029,15 +5388,16 @@ Esta acción no devuelve stock.`)) {
 
             if (idEdit) {
                 const idx = window.dbInventario.findIndex(p => p.id === idEdit);
-                if (idx !== -1) window.dbInventario[idx] = { ...window.dbInventario[idx], nombre, desc, precioCosto: precioCostoUSD, precioVenta: precioVentaUSD, stock, unidad, foto: foto || window.dbInventario[idx].foto || '' };
+                if (idx !== -1) window.dbInventario[idx] = { ...window.dbInventario[idx], codigo, nombre, desc, precioCosto: precioCostoUSD, precioVenta: precioVentaUSD, stock, unidad, foto: foto || window.dbInventario[idx].foto || '' };
                 alert("✨ Producto actualizado en inventario.");
             } else {
-                window.dbInventario.push({ id: 'p_' + Date.now(), nombre, desc, precioCosto: precioCostoUSD, precioVenta: precioVentaUSD, stock, unidad, foto });
+                window.dbInventario.push({ id: 'p_' + Date.now(), codigo, nombre, desc, precioCosto: precioCostoUSD, precioVenta: precioVentaUSD, stock, unidad, foto });
                 alert("✅ Producto agregado al inventario.");
             }
 
             window.guardarInventarioEnStorage();
             document.getElementById('inv-edit-id').value = ''; document.getElementById('inv-input-foto-base64').value = '';
+            const inpCod = document.getElementById('inv-input-codigo'); if (inpCod) inpCod.value = '';
             document.getElementById('box-preview-foto').innerHTML = `<i class="fa-solid fa-image"></i>`;
             document.getElementById('inv-input-nombre').value = ''; document.getElementById('inv-input-costo').value = '';
             document.getElementById('inv-input-venta').value = ''; document.getElementById('inv-input-stock').value = '';
@@ -5257,7 +5617,10 @@ $${(item.precioUSD * item.cant).toFixed(2)} USD
                                 ${p.foto ? `<img src="${p.foto}" class="w-full h-full object-cover">` : `<i class="fa-solid fa-box text-base"></i>`}
                             </div>
                             <div class="min-w-0 flex-1">
-                                <h4 class="font-black text-slate-900 text-xs sm:text-sm uppercase truncate">${p.nombre}</h4>
+                                <div class="flex items-center gap-1.5 flex-wrap">
+    <h4 class="font-black text-slate-900 text-xs sm:text-sm uppercase truncate">${p.nombre}</h4>
+    ${p.codigo ? `<span class="bg-blue-50 text-blue-700 border border-blue-200 text-[8.5px] font-mono font-bold px-1.5 py-0.2 rounded uppercase"><i class="fa-solid fa-barcode text-[8px]"></i> ${p.codigo}</span>` : ''}
+</div>
                                 <p class="text-[10px] text-slate-500 truncate">${p.desc || 'Sin descripción'}</p>
                             </div>
                             <span class="${disponible ? 'bg-emerald-50 text-emerald-700 border-emerald-200' : 'bg-red-50 text-red-700 border-red-200'} border px-2 py-1 rounded-lg text-[9.5px] font-black shrink-0 font-mono">
@@ -5488,7 +5851,7 @@ $${(item.precioUSD * item.cant).toFixed(2)} USD
             window.abrirPanelClientePrivadoDirecto();
         };
 
-        window.abrirModalTarifasSaas = function() { document.getElementById('modal-tarifas-saas').classList.remove('hidden'); };
+        window.abrirModalTarifasSaas = function() { window.actualizarInputsTarifasModal(); window.recalcularTarifasSaasModal(); document.getElementById('modal-tarifas-saas').classList.remove('hidden'); };
         window.actualizarBadgeTotalInventario = function() { const el = document.getElementById('cnt-total-inv-badge'); if(el) el.innerText = (window.dbInventario || []).length; };
         window.recalcularTotalesYBadgesComercios = function() {
             const activos = (window.dbClientesSaaS || []).filter(c => c.estatus === 'ACTIVO').length;
@@ -5523,6 +5886,8 @@ $${(item.precioUSD * item.cant).toFixed(2)} USD
             window.tasasConfig.cop = parseFloat(document.getElementById('inv-tasa-cop').value) || 3600;
             window.tasasConfig.paridadBs = parseFloat(document.getElementById('inv-tasa-bs').value) || 3.3;
             window.renderizarProductosVitrina();
+            if (typeof window.recalcularTarifasSaasModal === 'function') window.recalcularTarifasSaasModal();
+            if (typeof window.renderizarTarifasEnPropuesta === 'function') window.renderizarTarifasEnPropuesta();
         };
 
         window.openWhatsAppDirectQuery = function() { window.despacharWhatsApp('04247357549', '¡Hola! Quisiera consultar disponibilidad de productos.'); };
@@ -6313,35 +6678,104 @@ window.abrirModalReporteZ = function() {
             if (modal) modal.classList.add('hidden');
         };
 
+        window.ultimoCodigoEscaneadoTimestamp = 0;
+        window.ultimoCodigoEscaneadoTexto = '';
+
+        window.mostrarNotificacionEscanerFlotante = function(texto) {
+            const badge = document.getElementById('badge-escaner-detectado');
+            const txt = document.getElementById('txt-escaner-detectado');
+            if (!badge || !txt) return;
+            txt.innerText = texto;
+            badge.classList.remove('opacity-0', 'scale-95');
+            badge.classList.add('opacity-100', 'scale-100');
+            clearTimeout(window._timeoutBadgeEscaner);
+            window._timeoutBadgeEscaner = setTimeout(() => {
+                badge.classList.remove('opacity-100', 'scale-100');
+                badge.classList.add('opacity-0', 'scale-95');
+            }, 1800);
+        };
+
         window.procesarCodigoEscaneadoExitoso = function(codigo) {
-            window.cerrarEscanerCamara();
             const codLimpio = (codigo || '').trim();
             if (!codLimpio) return;
 
-            // Reproducir Beep láser de lectura exitosa
+            const ahora = Date.now();
+            // Antirrebote de seguridad: evitar lecturas duplicadas no deseadas del mismo código en menos de 1.2 segundos
+            if (codLimpio === window.ultimoCodigoEscaneadoTexto && (ahora - window.ultimoCodigoEscaneadoTimestamp) < 1200) {
+                return;
+            }
+            window.ultimoCodigoEscaneadoTimestamp = ahora;
+            window.ultimoCodigoEscaneadoTexto = codLimpio;
+
+            const chkContinuo = document.getElementById('chk-escaner-modo-continuo');
+            const esContinuo = chkContinuo ? chkContinuo.checked : true;
+
+            // Reproducir Beep láser nativo de lectura exitosa
             window.reproducirBeepEscaner();
 
             if (window.scannerDestino === 'POS') {
-                const inputB = document.getElementById('pos-busqueda-input');
-                if (inputB) {
-                    inputB.value = codLimpio;
-                    window.renderizarInventarioPOS();
-                    // Si hay coincidencia exacta de 1 solo producto, lo pre-selecciona
-                    const coincidencias = window.dbInventario.filter(p => p.stock > 0 && p.nombre.toLowerCase().includes(codLimpio.toLowerCase()));
-                    if (coincidencias.length === 1) {
-                        window.solicitarCantidadPOS(coincidencias[0].id, coincidencias[0].nombre, coincidencias[0].stock);
+                // Buscar primero por código de barras exacto, o por nombre exacto/coincidencia
+                let prod = window.dbInventario.find(p => p.codigo && p.codigo.toLowerCase() === codLimpio.toLowerCase());
+                if (!prod) {
+                    prod = window.dbInventario.find(p => p.nombre.toLowerCase() === codLimpio.toLowerCase() || p.nombre.toLowerCase().includes(codLimpio.toLowerCase()));
+                }
+
+                if (prod) {
+                    if (prod.stock <= 0) {
+                        window.mostrarNotificacionEscanerFlotante(`⚠️ Agotado: ${prod.nombre}`);
+                        return;
                     }
+
+                    if (prod.unidad === 'KG') {
+                        // Si se vende por peso, abrimos el pesaje balanza
+                        window.cerrarEscanerCamara();
+                        window.solicitarCantidadPOS(prod.id, prod.nombre, prod.stock, 'KG');
+                        return;
+                    }
+
+                    // Producto por unidad (ej. bombillo): sumar +1 directamente al carrito
+                    const idxEnCarrito = window.carritoPOS.findIndex(item => item.id === prod.id);
+                    let cantidadActual = 0;
+                    if (idxEnCarrito !== -1) {
+                        if (window.carritoPOS[idxEnCarrito].cant < prod.stock) {
+                            window.carritoPOS[idxEnCarrito].cant += 1;
+                        }
+                        cantidadActual = window.carritoPOS[idxEnCarrito].cant;
+                    } else {
+                        window.carritoPOS.push({
+                            id: prod.id,
+                            nombre: prod.nombre,
+                            precioUSD: (prod.precioVenta || prod.precioUSD || 0),
+                            cant: 1,
+                            unidad: prod.unidad || 'UND',
+                            max: prod.stock || 9999
+                        });
+                        cantidadActual = 1;
+                    }
+
+                    window.renderizarCarritoPOS();
+
+                    if (esContinuo) {
+                        window.mostrarNotificacionEscanerFlotante(`✅ +1 ${prod.nombre} (Llevas: ${cantidadActual})`);
+                    } else {
+                        window.cerrarEscanerCamara();
+                    }
+                } else {
+                    window.mostrarNotificacionEscanerFlotante(`❌ Código no registrado: ${codLimpio}`);
                 }
             } else if (window.scannerDestino === 'COMPRA') {
-                const inputP = document.getElementById('prov-prod-nombre');
-                if (inputP) {
-                    inputP.value = codLimpio;
-                    const prodExistente = window.dbInventario.find(p => p.nombre.toLowerCase().includes(codLimpio.toLowerCase()));
-                    if (prodExistente) {
-                        document.getElementById('prov-prod-costo').value = prodExistente.precioCosto || '';
-                        document.getElementById('prov-prod-venta').value = prodExistente.precioVenta || '';
-                    }
+                const inpCod = document.getElementById('prov-prod-codigo');
+                if (inpCod) inpCod.value = codLimpio;
+                window.autocompletarProductoPorCodigoEnCompra(codLimpio);
+                window.mostrarNotificacionEscanerFlotante(`📦 Código cargado: ${codLimpio}`);
+                if (!esContinuo) {
+                    window.cerrarEscanerCamara();
                 }
+            } else if (window.scannerDestino === 'REGISTRO') {
+                const inpCod = document.getElementById('inv-input-codigo');
+                if (inpCod) inpCod.value = codLimpio;
+                window.mostrarNotificacionEscanerFlotante(`✓ Asignado: ${codLimpio}`);
+                window.cerrarEscanerCamara();
             }
         };
 
@@ -6554,14 +6988,48 @@ window.abrirModalReporteZ = function() {
             document.getElementById('modal-recepcion-proveedor').classList.remove('hidden');
         };
 
-        window.agregarItemAlCarritoCompra = function() {
-            const nombre = document.getElementById('prov-prod-nombre').value.trim();
-            const cant = parseInt(document.getElementById('prov-prod-cant').value) || 1;
-            const valCosto = parseFloat(document.getElementById('prov-prod-costo').value) || 0;
-            const valVenta = parseFloat(document.getElementById('prov-prod-venta').value) || 0;
+        window.autocompletarProductoPorCodigoEnCompra = function(codigoVal) {
+            const cod = (codigoVal || '').trim();
+            if (!cod) return;
+            const prod = window.dbInventario.find(p => (p.codigo && p.codigo.toLowerCase() === cod.toLowerCase()) || p.nombre.toLowerCase().includes(cod.toLowerCase()));
+            if (prod) {
+                document.getElementById('prov-prod-nombre').value = prod.nombre;
+                const selUnidad = document.getElementById('prov-prod-unidad');
+                if (selUnidad && prod.unidad) selUnidad.value = prod.unidad;
+                
+                let costoDisplay = prod.precioCosto || 0;
+                let ventaDisplay = prod.precioVenta || prod.precioUSD || 0;
+                if (window.monedaCargaCompra === 'COP') {
+                    costoDisplay = window.calcularPesosDesdeUSD(costoDisplay);
+                    ventaDisplay = window.calcularPesosDesdeUSD(ventaDisplay);
+                } else if (window.monedaCargaCompra === 'BS') {
+                    costoDisplay = window.calcularBsDesdeUSD(costoDisplay);
+                    ventaDisplay = window.calcularBsDesdeUSD(ventaDisplay);
+                }
+                
+                document.getElementById('prov-prod-costo').value = costoDisplay > 0 ? costoDisplay : '';
+                document.getElementById('prov-prod-venta').value = ventaDisplay > 0 ? ventaDisplay : '';
+                
+                const cantInp = document.getElementById('prov-prod-cant');
+                if (cantInp) {
+                    cantInp.focus();
+                    cantInp.select();
+                }
+            }
+        };
 
-            if (!nombre || valCosto <= 0 || valVenta <= 0) {
-                alert("⚠️ Complete Nombre del Producto, Cantidad y Precios.");
+        window.agregarItemAlCarritoCompra = function() {
+            const inpCod = document.getElementById('prov-prod-codigo');
+            const codigo = inpCod ? inpCod.value.trim() : '';
+            const nombre = document.getElementById('prov-prod-nombre').value.trim();
+            const unidad = document.getElementById('prov-prod-unidad').value || 'UND';
+            const cant = window.limpiarMontoManual(document.getElementById('prov-prod-cant').value) || 1;
+            const valCosto = window.limpiarMontoManual(document.getElementById('prov-prod-costo').value);
+            const valVenta = window.limpiarMontoManual(document.getElementById('prov-prod-venta').value);
+            const fotoBase64 = document.getElementById('prov-prod-foto-base64') ? document.getElementById('prov-prod-foto-base64').value : '';
+
+            if (!nombre || valCosto <= 0 || valVenta <= 0 || cant <= 0) {
+                alert("⚠️ Complete el Producto, Cantidad válida (>0) y Precios de Costo y Venta.");
                 return;
             }
 
@@ -6574,17 +7042,38 @@ window.abrirModalReporteZ = function() {
                 ventaUSD = window.calcularUSDDesdeBs(valVenta);
             }
 
-            window.carritoCompras.push({
-                nombre: nombre.toUpperCase(),
-                cant, costoUSD, ventaUSD,
-                subtotalUSD: cant * costoUSD
-            });
+            // Si ya existe en la lista de compra actual (mismo código o mismo nombre), sumar la cantidad
+            const idxExistente = window.carritoCompras.findIndex(it => (codigo && it.codigo && it.codigo === codigo) || it.nombre.toLowerCase() === nombre.toLowerCase());
+            if (idxExistente !== -1) {
+                window.carritoCompras[idxExistente].cant += cant;
+                window.carritoCompras[idxExistente].costoUSD = costoUSD;
+                window.carritoCompras[idxExistente].ventaUSD = ventaUSD;
+                window.carritoCompras[idxExistente].subtotalUSD = window.carritoCompras[idxExistente].cant * costoUSD;
+                if (fotoBase64 && !window.carritoCompras[idxExistente].foto) {
+                    window.carritoCompras[idxExistente].foto = fotoBase64;
+                }
+            } else {
+                window.carritoCompras.push({
+                    codigo,
+                    nombre: nombre.toUpperCase(),
+                    unidad,
+                    cant, costoUSD, ventaUSD,
+                    subtotalUSD: cant * costoUSD,
+                    foto: fotoBase64 || ''
+                });
+            }
 
+            const inpHidFoto = document.getElementById('prov-prod-foto-base64'); if (inpHidFoto) inpHidFoto.value = '';
+            const prevFoto = document.getElementById('box-preview-foto-compra'); if (prevFoto) prevFoto.innerHTML = `<i class="fa-solid fa-camera"></i>`;
+            const lblStat = document.getElementById('lbl-status-foto-compra'); if (lblStat) { lblStat.innerText = "Formato liviano HD automático"; lblStat.className = "text-[8.5px] font-mono text-slate-400 block truncate"; }
+
+            if (inpCod) inpCod.value = '';
             document.getElementById('prov-prod-nombre').value = '';
             document.getElementById('prov-prod-cant').value = '1';
             document.getElementById('prov-prod-costo').value = '';
             document.getElementById('prov-prod-venta').value = '';
             window.renderizarCarritoCompras();
+            if (inpCod) inpCod.focus();
         };
 
         window.quitarItemCarritoCompra = function(idx) {
@@ -6676,20 +7165,31 @@ window.abrirModalReporteZ = function() {
             if (op.tipo === 'COMPRA') {
                 // 1. Inyección y suma directa al Inventario
                 op.items.forEach(it => {
-                    const idx = window.dbInventario.findIndex(p => p.nombre.toLowerCase() === it.nombre.toLowerCase());
+                    const idx = window.dbInventario.findIndex(p => 
+                        (it.codigo && p.codigo && p.codigo.toLowerCase() === it.codigo.toLowerCase()) || 
+                        p.nombre.toLowerCase() === it.nombre.toLowerCase()
+                    );
                     if (idx !== -1) {
                         window.dbInventario[idx].stock += it.cant;
                         window.dbInventario[idx].precioCosto = it.costoUSD;
                         window.dbInventario[idx].precioVenta = it.ventaUSD;
+                        if (it.codigo && !window.dbInventario[idx].codigo) {
+                            window.dbInventario[idx].codigo = it.codigo;
+                        }
+                        if (it.foto && !window.dbInventario[idx].foto) {
+                            window.dbInventario[idx].foto = it.foto;
+                        }
                     } else {
                         window.dbInventario.push({
                             id: 'p_' + Date.now() + Math.floor(Math.random()*1000),
+                            codigo: it.codigo || '',
                             nombre: it.nombre,
                             desc: `Proveedor: ${op.provNombre}`,
                             precioCosto: it.costoUSD,
                             precioVenta: it.ventaUSD,
                             stock: it.cant,
-                            foto: ''
+                            unidad: it.unidad || 'UND',
+                            foto: it.foto || ''
                         });
                     }
                 });
