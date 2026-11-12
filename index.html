@@ -4525,6 +4525,8 @@ Tu nueva clave de acceso es: ${nuevaClave}`);
                 document.getElementById('bottom-bar-gerencial').classList.add('hidden');
                 const lsm = document.getElementById('log-status-master'); if (lsm) lsm.innerText = '[SUCCESS] Sesión Máster autenticada. Caja Negra activa.';
                 window.recalcularTotalesYBadgesComercios();
+                if (typeof window.sincronizarClientesSaaSDesdeFirestore === 'function') window.sincronizarClientesSaaSDesdeFirestore();
+                if (typeof window.iniciarListenerClientesMasterFirestore === 'function') window.iniciarListenerClientesMasterFirestore();
                 return;
             }
 
@@ -6536,46 +6538,60 @@ Las conversiones a Pesos (COP) y Bolívares (Bs) se sincronizaron con la tasa de
             }
         };
 
-        // Procesamiento de foto de cédula (Cámara o Galería) con compresión y renderizado en vivo
+        // Procesamiento de foto de cédula (Cámara, Galería o PDF liviano) con compresión HD (< 95 KB)
         window.fotoCedulaBase64 = "";
-        window.cargarFotoCedulaCliente = function(input) {
+        window.cargarFotoCedulaCliente = async function(input) {
             if (!input.files || !input.files[0]) return;
             const file = input.files[0];
-            const reader = new FileReader();
-            reader.onload = function(e) {
-                const img = new Image();
-                img.onload = function() {
-                    const canvas = document.createElement('canvas');
-                    const MAX_WIDTH = 800, MAX_HEIGHT = 600;
-                    let width = img.width, height = img.height;
-                    if (width > height) {
-                        if (width > MAX_WIDTH) { height *= MAX_WIDTH / width; width = MAX_WIDTH; }
-                    } else {
-                        if (height > MAX_HEIGHT) { width *= MAX_HEIGHT / height; height = MAX_HEIGHT; }
-                    }
-                    canvas.width = width; canvas.height = height;
-                    const ctx = canvas.getContext('2d');
-                    ctx.drawImage(img, 0, 0, width, height);
-                    window.fotoCedulaBase64 = canvas.toDataURL('image/jpeg', 0.75);
+            const prevBox = document.getElementById('preview-cedula-box') || document.getElementById('box-preview-cedula');
+            const badge = document.getElementById('badge-cedula-status');
+            const inpBase = document.getElementById('cli-input-cedula-base64');
 
-                    // Actualizar el recuadro visual de preview
-                    const prevBox = document.getElementById('preview-cedula-box') || document.getElementById('box-preview-cedula');
-                    if (prevBox) {
-                        prevBox.innerHTML = `<img src="${window.fotoCedulaBase64}" class="w-full h-full object-cover rounded-xl border border-blue-400/50 shadow-md">`;
+            if (badge) {
+                badge.innerText = "⏳ OPTIMIZANDO...";
+                badge.className = "text-[9px] text-amber-400 font-mono uppercase font-black bg-amber-950/60 px-2 py-0.5 rounded border border-amber-500/40";
+            }
+
+            try {
+                if (file.type === 'application/pdf') {
+                    if (file.size > 350 * 1024) {
+                        alert("⚠️ El archivo PDF supera los 350 KB. Por favor tome una foto directa con la cámara o seleccione una imagen JPG/PNG.");
+                        if (badge) badge.innerText = "Sin Archivo";
+                        return;
                     }
-                    // Actualizar el badge de estado
-                    const badge = document.getElementById('badge-cedula-status');
+                    const pdfDataUrl = await new Promise((res, rej) => {
+                        const r = new FileReader();
+                        r.onload = ev => res(ev.target.result);
+                        r.onerror = rej;
+                        r.readAsDataURL(file);
+                    });
+                    window.fotoCedulaBase64 = pdfDataUrl;
+                    if (prevBox) prevBox.innerHTML = `<div class="text-center text-red-400 text-xs font-black"><i class="fa-solid fa-file-pdf text-2xl block"></i>PDF</div>`;
                     if (badge) {
-                        badge.innerText = "✓ FOTO ADJUNTADA";
+                        badge.innerText = `✓ PDF LISTO (${Math.round(file.size / 1024)} KB)`;
                         badge.className = "text-[9px] text-emerald-400 font-mono uppercase font-black bg-emerald-950/60 px-2 py-0.5 rounded border border-emerald-500/40";
                     }
-                    // Guardar en input hidden
-                    const inpBase = document.getElementById('cli-input-cedula-base64');
                     if (inpBase) inpBase.value = window.fotoCedulaBase64;
-                };
-                img.src = e.target.result;
-            };
-            reader.readAsDataURL(file);
+                    return;
+                }
+
+                // Comprimir imagen HD manteniendo nitidez de lectura de cédula/RIF por debajo de 95 KB
+                const { base64, pesoKB } = await window.comprimirImagenAdaptativa(file, 760, 95 * 1024);
+                window.fotoCedulaBase64 = base64;
+
+                if (prevBox) {
+                    prevBox.innerHTML = `<img src="${window.fotoCedulaBase64}" class="w-full h-full object-cover rounded-xl border border-blue-400/50 shadow-md">`;
+                }
+                if (badge) {
+                    badge.innerText = `✓ FOTO HD (${pesoKB} KB)`;
+                    badge.className = "text-[9px] text-emerald-400 font-mono uppercase font-black bg-emerald-950/60 px-2 py-0.5 rounded border border-emerald-500/40";
+                }
+                if (inpBase) inpBase.value = window.fotoCedulaBase64;
+            } catch (errFoto) {
+                console.warn("Error procesando foto de cédula:", errFoto);
+                alert("⚠️ No se pudo procesar la imagen. Intente tomar la foto nuevamente.");
+                if (badge) badge.innerText = "Error Archivo";
+            }
         };
 
         // Procesamiento, Firma y Activación inmediata del Comercio
@@ -6609,38 +6625,49 @@ Las conversiones a Pesos (COP) y Bolívares (Bs) se sincronizaron con la tasa de
             }
         };
 
-        window.confirmarActivacionFinalYDespacharWA = function() {
+        window.confirmarActivacionFinalYDespacharWA = async function() {
             if (!window.datosContratoPendienteActivacion) return;
             const { nombre, rif, tlf, dir, user, planDisplay, fotoCedula } = window.datosContratoPendienteActivacion;
+            const slugLimpio = (user || '').toLowerCase().trim();
 
-            // Ocultar modal PWA previo
+            // Mostrar estado de guardado en la nube antes de saltar a WhatsApp
             const modalPWA = document.getElementById('modal-instalacion-previa-contrato');
-            if (modalPWA) modalPWA.classList.add('hidden');
+            const btnConfirmar = modalPWA ? modalPWA.querySelector('button[onclick*="confirmarActivacionFinalYDespacharWA"]') : null;
+            if (btnConfirmar) {
+                btnConfirmar.disabled = true;
+                btnConfirmar.innerHTML = `<i class="fa-solid fa-cloud-arrow-up animate-bounce"></i> <span>GUARDANDO EXPEDIENTE Y CÉDULA...</span>`;
+            }
 
-            // Buscar y actualizar cliente en dbClientesSaaS
-            let cliIdx = (window.dbClientesSaaS || []).findIndex(c => (c.user && c.user.toLowerCase() === user.toLowerCase()) || (c.slug && c.slug.toLowerCase() === user.toLowerCase()));
+            // Buscar y actualizar cliente en dbClientesSaaS (manteniendo el objeto de sesión activa si ya existe)
+            let cliIdx = (window.dbClientesSaaS || []).findIndex(c => (c.user && c.user.toLowerCase() === slugLimpio) || (c.slug && c.slug.toLowerCase() === slugLimpio));
             const fechaFirmaStr = new Date().toLocaleString();
+            const baseSesion = window.clienteActivoSesion || (cliIdx !== -1 ? window.dbClientesSaaS[cliIdx] : null);
 
             let clienteObj = null;
-            if (cliIdx !== -1) {
-                window.dbClientesSaaS[cliIdx].contratoAceptado = true;
-                window.dbClientesSaaS[cliIdx].nombre = nombre;
-                window.dbClientesSaaS[cliIdx].responsable = nombre;
-                window.dbClientesSaaS[cliIdx].cedulaKYC = rif;
-                window.dbClientesSaaS[cliIdx].wa = tlf;
-                window.dbClientesSaaS[cliIdx].direccionKYC = dir;
-                window.dbClientesSaaS[cliIdx].fechaFirmaContrato = fechaFirmaStr;
-                if (fotoCedula) window.dbClientesSaaS[cliIdx].fotoCedulaKYC = fotoCedula;
-                clienteObj = window.dbClientesSaaS[cliIdx];
+            if (baseSesion) {
+                clienteObj = {
+                    ...baseSesion,
+                    contratoAceptado: true,
+                    nombre: nombre,
+                    responsable: baseSesion.responsable || nombre,
+                    cedulaKYC: rif,
+                    wa: tlf,
+                    direccionKYC: dir,
+                    fechaFirmaContrato: fechaFirmaStr,
+                    kycActualizadoMs: Date.now()
+                };
+                if (fotoCedula) clienteObj.fotoCedulaKYC = fotoCedula;
+                if (cliIdx !== -1) window.dbClientesSaaS[cliIdx] = clienteObj;
+                else window.dbClientesSaaS.push(clienteObj);
             } else {
                 clienteObj = {
                     id: 'cli_' + Date.now(),
                     nombre: nombre,
                     responsable: nombre,
                     wa: tlf,
-                    user: user,
+                    user: slugLimpio,
                     pass: '123456',
-                    slug: user,
+                    slug: slugLimpio,
                     dias: 180,
                     estatus: 'ACTIVO',
                     contratoAceptado: true,
@@ -6648,6 +6675,7 @@ Las conversiones a Pesos (COP) y Bolívares (Bs) se sincronizaron con la tasa de
                     direccionKYC: dir,
                     fechaFirmaContrato: fechaFirmaStr,
                     fotoCedulaKYC: fotoCedula || '',
+                    kycActualizadoMs: Date.now(),
                     fechaCreacion: Date.now(),
                     fechaVencimiento: new Date(Date.now() + 180*24*60*60*1000).toISOString(),
                     tasas: { cop: window.tasasConfig.cop || 3600, paridadBs: window.tasasConfig.paridadBs || 3.3 }
@@ -6658,14 +6686,24 @@ Las conversiones a Pesos (COP) y Bolívares (Bs) se sincronizaron con la tasa de
             window.guardarClientesEnStorage();
             window.clienteActivoSesion = clienteObj;
 
-            // Sincronizar en la nube si Firestore está activo
+            // ESPERAR (AWAIT) sincronización completa en Firestore bajo TODAS las llaves (ID y SLUG/USER) antes de abrir WhatsApp
             if (window.dbNube && clienteObj) {
                 try {
-                    window.dbNube.collection('comercios_saas').doc(clienteObj.id).set(clienteObj, { merge: true })
-                        .then(() => console.log("☁️ Contrato y KYC sincronizados en Firestore."))
-                        .catch(err => console.warn("Aviso nube contrato:", err));
-                } catch(e) {}
+                    const keysFirestore = Array.from(new Set([clienteObj.id, clienteObj.slug, clienteObj.user, slugLimpio].filter(Boolean)));
+                    await Promise.all(
+                        keysFirestore.map(k => window.dbNube.collection('comercios_saas').doc(k).set(clienteObj, { merge: true }))
+                    );
+                    console.log("☁️ Contrato y fotografía KYC guardados al 100% en Firestore:", keysFirestore);
+                } catch(err) {
+                    console.warn("Aviso nube contrato:", err);
+                }
             }
+
+            if (btnConfirmar) {
+                btnConfirmar.disabled = false;
+                btnConfirmar.innerHTML = `<i class="fa-solid fa-check-double"></i> <span>ACEPTAR TÉRMINOS Y ENVIAR ACTIVACIÓN</span>`;
+            }
+            if (modalPWA) modalPWA.classList.add('hidden');
 
             // Preparar vistas de antemano para que no quede pantalla en blanco al regresar de WhatsApp
             const vc = document.getElementById('vista-contrato-cliente');
@@ -6682,57 +6720,152 @@ Las conversiones a Pesos (COP) y Bolívares (Bs) se sincronizaron con la tasa de
             msg += `🪪 *Cédula / RIF:* ${rif}\n`;
             msg += `📞 *WhatsApp:* ${tlf}\n`;
             msg += `📍 *Dirección:* ${dir}\n`;
-            msg += `🔑 *Usuario ID:* ${user}\n`;
+            msg += `🔑 *Usuario ID:* ${slugLimpio}\n`;
             msg += `📦 *Plan:* ${planDisplay}\n`;
             msg += `📅 *Fecha de Firma:* ${fechaFirmaStr}\n`;
-            msg += `🪪 *Documento Adjunto:* ${fotoCedula ? 'SÍ (Foto Cargada)' : 'NO'}\n`;
+            msg += `🪪 *Documento Adjunto:* ${fotoCedula ? 'SÍ (Foto Cargada y Guardada en Nube)' : 'NO'}\n`;
             msg += `--------------------------------------------------\n`;
             msg += `🔒 *DECLARACIÓN LEGAL DE CONTROL INTERNO:*\n`;
             msg += `El arrendatario acepta formalmente los términos de uso del software TCL Comercio Web exclusivamente para control administrativo de mostrador, notas de entrega e inventario interno. Declara conocer que el sistema NO sustituye las regulaciones fiscales del SENIAT, eximiendo a TUCOCEL C.A. de responsabilidades contables.\n\n`;
             msg += `Licencia registrada bajo la infraestructura de TUCOCEL C.A. (RIF J-31378837-6).`;
 
             window.despacharWhatsAppDirecto('04247357549', msg);
-            alert("✅ ¡Contrato firmado y verificado exitosamente! Bienvenido a su panel de control comercial.");
+            alert("✅ ¡Contrato firmado, cédula subida a la nube y activación confirmada! Bienvenido a su panel de control comercial.");
         };
         window.procesarFirmaContratoCliente = window.procesarContratoClienteComercio;
 
-        // Ver Expediente KYC en Modal Máster
-        window.verExpedienteKYCCliente = function(id) {
-            const cli = window.dbClientesSaaS.find(c => c.id === id);
+        // Sincronización en vivo de todos los comercios desde Firestore para el Panel Máster
+        window.unsubClientesMasterFirestore = null;
+        window.fusionarClientesDesdeDocumentosNube = function(docsArray) {
+            if (!Array.isArray(docsArray) || docsArray.length === 0) return;
+            const mapaPorSlug = new Map();
+
+            // Primero cargar los actuales en memoria
+            (window.dbClientesSaaS || []).forEach(c => {
+                const key = ((c.slug || c.user || c.id) || '').toLowerCase().trim();
+                if (key) mapaPorSlug.set(key, { ...c });
+            });
+
+            // Fusionar los que vienen de la nube priorizando KYC firmado y foto cargada
+            docsArray.forEach(cloudDoc => {
+                if (!cloudDoc || (!cloudDoc.user && !cloudDoc.slug && !cloudDoc.nombre)) return;
+                const key = ((cloudDoc.slug || cloudDoc.user || cloudDoc.id) || '').toLowerCase().trim();
+                if (!key) return;
+                const prev = mapaPorSlug.get(key) || {};
+                const combinado = {
+                    ...prev,
+                    ...cloudDoc,
+                    id: (prev.id && prev.id.startsWith('cli_')) ? prev.id : (cloudDoc.id || prev.id || key),
+                    contratoAceptado: !!(cloudDoc.contratoAceptado || prev.contratoAceptado),
+                    cedulaKYC: cloudDoc.cedulaKYC || prev.cedulaKYC || '',
+                    direccionKYC: cloudDoc.direccionKYC || prev.direccionKYC || '',
+                    fechaFirmaContrato: cloudDoc.fechaFirmaContrato || prev.fechaFirmaContrato || '',
+                    fotoCedulaKYC: cloudDoc.fotoCedulaKYC || prev.fotoCedulaKYC || ''
+                };
+                mapaPorSlug.set(key, combinado);
+            });
+
+            window.dbClientesSaaS = Array.from(mapaPorSlug.values());
+            window.guardarClientesEnStorage();
+            if (typeof window.recalcularTotalesYBadgesComercios === 'function') window.recalcularTotalesYBadgesComercios();
+            const modalBase = document.getElementById('modal-base-clientes');
+            if (modalBase && !modalBase.classList.contains('hidden') && typeof window.renderizarListaClientesModal === 'function') {
+                window.renderizarListaClientesModal();
+            }
+        };
+
+        window.sincronizarClientesSaaSDesdeFirestore = async function() {
+            if (!window.dbNube) return;
+            try {
+                const snap = await window.dbNube.collection('comercios_saas').get({ source: 'server' })
+                    .catch(() => window.dbNube.collection('comercios_saas').get());
+                if (snap && !snap.empty) {
+                    const docs = [];
+                    snap.forEach(d => docs.push({ ...d.data(), _docId: d.id }));
+                    window.fusionarClientesDesdeDocumentosNube(docs);
+                }
+            } catch (eSyncCli) {
+                console.warn("Aviso sincronización clientes nube:", eSyncCli);
+            }
+        };
+
+        window.iniciarListenerClientesMasterFirestore = function() {
+            if (!window.dbNube || window.unsubClientesMasterFirestore) return;
+            try {
+                window.unsubClientesMasterFirestore = window.dbNube.collection('comercios_saas').onSnapshot((snap) => {
+                    if (snap && !snap.empty) {
+                        const docs = [];
+                        snap.forEach(d => docs.push({ ...d.data(), _docId: d.id }));
+                        window.fusionarClientesDesdeDocumentosNube(docs);
+                    }
+                }, (err) => console.warn("Aviso listener comercios_saas:", err));
+            } catch (e) {}
+        };
+
+        // Ver Expediente KYC en Modal Máster (con lectura directa en vivo de Firestore)
+        window.verExpedienteKYCCliente = async function(id) {
+            let cli = (window.dbClientesSaaS || []).find(c => c.id === id);
             if (!cli) return;
 
             const box = document.getElementById('contenido-visor-kyc');
             if (!box) return;
 
-            const tieneFirma = cli.contratoAceptado;
+            document.getElementById('modal-visor-kyc-cliente').classList.remove('hidden');
+
+            // Consultar en vivo en Firestore por ID y SLUG para traer la foto y firma recién subidas
+            if (window.dbNube) {
+                try {
+                    const keys = Array.from(new Set([cli.id, cli.slug, cli.user].filter(Boolean)));
+                    const snaps = await Promise.all(
+                        keys.map(k => window.dbNube.collection('comercios_saas').doc(k).get({ source: 'server' }).catch(() => window.dbNube.collection('comercios_saas').doc(k).get()))
+                    );
+                    const docsEncontrados = snaps.filter(s => s && s.exists).map(s => s.data());
+                    if (docsEncontrados.length > 0) {
+                        window.fusionarClientesDesdeDocumentosNube(docsEncontrados);
+                        cli = (window.dbClientesSaaS || []).find(c => c.id === id || (c.slug && c.slug === cli.slug)) || cli;
+                    }
+                } catch (eKyc) {}
+            }
+
+            const tieneFirma = !!cli.contratoAceptado;
             const fotoCed = cli.fotoCedulaKYC || '';
+            const esPdf = fotoCed.startsWith('data:application/pdf');
 
             box.innerHTML = `
                 <div class="bg-slate-900 p-4 rounded-2xl border border-slate-800 space-y-2">
-                    <div class="flex justify-between items-center border-b border-slate-800 pb-2">
-                        <span class="text-white font-black text-sm uppercase">${cli.nombre}</span>
-                        <span class="${tieneFirma ? 'bg-emerald-500/20 text-emerald-400 border-emerald-500/30' : 'bg-red-500/20 text-red-400 border-red-500/30'} text-[10px] font-black uppercase px-2.5 py-1 rounded-lg border">
+                    <div class="flex justify-between items-center border-b border-slate-800 pb-2 gap-2">
+                        <span class="text-white font-black text-sm uppercase">${window.escapeHTML(cli.nombre)}</span>
+                        <span class="${tieneFirma ? 'bg-emerald-500/20 text-emerald-400 border-emerald-500/30' : 'bg-red-500/20 text-red-400 border-red-500/30'} text-[10px] font-black uppercase px-2.5 py-1 rounded-lg border shrink-0">
                             ${tieneFirma ? '✅ CONTRATO FIRMADO' : '⚠️ PENDIENTE KYC'}
                         </span>
                     </div>
                     <div class="grid grid-cols-1 sm:grid-cols-2 gap-2 pt-1 text-slate-300 text-xs">
-                        <p>👤 <strong>Titular:</strong> ${cli.responsable || 'No registrado'}</p>
-                        <p>🪪 <strong>Cédula/RIF:</strong> ${cli.cedulaKYC || 'No registrado'}</p>
-                        <p>📞 <strong>WhatsApp:</strong> ${cli.wa || 'No registrado'}</p>
-                        <p>🔑 <strong>Usuario ID:</strong> ${cli.user || cli.slug}</p>
+                        <p>👤 <strong>Titular:</strong> ${window.escapeHTML(cli.responsable || 'No registrado')}</p>
+                        <p>🪪 <strong>Cédula/RIF:</strong> ${window.escapeHTML(cli.cedulaKYC || 'No registrado')}</p>
+                        <p>📞 <strong>WhatsApp:</strong> ${window.escapeHTML(cli.wa || 'No registrado')}</p>
+                        <p>🔑 <strong>Usuario ID:</strong> ${window.escapeHTML(cli.user || cli.slug)}</p>
                         <p>📦 <strong>Cobertura:</strong> ${cli.dias || 180} Días</p>
-                        <p>📅 <strong>Fecha Firma:</strong> ${cli.fechaFirmaContrato || 'Pendiente'}</p>
+                        <p>📅 <strong>Fecha Firma:</strong> ${window.escapeHTML(cli.fechaFirmaContrato || 'Pendiente')}</p>
                     </div>
-                    ${cli.direccionKYC ? `<p class="text-slate-400 text-xs">📍 <strong>Ubicación:</strong> ${cli.direccionKYC}</p>` : ''}
+                    ${cli.direccionKYC ? `<p class="text-slate-400 text-xs">📍 <strong>Ubicación:</strong> ${window.escapeHTML(cli.direccionKYC)}</p>` : ''}
                 </div>
 
                 <div class="space-y-2">
-                    <span class="text-amber-400 font-bold uppercase text-[11px] block">🪪 Fotografía de Cédula / RIF (KYC):</span>
-                    ${fotoCed ? `
-                        <div class="rounded-2xl overflow-hidden border border-slate-700 bg-slate-950 p-2 text-center">
-                            <img src="${fotoCed}" class="w-full max-h-72 object-contain rounded-xl mx-auto">
+                    <div class="flex justify-between items-center">
+                        <span class="text-amber-400 font-bold uppercase text-[11px] block">🪪 Fotografía de Cédula / RIF (KYC):</span>
+                        ${fotoCed ? `<a href="${fotoCed}" download="cedula_${window.escapeHTML(cli.slug || cli.user || 'cliente')}.${esPdf ? 'pdf' : 'webp'}" class="bg-blue-600 hover:bg-blue-500 text-white text-[10px] font-black uppercase px-2.5 py-1 rounded-lg">⬇ Descargar</a>` : ''}
+                    </div>
+                    ${fotoCed ? (esPdf ? `
+                        <div class="rounded-2xl border border-slate-700 bg-slate-950 p-5 text-center space-y-2">
+                            <i class="fa-solid fa-file-pdf text-4xl text-red-400"></i>
+                            <p class="text-xs text-slate-300 font-bold">Documento PDF adjuntado correctamente</p>
+                            <a href="${fotoCed}" download="documento_${window.escapeHTML(cli.slug || 'cliente')}.pdf" class="inline-block bg-emerald-600 text-white text-xs font-black uppercase px-4 py-2 rounded-xl">Abrir / Descargar PDF</a>
                         </div>
                     ` : `
+                        <div class="rounded-2xl overflow-hidden border border-slate-700 bg-slate-950 p-2 text-center">
+                            <img src="${fotoCed}" class="w-full max-h-80 object-contain rounded-xl mx-auto">
+                        </div>
+                    `) : `
                         <div class="bg-slate-900 border border-dashed border-slate-700 rounded-2xl p-6 text-center text-slate-500">
                             <i class="fa-solid fa-image text-3xl mb-2 block text-slate-600"></i>
                             <span>No se ha adjuntado fotografía de cédula aún.</span>
@@ -6740,8 +6873,6 @@ Las conversiones a Pesos (COP) y Bolívares (Bs) se sincronizaron con la tasa de
                     `}
                 </div>
             `;
-
-            document.getElementById('modal-visor-kyc-cliente').classList.remove('hidden');
         };
 
 
@@ -7225,6 +7356,7 @@ $${(item.precioUSD * item.cant).toFixed(2)} USD
 
         window.abrirModalBaseClientes = function(tipo) {
             window.tipoVistaModalActual = tipo;
+            if (typeof window.sincronizarClientesSaaSDesdeFirestore === 'function') window.sincronizarClientesSaaSDesdeFirestore();
             const busquedaInput = document.getElementById('busqueda-modal-cliente');
             if (busquedaInput) busquedaInput.value = '';
             const titulo = document.getElementById('lbl-titulo-modal-clientes');
