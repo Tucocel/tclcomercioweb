@@ -1828,37 +1828,32 @@
                         </div>
                     </div>
 
-                    <!-- MÓDULO DE FOTO DE CÉDULA / RIF (CAPTURA & COMPRESIÓN CON DOS BOTONES) -->
-                    <div class="bg-slate-950/90 p-3 sm:p-4 rounded-2xl border border-slate-800 space-y-3">
-                        <div class="flex items-center justify-between">
-                            <label class="text-[10px] text-blue-400 uppercase font-black tracking-wider flex items-center gap-1.5">
-                                <i class="fa-solid fa-id-card"></i> Foto de Cédula de Identidad / RIF (Verificación)
+                    <!-- MÓDULO DE FIRMA DIGITAL Y DECLARACIÓN JURADA DE ACEPTACIÓN (SIN FOTO DE DOCUMENTO) -->
+                    <div class="bg-slate-950/90 p-4 rounded-2xl border border-blue-500/40 space-y-3 shadow-inner">
+                        <div class="flex items-center justify-between border-b border-slate-800 pb-2">
+                            <label class="text-[10px] text-amber-400 uppercase font-black tracking-wider flex items-center gap-1.5">
+                                <i class="fa-solid fa-file-signature text-sm"></i> Firma Digital del Representante Legal / Titular
                             </label>
-                            <span id="badge-cedula-status" class="text-[9px] text-slate-400 font-mono uppercase font-bold">Sin Archivo</span>
+                            <span class="text-[9px] text-emerald-400 font-mono uppercase font-black bg-emerald-950/60 px-2 py-0.5 rounded border border-emerald-500/30">Sin Subir Fotos</span>
                         </div>
-                        
-                        <div class="flex flex-col sm:flex-row items-center gap-3">
-                            <div id="preview-cedula-box" class="w-full sm:w-28 h-20 bg-slate-900 border border-dashed border-slate-700 rounded-xl flex items-center justify-center text-slate-500 text-2xl overflow-hidden shrink-0">
-                                <i class="fa-solid fa-camera"></i>
+
+                        <div class="grid grid-cols-1 sm:grid-cols-2 gap-3">
+                            <div>
+                                <label class="text-[9px] text-blue-300 uppercase ml-1 block mb-1">Nombre y Apellido Completo (Firma) *</label>
+                                <input type="text" id="cli-input-firma-nombre" required placeholder="Ej: Juan Carlos Pérez" class="w-full border px-4 py-3 rounded-xl focus:outline-none font-bold uppercase">
                             </div>
-                            <div class="w-full space-y-2">
-                                <!-- 1. Input Cámara con capture -->
-                                <input type="file" id="input-camara-cedula" accept="image/*" capture="environment" class="hidden" onchange="window.cargarFotoCedulaCliente(this)">
-                                <!-- 2. Input Galería / Archivo -->
-                                <input type="file" id="input-archivo-cedula" accept="image/*,application/pdf" class="hidden" onchange="window.cargarFotoCedulaCliente(this)">
-                                <input type="hidden" id="cli-input-cedula-base64" value="">
-                                
-                                <div class="grid grid-cols-1 sm:grid-cols-2 gap-2">
-                                    <button type="button" onclick="document.getElementById('input-camara-cedula').click()" class="w-full bg-blue-600 hover:bg-blue-500 text-white py-2.5 px-3 rounded-xl font-black uppercase text-[10px] flex items-center justify-center gap-2 transition-all shadow-md active:scale-95">
-                                        <i class="fa-solid fa-camera"></i> <span>Tomar Foto</span>
-                                    </button>
-                                    <button type="button" onclick="document.getElementById('input-archivo-cedula').click()" class="w-full bg-slate-800 hover:bg-slate-700 border border-slate-700 text-slate-200 hover:text-white py-2.5 px-3 rounded-xl font-bold uppercase text-[10px] flex items-center justify-center gap-2 transition-all shadow-md active:scale-95">
-                                        <i class="fa-solid fa-paperclip text-amber-400"></i> <span>Adjuntar Archivo</span>
-                                    </button>
-                                </div>
-                                <p class="text-[9px] text-slate-400 font-medium">Formatos admitidos: JPG, PNG, PDF. La imagen se comprime automáticamente.</p>
+                            <div>
+                                <label class="text-[9px] text-blue-300 uppercase ml-1 block mb-1">N° de Cédula de Identidad del Firmante *</label>
+                                <input type="text" id="cli-input-firma-cedula" required placeholder="Ej: V-12.345.678" class="w-full border px-4 py-3 rounded-xl focus:outline-none font-mono font-black">
                             </div>
                         </div>
+
+                        <label class="flex items-start gap-2.5 bg-slate-900/90 p-3 rounded-xl border border-slate-800 cursor-pointer hover:border-blue-500/50 transition-all">
+                            <input type="checkbox" id="cli-chk-acepto-contrato" required class="mt-0.5 w-4 h-4 accent-blue-600 rounded shrink-0">
+                            <span class="text-[10px] text-slate-300 font-medium leading-relaxed text-justify">
+                                Declaro bajo fe de juramento que los datos suministrados son verdaderos y <strong class="text-white">acepto formalmente todas las cláusulas del presente Contrato de Licencia de Uso</strong>, reconociendo que la plataforma emite exclusivamente Notas de Entrega de control interno administrativo no fiscal.
+                            </span>
+                        </label>
                     </div>
                 </div>
 
@@ -1891,7 +1886,7 @@
             <div class="flex justify-between items-center border-b border-slate-800 p-4 text-white">
                 <div class="flex items-center gap-2 text-amber-400 font-extrabold text-xs uppercase tracking-wider">
                     <i class="fa-solid fa-id-card text-base"></i>
-                    <span>EXPEDIENTE KYC & CONTRATO DEL COMERCIO</span>
+                    <span>EXPEDIENTE DE CONTRATO Y FIRMA DIGITAL</span>
                 </div>
                 <button onclick="document.getElementById('modal-visor-kyc-cliente').classList.add('hidden')" class="text-slate-400 hover:text-white p-1">
                     <i class="fa-solid fa-xmark text-base"></i>
@@ -6570,11 +6565,18 @@ Las conversiones a Pesos (COP) y Bolívares (Bs) se sincronizaron con la tasa de
                 const inputDir = document.getElementById('cli-input-dir');
                 const inputUser = document.getElementById('cli-input-user');
 
+                const inputFirmaNom = document.getElementById('cli-input-firma-nombre');
+                const inputFirmaCed = document.getElementById('cli-input-firma-cedula');
+                const chkAcepto = document.getElementById('cli-chk-acepto-contrato');
+
                 if (inputNombre) inputNombre.value = cli.nombre || '';
                 if (inputRif) inputRif.value = cli.cedulaKYC || cli.rif || '';
                 if (inputTlf) inputTlf.value = cli.wa || cli.tlf || '';
                 if (inputDir) inputDir.value = cli.direccionKYC || cli.dir || '';
                 if (inputUser) inputUser.value = cli.user || cli.slug || '';
+                if (inputFirmaNom) inputFirmaNom.value = cli.firmaNombreKYC || cli.responsable || '';
+                if (inputFirmaCed) inputFirmaCed.value = cli.firmaCedulaKYC || '';
+                if (chkAcepto) chkAcepto.checked = !!cli.contratoAceptado;
 
                 window.autodetectarPlanSuscripcion(cli.user || cli.slug);
             }
@@ -6675,7 +6677,7 @@ Las conversiones a Pesos (COP) y Bolívares (Bs) se sincronizaron con la tasa de
             }
         };
 
-        // Procesamiento, Firma y Activación inmediata del Comercio
+        // Procesamiento, Firma Digital y Activación inmediata del Comercio (Sin fotografía de cédula)
         window.datosContratoPendienteActivacion = null;
 
         window.procesarContratoClienteComercio = function() {
@@ -6685,16 +6687,23 @@ Las conversiones a Pesos (COP) y Bolívares (Bs) se sincronizaron con la tasa de
             const dir = (document.getElementById('cli-input-dir') ? document.getElementById('cli-input-dir').value.trim() : '');
             const user = (document.getElementById('cli-input-user') ? document.getElementById('cli-input-user').value.trim() : '');
             const planDisplay = (document.getElementById('cli-input-plan-display') ? document.getElementById('cli-input-plan-display').value : 'Plan 6 Meses (180 Días)');
-                        const fotoCedula = window.fotoCedulaBase64 || (document.getElementById('cli-input-cedula-base64') ? document.getElementById('cli-input-cedula-base64').value : '');
+            const firmaNombre = (document.getElementById('cli-input-firma-nombre') ? document.getElementById('cli-input-firma-nombre').value.trim() : '');
+            const firmaCedula = (document.getElementById('cli-input-firma-cedula') ? document.getElementById('cli-input-firma-cedula').value.trim() : '');
+            const chkAcepto = document.getElementById('cli-chk-acepto-contrato') ? document.getElementById('cli-chk-acepto-contrato').checked : true;
 
-            if (!nombre || !rif || !tlf || !dir || !user) {
-                alert("⚠️ Por favor complete todos los campos obligatorios del formulario.");
+            if (!nombre || !rif || !tlf || !dir || !user || !firmaNombre || !firmaCedula) {
+                alert("⚠️ Por favor complete todos los campos del establecimiento y su Firma Digital (Nombre Completo y N° de Cédula).");
+                return;
+            }
+
+            if (!chkAcepto) {
+                alert("⚠️ Debe marcar la casilla de aceptación jurada del contrato para continuar.");
                 return;
             }
 
             // Almacenar temporalmente los datos validados
             window.datosContratoPendienteActivacion = {
-                nombre, rif, tlf, dir, user, planDisplay, fotoCedula
+                nombre, rif, tlf, dir, user, planDisplay, firmaNombre, firmaCedula
             };
 
             // Abrir ventana flotante que invita a descargar la aplicación primero
@@ -6708,7 +6717,7 @@ Las conversiones a Pesos (COP) y Bolívares (Bs) se sincronizaron con la tasa de
 
         window.confirmarActivacionFinalYDespacharWA = async function() {
             if (!window.datosContratoPendienteActivacion) return;
-            const { nombre, rif, tlf, dir, user, planDisplay, fotoCedula } = window.datosContratoPendienteActivacion;
+            const { nombre, rif, tlf, dir, user, planDisplay, firmaNombre, firmaCedula } = window.datosContratoPendienteActivacion;
             const slugLimpio = (user || '').toLowerCase().trim();
 
             // Mostrar estado de guardado en la nube antes de saltar a WhatsApp
@@ -6716,7 +6725,7 @@ Las conversiones a Pesos (COP) y Bolívares (Bs) se sincronizaron con la tasa de
             const btnConfirmar = modalPWA ? modalPWA.querySelector('button[onclick*="confirmarActivacionFinalYDespacharWA"]') : null;
             if (btnConfirmar) {
                 btnConfirmar.disabled = true;
-                btnConfirmar.innerHTML = `<i class="fa-solid fa-cloud-arrow-up animate-bounce"></i> <span>GUARDANDO EXPEDIENTE Y CÉDULA...</span>`;
+                btnConfirmar.innerHTML = `<i class="fa-solid fa-cloud-arrow-up animate-bounce"></i> <span>REGISTRANDO FIRMA DIGITAL...</span>`;
             }
 
             // Buscar y actualizar cliente en dbClientesSaaS (manteniendo el objeto de sesión activa si ya existe)
@@ -6730,21 +6739,22 @@ Las conversiones a Pesos (COP) y Bolívares (Bs) se sincronizaron con la tasa de
                     ...baseSesion,
                     contratoAceptado: true,
                     nombre: nombre,
-                    responsable: baseSesion.responsable || nombre,
+                    responsable: firmaNombre || baseSesion.responsable || nombre,
                     cedulaKYC: rif,
+                    firmaNombreKYC: firmaNombre,
+                    firmaCedulaKYC: firmaCedula,
                     wa: tlf,
                     direccionKYC: dir,
                     fechaFirmaContrato: fechaFirmaStr,
                     kycActualizadoMs: Date.now()
                 };
-                if (fotoCedula) clienteObj.fotoCedulaKYC = fotoCedula;
                 if (cliIdx !== -1) window.dbClientesSaaS[cliIdx] = clienteObj;
                 else window.dbClientesSaaS.push(clienteObj);
             } else {
                 clienteObj = {
                     id: 'cli_' + Date.now(),
                     nombre: nombre,
-                    responsable: nombre,
+                    responsable: firmaNombre || nombre,
                     wa: tlf,
                     user: slugLimpio,
                     pass: '123456',
@@ -6753,9 +6763,10 @@ Las conversiones a Pesos (COP) y Bolívares (Bs) se sincronizaron con la tasa de
                     estatus: 'ACTIVO',
                     contratoAceptado: true,
                     cedulaKYC: rif,
+                    firmaNombreKYC: firmaNombre,
+                    firmaCedulaKYC: firmaCedula,
                     direccionKYC: dir,
                     fechaFirmaContrato: fechaFirmaStr,
-                    fotoCedulaKYC: fotoCedula || '',
                     kycActualizadoMs: Date.now(),
                     fechaCreacion: Date.now(),
                     fechaVencimiento: new Date(Date.now() + 180*24*60*60*1000).toISOString(),
@@ -6774,7 +6785,7 @@ Las conversiones a Pesos (COP) y Bolívares (Bs) se sincronizaron con la tasa de
                     await Promise.all(
                         keysFirestore.map(k => window.dbNube.collection('comercios_saas').doc(k).set(clienteObj, { merge: true }))
                     );
-                    console.log("☁️ Contrato y fotografía KYC guardados al 100% en Firestore:", keysFirestore);
+                    console.log("☁️ Contrato y Firma Digital guardados al 100% en Firestore:", keysFirestore);
                 } catch(err) {
                     console.warn("Aviso nube contrato:", err);
                 }
@@ -6795,23 +6806,24 @@ Las conversiones a Pesos (COP) y Bolívares (Bs) se sincronizaron con la tasa de
             window.cargarDatosDelComercioActivo();
             window.abrirPanelClientePrivadoDirecto();
 
-            // Notificación por WhatsApp al Máster
-            let msg = `📄 *ACEPTACIÓN FORMAL DE CONTRATO Y KYC*\n`;
+            // Notificación por WhatsApp al Máster con la Firma Digital
+            let msg = `📄 *ACEPTACIÓN Y FIRMA DIGITAL DE CONTRATO*\n`;
             msg += `🏢 *Comercio:* ${nombre}\n`;
-            msg += `🪪 *Cédula / RIF:* ${rif}\n`;
+            msg += `🪪 *RIF / ID Comercio:* ${rif}\n`;
+            msg += `✍️ *Firmado por (Titular):* ${firmaNombre}\n`;
+            msg += `🪪 *Cédula del Firmante:* ${firmaCedula}\n`;
             msg += `📞 *WhatsApp:* ${tlf}\n`;
             msg += `📍 *Dirección:* ${dir}\n`;
             msg += `🔑 *Usuario ID:* ${slugLimpio}\n`;
             msg += `📦 *Plan:* ${planDisplay}\n`;
-            msg += `📅 *Fecha de Firma:* ${fechaFirmaStr}\n`;
-            msg += `🪪 *Documento Adjunto:* ${fotoCedula ? 'SÍ (Foto Cargada y Guardada en Nube)' : 'NO'}\n`;
+            msg += `📅 *Fecha y Hora de Firma:* ${fechaFirmaStr}\n`;
             msg += `--------------------------------------------------\n`;
             msg += `🔒 *DECLARACIÓN LEGAL DE CONTROL INTERNO:*\n`;
-            msg += `El arrendatario acepta formalmente los términos de uso del software TCL Comercio Web exclusivamente para control administrativo de mostrador, notas de entrega e inventario interno. Declara conocer que el sistema NO sustituye las regulaciones fiscales del SENIAT, eximiendo a TUCOCEL C.A. de responsabilidades contables.\n\n`;
+            msg += `El representante legal suscribe y acepta formalmente los términos de uso del software TCL Comercio Web exclusivamente para control administrativo de mostrador, notas de entrega e inventario interno. Declara conocer que el sistema NO sustituye las regulaciones fiscales del SENIAT, eximiendo a TUCOCEL C.A. de responsabilidades contables.\n\n`;
             msg += `Licencia registrada bajo la infraestructura de TUCOCEL C.A. (RIF J-31378837-6).`;
 
             window.despacharWhatsAppDirecto('04247357549', msg);
-            alert("✅ ¡Contrato firmado, cédula subida a la nube y activación confirmada! Bienvenido a su panel de control comercial.");
+            alert("✅ ¡Contrato firmado digitalmente y activación confirmada! Bienvenido a su panel de control comercial.");
         };
         window.procesarFirmaContratoCliente = window.procesarContratoClienteComercio;
 
@@ -6827,7 +6839,7 @@ Las conversiones a Pesos (COP) y Bolívares (Bs) se sincronizaron con la tasa de
                 if (key) mapaPorSlug.set(key, { ...c });
             });
 
-            // Fusionar los que vienen de la nube priorizando KYC firmado y foto cargada
+            // Fusionar los que vienen de la nube priorizando contrato y firma digital
             docsArray.forEach(cloudDoc => {
                 if (!cloudDoc || (!cloudDoc.user && !cloudDoc.slug && !cloudDoc.nombre)) return;
                 const key = ((cloudDoc.slug || cloudDoc.user || cloudDoc.id) || '').toLowerCase().trim();
@@ -6839,9 +6851,10 @@ Las conversiones a Pesos (COP) y Bolívares (Bs) se sincronizaron con la tasa de
                     id: (prev.id && prev.id.startsWith('cli_')) ? prev.id : (cloudDoc.id || prev.id || key),
                     contratoAceptado: !!(cloudDoc.contratoAceptado || prev.contratoAceptado),
                     cedulaKYC: cloudDoc.cedulaKYC || prev.cedulaKYC || '',
+                    firmaNombreKYC: cloudDoc.firmaNombreKYC || prev.firmaNombreKYC || cloudDoc.responsable || prev.responsable || '',
+                    firmaCedulaKYC: cloudDoc.firmaCedulaKYC || prev.firmaCedulaKYC || cloudDoc.cedulaKYC || prev.cedulaKYC || '',
                     direccionKYC: cloudDoc.direccionKYC || prev.direccionKYC || '',
-                    fechaFirmaContrato: cloudDoc.fechaFirmaContrato || prev.fechaFirmaContrato || '',
-                    fotoCedulaKYC: cloudDoc.fotoCedulaKYC || prev.fotoCedulaKYC || ''
+                    fechaFirmaContrato: cloudDoc.fechaFirmaContrato || prev.fechaFirmaContrato || ''
                 };
                 mapaPorSlug.set(key, combinado);
             });
@@ -6883,7 +6896,7 @@ Las conversiones a Pesos (COP) y Bolívares (Bs) se sincronizaron con la tasa de
             } catch (e) {}
         };
 
-        // Ver Expediente KYC en Modal Máster (con lectura directa en vivo de Firestore)
+        // Ver Expediente de Firma Digital en Modal Máster (con lectura directa en vivo de Firestore)
         window.verExpedienteKYCCliente = async function(id) {
             let cli = (window.dbClientesSaaS || []).find(c => c.id === id);
             if (!cli) return;
@@ -6893,7 +6906,7 @@ Las conversiones a Pesos (COP) y Bolívares (Bs) se sincronizaron con la tasa de
 
             document.getElementById('modal-visor-kyc-cliente').classList.remove('hidden');
 
-            // Consultar en vivo en Firestore por ID y SLUG para traer la foto y firma recién subidas
+            // Consultar en vivo en Firestore por ID y SLUG para traer la firma digital recién registrada
             if (window.dbNube) {
                 try {
                     const keys = Array.from(new Set([cli.id, cli.slug, cli.user].filter(Boolean)));
@@ -6909,20 +6922,20 @@ Las conversiones a Pesos (COP) y Bolívares (Bs) se sincronizaron con la tasa de
             }
 
             const tieneFirma = !!cli.contratoAceptado;
-            const fotoCed = cli.fotoCedulaKYC || '';
-            const esPdf = fotoCed.startsWith('data:application/pdf');
+            const nombreFirmante = cli.firmaNombreKYC || cli.responsable || 'No registrado';
+            const cedulaFirmante = cli.firmaCedulaKYC || cli.cedulaKYC || 'No registrada';
 
             box.innerHTML = `
                 <div class="bg-slate-900 p-4 rounded-2xl border border-slate-800 space-y-2">
                     <div class="flex justify-between items-center border-b border-slate-800 pb-2 gap-2">
                         <span class="text-white font-black text-sm uppercase">${window.escapeHTML(cli.nombre)}</span>
                         <span class="${tieneFirma ? 'bg-emerald-500/20 text-emerald-400 border-emerald-500/30' : 'bg-red-500/20 text-red-400 border-red-500/30'} text-[10px] font-black uppercase px-2.5 py-1 rounded-lg border shrink-0">
-                            ${tieneFirma ? '✅ CONTRATO FIRMADO' : '⚠️ PENDIENTE KYC'}
+                            ${tieneFirma ? '✅ CONTRATO FIRMADO' : '⚠️ PENDIENTE FIRMA'}
                         </span>
                     </div>
                     <div class="grid grid-cols-1 sm:grid-cols-2 gap-2 pt-1 text-slate-300 text-xs">
-                        <p>👤 <strong>Titular:</strong> ${window.escapeHTML(cli.responsable || 'No registrado')}</p>
-                        <p>🪪 <strong>Cédula/RIF:</strong> ${window.escapeHTML(cli.cedulaKYC || 'No registrado')}</p>
+                        <p>👤 <strong>Titular / Representante:</strong> ${window.escapeHTML(nombreFirmante)}</p>
+                        <p>🪪 <strong>RIF Establecimiento:</strong> ${window.escapeHTML(cli.cedulaKYC || 'No registrado')}</p>
                         <p>📞 <strong>WhatsApp:</strong> ${window.escapeHTML(cli.wa || 'No registrado')}</p>
                         <p>🔑 <strong>Usuario ID:</strong> ${window.escapeHTML(cli.user || cli.slug)}</p>
                         <p>📦 <strong>Cobertura:</strong> ${cli.dias || 180} Días</p>
@@ -6931,25 +6944,28 @@ Las conversiones a Pesos (COP) y Bolívares (Bs) se sincronizaron con la tasa de
                     ${cli.direccionKYC ? `<p class="text-slate-400 text-xs">📍 <strong>Ubicación:</strong> ${window.escapeHTML(cli.direccionKYC)}</p>` : ''}
                 </div>
 
-                <div class="space-y-2">
-                    <div class="flex justify-between items-center">
-                        <span class="text-amber-400 font-bold uppercase text-[11px] block">🪪 Fotografía de Cédula / RIF (KYC):</span>
-                        ${fotoCed ? `<a href="${fotoCed}" download="cedula_${window.escapeHTML(cli.slug || cli.user || 'cliente')}.${esPdf ? 'pdf' : 'webp'}" class="bg-blue-600 hover:bg-blue-500 text-white text-[10px] font-black uppercase px-2.5 py-1 rounded-lg">⬇ Descargar</a>` : ''}
+                <div class="bg-slate-950 p-4 rounded-2xl border ${tieneFirma ? 'border-emerald-500/40' : 'border-slate-800'} space-y-2.5">
+                    <div class="flex items-center justify-between">
+                        <span class="text-amber-400 font-black uppercase text-[11px] flex items-center gap-1.5">
+                            <i class="fa-solid fa-file-signature"></i> Sello de Firma Electrónica y Aceptación:
+                        </span>
+                        <span class="text-[9px] font-mono ${tieneFirma ? 'text-emerald-400' : 'text-slate-500'} uppercase font-bold">
+                            ${tieneFirma ? 'Verificado Digitalmente' : 'Sin Firma'}
+                        </span>
                     </div>
-                    ${fotoCed ? (esPdf ? `
-                        <div class="rounded-2xl border border-slate-700 bg-slate-950 p-5 text-center space-y-2">
-                            <i class="fa-solid fa-file-pdf text-4xl text-red-400"></i>
-                            <p class="text-xs text-slate-300 font-bold">Documento PDF adjuntado correctamente</p>
-                            <a href="${fotoCed}" download="documento_${window.escapeHTML(cli.slug || 'cliente')}.pdf" class="inline-block bg-emerald-600 text-white text-xs font-black uppercase px-4 py-2 rounded-xl">Abrir / Descargar PDF</a>
+                    ${tieneFirma ? `
+                        <div class="bg-slate-900/90 border border-slate-800 rounded-xl p-3 space-y-1.5 font-mono text-xs">
+                            <p class="text-white">✍️ <strong>FIRMADO DIGITALMENTE POR:</strong> <span class="text-blue-400 font-black uppercase">${window.escapeHTML(nombreFirmante)}</span></p>
+                            <p class="text-white">🪪 <strong>CÉDULA DE IDENTIDAD:</strong> <span class="text-amber-400 font-black">${window.escapeHTML(cedulaFirmante)}</span></p>
+                            <p class="text-slate-400 text-[10px]">🕒 <strong>Estampa de Tiempo:</strong> ${window.escapeHTML(cli.fechaFirmaContrato || 'Registrado')}</p>
+                            <p class="text-emerald-400 text-[10px] pt-1 border-t border-slate-800 font-sans">
+                                ✓ Aceptó bajo declaración jurada todas las cláusulas de uso interno administrativo no fiscal de TCL Comercio Web.
+                            </p>
                         </div>
                     ` : `
-                        <div class="rounded-2xl overflow-hidden border border-slate-700 bg-slate-950 p-2 text-center">
-                            <img src="${fotoCed}" class="w-full max-h-80 object-contain rounded-xl mx-auto">
-                        </div>
-                    `) : `
-                        <div class="bg-slate-900 border border-dashed border-slate-700 rounded-2xl p-6 text-center text-slate-500">
-                            <i class="fa-solid fa-image text-3xl mb-2 block text-slate-600"></i>
-                            <span>No se ha adjuntado fotografía de cédula aún.</span>
+                        <div class="bg-slate-900 border border-dashed border-slate-700 rounded-2xl p-5 text-center text-slate-500">
+                            <i class="fa-solid fa-file-signature text-2xl mb-1.5 block text-slate-600"></i>
+                            <span>El cliente aún no ha firmado digitalmente el contrato de licencia.</span>
                         </div>
                     `}
                 </div>
