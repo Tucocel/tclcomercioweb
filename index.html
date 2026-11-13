@@ -92,7 +92,7 @@
         .neon-btn-blue { color: #93c5fd; }
         .neon-btn-blue:hover, .neon-btn-blue.active { color: #ffffff; text-shadow: 0 0 10px rgba(59, 130, 246, 0.8), 0 0 20px rgba(37, 99, 235, 0.6); }
         .neon-btn-emerald { color: #a7f3d0; }
-        .neon-btn-emerald:hover, .neon-btn-emerald.active { color: #ffffff; text-shadow: 0 0 10px rgba(168, 85, 247, 0.8), 0 0 20px rgba(147, 51, 234, 0.6); }
+        .neon-btn-emerald:hover, .neon-btn-emerald.active { color: #ffffff; text-shadow: 0 0 10px rgba(16, 185, 129, 0.8), 0 0 20px rgba(5, 150, 105, 0.6); }
         .neon-btn-amber { color: #fde68a; }
         .neon-btn-amber:hover, .neon-btn-amber.active { color: #ffffff; text-shadow: 0 0 10px rgba(245, 158, 11, 0.8), 0 0 20px rgba(217, 119, 6, 0.6); }
         .neon-btn-purple { color: #e9d5ff; }
@@ -731,7 +731,7 @@
             <!-- 3. BOTÓN PRINCIPAL HERO: FACTURAR / NUEVA VENTA -->
             <button onclick="window.abrirModuloPOS()" class="w-full bg-gradient-to-r from-emerald-600 via-emerald-500 to-teal-600 hover:from-emerald-500 hover:to-teal-500 text-white p-4 sm:p-5 rounded-3xl flex items-center justify-between shadow-lg shadow-emerald-600/25 active:scale-[0.98] transition-all text-left group">
                 <div class="flex items-center gap-3.5 min-w-0">
-                    <div class="w-13 h-13 w-12 h-12 rounded-2xl bg-white/20 backdrop-blur-md flex items-center justify-center text-2xl text-white shrink-0 group-hover:scale-110 transition-transform shadow-inner">
+                    <div class="w-12 h-12 rounded-2xl bg-white/20 backdrop-blur-md flex items-center justify-center text-2xl text-white shrink-0 group-hover:scale-110 transition-transform shadow-inner">
                         <i class="fa-solid fa-cash-register"></i>
                     </div>
                     <div class="min-w-0">
@@ -1523,7 +1523,7 @@
                         <div class="bg-emerald-500/20 border border-emerald-500/40 p-2 rounded-xl text-emerald-400 font-black text-xs">
                             <span class="block text-[8px] uppercase text-emerald-300">TE AHORRAS:</span>
                             <span id="tab-plan-90-ahorro-usd" class="text-sm">+$15.00 USD</span>
-                            <span id="tab-plan-90-ahorro-conv" class="block text-[8px] text-slate-300 font-normal">54.000 COP | 49,50 Bs</span>
+                            <span id="tab-plan-90-ahorro-conv" class="block text-[8px] text-slate-300 font-normal">54.000 COP | 16.363,64 Bs</span>
                         </div>
                     </div>
 
@@ -1538,7 +1538,7 @@
                         <div class="bg-emerald-500/20 border border-emerald-500/40 p-2 rounded-xl text-emerald-400 font-black text-xs">
                             <span class="block text-[8px] uppercase text-emerald-300">TE AHORRAS:</span>
                             <span id="tab-plan-180-ahorro-usd" class="text-sm">+$60.00 USD</span>
-                            <span id="tab-plan-180-ahorro-conv" class="block text-[8px] text-slate-300 font-normal">216.000 COP | 198,00 Bs</span>
+                            <span id="tab-plan-180-ahorro-conv" class="block text-[8px] text-slate-300 font-normal">216.000 COP | 65.454,55 Bs</span>
                         </div>
                     </div>
 
@@ -1553,7 +1553,7 @@
                         <div class="bg-emerald-500/20 border border-emerald-500/40 p-2 rounded-xl text-emerald-400 font-black text-xs">
                             <span class="block text-[8px] uppercase text-emerald-300">TE AHORRAS:</span>
                             <span id="tab-plan-365-ahorro-usd" class="text-sm">+$140.00 USD</span>
-                            <span id="tab-plan-365-ahorro-conv" class="block text-[8px] text-slate-300 font-normal">504.000 COP | 462,00 Bs</span>
+                            <span id="tab-plan-365-ahorro-conv" class="block text-[8px] text-slate-300 font-normal">504.000 COP | 152.727,27 Bs</span>
                         </div>
                     </div>
 
@@ -2600,7 +2600,7 @@
                 </div>
                 <div>
                     <label class="text-[10px] text-slate-500 uppercase block mb-1">Stock</label>
-                    <input type="number" id="sub-input-stock" class="input-clean font-mono">
+                    <input type="number" step="any" id="sub-input-stock" class="input-clean font-mono">
                 </div>
             </div>
             <div>
@@ -3596,7 +3596,14 @@ Ingrese monto abonado ($ USD):`, saldoActual.toFixed(2))) || 0;
                 nota.credito.estadoCredito = 'PAGADO';
             }
 
+            nota.actualizadoMs = Date.now();
             window.guardarVentasEnStorage();
+            if (typeof window.sincronizarTenantConFirebase === 'function') {
+                window.sincronizarTenantConFirebase('ventas', nota);
+            }
+            if (typeof window.actualizarKPIsPanelCliente === 'function') {
+                window.actualizarKPIsPanelCliente();
+            }
             if (typeof window.calcularCierrePeriodoGerencial === 'function') {
                 window.calcularCierrePeriodoGerencial();
             }
@@ -3613,8 +3620,15 @@ Saldo restante: $${nota.credito.saldoPendienteUSD.toFixed(2)} USD`);
                 nota.credito.abonoInicialUSD = nota.totalUSD;
                 nota.credito.saldoPendienteUSD = 0;
                 nota.credito.estadoCredito = 'PAGADO';
+                nota.actualizadoMs = Date.now();
 
                 window.guardarVentasEnStorage();
+                if (typeof window.sincronizarTenantConFirebase === 'function') {
+                    window.sincronizarTenantConFirebase('ventas', nota);
+                }
+                if (typeof window.actualizarKPIsPanelCliente === 'function') {
+                    window.actualizarKPIsPanelCliente();
+                }
                 if (typeof window.calcularCierrePeriodoGerencial === 'function') {
                     window.calcularCierrePeriodoGerencial();
                 }
@@ -3691,18 +3705,8 @@ Saldo restante: $${nota.credito.saldoPendienteUSD.toFixed(2)} USD`);
             return num.toFixed(2);
         };
 
-        window.parseNumeroFlexible = function(val) {
-            if (val === undefined || val === null) return 0;
-            let str = String(val).trim().replace(/\s/g, '');
-            if (!str) return 0;
-            if (str.includes('.') && str.includes(',')) {
-                if (str.indexOf('.') < str.indexOf(',')) str = str.replace(/\./g, '').replace(',', '.');
-                else str = str.replace(/,/g, '');
-            } else if (str.includes(',')) {
-                str = str.replace(',', '.');
-            }
-            return parseFloat(str) || 0;
-        };
+        // Unificado con limpiarMontoManual para soportar separadores de miles en COP y decimales
+        window.parseNumeroFlexible = window.limpiarMontoManual;
 
         
         window.actualizarEtiquetasTasasEncabezados = function() {
@@ -3801,7 +3805,8 @@ Saldo restante: $${nota.credito.saldoPendienteUSD.toFixed(2)} USD`);
 
             document.getElementById('sub-edit-id').value = prod.id;
             const subCod = document.getElementById('sub-input-codigo'); if (subCod) subCod.value = prod.codigo || '';
-            document.getElementById('sub-input-nombre').value = prod.nombre;
+            document.getElementById('sub-input-nombre').value = prod.nombre || '';
+            const subCat = document.getElementById('sub-input-categoria'); if (subCat) subCat.value = prod.categoria || 'GENERAL';
             document.getElementById('sub-input-costo').value = prod.precioCosto || 0;
             document.getElementById('sub-input-venta').value = prod.precioVenta || prod.precioUSD || 0;
             document.getElementById('sub-input-stock').value = prod.stock || 0;
@@ -3864,7 +3869,7 @@ Saldo restante: $${nota.credito.saldoPendienteUSD.toFixed(2)} USD`);
             const nombre = document.getElementById('sub-input-nombre').value.trim();
             const precioCosto = window.limpiarMontoManual(document.getElementById('sub-input-costo').value);
             const precioVenta = window.limpiarMontoManual(document.getElementById('sub-input-venta').value);
-            const stock = parseInt(document.getElementById('sub-input-stock').value) || 0;
+            const stock = window.limpiarMontoManual(document.getElementById('sub-input-stock').value) || 0;
             const desc = document.getElementById('sub-input-desc').value.trim();
 
             if (!nombre || precioVenta <= 0) {
@@ -4702,6 +4707,9 @@ Tu nueva clave de acceso es: ${nuevaClave}`);
         };
 
         window.cerrarSesionCompleta = function(porInactividad = false) {
+            if (typeof window.desuscribirListenersFirestore === 'function') {
+                window.desuscribirListenersFirestore();
+            }
             const nombrePrevio = (window.clienteActivoSesion && window.clienteActivoSesion.nombre) ? window.clienteActivoSesion.nombre.toUpperCase() : 'TCL SISTEMA COMERCIO';
             const lblLoginTitle = document.getElementById('lbl-login-comercio-nombre');
             if (lblLoginTitle) lblLoginTitle.innerText = nombrePrevio;
@@ -5341,7 +5349,7 @@ Tu nueva clave de acceso es: ${nuevaClave}`);
                                 <button type="button" onclick="window.abrirModalFraccionarDesdePOS('${p.id}')" class="bg-amber-500 hover:bg-amber-400 text-slate-950 font-black px-2 py-1.5 rounded-xl text-[9.5px] flex items-center gap-1 shadow-sm transition-all" title="Desarmar caja a unidades"><i class="fa-solid fa-boxes-packing text-[9px]"></i> Desarmar</button>
                             ` : ''}
                             ${!esAgotado ? `
-                                <button onclick="window.solicitarCantidadPOS('${p.id}', '${p.nombre}', ${p.stock}, '${p.unidad || 'UND'}')" class="bg-emerald-600 hover:bg-emerald-500 text-white px-3 py-1.5 rounded-xl flex items-center justify-center font-black text-xs shadow transition-all">+ Add</button>
+                                <button onclick="window.solicitarCantidadPOS('${p.id}', '', ${p.stock}, '${p.unidad || 'UND'}')" class="bg-emerald-600 hover:bg-emerald-500 text-white px-3 py-1.5 rounded-xl flex items-center justify-center font-black text-xs shadow transition-all">+ Add</button>
                             ` : `
                                 <span class="text-[9px] text-red-600 font-bold uppercase px-1">Sin Stock</span>
                             `}
@@ -5355,8 +5363,9 @@ Tu nueva clave de acceso es: ${nuevaClave}`);
             const prod = window.dbInventario.find(p => p.id === id);
             const precioUSD = prod ? (prod.precioVenta || prod.precioUSD || 0) : 0;
             const u = prod ? (prod.unidad || unidad || 'UND') : unidad;
+            const nombreSeguro = (prod && prod.nombre) ? prod.nombre : (nombre || 'PRODUCTO');
 
-            document.getElementById('lbl-cant-pos-nombre').innerText = nombre;
+            document.getElementById('lbl-cant-pos-nombre').innerText = nombreSeguro;
             document.getElementById('cant-pos-id-prod').value = id;
             document.getElementById('cant-pos-unidad').value = u;
             document.getElementById('cant-pos-precio-val').value = precioUSD;
@@ -5607,6 +5616,8 @@ Tu nueva clave de acceso es: ${nuevaClave}`);
                 document.getElementById('pos-tot-usd').innerText = "$0.00";
                 document.getElementById('pos-tot-cop').innerText = "0";
                 document.getElementById('pos-tot-bs').innerText = "0.00";
+                if (typeof window.calcularVueltoPOS === 'function') window.calcularVueltoPOS();
+                if (typeof window.calcularSaldoCreditoPOS === 'function') window.calcularSaldoCreditoPOS();
                 return;
             }
 
