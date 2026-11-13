@@ -3204,13 +3204,15 @@
             const tenantBase = window.dbNube.collection('comercios_saas').doc(slug);
 
             try {
-                // Escuchador en Tiempo Real: INVENTARIO
-                const unsubInv = tenantBase.collection('inventario').onSnapshot((snapshot) => {
+                const aplicarSnapshotInv = (snapshot) => {
                     const prods = [];
                     snapshot.forEach(doc => {
                         const data = doc.data();
                         if (data && data.id) prods.push(data);
                     });
+                    if (prods.length === 0 && (window.dbInventario || []).length > 0 && snapshot.metadata && snapshot.metadata.fromCache) {
+                        return;
+                    }
                     window.dbInventario = prods;
                     window.tclSafeSetItem(window.getTenantStorageKey('inventario'), JSON.stringify(window.dbInventario));
                     window.actualizarDatalistsCategorias();
@@ -3221,7 +3223,13 @@
                     if (typeof window.recalcularReportesGanancias === 'function') window.recalcularReportesGanancias();
                     if (typeof window.renderizarTablaModalInventario === 'function') window.renderizarTablaModalInventario();
                     if (typeof window.renderizarInventarioPOS === 'function') window.renderizarInventarioPOS();
-                    console.log(`⚡ [Tiempo Real] Inventario sincronizado (${prods.length} ítems)`);
+                    if (typeof window.actualizarKPIsPanelCliente === 'function') window.actualizarKPIsPanelCliente();
+                };
+
+                // Escuchador en Tiempo Real: INVENTARIO
+                const unsubInv = tenantBase.collection('inventario').onSnapshot((snapshot) => {
+                    aplicarSnapshotInv(snapshot);
+                    console.log(`⚡ [Tiempo Real] Inventario sincronizado (${window.dbInventario.length} ítems)`);
                 }, (err) => console.warn("Aviso listener inventario:", err));
                 window.listenersFirestoreActivos.push(unsubInv);
 
@@ -3235,6 +3243,7 @@
                     window.dbVentas = ventas.sort((a, b) => (b.fechaMs || 0) - (a.fechaMs || 0));
                     window.tclSafeSetItem(window.getTenantStorageKey('ventas'), JSON.stringify(window.dbVentas));
                     if (typeof window.renderizarHistorialVentas === 'function') window.renderizarHistorialVentas();
+                    if (typeof window.actualizarKPIsPanelCliente === 'function') window.actualizarKPIsPanelCliente();
                     console.log(`⚡ [Tiempo Real] Ventas sincronizadas (${ventas.length} notas)`);
                 }, (err) => console.warn("Aviso listener ventas:", err));
                 window.listenersFirestoreActivos.push(unsubVentas);
@@ -3248,9 +3257,26 @@
                     });
                     window.dbGastos = gastos.sort((a, b) => (b.fechaMs || 0) - (a.fechaMs || 0));
                     window.tclSafeSetItem(window.getTenantStorageKey('gastos'), JSON.stringify(window.dbGastos));
+                    if (typeof window.actualizarKPIsPanelCliente === 'function') window.actualizarKPIsPanelCliente();
                     console.log(`⚡ [Tiempo Real] Gastos sincronizados (${gastos.length} egresos)`);
                 }, (err) => console.warn("Aviso listener gastos:", err));
                 window.listenersFirestoreActivos.push(unsubGastos);
+
+                // Escuchador en Tiempo Real: COMPRAS / PROVEEDORES
+                const unsubProv = tenantBase.collection('proveedores').onSnapshot((snapshot) => {
+                    const compras = [];
+                    snapshot.forEach(doc => {
+                        const data = doc.data();
+                        if (data && data.id) compras.push(data);
+                    });
+                    window.dbProveedores = compras.sort((a, b) => (b.fechaMs || 0) - (a.fechaMs || 0));
+                    window.tclSafeSetItem(window.getTenantStorageKey('proveedores'), JSON.stringify(window.dbProveedores));
+                    const badgeComp = document.getElementById('badge-cnt-compras-hist');
+                    if (badgeComp) badgeComp.innerText = window.dbProveedores.length;
+                    if (typeof window.renderizarHistorialComprasProv === 'function') window.renderizarHistorialComprasProv();
+                    console.log(`⚡ [Tiempo Real] Compras sincronizadas (${compras.length} registros)`);
+                }, (err) => console.warn("Aviso listener proveedores:", err));
+                window.listenersFirestoreActivos.push(unsubProv);
 
                 // Escuchador en Tiempo Real: CIERRES
                 const unsubCierres = tenantBase.collection('cierres').onSnapshot((snapshot) => {
@@ -4919,14 +4945,15 @@ Tu nueva clave de acceso es: ${nuevaClave}`);
 
         window.verificarTasaAperturaDia = function() {
             const hoyStr = window.obtenerFechaLocalISO();
-            const fijada = localStorage.getItem('tcl_tasa_fijada_fecha');
+            const slug = (window.clienteActivoSesion && (window.clienteActivoSesion.slug || window.clienteActivoSesion.user)) ? (window.clienteActivoSesion.slug || window.clienteActivoSesion.user).toLowerCase().trim() : 'demo';
+            const fijada = localStorage.getItem(`tcl_tenant_${slug}_tasa_fijada_fecha`);
             if (fijada !== hoyStr) {
                 const inpCop = document.getElementById('apertura-tasa-cop');
                 const inpBs = document.getElementById('apertura-tasa-bs');
                 const inpBase = document.getElementById('apertura-base-caja');
                 if (inpCop) inpCop.value = window.tasasConfig.cop || 3600;
                 if (inpBs) inpBs.value = window.tasasConfig.paridadBs || 3.3;
-                const baseGuardada = parseFloat(localStorage.getItem('tcl_base_caja_inicial_' + hoyStr)) || 0;
+                const baseGuardada = parseFloat(localStorage.getItem(`tcl_tenant_${slug}_base_caja_inicial_${hoyStr}`)) || 0;
                 if (inpBase) inpBase.value = baseGuardada.toFixed(2);
                 document.getElementById('modal-fijar-tasa-dia').classList.remove('hidden');
             }
@@ -4934,6 +4961,7 @@ Tu nueva clave de acceso es: ${nuevaClave}`);
 
         window.confirmarTasasAperturaDia = function() {
             const hoyStr = window.obtenerFechaLocalISO();
+            const slug = (window.clienteActivoSesion && (window.clienteActivoSesion.slug || window.clienteActivoSesion.user)) ? (window.clienteActivoSesion.slug || window.clienteActivoSesion.user).toLowerCase().trim() : 'demo';
             const inpCop = document.getElementById('apertura-tasa-cop');
             const inpBs = document.getElementById('apertura-tasa-bs');
             const inpBase = document.getElementById('apertura-base-caja');
@@ -4954,12 +4982,19 @@ Tu nueva clave de acceso es: ${nuevaClave}`);
             if (copCli) copCli.value = nuevoCop;
             if (bsCli) bsCli.value = nuevoBs;
 
-            localStorage.setItem('tcl_tasa_fijada_fecha', hoyStr);
-            localStorage.setItem('tcl_base_caja_inicial_' + hoyStr, nuevaBase.toString());
-            localStorage.setItem('tcl_tasas_globales_fijadas_2026', JSON.stringify(window.tasasConfig));
+            localStorage.setItem(`tcl_tenant_${slug}_tasa_fijada_fecha`, hoyStr);
+            localStorage.setItem(`tcl_tenant_${slug}_base_caja_inicial_${hoyStr}`, nuevaBase.toString());
             if (window.clienteActivoSesion) {
                 window.clienteActivoSesion.tasas = { ...window.tasasConfig };
                 window.guardarClientesEnStorage();
+                if (window.dbNube && slug) {
+                    window.dbNube.collection('comercios_saas').doc(slug).set({
+                        tasas: { ...window.tasasConfig },
+                        ultimaTasaMs: Date.now()
+                    }, { merge: true }).catch(() => {});
+                }
+            } else {
+                localStorage.setItem('tcl_tasas_globales_fijadas_2026', JSON.stringify(window.tasasConfig));
             }
 
             document.getElementById('modal-fijar-tasa-dia').classList.add('hidden');
@@ -6928,12 +6963,13 @@ Las conversiones a Pesos (COP) y Bolívares (Bs) se sincronizaron con la tasa de
             }
 
             // 1. Inventario Aislado por Comercio
-            const gInv = localStorage.getItem(window.getTenantStorageKey('inventario'));
-            if (gInv) { 
+            const keyInv = window.getTenantStorageKey('inventario');
+            const gInv = localStorage.getItem(keyInv);
+            if (gInv && gInv !== '[]' && gInv !== 'null') { 
                 try { window.dbInventario = JSON.parse(gInv); } catch(e) { window.dbInventario = []; } 
             } else {
                 window.dbInventario = [];
-                window.guardarInventarioEnStorage();
+                try { localStorage.setItem(keyInv, JSON.stringify([])); } catch(e) {}
             }
 
             // 2. Ventas / Notas Aisladas por Comercio
@@ -6975,7 +7011,7 @@ Las conversiones a Pesos (COP) y Bolívares (Bs) se sincronizaron con la tasa de
             }
         };
 
-        window.guardarInventarioEnStorage = function() {
+        window.guardarInventarioEnStorage = function(omitirNube = false) {
             const key = window.getTenantStorageKey('inventario');
             const payload = JSON.stringify(window.dbInventario || []);
             try {
@@ -6987,6 +7023,20 @@ Las conversiones a Pesos (COP) y Bolívares (Bs) se sincronizaron con la tasa de
                 try { localStorage.setItem(key, JSON.stringify(ligero)); } catch (err2) {}
             }
             window.actualizarBadgeTotalInventario();
+            
+            // Si hay conexión a Firestore, guardar producto por producto (para evitar sobreescribir la colección y borrar los existentes)
+            if (!omitirNube && window.dbNube && window.clienteActivoSesion) {
+                const slug = (window.clienteActivoSesion.slug || window.clienteActivoSesion.user || 'demo').toLowerCase().trim();
+                const tenantBase = window.dbNube.collection('comercios_saas').doc(slug);
+                const subCol = tenantBase.collection('inventario');
+                
+                // Subir cada producto atómicamente
+                (window.dbInventario || []).forEach(prod => {
+                    if (prod && prod.id) {
+                        try { subCol.doc(prod.id).set(prod, { merge: true }); } catch(errFs) {}
+                    }
+                });
+            }
         };
         window.guardarVentasEnStorage = function() { 
             window.tclSafeSetItem(window.getTenantStorageKey('ventas'), JSON.stringify(window.dbVentas));
@@ -7198,22 +7248,39 @@ $${(item.precioUSD * item.cant).toFixed(2)} USD
 ⏳ *Estado:* Pendiente por confirmar pago y despacho.
 *Sistema TCL Comercio — TUCOCEL C.A. & PublionlineMK*`;
 
-            const phone = "584247357549";
+            let phone = (window.clienteActivoSesion && window.clienteActivoSesion.wa) ? window.clienteActivoSesion.wa.toString().replace(/[^0-9]/g, '') : '';
+            if (phone.startsWith('04')) phone = '58' + phone.substring(1);
+            else if (phone.startsWith('4') && phone.length === 10) phone = '58' + phone;
             window.despacharWhatsApp(phone, mensaje);
             document.getElementById('modal-checkout-pro').classList.add('hidden');
         };
 
-        // RENDER DE VITRINA PÚBLICA
+        // RENDER DE VITRINA PÚBLICA (100% AISLADA POR COMERCIO Y CATEGORÍAS)
         window.renderizarProductosVitrina = function() {
+            if (window.clienteActivoSesion) {
+                const hTitle = document.getElementById('header-shop-title');
+                const hSub = document.getElementById('header-shop-sub');
+                if (hTitle && window.clienteActivoSesion.nombre) hTitle.innerText = window.clienteActivoSesion.nombre.toUpperCase();
+                if (hSub) {
+                    const dirTxt = window.clienteActivoSesion.direccionKYC || window.clienteActivoSesion.direccion || 'Tienda Oficial en Línea';
+                    const waTxt = window.clienteActivoSesion.wa || '';
+                    hSub.innerText = waTxt ? `${dirTxt} | WhatsApp: ${waTxt}` : dirTxt;
+                }
+            }
             const grid = document.getElementById('grid-productos-tienda');
             if (!grid) return;
             let htmlProductos = '';
-            const totalProd = (window.dbInventario || []).length;
+            const catFiltro = (window.categoriaActivaVitrina || 'TODOS').toUpperCase();
+            const listaVitrina = (window.dbInventario || []).filter(p => {
+                if (catFiltro === 'TODOS') return true;
+                return ((p.categoria || 'GENERAL').trim().toUpperCase() === catFiltro);
+            });
+            const totalProd = listaVitrina.length;
 
             if (totalProd === 0) {
-                htmlProductos = `<div class="col-span-2 md:col-span-4 py-12 text-center text-slate-400 font-bold text-xs">No hay productos en la vitrina por los momentos.</div>`;
+                htmlProductos = `<div class="col-span-2 md:col-span-4 py-12 text-center text-slate-400 font-bold text-xs">No hay productos disponibles en esta sección por los momentos.</div>`;
             } else {
-                htmlProductos = window.dbInventario.map(p => {
+                htmlProductos = listaVitrina.map(p => {
                     const venta = p.precioVenta || p.precioUSD || 0;
                     const cop = window.calcularPesosDesdeUSD(venta);
                     const bs = window.calcularBsDesdeUSD(venta);
@@ -7621,7 +7688,7 @@ $${(item.precioUSD * item.cant).toFixed(2)} USD
             if (typeof window.renderizarTarifasEnPropuesta === 'function') window.renderizarTarifasEnPropuesta();
         };
 
-        window.openWhatsAppDirectQuery = function() { window.despacharWhatsApp('04247357549', '¡Hola! Quisiera consultar disponibilidad de productos.'); };
+        window.openWhatsAppDirectQuery = function() { const telComercio = (window.clienteActivoSesion && window.clienteActivoSesion.wa) ? window.clienteActivoSesion.wa.toString().replace(/[^0-9]/g, '') : ''; const nomCom = (window.clienteActivoSesion && window.clienteActivoSesion.nombre) ? window.clienteActivoSesion.nombre : 'el comercio'; window.despacharWhatsApp(telComercio, `¡Hola *${nomCom}*! Quisiera consultar disponibilidad de productos en su catálogo web.`); };
 
         // -------------------------------------------------------------
         // CÁPSULA INTERACTIVA [ 👁️ VER ] PARA TODA LA AUDITORÍA (FORMATO HOJA BLANCA TICKET)
@@ -8100,7 +8167,8 @@ window.abrirModalReporteZ = function() {
             const flujoCajaNeto = totalVentasUSD - totalGastosUSD;
 
             // Recuperar base inicial de efectivo guardada para esta fecha
-            const baseCajaInicial = parseFloat(localStorage.getItem('tcl_base_caja_inicial_' + fechaVal)) || 0;
+            const _slugBase = (window.clienteActivoSesion && (window.clienteActivoSesion.slug || window.clienteActivoSesion.user)) ? (window.clienteActivoSesion.slug || window.clienteActivoSesion.user).toLowerCase().trim() : 'demo';
+            const baseCajaInicial = parseFloat(localStorage.getItem(`tcl_tenant_${_slugBase}_base_caja_inicial_${fechaVal}`)) || 0;
 
             const metodos = {};
             let totalEfectivoUSD = 0;
@@ -8713,14 +8781,19 @@ window.abrirModalReporteZ = function() {
         // -------------------------------------------------------------
         // DIRECTORIO INTELIGENTE Y MEMORIA AUTOMÁTICA DE PROVEEDORES
         // -------------------------------------------------------------
-        window.STORAGE_KEY_DIRECTORIO_PROV = 'tcl_directorio_proveedores_2026';
         window.directorioProveedores = [];
+        window.getDirectorioProvTenantKey = function() {
+            const slug = (window.clienteActivoSesion && (window.clienteActivoSesion.slug || window.clienteActivoSesion.user)) ? (window.clienteActivoSesion.slug || window.clienteActivoSesion.user).toLowerCase().trim() : 'demo';
+            return `tcl_tenant_${slug}_directorio_prov_2026`;
+        };
 
         window.cargarDirectorioProveedores = function() {
-            const guardados = localStorage.getItem(window.STORAGE_KEY_DIRECTORIO_PROV);
+            window.directorioProveedores = [];
+            const guardados = localStorage.getItem(window.getDirectorioProvTenantKey());
             if (guardados) {
                 try { window.directorioProveedores = JSON.parse(guardados); } catch(e) { window.directorioProveedores = []; }
             }
+            window.dbDirectorioProveedores = window.directorioProveedores;
             window.actualizarDatalistProveedores();
         };
 
@@ -8733,7 +8806,8 @@ window.abrirModalReporteZ = function() {
             } else {
                 window.directorioProveedores.unshift({ nombre: nombreClean, tel: tel || '', dir: dir || '' });
             }
-            localStorage.setItem(window.STORAGE_KEY_DIRECTORIO_PROV, JSON.stringify(window.directorioProveedores));
+            window.dbDirectorioProveedores = window.directorioProveedores;
+            localStorage.setItem(window.getDirectorioProvTenantKey(), JSON.stringify(window.directorioProveedores));
             window.actualizarDatalistProveedores();
         };
 
@@ -9007,6 +9081,8 @@ window.abrirModalReporteZ = function() {
             const inpCod = document.getElementById('prov-prod-codigo');
             const codigo = inpCod ? inpCod.value.trim() : '';
             const nombre = document.getElementById('prov-prod-nombre').value.trim();
+            const inpCatCompra = document.getElementById('prov-prod-categoria');
+            const categoria = (inpCatCompra && inpCatCompra.value.trim()) ? inpCatCompra.value.trim().toUpperCase() : 'GENERAL';
             const unidad = document.getElementById('prov-prod-unidad').value || 'UND';
             const cant = window.limpiarMontoManual(document.getElementById('prov-prod-cant').value) || 1;
             const valCosto = window.limpiarMontoManual(document.getElementById('prov-prod-costo').value);
@@ -9041,6 +9117,7 @@ window.abrirModalReporteZ = function() {
                 window.carritoCompras.push({
                     codigo,
                     nombre: nombre.toUpperCase(),
+                    categoria,
                     unidad,
                     cant, costoUSD, ventaUSD,
                     subtotalUSD: cant * costoUSD,
@@ -9143,42 +9220,60 @@ window.abrirModalReporteZ = function() {
         };
 
         // EJECUCIÓN FINAL: ACTUALIZA INVENTARIO, REGISTRA EN REPORTES Y EJECUTA ACCIÓN
-        window.ejecutarFinalizacionOperacion = function(accion) {
+        window.ejecutarFinalizacionOperacion = async function(accion) {
             if (!window.operacionPendienteCierre) return;
             const op = window.operacionPendienteCierre;
 
             if (op.tipo === 'COMPRA') {
+                const itemsSincronizar = [];
                 // 1. Inyección y suma directa al Inventario
-                op.items.forEach(it => {
+                op.items.forEach((it, iIdx) => {
                     const idx = window.dbInventario.findIndex(p => 
                         (it.codigo && p.codigo && p.codigo.toLowerCase() === it.codigo.toLowerCase()) || 
                         p.nombre.toLowerCase() === it.nombre.toLowerCase()
                     );
                     if (idx !== -1) {
-                        window.dbInventario[idx].stock += it.cant;
+                        window.dbInventario[idx].stock = (Number(window.dbInventario[idx].stock) || 0) + (Number(it.cant) || 0);
                         window.dbInventario[idx].precioCosto = it.costoUSD;
                         window.dbInventario[idx].precioVenta = it.ventaUSD;
+                        window.dbInventario[idx].actualizadoMs = Date.now();
+                        if (it.categoria && (!window.dbInventario[idx].categoria || window.dbInventario[idx].categoria === 'GENERAL')) {
+                            window.dbInventario[idx].categoria = it.categoria;
+                        }
                         if (it.codigo && !window.dbInventario[idx].codigo) {
                             window.dbInventario[idx].codigo = it.codigo;
                         }
                         if (it.foto && !window.dbInventario[idx].foto) {
                             window.dbInventario[idx].foto = it.foto;
                         }
+                        itemsSincronizar.push(window.dbInventario[idx]);
                     } else {
-                        window.dbInventario.push({
-                            id: 'p_' + Date.now() + Math.floor(Math.random()*1000),
+                        const nuevoProd = {
+                            id: 'p_' + Date.now() + '_' + iIdx + '_' + Math.floor(Math.random()*1000),
                             codigo: it.codigo || '',
                             nombre: it.nombre,
+                            categoria: it.categoria || 'GENERAL',
                             desc: `Proveedor: ${op.provNombre}`,
                             precioCosto: it.costoUSD,
                             precioVenta: it.ventaUSD,
-                            stock: it.cant,
+                            stock: Number(it.cant) || 1,
                             unidad: it.unidad || 'UND',
-                            foto: it.foto || ''
-                        });
+                            foto: it.foto || '',
+                            actualizadoMs: Date.now()
+                        };
+                        window.dbInventario.push(nuevoProd);
+                        itemsSincronizar.push(nuevoProd);
                     }
                 });
-                window.guardarInventarioEnStorage();
+                
+                // Forzar guardado local
+                const slugLimpio = (window.clienteActivoSesion && (window.clienteActivoSesion.slug || window.clienteActivoSesion.user)) ? (window.clienteActivoSesion.slug || window.clienteActivoSesion.user).toLowerCase().trim() : 'demo';
+                const keyInv = `tcl_tenant_${slugLimpio}_inventario_2026`;
+                try { localStorage.setItem(keyInv, JSON.stringify(window.dbInventario || [])); } catch(e) {}
+                
+                window.actualizarDatalistsCategorias();
+                if (typeof window.renderizarBarraCategoriasPOS === 'function') window.renderizarBarraCategoriasPOS();
+                if (typeof window.renderizarBarraCategoriasVitrina === 'function') window.renderizarBarraCategoriasVitrina();
                 window.renderizarTablaModalInventario();
                 window.renderizarProductosVitrina();
                 window.recalcularReportesGanancias();
@@ -9186,18 +9281,32 @@ window.abrirModalReporteZ = function() {
 
                 // 2. Registro en Proveedores / Compras
                 window.dbProveedores.unshift(op);
-                window.guardarProveedoresEnStorage();
+                window.tclSafeSetItem(window.getTenantStorageKey('proveedores'), JSON.stringify(window.dbProveedores));
                 window.guardarProveedorEnDirectorio(op.provNombre, op.provTel, op.provDir);
 
                 // 3. Inyección automática al Módulo de Gastos/Egresos para Cierre Diario
-                window.dbGastos.unshift({
+                const nuevoGastoCompra = {
                     id: 'gasto_' + Date.now(),
                     tipo: 'MERCANCIA',
                     desc: `Compra a ${op.provNombre} (${op.items.length} productos)`,
                     montoUSD: op.totalUSD,
                     fechaMs: Date.now()
-                });
-                window.guardarGastosEnStorage();
+                };
+                window.dbGastos.unshift(nuevoGastoCompra);
+                window.tclSafeSetItem(window.getTenantStorageKey('gastos'), JSON.stringify(window.dbGastos));
+
+                // Sincronizar de inmediato cada ítem en Firestore (inventario, proveedores y gastos)
+                if (typeof window.sincronizarTenantConFirebase === 'function') {
+                    try {
+                        await Promise.all([
+                            ...itemsSincronizar.map(prod => window.sincronizarTenantConFirebase('inventario', prod)),
+                            window.sincronizarTenantConFirebase('proveedores', op),
+                            window.sincronizarTenantConFirebase('gastos', nuevoGastoCompra)
+                        ]);
+                    } catch (eSyncCompra) {
+                        console.warn("Aviso sincronización compra:", eSyncCompra);
+                    }
+                }
 
                 // 4. Ejecutar la acción elegida
                 if (accion === 'IMPRIMIR') {
