@@ -2950,14 +2950,21 @@
 // -------------------------------------------------------------
         // MOTOR DE SEGURIDAD: CIERRE DE SESIÓN AUTOMÁTICO (20 MINUTOS)
         // -------------------------------------------------------------
-        window.tiempoInactividad = 0;
         window.limiteInactividadMinutos = 20;
-
-        window.resetTimerInactividad = function() {
-            window.tiempoInactividad = 0;
+        window.getUltimaActividadTimestamp = function() {
+            return parseInt(localStorage.getItem('tcl_ultima_actividad_ts') || '0', 10);
+        };
+        window.setUltimaActividadTimestamp = function() {
+            localStorage.setItem('tcl_ultima_actividad_ts', Date.now().toString());
         };
 
-        // Escuchar actividad del usuario en cualquier parte del sistema
+        window.resetTimerInactividad = function() {
+            if (window.clienteActivoSesion || window.esMasterLogueado) {
+                window.setUltimaActividadTimestamp();
+            }
+        };
+
+        // Escuchar actividad del usuario
         window.addEventListener('mousemove', window.resetTimerInactividad);
         window.addEventListener('keypress', window.resetTimerInactividad);
         window.addEventListener('click', window.resetTimerInactividad);
@@ -2966,14 +2973,18 @@
 
         setInterval(function() {
             if (window.clienteActivoSesion || window.esMasterLogueado) {
-                window.tiempoInactividad++;
-                // Convertimos minutos a segundos para comparar
-                if (window.tiempoInactividad >= window.limiteInactividadMinutos * 60) {
-                    window.tiempoInactividad = 0;
-                    window.cerrarSesionCompleta(true); // Cerrar sesión y avisar
+                const ultimoTs = window.getUltimaActividadTimestamp();
+                if (ultimoTs > 0) {
+                    const diffMinutos = (Date.now() - ultimoTs) / (1000 * 60);
+                    if (diffMinutos >= window.limiteInactividadMinutos) {
+                        localStorage.removeItem('tcl_ultima_actividad_ts');
+                        window.cerrarSesionCompleta(true);
+                    }
+                } else {
+                    window.setUltimaActividadTimestamp();
                 }
             }
-        }, 1000); // Evalúa cada segundo
+        }, 3000);
 
         // -------------------------------------------------------------
         // BLINDAJE CRIPTOGRÁFICO DE CONTRASEÑAS (SHA-256 WEB CRYPTO API)
@@ -2987,31 +2998,6 @@
             return hashArray.map(b => b.toString(16).padStart(2, '0')).join('');
         };
 
-        // -------------------------------------------------------------
-        // MOTOR INDEXEDDB PARA IMÁGENES Y FOTOS (CAPACIDAD > 500 MB)
-        // -------------------------------------------------------------
-        window.dbFotosTCL = null;
-        window.iniciarIndexedDBFotos = function() {
-            return new Promise((resolve) => {
-                if (!window.indexedDB) {
-                    return resolve(false);
-                }
-                const request = indexedDB.open("TCL_Fotos_Storage", 1);
-                request.onupgradeneeded = function(e) {
-                    const db = e.target.result;
-                    if (!db.objectStoreNames.contains("fotos")) {
-                        db.createObjectStore("fotos", { keyPath: "id" });
-                    }
-                };
-                request.onsuccess = function(e) {
-                    window.dbFotosTCL = e.target.result;
-                    resolve(true);
-                };
-                request.onerror = function() {
-                    resolve(false);
-                };
-            });
-        };
 // UTILIDAD DE SANITIZACIÓN XSS
         
         // -------------------------------------------------------------
@@ -3377,6 +3363,7 @@
                             window.carritoPOS.push({
                                 id: prod.id,
                                 nombre: prod.nombre,
+                                costoUSD: (Number(prod.precioCosto) || 0),
                                 precioUSD: (prod.precioVenta || prod.precioUSD || 0),
                                 cant: 1,
                                 unidad: prod.unidad || 'UND',
@@ -4585,11 +4572,12 @@ Tu nueva clave de acceso es: ${nuevaClave}`);
 
             if (loginMasterOk) {
                 window.esMasterLogueado = true;
-                document.getElementById('vista-login').classList.add('hidden');
-                document.getElementById('vista-master-admin').classList.remove('hidden');
-                document.getElementById('diagnostico-master-flotante').classList.remove('hidden');
+                window.activarVistaPrincipal('vista-master-admin');
+                const diagEl = document.getElementById('diagnostico-master-flotante');
+                if (diagEl) { diagEl.classList.remove('hidden'); diagEl.style.removeProperty('display'); }
                 document.getElementById('box-controles-descarga-segura').classList.remove('hidden');
-                document.getElementById('bottom-bar-gerencial').classList.add('hidden');
+                const bbg = document.getElementById('bottom-bar-gerencial');
+                if (bbg) { bbg.classList.add('hidden'); bbg.style.removeProperty('display'); }
                 const lsm = document.getElementById('log-status-master'); if (lsm) lsm.innerText = '[SUCCESS] Sesión Máster autenticada. Caja Negra activa.';
                 window.recalcularTotalesYBadgesComercios();
                 if (typeof window.sincronizarClientesSaaSDesdeFirestore === 'function') window.sincronizarClientesSaaSDesdeFirestore();
@@ -4704,6 +4692,7 @@ Tu nueva clave de acceso es: ${nuevaClave}`);
                     return;
                 }
                 window.clienteActivoSesion = cliente;
+                window.cargarDatosDelComercioActivo();
                 document.getElementById('modal-auth-panel-privado').classList.add('hidden');
                 document.getElementById('bottom-bar-gerencial').classList.add('hidden');
                 if (!cliente.contratoAceptado) {
@@ -4746,7 +4735,7 @@ Tu nueva clave de acceso es: ${nuevaClave}`);
             } else {
                 document.getElementById('banner-mantenimiento-vitrina').classList.add('hidden');
             }
-            window.resetTimerInactividad();
+            localStorage.removeItem('tcl_ultima_actividad_ts'); window.resetTimerInactividad();
             
             if (porInactividad) {
                 alert("🔒 Por su seguridad, la sesión se ha cerrado automáticamente tras 20 minutos de inactividad.");
@@ -4863,6 +4852,56 @@ Tu nueva clave de acceso es: ${nuevaClave}`);
             }
         };
 
+        window.verificarCierreDiarioPendienteAlEntrar = function() {
+            const ventas = window.dbVentas || [];
+            if (ventas.length === 0) return;
+
+            // Encontrar la fecha más antigua con ventas que no tenga un cierre registrado en dbCierres
+            const cierresGuardados = new Set((window.dbCierres || []).map(c => c.fechaStr));
+            
+            // Agrupar fechas con ventas (excluyendo anuladas)
+            const fechasConVentas = {};
+            ventas.forEach(v => {
+                if (v.estado === 'ANULADA') return;
+                const fISO = window.formatearFechaTimestampAISO(v.fechaMs);
+                if (fISO && !cierresGuardados.has(fISO)) {
+                    fechasConVentas[fISO] = true;
+                }
+            });
+
+            const hoyISO = window.obtenerFechaLocalISO();
+            // Buscar la fecha pendiente más antigua que sea menor a hoy
+            const fechasPendientes = Object.keys(fechasConVentas).filter(f => f < hoyISO).sort();
+
+            if (fechasPendientes.length > 0) {
+                const fechaPendiente = fechasPendientes[0];
+                window._fechaCierrePendienteAuto = fechaPendiente;
+
+                const lblFecha = document.getElementById('lbl-fecha-cierre-pendiente');
+                const lblMsg = document.getElementById('lbl-msg-cierre-pendiente');
+                if (lblFecha) lblFecha.innerText = fechaPendiente;
+                if (lblMsg) lblMsg.innerText = `Se detectaron ventas registradas en el turno del día ${fechaPendiente} que aún no han sido cerradas formalmente en la bóveda de cierres.`;
+
+                setTimeout(() => {
+                    const modalRec = document.getElementById('modal-recordatorio-cierre-pendiente');
+                    if (modalRec) modalRec.classList.remove('hidden');
+                }, 800);
+            }
+        };
+
+        window.irACierrePendienteDesdeRecordatorio = function() {
+            const modalRec = document.getElementById('modal-recordatorio-cierre-pendiente');
+            if (modalRec) modalRec.classList.add('hidden');
+
+            const fechaP = window._fechaCierrePendienteAuto || window.obtenerFechaLocalISO();
+            const filtroFecha = document.getElementById('filtro-fecha-reporte-z');
+            if (filtroFecha) filtroFecha.value = fechaP;
+
+            if (typeof window.abrirModalReporteZ === 'function') {
+                window.abrirModalReporteZ();
+            }
+        };
+
         window.abrirPanelClientePrivadoDirecto = function() {
             const cliente = window.clienteActivoSesion || (window.dbClientesSaaS && window.dbClientesSaaS[0]) || null;
             const cpt = document.getElementById('client-panel-title');
@@ -4887,15 +4926,18 @@ Tu nueva clave de acceso es: ${nuevaClave}`);
             const bfc_panel = document.getElementById('barra-flotante-carrito-vitrina');
             if (bfc_panel) { bfc_panel.classList.add('hidden'); bfc_panel.style.display = 'none'; }
             window.actualizarBadgeTotalInventario();
-            
-            window.recalcularReportesGanancias();
+            window.actualizarKPIsPanelCliente();
 
-            // Disparo automático de Apertura de Turno, Tasas del Día y Fondo de Caja Chica al ingresar al Panel
+            // Disparo automático de Apertura de Turno, Tasas del Día, Verificación de Cierre y Fondo de Caja Chica al ingresar al Panel
             setTimeout(() => {
                 if (typeof window.verificarTasaAperturaDia === 'function') {
                     window.verificarTasaAperturaDia();
                 }
-            }, 350);};
+                if (typeof window.verificarCierreDiarioPendienteAlEntrar === 'function') {
+                    window.verificarCierreDiarioPendienteAlEntrar();
+                }
+            }, 350);
+        };
 
         // CONMUTADOR CENTRAL DE VISTAS PRINCIPALES (EVITA PANTALLAS SUPERPUESTAS O BLOQUEADAS)
         window.activarVistaPrincipal = function(idVistaActiva) {
@@ -5004,9 +5046,9 @@ Tu nueva clave de acceso es: ${nuevaClave}`);
                 window.cargarVentaSinDatos();
             window.seleccionarCondicionVentaPOS('CONTADO');
                 
-                document.getElementById('vista-panel-cliente-privado').classList.add('hidden');
-                document.getElementById('vista-pos-fullscreen').classList.remove('hidden');
-                document.getElementById('bottom-bar-gerencial').classList.remove('hidden'); // VISIBLE SOLO EN POS
+                window.activarVistaPrincipal('vista-pos-fullscreen');
+                const bbg = document.getElementById('bottom-bar-gerencial');
+                if (bbg) { bbg.classList.remove('hidden'); bbg.style.removeProperty('display'); } // VISIBLE SOLO EN POS
                 
                 window.seleccionarMonedaCargaPOS('USD');
                 window.seleccionarMonedaPagoVuelto('USD');
@@ -5083,9 +5125,10 @@ Tu nueva clave de acceso es: ${nuevaClave}`);
         };
 
         window.cerrarModuloPOS = function() {
-            document.getElementById('vista-pos-fullscreen').classList.add('hidden');
-            document.getElementById('bottom-bar-gerencial').classList.add('hidden'); // OCULTO AL SALIR DEL POS
-            document.getElementById('vista-panel-cliente-privado').classList.remove('hidden');
+            window.activarVistaPrincipal('vista-panel-cliente-privado');
+            const bbg = document.getElementById('bottom-bar-gerencial');
+            if (bbg) { bbg.classList.add('hidden'); bbg.style.removeProperty('display'); } // OCULTO AL SALIR DEL POS
+            if (typeof window.actualizarKPIsPanelCliente === 'function') window.actualizarKPIsPanelCliente();
         };
 
         window.cambiarModoPOS = function(modo) {
@@ -5471,6 +5514,7 @@ Tu nueva clave de acceso es: ${nuevaClave}`);
                 window.carritoPOS.push({ 
                     id: prod.id, 
                     nombre: prod.nombre, 
+                    costoUSD: (Number(prod.precioCosto) || 0),
                     precioUSD: (prod.precioVenta || prod.precioUSD || 0), 
                     cant: cant, 
                     unidad: prod.unidad || 'UND',
@@ -5483,58 +5527,6 @@ Tu nueva clave de acceso es: ${nuevaClave}`);
         };
 
         
-        // -------------------------------------------------------------
-        // DIRECTORIO INTELIGENTE DE PROVEEDORES AISLADO POR COMERCIO
-        // -------------------------------------------------------------
-        window.dbDirectorioProveedores = [];
-        window.cargarDirectorioProveedores = function() {
-            window.dbDirectorioProveedores = [];
-            if (!window.clienteActivoSesion) return;
-            const slug = window.clienteActivoSesion.slug || 'demo';
-            const guardado = localStorage.getItem(`tcl_tenant_${slug}_directorio_prov_2026`);
-            if (guardado) {
-                try { window.dbDirectorioProveedores = JSON.parse(guardado); } catch(e) { window.dbDirectorioProveedores = []; }
-            }
-            window.actualizarDatalistProveedores();
-        };
-
-        window.guardarDirectorioProveedores = function() {
-            if (!window.clienteActivoSesion) return;
-            const slug = window.clienteActivoSesion.slug || 'demo';
-            localStorage.setItem(`tcl_tenant_${slug}_directorio_prov_2026`, JSON.stringify(window.dbDirectorioProveedores));
-            window.actualizarDatalistProveedores();
-        };
-
-        window.actualizarDatalistProveedores = function() {
-            const dl = document.getElementById('lista-proveedores-guardados');
-            if (!dl) return;
-            dl.innerHTML = (window.dbDirectorioProveedores || []).map(p => `<option value="${p.nombre}">`).join('');
-        };
-
-        window.autocompletarDatosProveedor = function(nombreIngresado) {
-            if (!nombreIngresado) return;
-            const prov = (window.dbDirectorioProveedores || []).find(p => p.nombre.toLowerCase() === nombreIngresado.trim().toLowerCase());
-            if (prov) {
-                const elTel = document.getElementById('prov-input-tel');
-                const elDir = document.getElementById('prov-input-dir');
-                if (elTel && prov.tel) elTel.value = prov.tel;
-                if (elDir && prov.dir) elDir.value = prov.dir;
-            }
-        };
-
-        window.registrarProveedorEnDirectorio = function(nombre, tel, dir) {
-            if (!nombre || !nombre.trim()) return;
-            const nomLimpio = nombre.trim();
-            const idx = (window.dbDirectorioProveedores || []).findIndex(p => p.nombre.toLowerCase() === nomLimpio.toLowerCase());
-            if (idx !== -1) {
-                window.dbDirectorioProveedores[idx].tel = tel || window.dbDirectorioProveedores[idx].tel || '';
-                window.dbDirectorioProveedores[idx].dir = dir || window.dbDirectorioProveedores[idx].dir || '';
-            } else {
-                window.dbDirectorioProveedores.push({ nombre: nomLimpio, tel: tel || '', dir: dir || '' });
-            }
-            window.guardarDirectorioProveedores();
-        };
-
         // -------------------------------------------------------------
         // CÁLCULO EN CALIENTE VENTA LIBRE (SIN INVENTARIO)
         // -------------------------------------------------------------
@@ -5810,18 +5802,31 @@ El inventario será restaurado.`)) {
                 n.items.forEach(it => {
                     if (!it.id.startsWith('libre_')) {
                         const p = window.dbInventario.find(inv => inv.id === it.id);
-                        if (p) p.stock += it.cant;
+                        if (p) {
+                            p.stock = (Number(p.stock) || 0) + (Number(it.cant) || 0);
+                            p.actualizadoMs = Date.now();
+                            if (typeof window.sincronizarTenantConFirebase === 'function') {
+                                window.sincronizarTenantConFirebase('inventario', p);
+                            }
+                        }
                     }
                 });
                 n.estado = 'ANULADA';
+                n.actualizadoMs = Date.now();
                 
                 window.guardarInventarioEnStorage();
                 window.guardarVentasEnStorage();
+                if (typeof window.sincronizarTenantConFirebase === 'function') {
+                    window.sincronizarTenantConFirebase('ventas', n);
+                }
+                if (typeof window.actualizarKPIsPanelCliente === 'function') {
+                    window.actualizarKPIsPanelCliente();
+                }
                 window.renderizarHistorialVentas();
                 window.renderizarProductosVitrina();
                 window.actualizarBadgeTotalInventario();
                 document.getElementById('submodal-opciones-nota').classList.add('hidden');
-                alert("🚫 Nota anulada correctamente.");
+                alert("🚫 Nota anulada correctamente y stock restaurado.");
             }
         };
 
@@ -5834,6 +5839,9 @@ Esta acción no devuelve stock.`)) {
                 window.guardarVentasEnStorage();
                 if (typeof window.eliminarItemDeRaizFirebase === 'function') {
                     await window.eliminarItemDeRaizFirebase('ventas', id);
+                }
+                if (typeof window.actualizarKPIsPanelCliente === 'function') {
+                    window.actualizarKPIsPanelCliente();
                 }
                 window.renderizarHistorialVentas();
                 document.getElementById('submodal-opciones-nota').classList.add('hidden');
@@ -6180,7 +6188,6 @@ Esta acción no devuelve stock.`)) {
             window.actualizarBadgeDisplayDias(window.diasSuscripcionSeleccionados);
         };
 
-        window.formatearMiles = function(val) { return Math.round(val || 0).toString().replace(/\B(?=(\d{3})+(?!\d))/g, "."); };
         window.obtenerFormatoPlanText = function(dias) {
             if (dias <= 7) return `DEMO (${dias} DÍAS)`;
             if (dias >= 365) return '1 AÑO';
@@ -6486,7 +6493,6 @@ Las conversiones a Pesos (COP) y Bolívares (Bs) se sincronizaron con la tasa de
 
         window.mostrarPropuestaDirecta = function() {
             if (typeof window.cargarTarifasSaasStorage === 'function') window.cargarTarifasSaasStorage();
-            if (typeof window.actualizarSimulador === 'function') window.actualizarSimulador(500);
 
             window.cerrarModalZonaPropuesta();
 
@@ -6659,62 +6665,6 @@ Las conversiones a Pesos (COP) y Bolívares (Bs) se sincronizaron con la tasa de
                     vl.classList.remove('hidden');
                     vl.style.setProperty('display', 'flex', 'important');
                 }
-            }
-        };
-
-        // Procesamiento de foto de cédula (Cámara, Galería o PDF liviano) con compresión HD (< 95 KB)
-        window.fotoCedulaBase64 = "";
-        window.cargarFotoCedulaCliente = async function(input) {
-            if (!input.files || !input.files[0]) return;
-            const file = input.files[0];
-            const prevBox = document.getElementById('preview-cedula-box') || document.getElementById('box-preview-cedula');
-            const badge = document.getElementById('badge-cedula-status');
-            const inpBase = document.getElementById('cli-input-cedula-base64');
-
-            if (badge) {
-                badge.innerText = "⏳ OPTIMIZANDO...";
-                badge.className = "text-[9px] text-amber-400 font-mono uppercase font-black bg-amber-950/60 px-2 py-0.5 rounded border border-amber-500/40";
-            }
-
-            try {
-                if (file.type === 'application/pdf') {
-                    if (file.size > 350 * 1024) {
-                        alert("⚠️ El archivo PDF supera los 350 KB. Por favor tome una foto directa con la cámara o seleccione una imagen JPG/PNG.");
-                        if (badge) badge.innerText = "Sin Archivo";
-                        return;
-                    }
-                    const pdfDataUrl = await new Promise((res, rej) => {
-                        const r = new FileReader();
-                        r.onload = ev => res(ev.target.result);
-                        r.onerror = rej;
-                        r.readAsDataURL(file);
-                    });
-                    window.fotoCedulaBase64 = pdfDataUrl;
-                    if (prevBox) prevBox.innerHTML = `<div class="text-center text-red-400 text-xs font-black"><i class="fa-solid fa-file-pdf text-2xl block"></i>PDF</div>`;
-                    if (badge) {
-                        badge.innerText = `✓ PDF LISTO (${Math.round(file.size / 1024)} KB)`;
-                        badge.className = "text-[9px] text-emerald-400 font-mono uppercase font-black bg-emerald-950/60 px-2 py-0.5 rounded border border-emerald-500/40";
-                    }
-                    if (inpBase) inpBase.value = window.fotoCedulaBase64;
-                    return;
-                }
-
-                // Comprimir imagen HD manteniendo nitidez de lectura de cédula/RIF por debajo de 95 KB
-                const { base64, pesoKB } = await window.comprimirImagenAdaptativa(file, 760, 95 * 1024);
-                window.fotoCedulaBase64 = base64;
-
-                if (prevBox) {
-                    prevBox.innerHTML = `<img src="${window.fotoCedulaBase64}" class="w-full h-full object-cover rounded-xl border border-blue-400/50 shadow-md">`;
-                }
-                if (badge) {
-                    badge.innerText = `✓ FOTO HD (${pesoKB} KB)`;
-                    badge.className = "text-[9px] text-emerald-400 font-mono uppercase font-black bg-emerald-950/60 px-2 py-0.5 rounded border border-emerald-500/40";
-                }
-                if (inpBase) inpBase.value = window.fotoCedulaBase64;
-            } catch (errFoto) {
-                console.warn("Error procesando foto de cédula:", errFoto);
-                alert("⚠️ No se pudo procesar la imagen. Intente tomar la foto nuevamente.");
-                if (badge) badge.innerText = "Error Archivo";
             }
         };
 
@@ -7014,23 +6964,6 @@ Las conversiones a Pesos (COP) y Bolívares (Bs) se sincronizaron con la tasa de
         };
 
 
-        window.actualizarSimulador = function(val) {
-            const volumen = parseInt(val);
-            const display = document.getElementById('slider-val-display');
-            const vol = document.getElementById('sim-volumen');
-            const tiempo = document.getElementById('sim-tiempo');
-            const papel = document.getElementById('sim-papel');
-
-            if (display) display.innerText = volumen + ' NOTAS AL MES';
-            if (vol) vol.innerText = volumen + ' Notas';
-            
-            const horas = Math.round((volumen / 500) * 16);
-            const ahorroPapel = ((volumen / 500) * 35).toFixed(2);
-
-            if (tiempo) tiempo.innerText = horas + ' Horas';
-            if (papel) papel.innerText = '$' + ahorroPapel + ' USD';
-        };
-
         window.cargarClientesDesdeStorage = function() {
             const guardados = localStorage.getItem(window.STORAGE_KEY_SAAS_CLIENTES) || localStorage.getItem('tcl_master_db_2026');
             if (guardados) { 
@@ -7237,6 +7170,13 @@ Las conversiones a Pesos (COP) y Bolívares (Bs) se sincronizaron con la tasa de
             window.actualizarResumenCarrito();
         };
 
+        window.agregarAlCarritoPorId = function(prodId) {
+            const p = (window.dbInventario || []).find(item => item.id === prodId);
+            if (!p) return;
+            const precioUSD = p.precioVenta || p.precioUSD || 0;
+            window.agregarAlCarrito(p.nombre, precioUSD);
+        };
+
         window.cambiarCantidadCarrito = function(index, delta) {
             if (window.carritoTienda[index]) {
                 window.carritoTienda[index].cant += delta;
@@ -7396,8 +7336,8 @@ $${(item.precioUSD * item.cant).toFixed(2)} USD
                                     ${p.foto ? `<img src="${p.foto}" class="w-full h-full object-cover">` : `<i class="fa-solid fa-box-open"></i>`}
                                     ${!disponible ? `<span class="absolute top-2 right-2 bg-red-600 text-white font-black text-[8px] sm:text-[9px] px-2 py-0.5 rounded-lg uppercase shadow">Agotado</span>` : (p.unidad === 'KG' ? `<span class="absolute top-2 right-2 bg-emerald-600 text-white font-black text-[8px] sm:text-[9px] px-2 py-0.5 rounded-lg uppercase font-mono shadow">${(Number(p.stock)||0).toFixed(p.stock % 1 === 0 ? 0 : 2)} Kg Disponibles</span>` : `<span class="absolute top-2 right-2 bg-emerald-600 text-white font-black text-[8px] sm:text-[9px] px-2 py-0.5 rounded-lg uppercase font-mono shadow">${p.stock} Disponibles</span>`)}
                                 </div>
-                                <h3 class="font-black text-slate-900 text-[11px] sm:text-xs uppercase truncate pt-1">${p.nombre} ${p.unidad === 'KG' ? '<span class="text-[9px] text-amber-600 bg-amber-50 px-1 py-0.5 rounded border border-amber-200">/ Kg</span>' : ''}</h3>
-                                <p class="text-[9px] sm:text-[10px] text-slate-500 leading-tight line-clamp-2">${p.desc || ''}</p>
+                                <h3 class="font-black text-slate-900 text-[11px] sm:text-xs uppercase truncate pt-1">${window.escapeHTML(p.nombre)} ${p.unidad === 'KG' ? '<span class="text-[9px] text-amber-600 bg-amber-50 px-1 py-0.5 rounded border border-amber-200">/ Kg</span>' : ''}</h3>
+                                <p class="text-[9px] sm:text-[10px] text-slate-500 leading-tight line-clamp-2">${window.escapeHTML(p.desc || '')}</p>
                             </div>
                             <div class="space-y-2 pt-1.5 border-t border-slate-100 font-mono">
                                 <div class="text-[11px] sm:text-xs space-y-0.5">
@@ -7406,7 +7346,7 @@ $${(item.precioUSD * item.cant).toFixed(2)} USD
                                     ${window.monedasVisibles.bs ? `<div class="text-slate-500 font-bold text-[9.5px]">${window.formatBS(bs)} Bs</div>` : ''}
                                 </div>
                                 ${disponible ? `
-                                    <button onclick="window.agregarAlCarrito('${p.nombre}', ${venta})" class="btn-brand w-full py-2 sm:py-2.5 text-[9.5px] sm:text-xs flex items-center justify-center gap-1 shadow-sm">
+                                    <button onclick="window.agregarAlCarritoPorId('${window.escapeHTML(p.id)}')" class="btn-brand w-full py-2 sm:py-2.5 text-[9.5px] sm:text-xs flex items-center justify-center gap-1 shadow-sm">
                                         <i class="fa-solid fa-cart-plus"></i> AGREGAR
                                     </button>
                                 ` : `
@@ -7581,8 +7521,8 @@ $${(item.precioUSD * item.cant).toFixed(2)} USD
                 <div class="card-light p-4 space-y-3 ${esVencido ? 'border-red-300 bg-red-50/10' : (esDemo ? 'border-purple-300 bg-purple-50/10' : 'border-slate-200')} shadow-sm relative w-full">
                     <div class="flex justify-between items-start gap-2">
                         <div class="min-w-0 flex-1">
-                            <h4 class="font-black text-slate-900 text-[13px] sm:text-sm uppercase tracking-tight leading-tight line-clamp-2 break-words w-full pr-1">${c.nombre}</h4>
-                            <span class="text-[10px] sm:text-[10.5px] text-blue-600 font-mono font-bold block truncate w-full">/${c.slug}</span>
+                            <h4 class="font-black text-slate-900 text-[13px] sm:text-sm uppercase tracking-tight leading-tight line-clamp-2 break-words w-full pr-1">${window.escapeHTML(c.nombre)}</h4>
+                            <span class="text-[10px] sm:text-[10.5px] text-blue-600 font-mono font-bold block truncate w-full">/${window.escapeHTML(c.slug)}</span>
                         </div>
                         <div class="flex flex-col items-end gap-1 shrink-0 max-w-[40%]">
                             <span class="${esDemo ? 'bg-purple-100 text-purple-900 border-purple-300' : 'bg-blue-50 text-blue-700 border-blue-200'} border text-[8px] sm:text-[9px] font-black uppercase px-2 py-0.5 rounded-lg text-center break-words w-full">
@@ -7606,7 +7546,7 @@ $${(item.precioUSD * item.cant).toFixed(2)} USD
                         <button onclick="window.verExpedienteKYCCliente('${c.id}')" class="bg-amber-50 hover:bg-amber-100 text-amber-900 font-black text-[10px] py-2 rounded-xl uppercase border border-amber-200 flex items-center justify-center gap-1"><i class="fa-solid fa-id-card"></i> KYC</button>
                         <button onclick="window.editarClienteDirectoDesdeModal('${c.id}')" class="bg-slate-100 hover:bg-slate-200 text-slate-700 font-black text-[10px] py-2 rounded-xl uppercase border border-slate-300 flex items-center justify-center gap-1"><i class="fa-solid fa-gear"></i> EDITAR</button>
                         ${c.estatus === 'ACTIVO' ? `
-                            <button onclick="window.entrarEnCalienteCliente('${c.slug}', '${c.nombre}')" class="bg-slate-950 hover:bg-slate-800 text-white font-black text-[10px] py-2 rounded-xl flex items-center justify-center gap-1 shadow-md"><i class="fa-solid fa-right-to-bracket text-amber-400"></i> Entrar</button>
+                            <button onclick="window.entrarEnCalienteCliente('${window.escapeHTML(c.slug)}')" class="bg-slate-950 hover:bg-slate-800 text-white font-black text-[10px] py-2 rounded-xl flex items-center justify-center gap-1 shadow-md"><i class="fa-solid fa-right-to-bracket text-amber-400"></i> Entrar</button>
                         ` : `
                             <button onclick="window.reactivarClienteDesdePapelera('${c.id}')" class="bg-emerald-600 hover:bg-emerald-500 text-white font-black text-[10px] py-2 rounded-xl flex items-center justify-center gap-1 shadow-md"><i class="fa-solid fa-rotate-left"></i> Reactivar</button>
                             <button onclick="window.eliminarClienteDefinitivoPermanente('${c.id}')" class="bg-red-600 hover:bg-red-500 text-white font-black text-[10px] py-2 rounded-xl flex items-center justify-center gap-1 shadow-md transition-all active:scale-95"><i class="fa-solid fa-trash-can"></i> Borrar</button>
@@ -7760,35 +7700,9 @@ $${(item.precioUSD * item.cant).toFixed(2)} USD
         };
 
         window.recalcularReportesGanancias = function() {
-            let totalCosto = 0, totalVenta = 0;
-            (window.dbInventario || []).forEach(p => {
-                const costo = p.precioCosto || 0, venta = p.precioVenta || p.precioUSD || 0, stk = p.stock || 0;
-                totalCosto += (costo * stk); totalVenta += (venta * stk);
-            });
-            const gananciaNeta = totalVenta - totalCosto;
-            const c1 = document.getElementById('rpt-total-costo');
-            const c2 = document.getElementById('rpt-total-venta');
-            const c3 = document.getElementById('rpt-ganancia-neta');
-            if (c1) c1.innerText = `$${totalCosto.toFixed(2)} USD`;
-            if (c2) c2.innerText = `$${totalVenta.toFixed(2)} USD`;
-            if (c3) c3.innerText = `$${gananciaNeta.toFixed(2)} USD`;
-        };
-
-        window.actualizarConfiguracionMonedasCliente = function() {
-            window.monedasVisibles.usd = document.getElementById('chk-show-usd').checked;
-            window.monedasVisibles.cop = document.getElementById('chk-show-cop').checked;
-            window.monedasVisibles.bs = document.getElementById('chk-show-bs').checked;
-            window.tasasConfig.cop = parseFloat(document.getElementById('inv-tasa-cop').value) || 3600;
-            window.tasasConfig.paridadBs = parseFloat(document.getElementById('inv-tasa-bs').value) || 3.3;
-            localStorage.setItem('tcl_tasas_globales_fijadas_2026', JSON.stringify(window.tasasConfig));
-            if (window.clienteActivoSesion) {
-                window.clienteActivoSesion.tasas = { ...window.tasasConfig };
-                window.guardarClientesEnStorage();
+            if (typeof window.actualizarKPIsPanelCliente === 'function') {
+                window.actualizarKPIsPanelCliente();
             }
-            window.renderizarProductosVitrina();
-            if (typeof window.recalcularTarifasSaasModal === 'function') window.recalcularTarifasSaasModal();
-            if (typeof window.actualizarEtiquetasTasasEncabezados === 'function') window.actualizarEtiquetasTasasEncabezados();
-            if (typeof window.renderizarTarifasEnPropuesta === 'function') window.renderizarTarifasEnPropuesta();
         };
 
         window.openWhatsAppDirectQuery = function() { const telComercio = (window.clienteActivoSesion && window.clienteActivoSesion.wa) ? window.clienteActivoSesion.wa.toString().replace(/[^0-9]/g, '') : ''; const nomCom = (window.clienteActivoSesion && window.clienteActivoSesion.nombre) ? window.clienteActivoSesion.nombre : 'el comercio'; window.despacharWhatsApp(telComercio, `¡Hola *${nomCom}*! Quisiera consultar disponibilidad de productos en su catálogo web.`); };
@@ -8213,12 +8127,12 @@ $${(item.precioUSD * item.cant).toFixed(2)} USD
                 msj += `🏢 Local: *${nombreNegocio}*\n`;
                 msj += `📅 Fecha: ${datos.targetDateStr}\n`;
                 msj += `------------------------------------\n`;
-                msj += `💰 *TOTAL GENERAL DEL DÍA:*\n`;
-                msj += `• USD: $${datos.totalVentasUSD.toFixed(2)} USD\n`;
-                msj += `• COP: ${window.formatearMiles(totalCOP)} COP\n`;
-                msj += `• Bs: ${window.formatBS(totalBs)} Bs (Paridad ${window.tasasConfig.paridadBs})\n`;
-                msj += `• Egresos/Gastos: -$${datos.totalGastosUSD.toFixed(2)} USD\n`;
-                msj += `💵 *FLUJO NETO EN CAJA: $${datos.flujoCajaNeto.toFixed(2)} USD*\n`;
+                msj += `💰 *DISTRIBUCIÓN DEL DÍA:*\n`;
+                msj += `• Total Vendido: $${datos.totalVentasUSD.toFixed(2)} USD (${window.formatearMiles(totalCOP)} COP | ${window.formatBS(totalBs)} Bs)\n`;
+                msj += `• 📦 Apartar para Reponer Mercancía: $${(datos.costoReposicionUSD || 0).toFixed(2)} USD\n`;
+                msj += `• 📉 Gastos Operativos: -$${datos.totalGastosUSD.toFixed(2)} USD\n`;
+                msj += `• 💎 *GANANCIA LIBRE PARA TI: $${(datos.gananciaLibreUSD || 0).toFixed(2)} USD*\n`;
+                msj += `• 💵 Efectivo en Gaveta: $${(datos.efectivoEsperadoGaveta || 0).toFixed(2)} USD\n`;
                 msj += `------------------------------------\n`;
                 msj += `👥 *DESGLOSE POR VENDEDOR:*\n\n`;
 
@@ -8250,6 +8164,23 @@ window.abrirModalReporteZ = function() {
             document.getElementById('modal-reporte-z').classList.remove('hidden');
         };
 
+        // Cálculo del Fondo de Reposición (costo de mercancía vendida para volver a surtir)
+        window.calcularCostoReposicionVentas = function(listaVentas) {
+            let totalReposicion = 0;
+            (listaVentas || []).forEach(v => {
+                (v.items || []).forEach(it => {
+                    const cant = Number(it.cant) || 0;
+                    let costoUnit = Number(it.costoUSD);
+                    if (isNaN(costoUnit) || costoUnit <= 0) {
+                        const prodInv = (window.dbInventario || []).find(p => p.id === it.id || (p.nombre && it.nombre && p.nombre.toLowerCase() === it.nombre.toLowerCase()));
+                        costoUnit = prodInv ? (Number(prodInv.precioCosto) || 0) : 0;
+                    }
+                    totalReposicion += (costoUnit * cant);
+                });
+            });
+            return totalReposicion;
+        };
+
         window.obtenerDatosCierreDia = function() {
             const fechaVal = document.getElementById('filtro-fecha-reporte-z').value;
             if (!fechaVal) return null;
@@ -8260,13 +8191,23 @@ window.abrirModalReporteZ = function() {
                 return vDateStr === fechaVal && v.estado !== 'ANULADA';
             });
 
+            // Filtrar solo gastos operativos reales (excluyendo compras de mercancía para surtir inventario)
             const gastosDia = window.dbGastos.filter(g => {
                 const gDateStr = window.formatearFechaTimestampAISO(g.fechaMs);
-                return gDateStr === fechaVal;
+                const esCompraAuto = (g.tipo === 'MERCANCIA' && (g.desc || '').startsWith('Compra a '));
+                return gDateStr === fechaVal && !esCompraAuto;
+            });
+
+            const comprasDia = (window.dbProveedores || []).filter(c => {
+                const cDateStr = window.formatearFechaTimestampAISO(c.fechaMs);
+                return cDateStr === fechaVal;
             });
 
             const totalVentasUSD = ventasDia.reduce((acc, v) => acc + v.totalUSD, 0);
             const totalGastosUSD = gastosDia.reduce((acc, g) => acc + g.montoUSD, 0);
+            const totalComprasDiaUSD = comprasDia.reduce((acc, c) => acc + (c.totalUSD || c.totalInversionUSD || 0), 0);
+            const costoReposicionUSD = window.calcularCostoReposicionVentas(ventasDia);
+            const gananciaLibreUSD = totalVentasUSD - costoReposicionUSD - totalGastosUSD;
             const flujoCajaNeto = totalVentasUSD - totalGastosUSD;
 
             // Recuperar base inicial de efectivo guardada para esta fecha
@@ -8275,20 +8216,28 @@ window.abrirModalReporteZ = function() {
 
             const metodos = {};
             let totalEfectivoUSD = 0;
+            let totalDigitalUSD = 0;
             ventasDia.forEach(v => {
                 const m = v.pago || 'Otro';
                 metodos[m] = (metodos[m] || 0) + v.totalUSD;
                 if (m.toLowerCase().includes('efectivo') || m.toLowerCase().includes('dólares') || m.toLowerCase().includes('usd')) {
                     totalEfectivoUSD += v.totalUSD;
+                } else if (v.desgloseMixto) {
+                    const efMix = (Number(v.desgloseMixto.abonoUSD) || 0);
+                    totalEfectivoUSD += efMix;
+                    totalDigitalUSD += Math.max(0, v.totalUSD - efMix);
+                } else {
+                    totalDigitalUSD += v.totalUSD;
                 }
             });
 
             const efectivoEsperadoGaveta = baseCajaInicial + totalEfectivoUSD - totalGastosUSD;
 
             return { 
-                fechaVal, targetDateStr, ventasDia, gastosDia, 
-                totalVentasUSD, totalGastosUSD, flujoCajaNeto, 
-                baseCajaInicial, totalEfectivoUSD, efectivoEsperadoGaveta, 
+                fechaVal, targetDateStr, ventasDia, gastosDia, comprasDia,
+                totalVentasUSD, totalGastosUSD, totalComprasDiaUSD,
+                costoReposicionUSD, gananciaLibreUSD, flujoCajaNeto, 
+                baseCajaInicial, totalEfectivoUSD, totalDigitalUSD, efectivoEsperadoGaveta, 
                 metodos 
             };
         };
@@ -8319,21 +8268,60 @@ window.abrirModalReporteZ = function() {
             `).join('');
 
             container.innerHTML = `
-                <div class="bg-slate-50 p-4 rounded-2xl border border-slate-200 space-y-3">
+                <div class="bg-slate-50 p-4 rounded-2xl border border-slate-200 space-y-3.5">
                     <div class="text-center border-b border-slate-200 pb-2">
                         <h4 class="font-black text-sm uppercase text-slate-900">${(window.clienteActivoSesion ? window.clienteActivoSesion.nombre : 'TUCOCEL C.A.').toUpperCase()}</h4>
                         <p class="text-[10px] text-slate-500">CIERRE DIARIO DE CAJA — CUADRE DE TURNO</p>
                         <p class="text-[10px] font-bold text-blue-600">Fecha Evaluada: ${datos.targetDateStr}</p>
                     </div>
 
-                    <div class="grid grid-cols-2 sm:grid-cols-4 gap-2 text-center font-mono">
-                        <div class="bg-amber-50 p-2 rounded-xl border border-amber-200"><span class="text-[8.5px] text-amber-800 block font-black uppercase">Base Inicial</span><span class="text-xs font-black text-amber-900">$${(datos.baseCajaInicial || 0).toFixed(2)} USD</span></div>
-                        <div class="bg-white p-2 rounded-xl border border-slate-200"><span class="text-[8.5px] text-slate-400 block font-bold uppercase">Facturado</span><span class="text-xs font-black text-emerald-600">$${datos.totalVentasUSD.toFixed(2)} USD</span></div>
-                        <div class="bg-white p-2 rounded-xl border border-slate-200"><span class="text-[8.5px] text-slate-400 block font-bold uppercase">Egresos</span><span class="text-xs font-black text-rose-600">-$${datos.totalGastosUSD.toFixed(2)} USD</span></div>
-                        <div class="bg-emerald-50 p-2 rounded-xl border border-emerald-300"><span class="text-[8.5px] text-emerald-800 block font-black uppercase">Efectivo en Gaveta</span><span class="text-xs font-black text-emerald-700">$${(datos.efectivoEsperadoGaveta || datos.flujoCajaNeto).toFixed(2)} USD</span></div>
+                    <!-- BLOQUE 1: DISTRIBUCIÓN CLARA DE TU DINERO (REPOSICIÓN VS GANANCIA LIBRE) -->
+                    <div class="bg-white p-3.5 rounded-2xl border-2 border-emerald-300 shadow-xs space-y-2.5">
+                        <div class="flex items-center justify-between border-b border-slate-100 pb-1.5">
+                            <span class="text-[10px] font-black uppercase text-slate-800 tracking-wider flex items-center gap-1.5">
+                                <i class="fa-solid fa-piggy-bank text-emerald-600"></i> ¿Cómo se divide lo que vendiste hoy?
+                            </span>
+                            <span class="text-[9px] text-slate-400 font-bold">Auto-calculado</span>
+                        </div>
+                        <div class="grid grid-cols-2 sm:grid-cols-4 gap-2 text-center font-mono">
+                            <div class="bg-slate-50 p-2 rounded-xl border border-slate-200">
+                                <span class="text-[8px] text-slate-500 block font-black uppercase">1. Total Vendido</span>
+                                <span class="text-xs sm:text-sm font-black text-slate-900">$${datos.totalVentasUSD.toFixed(2)}</span>
+                                <span class="text-[8px] text-slate-400 block">${window.formatCOP(totalCOP)} COP</span>
+                            </div>
+                            <div class="bg-amber-50 p-2 rounded-xl border border-amber-300">
+                                <span class="text-[8px] text-amber-900 block font-black uppercase">2. Reponer Mercancía</span>
+                                <span class="text-xs sm:text-sm font-black text-amber-700">$${datos.costoReposicionUSD.toFixed(2)}</span>
+                                <span class="text-[8px] text-amber-800/80 block font-sans">Para volver a surtir</span>
+                            </div>
+                            <div class="bg-rose-50 p-2 rounded-xl border border-rose-200">
+                                <span class="text-[8px] text-rose-800 block font-black uppercase">3. Gastos del Día</span>
+                                <span class="text-xs sm:text-sm font-black text-rose-600">-$${datos.totalGastosUSD.toFixed(2)}</span>
+                                <span class="text-[8px] text-rose-700/80 block font-sans">Salidas operativas</span>
+                            </div>
+                            <div class="bg-emerald-600 text-white p-2 rounded-xl shadow-sm">
+                                <span class="text-[8px] text-emerald-100 block font-black uppercase">4. Ganancia Libre</span>
+                                <span class="text-xs sm:text-sm font-black text-white">$${datos.gananciaLibreUSD.toFixed(2)}</span>
+                                <span class="text-[8px] text-emerald-100 block font-sans">Libre para ti</span>
+                            </div>
+                        </div>
+                        ${datos.totalComprasDiaUSD > 0 ? `
+                            <div class="bg-blue-50/80 border border-blue-200 rounded-xl px-2.5 py-1.5 text-[9.5px] text-blue-900 font-sans flex items-center justify-between">
+                                <span><i class="fa-solid fa-truck-ramp-box text-blue-600 mr-1"></i> Mercancía cargada hoy a inventario:</span>
+                                <strong class="font-mono">$${datos.totalComprasDiaUSD.toFixed(2)} USD (No se resta como gasto)</strong>
+                            </div>
+                        ` : ''}
                     </div>
 
-                    <div class="space-y-1 pt-2">
+                    <!-- BLOQUE 2: CUADRE FÍSICO DE GAVETA Y BANCOS -->
+                    <div class="grid grid-cols-2 sm:grid-cols-4 gap-2 text-center font-mono">
+                        <div class="bg-white p-2 rounded-xl border border-slate-200"><span class="text-[8.5px] text-slate-500 block font-black uppercase">Base Inicial</span><span class="text-xs font-black text-slate-800">$${(datos.baseCajaInicial || 0).toFixed(2)} USD</span></div>
+                        <div class="bg-white p-2 rounded-xl border border-slate-200"><span class="text-[8.5px] text-slate-500 block font-bold uppercase">Efectivo Ventas</span><span class="text-xs font-black text-emerald-600">$${(datos.totalEfectivoUSD || 0).toFixed(2)} USD</span></div>
+                        <div class="bg-white p-2 rounded-xl border border-slate-200"><span class="text-[8.5px] text-slate-500 block font-bold uppercase">Digital / Bancos</span><span class="text-xs font-black text-blue-600">$${(datos.totalDigitalUSD || 0).toFixed(2)} USD</span></div>
+                        <div class="bg-emerald-50 p-2 rounded-xl border border-emerald-300"><span class="text-[8.5px] text-emerald-800 block font-black uppercase">Efectivo en Gaveta</span><span class="text-xs font-black text-emerald-700">$${(datos.efectivoEsperadoGaveta || 0).toFixed(2)} USD</span></div>
+                    </div>
+
+                    <div class="space-y-1 pt-1">
                         <span class="text-[10px] font-black uppercase text-slate-500 tracking-wider block">Desglose por Formas de Pago:</span>
                         ${metodosHtml || '<p class="text-slate-400 text-center py-2">No hubo ventas registradas este día.</p>'}
                     </div>
@@ -8346,102 +8334,11 @@ window.abrirModalReporteZ = function() {
                     </div>
 
                     <div class="space-y-1 pt-2 border-t border-slate-200 text-[10.5px]">
-                        <p><strong>• Equivalente en Pesos (COP):</strong> ${window.formatearMiles(totalCOP)} COP</p>
-                        <p><strong>• Equivalente en Bolívares (Bs):</strong> ${window.formatBS(totalBs)} Bs</p>
+                        <p><strong>• Equivalente Total Vendido en Pesos (COP):</strong> ${window.formatearMiles(totalCOP)} COP</p>
+                        <p><strong>• Equivalente Total Vendido en Bolívares (Bs):</strong> ${window.formatBS(totalBs)} Bs</p>
                     </div>
                 </div>
             `;
-        };
-
-        window.hacerCierreDelDiaDirecto = function() {
-            const datos = window.obtenerDatosCierreDia();
-            if (!datos) return;
-
-            const registro = {
-                id: 'cie_' + Date.now(),
-                fechaStr: datos.targetDateStr,
-                totalVentasUSD: datos.totalVentasUSD,
-                totalGastosUSD: datos.totalGastosUSD,
-                flujoCajaNeto: datos.flujoCajaNeto,
-                cantNotas: datos.ventasDia.length,
-                cantGastos: datos.gastosDia.length,
-                metodos: datos.metodos,
-                timestamp: Date.now()
-            };
-
-            window.dbCierres.unshift(registro);
-            window.guardarCierresEnStorage();
-            alert(`🔒 Cierre Diario de Caja para ${datos.targetDateStr} guardado formalmente en el sistema.`);
-        };
-
-        window.imprimirReporteZ = function() {
-            const datos = window.obtenerDatosCierreDia();
-            if (!datos) return;
-
-            const totalCOP = window.calcularPesosDesdeUSD(datos.totalVentasUSD);
-            const totalBs = window.calcularBsDesdeUSD(datos.totalVentasUSD);
-
-            const printDirecto = document.getElementById('seccion-impresion-termica-directa');
-            const htmlReporte = `
-                <div style="text-align: center; font-family: monospace; color: #000;">
-                    <h2 style="font-size: 13px; font-weight: 900; margin: 0;">${(window.clienteActivoSesion ? window.clienteActivoSesion.nombre : 'TUCOCEL C.A.').toUpperCase()}</h2>
-                    <p style="font-size: 9px; margin: 2px 0;">CIERRE DIARIO DE CAJA (CUADRE DE TURNO)</p>
-                    <p style="font-size: 9px; font-weight: bold; margin: 4px 0; border-top: 1px dashed #000; border-bottom: 1px dashed #000; padding: 2px 0;">FECHA: ${datos.targetDateStr}</p>
-                </div>
-                <div style="margin: 8px 0; font-size: 9.5px; font-family: monospace; color: #000; line-height: 1.4;">
-                    <p><strong>TOTAL FACTURADO:</strong> $${datos.totalVentasUSD.toFixed(2)} USD</p>
-                    <p><strong>TOTAL EGRESOS:</strong> $${datos.totalGastosUSD.toFixed(2)} USD</p>
-                    <p><strong>FLUJO NETO:</strong> $${datos.flujoCajaNeto.toFixed(2)} USD</p>
-                    <p><strong>TOTAL COP:</strong> ${window.formatearMiles(totalCOP)}</p>
-                    <p><strong>TOTAL BS:</strong> ${window.formatBS(totalBs)}</p>
-                    <p><strong>NOTAS EMITIDAS:</strong> ${datos.ventasDia.length}</p>
-                    <p><strong>EGRESOS REGISTRADOS:</strong> ${datos.gastosDia.length}</p>
-                </div>
-                <div style="text-align: center; font-size: 8px; font-family: monospace; border-top: 1px dashed #000; padding-top: 6px; color: #000;">
-                    <p>Cierre Oficial Generado por el Sistema</p>
-                    <p style="font-weight: 900; font-size: 8.5px;">Sistema TCL Comercio — Un Programa de TUCOCEL C.A. & PublionlineMK</p>
-                </div>
-            `;
-
-            if (printDirecto) {
-                printDirecto.innerHTML = htmlReporte;
-                window.print();
-            }
-        };
-
-        window.enviarReporteZWhatsApp = function() {
-            const datos = window.obtenerDatosCierreDia();
-            if (!datos) return;
-
-            const totalCOP = window.calcularPesosDesdeUSD(datos.totalVentasUSD);
-            const totalBs = window.calcularBsDesdeUSD(datos.totalVentasUSD);
-
-            let msj = `📊 *CIERRE DIARIO DE CAJA — CUADRE DE TURNO*
-`;
-            msj += `🏢 Local: ${(window.clienteActivoSesion ? window.clienteActivoSesion.nombre : 'TUCOCEL C.A.').toUpperCase()}
-`;
-            msj += `📅 Fecha: ${datos.targetDateStr}
-`;
-            msj += `------------------------------------
-`;
-            msj += `💰 *Ventas Totales:* $${datos.totalVentasUSD.toFixed(2)} USD
-`;
-            msj += `🇨🇴 Total COP: ${window.formatearMiles(totalCOP)} COP
-`;
-            msj += `🇻🇪 Total Bs: ${window.formatBS(totalBs)} Bs
-`;
-            msj += `📉 *Gastos y Egresos:* $${datos.totalGastosUSD.toFixed(2)} USD
-`;
-            msj += `💵 *Flujo Neto en Caja:* $${datos.flujoCajaNeto.toFixed(2)} USD
-`;
-            msj += `📄 *Notas Facturadas:* ${datos.ventasDia.length}
-`;
-            msj += `------------------------------------
-`;
-            msj += `¡Cierre de caja consolidado exitosamente!
-*Sistema TCL Comercio — TUCOCEL C.A. & PublionlineMK*`;
-
-            window.despacharWhatsApp('', msj);
         };
 
         // GASTOS CON CÁPSULA [VER]
@@ -8475,7 +8372,7 @@ window.abrirModalReporteZ = function() {
             const inp = document.getElementById('gasto-input-monto');
             const boxPrev = document.getElementById('box-gasto-equivalente-preview');
             const lblCalc = document.getElementById('lbl-gasto-calc-usd');
-            const val = parseFloat(inp ? inp.value : 0) || 0;
+            const val = window.limpiarMontoManual(inp ? inp.value : 0) || 0;
 
             if (window.monedaGastoActual === 'USD' || val <= 0) {
                 if (boxPrev) boxPrev.classList.add('hidden');
@@ -8502,7 +8399,7 @@ window.abrirModalReporteZ = function() {
         window.guardarNuevoGasto = function() {
             const tipo = document.getElementById('gasto-input-tipo').value;
             const desc = document.getElementById('gasto-input-desc').value.trim();
-            const montoIngresado = parseFloat(document.getElementById('gasto-input-monto').value) || 0;
+            const montoIngresado = window.limpiarMontoManual(document.getElementById('gasto-input-monto').value) || 0;
 
             if (!desc || montoIngresado <= 0) { 
                 alert("⚠️ Ingrese una descripción válida y un monto mayor a 0."); 
@@ -8516,7 +8413,7 @@ window.abrirModalReporteZ = function() {
                 montoUSD = window.calcularUSDDesdeBs(montoIngresado);
             }
 
-            window.dbGastos.unshift({ 
+            const nuevoGastoObj = { 
                 id: 'gasto_' + Date.now(), 
                 tipo, 
                 desc, 
@@ -8524,15 +8421,25 @@ window.abrirModalReporteZ = function() {
                 montoOriginal: montoIngresado,
                 montoUSD: montoUSD, 
                 fechaMs: Date.now() 
-            });
+            };
+            window.dbGastos.unshift(nuevoGastoObj);
 
             window.guardarGastosEnStorage();
+            if (typeof window.sincronizarTenantConFirebase === 'function') {
+                window.sincronizarTenantConFirebase('gastos', nuevoGastoObj);
+            }
+            if (typeof window.actualizarKPIsPanelCliente === 'function') {
+                window.actualizarKPIsPanelCliente();
+            }
             document.getElementById('gasto-input-desc').value = '';
             document.getElementById('gasto-input-monto').value = '';
             const boxPrev = document.getElementById('box-gasto-equivalente-preview');
             if (boxPrev) boxPrev.classList.add('hidden');
             window.renderizarListaGastos();
-            alert(`✅ Salida de dinero registrada:\n• Moneda: ${window.monedaGastoActual}\n• Monto: ${montoIngresado}\n• Equivalente Contable: $${montoUSD.toFixed(2)} USD`);
+            const montoFormateado = window.monedaGastoActual === 'COP'
+                ? `${window.formatCOP(montoIngresado)} COP`
+                : (window.monedaGastoActual === 'BS' ? `${window.formatBS(montoIngresado)} Bs` : `$${montoIngresado.toFixed(2)} USD`);
+            alert(`✅ Salida de dinero registrada:\n• Moneda: ${window.monedaGastoActual}\n• Monto: ${montoFormateado}\n• Equivalente Contable: $${montoUSD.toFixed(2)} USD`);
         };
 
         window.renderizarListaGastos = function() {
@@ -8689,6 +8596,7 @@ window.abrirModalReporteZ = function() {
                         window.carritoPOS.push({
                             id: prod.id,
                             nombre: prod.nombre,
+                            costoUSD: (Number(prod.precioCosto) || 0),
                             precioUSD: (prod.precioVenta || prod.precioUSD || 0),
                             cant: 1,
                             unidad: prod.unidad || 'UND',
@@ -9147,6 +9055,9 @@ window.abrirModalReporteZ = function() {
             window.carritoCompras = [];
             window.seleccionarMonedaCargaCompra('USD');
             window.renderizarCarritoCompras();
+            const badge = document.getElementById('badge-cnt-compras-hist');
+            if (badge) badge.innerText = (window.dbProveedores || []).length;
+            if (typeof window.cambiarTabCompras === 'function') window.cambiarTabCompras('NUEVA');
             document.getElementById('modal-recepcion-proveedor').classList.remove('hidden');
         };
 
@@ -9387,24 +9298,12 @@ window.abrirModalReporteZ = function() {
                 window.tclSafeSetItem(window.getTenantStorageKey('proveedores'), JSON.stringify(window.dbProveedores));
                 window.guardarProveedorEnDirectorio(op.provNombre, op.provTel, op.provDir);
 
-                // 3. Inyección automática al Módulo de Gastos/Egresos para Cierre Diario
-                const nuevoGastoCompra = {
-                    id: 'gasto_' + Date.now(),
-                    tipo: 'MERCANCIA',
-                    desc: `Compra a ${op.provNombre} (${op.items.length} productos)`,
-                    montoUSD: op.totalUSD,
-                    fechaMs: Date.now()
-                };
-                window.dbGastos.unshift(nuevoGastoCompra);
-                window.tclSafeSetItem(window.getTenantStorageKey('gastos'), JSON.stringify(window.dbGastos));
-
-                // Sincronizar de inmediato cada ítem en Firestore (inventario, proveedores y gastos)
+                // Sincronizar de inmediato cada ítem en Firestore (inventario y proveedores, sin contaminar los gastos operativos diarios)
                 if (typeof window.sincronizarTenantConFirebase === 'function') {
                     try {
                         await Promise.all([
                             ...itemsSincronizar.map(prod => window.sincronizarTenantConFirebase('inventario', prod)),
-                            window.sincronizarTenantConFirebase('proveedores', op),
-                            window.sincronizarTenantConFirebase('gastos', nuevoGastoCompra)
+                            window.sincronizarTenantConFirebase('proveedores', op)
                         ]);
                     } catch (eSyncCompra) {
                         console.warn("Aviso sincronización compra:", eSyncCompra);
@@ -9450,12 +9349,16 @@ window.abrirModalReporteZ = function() {
 
         // CIERRE DE PERÍODO GERENCIAL RENOVADO (RECÁLCULO AUTOMÁTICO EN TIEMPO REAL)
         window.abrirModalCierrePeriodo = function() {
-            const hoyStr = window.obtenerFechaLocalISO();
-            document.getElementById('filtro-periodo-hasta').value = hoyStr;
-            const primerDiaMes = new Date(new Date().getFullYear(), new Date().getMonth(), 1).toISOString().split('T')[0];
-            document.getElementById('filtro-periodo-desde').value = primerDiaMes;
-            window.calcularCierrePeriodoGerencial();
             document.getElementById('modal-cierre-periodo').classList.remove('hidden');
+            if (typeof window.aplicarRangoRapidoPeriodo === 'function') {
+                window.aplicarRangoRapidoPeriodo('MES');
+            } else {
+                const hoyStr = window.obtenerFechaLocalISO();
+                document.getElementById('filtro-periodo-hasta').value = hoyStr;
+                const primerDiaMes = window.obtenerFechaLocalISO(new Date(new Date().getFullYear(), new Date().getMonth(), 1));
+                document.getElementById('filtro-periodo-desde').value = primerDiaMes;
+                window.calcularCierrePeriodoGerencial();
+            }
         };
 
         window.obtenerDatosCierrePeriodo = function() {
@@ -9467,7 +9370,11 @@ window.abrirModalReporteZ = function() {
             const tHasta = new Date(hastaVal + 'T23:59:59').getTime();
 
             const ventasRango = window.dbVentas.filter(v => v.fechaMs >= tDesde && v.fechaMs <= tHasta && v.estado !== 'ANULADA');
-            const gastosRango = window.dbGastos.filter(g => g.fechaMs >= tDesde && g.fechaMs <= tHasta);
+            // Solo gastos operativos reales (sin compras automáticas de surtido)
+            const gastosRango = window.dbGastos.filter(g => {
+                const esCompraAuto = (g.tipo === 'MERCANCIA' && (g.desc || '').startsWith('Compra a '));
+                return g.fechaMs >= tDesde && g.fechaMs <= tHasta && !esCompraAuto;
+            });
             const comprasRango = window.dbProveedores.filter(c => c.fechaMs >= tDesde && c.fechaMs <= tHasta);
             const cierresRango = (window.dbCierres || []).filter(cie => {
                 const tCie = cie.timestamp || (cie.fechaStr ? new Date(cie.fechaStr + 'T00:00:00').getTime() : 0);
@@ -9479,9 +9386,11 @@ window.abrirModalReporteZ = function() {
 
             const totalVentasUSD = ventasRango.reduce((acc, v) => acc + v.totalUSD, 0);
             const totalGastosUSD = gastosRango.reduce((acc, g) => acc + g.montoUSD, 0);
-            const gananciaNetaPeriodo = totalVentasUSD - totalGastosUSD;
+            const totalComprasUSD = comprasRango.reduce((acc, c) => acc + (c.totalUSD || c.totalInversionUSD || 0), 0);
+            const costoReposicionUSD = window.calcularCostoReposicionVentas(ventasRango);
+            const gananciaNetaPeriodo = totalVentasUSD - costoReposicionUSD - totalGastosUSD;
 
-            return { desdeVal, hastaVal, ventasRango, gastosRango, comprasRango, cierresRango, creditosRango, totalPorCobrarUSD, totalVentasUSD, totalGastosUSD, gananciaNetaPeriodo };
+            return { desdeVal, hastaVal, ventasRango, gastosRango, comprasRango, cierresRango, creditosRango, totalPorCobrarUSD, totalVentasUSD, totalGastosUSD, totalComprasUSD, costoReposicionUSD, gananciaNetaPeriodo };
         };
 
                 window.toggleSeccionAcordeon = function(idContenido, idIcono) {
@@ -9581,10 +9490,27 @@ window.abrirModalReporteZ = function() {
                         <p class="text-[10px] font-bold text-purple-600">Rango: ${datos.desdeVal} al ${datos.hastaVal}</p>
                     </div>
 
-                    <div class="grid grid-cols-1 sm:grid-cols-3 gap-2 text-center">
-                        <div class="bg-white p-3 rounded-xl border border-slate-200"><span class="text-[9px] text-slate-400 block font-bold">Ventas Totales</span><span class="text-sm font-black text-emerald-600">$${window.formatUSD(datos.totalVentasUSD)} USD</span></div>
-                        <div class="bg-white p-3 rounded-xl border border-slate-200"><span class="text-[9px] text-slate-400 block font-bold">Egresos / Compras</span><span class="text-sm font-black text-rose-600">$${window.formatUSD(datos.totalGastosUSD)} USD</span></div>
-                        <div class="bg-purple-50 p-3 rounded-xl border border-purple-200"><span class="text-[9px] text-purple-700 block font-bold">Ganancia Neta</span><span class="text-sm font-black text-purple-700">$${window.formatUSD(datos.gananciaNetaPeriodo)} USD</span></div>
+                    <div class="grid grid-cols-2 sm:grid-cols-4 gap-2 text-center">
+                        <div class="bg-white p-2.5 rounded-xl border border-slate-200">
+                            <span class="text-[8.5px] text-slate-500 block font-black uppercase">1. Total Vendido</span>
+                            <span class="text-sm font-black text-slate-900">$${window.formatUSD(datos.totalVentasUSD)}</span>
+                            <span class="text-[8px] text-slate-400 block font-sans">Ingresos brutos</span>
+                        </div>
+                        <div class="bg-amber-50 p-2.5 rounded-xl border border-amber-300">
+                            <span class="text-[8.5px] text-amber-900 block font-black uppercase">2. Reponer Mercancía</span>
+                            <span class="text-sm font-black text-amber-700">$${window.formatUSD(datos.costoReposicionUSD || 0)}</span>
+                            <span class="text-[8px] text-amber-800/80 block font-sans">Para volver a surtir</span>
+                        </div>
+                        <div class="bg-rose-50 p-2.5 rounded-xl border border-rose-200">
+                            <span class="text-[8.5px] text-rose-800 block font-black uppercase">3. Gastos Operativos</span>
+                            <span class="text-sm font-black text-rose-600">-$${window.formatUSD(datos.totalGastosUSD)}</span>
+                            <span class="text-[8px] text-rose-700/80 block font-sans">Salidas del negocio</span>
+                        </div>
+                        <div class="bg-emerald-600 text-white p-2.5 rounded-xl shadow-sm">
+                            <span class="text-[8.5px] text-emerald-100 block font-black uppercase">4. Ganancia Libre</span>
+                            <span class="text-sm font-black text-white">$${window.formatUSD(datos.gananciaNetaPeriodo)}</span>
+                            <span class="text-[8px] text-emerald-100 block font-sans">Libre para ti</span>
+                        </div>
                     </div>
 
                     <!-- 1. ACORDEÓN VENTAS -->
@@ -9709,11 +9635,11 @@ window.abrirModalReporteZ = function() {
                     <p><strong>CUENTAS POR COBRAR:</strong> -$${(datos.totalPorCobrarUSD || 0).toFixed(2)} USD</p>
                     <p>• Notas a Crédito: ${(datos.creditosRango || []).length}</p>
                     <hr style="border-top:1px dashed #000;margin:4px 0;">
-                    <p><strong>EGRESOS / INVERSIÓN:</strong> -$${datos.totalGastosUSD.toFixed(2)} USD</p>
-                    <p>• Compras Proveedores: ${datos.comprasRango.length}</p>
-                    <p>• Gastos Operativos: ${datos.gastosRango.length}</p>
+                    <p><strong>REPONER MERCANCÍA:</strong> $${(datos.costoReposicionUSD || 0).toFixed(2)} USD</p>
+                    <p><strong>GASTOS OPERATIVOS:</strong> -$${datos.totalGastosUSD.toFixed(2)} USD</p>
+                    <p>• Compras Surtido (${datos.comprasRango.length}): $${(datos.totalComprasUSD || 0).toFixed(2)} USD</p>
                     <hr style="border-top:1px dashed #000;margin:4px 0;">
-                    <p style="font-size:11px;font-weight:900;">GANANCIA NETA: $${datos.gananciaNetaPeriodo.toFixed(2)} USD</p>
+                    <p style="font-size:11px;font-weight:900;">GANANCIA LIBRE: $${datos.gananciaNetaPeriodo.toFixed(2)} USD</p>
                 </div>
                 <div style="text-align:center;font-size:8px;font-family:monospace;border-top:1px dashed #000;padding-top:6px;color:#000;">
                     <p>Comprobante de Recepción Interna.</p>
@@ -9737,27 +9663,23 @@ window.abrirModalReporteZ = function() {
             msj += `🏢 Local: ${(window.clienteActivoSesion ? window.clienteActivoSesion.nombre : 'TUCOCEL C.A.').toUpperCase()}\n`;
             msj += `📅 Período: ${datos.desdeVal} hasta ${datos.hastaVal}\n`;
             msj += `------------------------------------\n`;
-            msj += `📈 *Ingresos por Ventas:* $${datos.totalVentasUSD.toFixed(2)} USD\n`;
+            msj += `📈 *Total Vendido:* $${datos.totalVentasUSD.toFixed(2)} USD\n`;
             msj += `🇨🇴 Total COP: ${window.formatearMiles(totalCOP)} COP\n`;
             msj += `🇻🇪 Total Bs: ${window.formatBS(totalBs)} Bs\n`;
-            msj += `📉 *Egresos e Inversión:* -$${datos.totalGastosUSD.toFixed(2)} USD\n`;
+            msj += `📦 *Apartar para Reponer Mercancía:* $${(datos.costoReposicionUSD || 0).toFixed(2)} USD\n`;
+            msj += `📉 *Gastos Operativos:* -$${datos.totalGastosUSD.toFixed(2)} USD\n`;
             if (datos.totalPorCobrarUSD > 0) {
                 msj += `⏳ *Cuentas por Cobrar (Créditos):* $${datos.totalPorCobrarUSD.toFixed(2)} USD\n`;
             }
-            msj += `💎 *GANANCIA NETA DEL PERÍODO:* $${datos.gananciaNetaPeriodo.toFixed(2)} USD\n`;
+            msj += `💎 *GANANCIA LIBRE PARA TI:* $${datos.gananciaNetaPeriodo.toFixed(2)} USD\n`;
             msj += `------------------------------------\n`;
             msj += `📄 Notas Procesadas: ${datos.ventasRango.length}\n`;
             msj += `📦 Compras Registradas: ${datos.comprasRango.length}\n`;
             msj += `📊 Estado: Cuadre Gerencial Consolidado.\n*Sistema TCL Comercio — TUCOCEL C.A. & PublionlineMK*`;
 
             window.despacharWhatsApp('', msj);
-        };// CONSOLA MÁSTER
+        };
         window.toggleConsolaDiagnosticoInterna = function() { document.getElementById('modal-consola-diagnostico').classList.toggle('hidden'); };
-        window.copiarCodigoTextoPuroConsola = function() { navigator.clipboard.writeText(document.documentElement.outerHTML); alert("📋 Código copiado."); };
-        window.descargarMasaMadre = function() { const blob = new Blob([document.documentElement.outerHTML], { type: 'text/html' }); const link = document.createElement('a'); link.href = URL.createObjectURL(blob); link.download = 'index_fase1.html'; link.click(); };
-        window.descargarReporteErroresIndex = function() { const blob = new Blob(["[OK] Ejecución limpia sin errores."], { type: 'text/plain' }); const link = document.createElement('a'); link.href = URL.createObjectURL(blob); link.download = 'reporte_errores.txt'; link.click(); };
-        window.limpiarHistorialErroresPermanente = function() { document.getElementById('logs-diagnostico-box').innerHTML = `<p class="text-emerald-600">[OK] Consola limpia.</p>`; document.getElementById('badge-contador-errores').classList.add('hidden'); window.contadorErroresConsola = 0; };
-        window.addEventListener('error', function(e) { window.contadorErroresConsola++; const badge = document.getElementById('badge-contador-errores'); if (badge) { badge.innerText = window.contadorErroresConsola; badge.classList.remove('hidden'); } const box = document.getElementById('logs-diagnostico-box'); if(box) box.innerHTML += `<p class="text-red-600 font-bold">[ERROR] ${e.message} (Línea: ${e.lineno})</p>`; });
 
         // -------------------------------------------------------------
         // CÁPSULA VERDE: COMPARTIR CATÁLOGO EN WHATSAPP
@@ -9905,12 +9827,16 @@ window.abrirModalReporteZ = function() {
                     <p style="font-size:9px;margin:2px 0;">FECHA AUDITADA: ${datos.targetDateStr}</p>
                 </div>
 
-                <div style="margin: 6px 0; font-size: 9px; font-family: monospace; color: #000; line-height: 1.3;">
-                    <p style="margin: 1px 0;"><strong>TOTAL FACTURADO:</strong> $${datos.totalVentasUSD.toFixed(2)} USD</p>
+                <div style="margin: 6px 0; font-size: 9px; font-family: monospace; color: #000; line-height: 1.35;">
+                    <p style="margin: 1px 0;"><strong>TOTAL VENDIDO:</strong> $${datos.totalVentasUSD.toFixed(2)} USD</p>
                     <p style="margin: 1px 0;"><strong>TOTAL COP:</strong> ${window.formatCOP(totalCOP)} COP</p>
                     <p style="margin: 1px 0;"><strong>TOTAL Bs:</strong> ${window.formatBS(totalBs)} Bs (Paridad ${window.tasasConfig.paridadBs})</p>
-                    <p style="margin: 1px 0;"><strong>TOTAL EGRESOS / GASTOS:</strong> -$${datos.totalGastosUSD.toFixed(2)} USD</p>
-                    <p style="margin: 2px 0; font-weight: 900; font-size: 10px; border-top: 1px dashed #000; border-bottom: 1px dashed #000; padding: 2px 0;">FLUJO NETO EN CAJA: $${datos.flujoCajaNeto.toFixed(2)} USD</p>
+                    <div style="border-top: 1px dashed #000; border-bottom: 1px dashed #000; padding: 3px 0; margin: 4px 0;">
+                        <p style="margin: 1px 0;"><strong>REPONER MERCANCÍA:</strong> $${(datos.costoReposicionUSD || 0).toFixed(2)} USD</p>
+                        <p style="margin: 1px 0;"><strong>GASTOS OPERATIVOS:</strong> -$${datos.totalGastosUSD.toFixed(2)} USD</p>
+                        <p style="margin: 2px 0 0 0; font-weight: 900; font-size: 10px;">GANANCIA LIBRE: $${(datos.gananciaLibreUSD || 0).toFixed(2)} USD</p>
+                    </div>
+                    <p style="margin: 1px 0;"><strong>EFECTIVO EN GAVETA:</strong> $${(datos.efectivoEsperadoGaveta || 0).toFixed(2)} USD</p>
                 </div>
 
                 <div style="font-family: monospace; font-size: 8.5px;">
@@ -10021,8 +9947,7 @@ window.abrirModalReporteZ = function() {
         window.inicializarRouterURL = async function() {
             try {
                 if (typeof window.cargarTarifasSaasStorage === 'function') window.cargarTarifasSaasStorage();
-                if (typeof window.actualizarSimulador === 'function') window.actualizarSimulador(500);
-
+    
                 const searchParams = new URLSearchParams(window.location.search);
                 const isPropuesta = searchParams.get('propuesta') === 'true' || 
                                     window.location.hash.includes('propuesta') || 
@@ -10096,8 +10021,22 @@ window.abrirModalReporteZ = function() {
                         return;
                     }
 
-                    // 1. INICIALIZAR CONTEXTO DEL COMERCIO Y LUEGO DESCARGAR INVENTARIO FRESCO DE LA NUBE
-                    window.cargarDatosDelComercioActivo();
+                    // 1. INICIALIZAR SOLO CONTEXTO PÚBLICO DE VITRINA (SIN SUSCRIBIR VENTAS/GASTOS PRIVADOS)
+                    window.desuscribirListenersFirestore();
+                    window.dbInventario = [];
+                    window.dbVentas = [];
+                    window.dbGastos = [];
+                    window.dbProveedores = [];
+                    window.dbCierres = [];
+
+                    if (cli.tasas) {
+                        window.tasasConfig = { ...window.tasasConfig, ...cli.tasas };
+                    }
+
+                    const gInvLocal = localStorage.getItem(window.getTenantStorageKey('inventario'));
+                    if (gInvLocal && gInvLocal !== '[]' && gInvLocal !== 'null') {
+                        try { window.dbInventario = JSON.parse(gInvLocal); } catch(e) { window.dbInventario = []; }
+                    }
 
                     if (window.dbNube) {
                         try {
@@ -10123,10 +10062,10 @@ window.abrirModalReporteZ = function() {
                     if (typeof window.renderizarBarraCategoriasVitrina === 'function') window.renderizarBarraCategoriasVitrina();
                     window.verVitrinaComoCliente();
 
-                    // 2. ESCUCHADOR EN TIEMPO REAL (onSnapshot) DE TASAS, ESTADO Y PRODUCTOS EN VIVO
+                    // 2. ESCUCHADORES CONTROLADOS EN TIEMPO REAL (REGISTRADOS PARA LIMPIEZA AL CERRAR SESIÓN)
                     if (window.dbNube) {
                         try {
-                            window.dbNube.collection('comercios_saas').doc(slugLimpio)
+                            const unsubPublicComercio = window.dbNube.collection('comercios_saas').doc(slugLimpio)
                                 .onSnapshot((docComercio) => {
                                     if (docComercio && docComercio.exists) {
                                         const dataCom = docComercio.data();
@@ -10144,8 +10083,9 @@ window.abrirModalReporteZ = function() {
                                         window.renderizarProductosVitrina();
                                     }
                                 });
+                            window.listenersFirestoreActivos.push(unsubPublicComercio);
 
-                            window.dbNube.collection('comercios_saas').doc(slugLimpio).collection('inventario')
+                            const unsubPublicInv = window.dbNube.collection('comercios_saas').doc(slugLimpio).collection('inventario')
                                 .onSnapshot((snapshot) => {
                                     if (snapshot && !snapshot.empty) {
                                         const prodsEnVivo = [];
@@ -10156,11 +10096,13 @@ window.abrirModalReporteZ = function() {
                                         if (prodsEnVivo.length > 0) {
                                             window.dbInventario = prodsEnVivo;
                                             window.tclSafeSetItem(window.getTenantStorageKey('inventario'), JSON.stringify(window.dbInventario));
+                                            if (typeof window.renderizarBarraCategoriasVitrina === 'function') window.renderizarBarraCategoriasVitrina();
                                             window.renderizarProductosVitrina();
                                             window.actualizarBadgeTotalInventario();
                                         }
                                     }
                                 }, (errSnap) => console.warn("Aviso snapshot en vivo:", errSnap));
+                            window.listenersFirestoreActivos.push(unsubPublicInv);
                         } catch(eSnap) {}
                     }
                 }
@@ -10519,27 +10461,6 @@ window.abrirModalReporteZ = function() {
             window.calcularCierrePeriodoGerencial();
         };
 
-        // Envolver abrirPanelClientePrivadoDirecto, abrirModalRecepcionProveedor y abrirModalCierrePeriodo para actualizar KPIs y vistas
-        const _origAbrirPanelCli = window.abrirPanelClientePrivadoDirecto;
-        window.abrirPanelClientePrivadoDirecto = function() {
-            if (typeof _origAbrirPanelCli === 'function') _origAbrirPanelCli();
-            window.actualizarKPIsPanelCliente();
-        };
-
-        const _origAbrirCompras = window.abrirModalRecepcionProveedor;
-        window.abrirModalRecepcionProveedor = function() {
-            if (typeof _origAbrirCompras === 'function') _origAbrirCompras();
-            const badge = document.getElementById('badge-cnt-compras-hist');
-            if (badge) badge.innerText = (window.dbProveedores || []).length;
-            window.cambiarTabCompras('NUEVA');
-        };
-
-        const _origAbrirCierrePeriodo = window.abrirModalCierrePeriodo;
-        window.abrirModalCierrePeriodo = function() {
-            if (typeof _origAbrirCierrePeriodo === 'function') _origAbrirCierrePeriodo();
-            window.aplicarRangoRapidoPeriodo('MES');
-        };
-
     </script>
 
     <!-- MODAL RESPALDO Y RESTAURACIÓN DE BASE DE DATOS LOCAL (OFFLINE JSON) -->
@@ -10678,6 +10599,35 @@ window.abrirModalReporteZ = function() {
                 <p class="text-[10px] text-slate-400 font-medium">Una vez descargada, presione el botón inferior para confirmar su activación:</p>
                 <button type="button" onclick="window.confirmarActivacionFinalYDespacharWA()" class="w-full bg-emerald-600 hover:bg-emerald-500 text-white font-black py-3.5 rounded-xl uppercase text-xs shadow-md transition-all active:scale-95 flex items-center justify-center gap-2">
                     <i class="fa-solid fa-check-double"></i> <span>ACEPTAR TÉRMINOS Y ENVIAR ACTIVACIÓN</span>
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <!-- MODAL RECORDATORIO AUTOMÁTICO: CIERRE DE DÍA PENDIENTE -->
+    <div id="modal-recordatorio-cierre-pendiente" class="fixed inset-0 bg-slate-950/85 backdrop-blur-md z-[280] p-4 flex items-center justify-center hidden no-print">
+        <div class="bg-white border border-slate-200 w-full max-w-md rounded-3xl overflow-hidden shadow-2xl p-6 space-y-4 text-center font-bold text-xs">
+            <div class="w-16 h-16 bg-amber-50 text-amber-500 rounded-3xl flex items-center justify-center mx-auto text-3xl border border-amber-200 shadow-sm animate-bounce">
+                <i class="fa-solid fa-triangle-exclamation"></i>
+            </div>
+            <div class="space-y-1.5">
+                <span class="bg-amber-100 text-amber-900 border border-amber-300 text-[10px] font-black uppercase px-3 py-1 rounded-full font-mono">⚠️ Atención Gerencial</span>
+                <h3 class="font-black text-slate-900 text-base uppercase">CIERRE DIARIO PENDIENTE</h3>
+                <p id="lbl-msg-cierre-pendiente" class="text-slate-600 text-[11px] leading-relaxed">
+                    El sistema detectó que tiene movimientos de venta o gastos sin cerrar del día anterior. Es importante realizar el cuadre de turno para mantener la contabilidad al día.
+                </p>
+            </div>
+
+            <div class="bg-amber-50 p-3 rounded-2xl border border-amber-200 font-mono text-amber-900 text-xs">
+                Fecha por Cuadrar: <strong id="lbl-fecha-cierre-pendiente" class="text-slate-900">--/--/----</strong>
+            </div>
+
+            <div class="space-y-2 pt-1">
+                <button type="button" onclick="window.irACierrePendienteDesdeRecordatorio()" class="btn-brand w-full py-4 text-xs shadow-lg flex items-center justify-center gap-2">
+                    <i class="fa-solid fa-cash-register text-sm"></i> <span>HACER CIERRE DEL DÍA AHORA</span>
+                </button>
+                <button type="button" onclick="document.getElementById('modal-recordatorio-cierre-pendiente').classList.add('hidden')" class="w-full bg-slate-100 hover:bg-slate-200 text-slate-600 py-3 rounded-xl uppercase text-[10px] font-bold transition-all">
+                    Hacerlo más tarde / Ir a Caja
                 </button>
             </div>
         </div>
