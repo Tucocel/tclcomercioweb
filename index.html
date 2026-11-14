@@ -296,6 +296,18 @@
                     <button type="submit" class="btn-brand w-full py-3.5 text-xs shadow-lg shadow-blue-600/25 active:scale-[0.99]">Ingresar al Sistema 🔒</button>
                 </form>
 
+                <!-- CAPTACIÓN DE LEADS: SOLICITA TUS 7 DÍAS GRATIS DE PRUEBA -->
+                <div id="box-cta-demo-7dias" class="hidden bg-gradient-to-r from-emerald-50 via-teal-50 to-blue-50 border-2 border-emerald-300 rounded-2xl p-3.5 text-center space-y-2 shadow-sm">
+                    <div class="flex items-center justify-center gap-1.5 text-[10px] font-black uppercase tracking-wider text-emerald-800">
+                        <span class="bg-amber-400 text-slate-950 px-2 py-0.5 rounded-md">🎁 PRUEBA SIN COMPROMISO</span>
+                        <span>¿Quieres usarlo en tu negocio?</span>
+                    </div>
+                    <button type="button" onclick="window.abrirModalSolicitarDemo7Dias()" class="w-full bg-gradient-to-r from-emerald-600 to-teal-600 hover:from-emerald-500 hover:to-teal-500 text-white font-black py-3 px-4 rounded-xl text-xs uppercase tracking-wider shadow-md active:scale-95 transition-all flex items-center justify-center gap-2">
+                        <i class="fa-solid fa-gift text-amber-300 text-sm"></i>
+                        <span>SOLICITA TUS 7 DÍAS GRATIS</span>
+                    </button>
+                </div>
+
                 <!-- Tres pilares operativos -->
                 <div class="pt-3 border-t border-slate-100 grid grid-cols-3 gap-2 text-center">
                     <div class="space-y-1 py-1">
@@ -358,6 +370,15 @@
                 <button onclick="window.abrirModalCambioClaveMaster()" class="bg-amber-50 hover:bg-amber-100 text-amber-900 border border-amber-300 px-3 py-2 rounded-xl text-[10.5px] font-black uppercase flex items-center gap-1 shadow-sm transition-all" title="Cambiar clave Máster">
                     <i class="fa-solid fa-key text-amber-600"></i> <span>Clave Máster</span>
                 </button>
+                <!-- CÁPSULA MARKETING WHATSAPP + LÁPIZ EDITOR EXCLUSIVO MÁSTER -->
+                <div class="inline-flex items-center rounded-xl overflow-hidden shadow-sm border border-emerald-500">
+                    <button type="button" onclick="window.enviarPromoAppMasterWhatsApp()" class="bg-emerald-600 hover:bg-emerald-500 text-white px-3 py-2 text-[10.5px] font-black uppercase flex items-center gap-1 transition-all" title="Promocionar Sistema por WhatsApp">
+                        <i class="fa-brands fa-whatsapp text-xs"></i> <span>Promocionar App</span>
+                    </button>
+                    <button type="button" onclick="window.abrirEditorPromoMaster()" class="bg-emerald-800 hover:bg-emerald-700 text-amber-300 px-2.5 py-2 text-[10.5px] font-black border-l border-emerald-500/50 transition-all" title="Editar mensaje publicitario (Solo Máster)">
+                        <i class="fa-solid fa-pen"></i>
+                    </button>
+                </div>
                 <button onclick="window.cerrarSesionCompleta()" class="bg-white hover:bg-slate-100 text-slate-700 border border-slate-300 px-3 py-2 rounded-xl text-[10.5px] font-bold uppercase transition-all shadow-sm">
                     Cerrar Sesión
                 </button>
@@ -2282,16 +2303,29 @@
                             <input type="text" inputmode="decimal" id="prov-prod-cant" value="1" oninput="window.autoFormatearSeparadoresInput(this, true)" placeholder="Ej: 10" class="input-clean font-mono text-center font-black text-blue-600">
                         </div>
                     </div>
-                    <div class="grid grid-cols-1 sm:grid-cols-3 gap-2 pt-1 items-end">
-                        <div>
+                    <div class="grid grid-cols-1 sm:grid-cols-12 gap-2 pt-1 items-end">
+                        <div class="sm:col-span-3">
                             <label id="lbl-compra-costo-moneda" class="text-[9px] text-slate-500 uppercase block mb-0.5">P. Costo ($ USD) *</label>
-                            <input type="text" inputmode="decimal" id="prov-prod-costo" oninput="window.autoFormatearSeparadoresInput(this, true)" placeholder="0,00" class="input-clean font-mono text-slate-800 font-black">
+                            <input type="text" inputmode="decimal" id="prov-prod-costo" oninput="window.autoFormatearSeparadoresInput(this, true); window.recalcularVentaDesdeMargen('COMPRA');" placeholder="0,00" class="input-clean font-mono text-slate-800 font-black">
                         </div>
-                        <div>
-                            <label id="lbl-compra-venta-moneda" class="text-[9px] text-slate-500 uppercase block mb-0.5">P. Venta Público ($ USD) *</label>
-                            <input type="text" inputmode="decimal" id="prov-prod-venta" oninput="window.autoFormatearSeparadoresInput(this, true)" placeholder="0,00" class="input-clean font-mono text-blue-600 font-black">
+                        <div class="sm:col-span-3">
+                            <div class="flex justify-between items-center mb-0.5">
+                                <label class="text-[9px] text-emerald-700 uppercase font-black">Ganancia *</label>
+                                <select id="prov-prod-margen-tipo" onchange="window.recalcularVentaDesdeMargen('COMPRA')" class="text-[9px] font-black bg-emerald-100 text-emerald-900 border border-emerald-300 rounded px-1.5 py-0.5">
+                                    <option value="PCT">% Porcentaje</option>
+                                    <option value="MONTO">$ Monto Fijo</option>
+                                </select>
+                            </div>
+                            <input type="text" inputmode="decimal" id="prov-prod-margen" oninput="window.autoFormatearSeparadoresInput(this, true); window.recalcularVentaDesdeMargen('COMPRA');" placeholder="Ej: 30 o 5.000" class="input-clean font-mono text-emerald-700 font-black bg-emerald-50/40 border-emerald-300">
                         </div>
-                        <div>
+                        <div class="sm:col-span-3">
+                            <div class="flex justify-between items-center mb-0.5">
+                                <label id="lbl-compra-venta-moneda" class="text-[9px] text-slate-500 uppercase">P. Venta ($ USD) *</label>
+                                <span class="text-[8px] font-mono font-black text-blue-700 bg-blue-100 px-1.5 rounded"><i class="fa-solid fa-lock text-[7px]"></i> Auto</span>
+                            </div>
+                            <input type="text" readonly id="prov-prod-venta" placeholder="0,00" class="input-clean font-mono text-blue-700 font-black bg-blue-50/70 border-blue-300 cursor-not-allowed">
+                        </div>
+                        <div class="sm:col-span-3">
                             <button type="button" onclick="window.agregarItemAlCarritoCompra()" class="btn-brand w-full py-2.5 text-xs shadow flex items-center justify-center gap-1">
                                 <i class="fa-solid fa-plus"></i> Agregar a la Lista
                             </button>
@@ -2512,10 +2546,10 @@
                     </div>
                 </div>
 
-                <div class="grid grid-cols-2 sm:grid-cols-5 gap-2">
+                <div class="grid grid-cols-2 sm:grid-cols-6 gap-2">
                     <div>
                         <label class="text-[9px] text-slate-500 uppercase block mb-0.5">Moneda Carga</label>
-                        <select id="inv-input-moneda-base" class="input-clean font-bold text-xs">
+                        <select id="inv-input-moneda-base" onchange="window.recalcularVentaDesdeMargen('INV_NUEVO')" class="input-clean font-bold text-xs">
                             <option value="USD">💵 USD ($)</option>
                             <option value="COP">🇨🇴 COP</option>
                             <option value="BS">🇻🇪 Bolívares</option>
@@ -2523,11 +2557,24 @@
                     </div>
                     <div>
                         <label class="text-[9px] text-slate-500 uppercase block mb-0.5">Precio Costo</label>
-                        <input type="text" inputmode="decimal" id="inv-input-costo" oninput="window.autoFormatearSeparadoresInput(this, true)" placeholder="0,00" class="input-clean font-mono">
+                        <input type="text" inputmode="decimal" id="inv-input-costo" oninput="window.autoFormatearSeparadoresInput(this, true); window.recalcularVentaDesdeMargen('INV_NUEVO');" placeholder="0,00" class="input-clean font-mono">
                     </div>
                     <div>
-                        <label class="text-[9px] text-slate-500 uppercase block mb-0.5">Precio Venta *</label>
-                        <input type="text" inputmode="decimal" id="inv-input-venta" oninput="window.autoFormatearSeparadoresInput(this, true)" placeholder="0,00" class="input-clean font-mono text-blue-600 font-black">
+                        <div class="flex justify-between items-center mb-0.5">
+                            <label class="text-[9px] text-emerald-700 uppercase font-black">Ganancia *</label>
+                            <select id="inv-input-margen-tipo" onchange="window.recalcularVentaDesdeMargen('INV_NUEVO')" class="text-[8.5px] font-black bg-emerald-100 text-emerald-900 border border-emerald-300 rounded px-1">
+                                <option value="PCT">%</option>
+                                <option value="MONTO">Monto</option>
+                            </select>
+                        </div>
+                        <input type="text" inputmode="decimal" id="inv-input-margen" oninput="window.autoFormatearSeparadoresInput(this, true); window.recalcularVentaDesdeMargen('INV_NUEVO');" placeholder="Ej: 30" class="input-clean font-mono text-emerald-700 font-black bg-emerald-50/40 border-emerald-300">
+                    </div>
+                    <div>
+                        <div class="flex justify-between items-center mb-0.5">
+                            <label class="text-[9px] text-slate-500 uppercase">P. Venta *</label>
+                            <span class="text-[8px] font-mono font-black text-blue-700 bg-blue-100 px-1 rounded"><i class="fa-solid fa-lock text-[7px]"></i> Auto</span>
+                        </div>
+                        <input type="text" readonly id="inv-input-venta" placeholder="0,00" class="input-clean font-mono text-blue-700 font-black bg-blue-50/70 border-blue-300 cursor-not-allowed">
                     </div>
                     <div>
                         <label class="text-[9px] text-slate-500 uppercase block mb-0.5">Unidad</label>
@@ -2599,17 +2646,30 @@
                     <datalist id="lista-categorias-edicion"></datalist>
                 </div>
             </div>
-            <div class="grid grid-cols-3 gap-2">
+            <div class="grid grid-cols-2 sm:grid-cols-4 gap-2">
                 <div>
-                    <label class="text-[10px] text-slate-500 uppercase block mb-1">P. Costo ($)</label>
-                    <input type="text" inputmode="decimal" id="sub-input-costo" oninput="window.autoFormatearSeparadoresInput(this, true)" class="input-clean font-mono">
+                    <label class="text-[9.5px] text-slate-500 uppercase block mb-1">P. Costo ($)</label>
+                    <input type="text" inputmode="decimal" id="sub-input-costo" oninput="window.autoFormatearSeparadoresInput(this, true); window.recalcularVentaDesdeMargen('SUBMODAL');" class="input-clean font-mono">
                 </div>
                 <div>
-                    <label class="text-[10px] text-slate-500 uppercase block mb-1">P. Venta ($)</label>
-                    <input type="text" inputmode="decimal" id="sub-input-venta" oninput="window.autoFormatearSeparadoresInput(this, true)" class="input-clean font-mono text-blue-600">
+                    <div class="flex justify-between items-center mb-1">
+                        <label class="text-[9.5px] text-emerald-700 uppercase font-black">Ganancia</label>
+                        <select id="sub-input-margen-tipo" onchange="window.recalcularVentaDesdeMargen('SUBMODAL')" class="text-[8.5px] font-black bg-emerald-100 text-emerald-900 border border-emerald-300 rounded px-1">
+                            <option value="PCT">%</option>
+                            <option value="MONTO">$ USD</option>
+                        </select>
+                    </div>
+                    <input type="text" inputmode="decimal" id="sub-input-margen" oninput="window.autoFormatearSeparadoresInput(this, true); window.recalcularVentaDesdeMargen('SUBMODAL');" class="input-clean font-mono text-emerald-700 font-black bg-emerald-50/40 border-emerald-300">
                 </div>
                 <div>
-                    <label class="text-[10px] text-slate-500 uppercase block mb-1">Stock</label>
+                    <div class="flex justify-between items-center mb-1">
+                        <label class="text-[9.5px] text-slate-500 uppercase">P. Venta ($)</label>
+                        <span class="text-[8px] font-mono font-black text-blue-700 bg-blue-100 px-1 rounded"><i class="fa-solid fa-lock text-[7px]"></i> Auto</span>
+                    </div>
+                    <input type="text" readonly id="sub-input-venta" class="input-clean font-mono text-blue-700 font-black bg-blue-50/70 border-blue-300 cursor-not-allowed">
+                </div>
+                <div>
+                    <label class="text-[9.5px] text-slate-500 uppercase block mb-1">Stock</label>
                     <input type="number" step="any" id="sub-input-stock" class="input-clean font-mono">
                 </div>
             </div>
@@ -3796,16 +3856,86 @@ Saldo restante: $${nota.credito.saldoPendienteUSD.toFixed(2)} USD`);
         // -------------------------------------------------------------
         // VINCULACIÓN EXPLÍCITA DE FUNCIONES DE INVENTARIO
         // -------------------------------------------------------------
+        // -------------------------------------------------------------
+        // CALCULADORA DE GANANCIA (% O MONTO FIJO) CON PRECIO DE VENTA PROTEGIDO
+        // -------------------------------------------------------------
+        window.recalcularVentaDesdeMargen = function(contexto) {
+            let idCosto, idMargen, idTipo, idVenta, moneda = 'USD';
+            if (contexto === 'COMPRA') {
+                idCosto = 'prov-prod-costo';
+                idMargen = 'prov-prod-margen';
+                idTipo = 'prov-prod-margen-tipo';
+                idVenta = 'prov-prod-venta';
+                moneda = window.monedaCargaCompra || 'USD';
+            } else if (contexto === 'INV_NUEVO') {
+                idCosto = 'inv-input-costo';
+                idMargen = 'inv-input-margen';
+                idTipo = 'inv-input-margen-tipo';
+                idVenta = 'inv-input-venta';
+                moneda = (document.getElementById('inv-input-moneda-base') || {}).value || 'USD';
+            } else if (contexto === 'SUBMODAL') {
+                idCosto = 'sub-input-costo';
+                idMargen = 'sub-input-margen';
+                idTipo = 'sub-input-margen-tipo';
+                idVenta = 'sub-input-venta';
+                moneda = 'USD';
+            } else if (contexto === 'VENTA_LIBRE') {
+                idCosto = 'vl-cat-costo';
+                idMargen = 'vl-cat-margen';
+                idTipo = 'vl-cat-margen-tipo';
+                idVenta = 'vl-cat-venta';
+                moneda = window.monedaCargaPOS || 'USD';
+            } else {
+                return;
+            }
+
+            const elCosto = document.getElementById(idCosto);
+            const elMargen = document.getElementById(idMargen);
+            const elTipo = document.getElementById(idTipo);
+            const elVenta = document.getElementById(idVenta);
+            if (!elCosto || !elMargen || !elVenta) return;
+
+            const costo = window.limpiarMontoManual(elCosto.value) || 0;
+            const margen = window.limpiarMontoManual(elMargen.value) || 0;
+            const tipo = elTipo ? elTipo.value : 'PCT';
+
+            let ventaCalc = 0;
+            if (tipo === 'PCT') {
+                ventaCalc = costo + (costo * (margen / 100));
+            } else {
+                ventaCalc = costo + margen;
+            }
+
+            if (ventaCalc <= 0) {
+                elVenta.value = '';
+                return;
+            }
+
+            if (moneda === 'COP') {
+                elVenta.value = window.formatearMiles(Math.round(ventaCalc));
+            } else {
+                elVenta.value = ventaCalc.toFixed(2).replace('.', ',');
+            }
+        };
+
         window.abrirSubmodalEdicion = function(id) {
             const prod = window.dbInventario.find(p => p.id === id);
             if (!prod) return;
+
+            const costoActual = Number(prod.precioCosto) || 0;
+            const ventaActual = Number(prod.precioVenta || prod.precioUSD) || 0;
+            const gananciaActual = Math.max(0, ventaActual - costoActual);
 
             document.getElementById('sub-edit-id').value = prod.id;
             const subCod = document.getElementById('sub-input-codigo'); if (subCod) subCod.value = prod.codigo || '';
             document.getElementById('sub-input-nombre').value = prod.nombre || '';
             const subCat = document.getElementById('sub-input-categoria'); if (subCat) subCat.value = prod.categoria || 'GENERAL';
-            document.getElementById('sub-input-costo').value = prod.precioCosto || 0;
-            document.getElementById('sub-input-venta').value = prod.precioVenta || prod.precioUSD || 0;
+            document.getElementById('sub-input-costo').value = costoActual > 0 ? costoActual.toFixed(2).replace('.', ',') : '0,00';
+            const elTipo = document.getElementById('sub-input-margen-tipo');
+            if (elTipo) elTipo.value = 'MONTO';
+            const elMargen = document.getElementById('sub-input-margen');
+            if (elMargen) elMargen.value = gananciaActual > 0 ? gananciaActual.toFixed(2).replace('.', ',') : '0,00';
+            document.getElementById('sub-input-venta').value = ventaActual > 0 ? ventaActual.toFixed(2).replace('.', ',') : '0,00';
             document.getElementById('sub-input-stock').value = prod.stock || 0;
             document.getElementById('sub-input-desc').value = prod.desc || '';
 
@@ -4236,7 +4366,7 @@ Saldo restante: $${nota.credito.saldoPendienteUSD.toFixed(2)} USD`);
             window.notaPendiente.items.forEach(it => {
                 if (!it.id.startsWith('libre_')) {
                     const prod = window.dbInventario.find(p => p.id === it.id);
-                    if (prod) {
+                    if (prod && !prod.esServicio) {
                         prod.stock = Math.max(0, prod.stock - it.cant);
                         // Sincronización atómica inmediata por producto individual
                         if (typeof window.sincronizarTenantConFirebase === 'function') {
@@ -4572,6 +4702,8 @@ Tu nueva clave de acceso es: ${nuevaClave}`);
 
             if (loginMasterOk) {
                 window.esMasterLogueado = true;
+                window.tclSafeSetItem('tcl_sesion_persistente_2026', JSON.stringify({ tipo: 'MASTER' }));
+                window.setUltimaActividadTimestamp();
                 window.activarVistaPrincipal('vista-master-admin');
                 const diagEl = document.getElementById('diagnostico-master-flotante');
                 if (diagEl) { diagEl.classList.remove('hidden'); diagEl.style.removeProperty('display'); }
@@ -4626,6 +4758,8 @@ Tu nueva clave de acceso es: ${nuevaClave}`);
                     return;
                 }
                 window.clienteActivoSesion = encontrado;
+                window.tclSafeSetItem('tcl_sesion_persistente_2026', JSON.stringify({ tipo: 'CLIENTE', slug: (encontrado.slug || encontrado.user || '').toLowerCase().trim() }));
+                window.setUltimaActividadTimestamp();
                 window.cargarDatosDelComercioActivo();
                 document.getElementById('vista-login').classList.add('hidden');
                 document.getElementById('bottom-bar-gerencial').classList.add('hidden');
@@ -4692,6 +4826,8 @@ Tu nueva clave de acceso es: ${nuevaClave}`);
                     return;
                 }
                 window.clienteActivoSesion = cliente;
+                window.tclSafeSetItem('tcl_sesion_persistente_2026', JSON.stringify({ tipo: 'CLIENTE', slug: (cliente.slug || cliente.user || '').toLowerCase().trim() }));
+                window.setUltimaActividadTimestamp();
                 window.cargarDatosDelComercioActivo();
                 document.getElementById('modal-auth-panel-privado').classList.add('hidden');
                 document.getElementById('bottom-bar-gerencial').classList.add('hidden');
@@ -4735,7 +4871,15 @@ Tu nueva clave de acceso es: ${nuevaClave}`);
             } else {
                 document.getElementById('banner-mantenimiento-vitrina').classList.add('hidden');
             }
-            localStorage.removeItem('tcl_ultima_actividad_ts'); window.resetTimerInactividad();
+            const boxCtaDemoLogout = document.getElementById('box-cta-demo-7dias');
+            if (boxCtaDemoLogout) {
+                if (window.location.search.includes('promo=7dias')) {
+                    boxCtaDemoLogout.classList.remove('hidden');
+                } else {
+                    boxCtaDemoLogout.classList.add('hidden');
+                }
+            }
+            localStorage.removeItem('tcl_sesion_persistente_2026'); localStorage.removeItem('tcl_ultima_actividad_ts'); window.resetTimerInactividad();
             
             if (porInactividad) {
                 alert("🔒 Por su seguridad, la sesión se ha cerrado automáticamente tras 20 minutos de inactividad.");
@@ -5400,12 +5544,15 @@ Tu nueva clave de acceso es: ${nuevaClave}`);
                     precioDisplay = `${window.formatBS(window.calcularBsDesdeUSD(ventaUSD))} Bs`;
                 }
 
+                const esServicio = !!p.esServicio;
                 const unidadStr = p.unidad === 'KG' ? 'Kg' : 'Und';
                 const stockVal = Number(p.stock) || 0;
-                const esAgotado = stockVal <= 0;
-                const esStockBajo = stockVal > 0 && stockVal <= 3;
+                const esAgotado = !esServicio && stockVal <= 0;
+                const esStockBajo = !esServicio && stockVal > 0 && stockVal <= 3;
 
-                let stockBadgeHtml = `<span class="text-slate-500 font-bold font-mono">Stock: ${stockVal} ${unidadStr}</span>`;
+                let stockBadgeHtml = esServicio
+                    ? `<span class="bg-indigo-100 text-indigo-800 border border-indigo-300 text-[8.5px] font-black px-1.5 py-0.5 rounded uppercase">🛠️ Servicio</span>`
+                    : `<span class="text-slate-500 font-bold font-mono">Stock: ${stockVal} ${unidadStr}</span>`;
                 if (esAgotado) {
                     stockBadgeHtml = `<span class="bg-red-100 text-red-700 border border-red-300 text-[8.5px] font-black px-1.5 py-0.5 rounded uppercase">🚫 Agotado</span>`;
                 } else if (esStockBajo) {
@@ -5626,6 +5773,115 @@ Tu nueva clave de acceso es: ${nuevaClave}`);
             const lblSub = document.getElementById('lbl-pos-libre-subtotal-calc');
             if (lblSub) lblSub.innerText = '$0.00';
             window.renderizarCarritoPOS();
+
+            // Abrir ventana emergente inteligente para ofrecer guardar como Producto o Servicio
+            if (typeof window.abrirModalGuardarVentaLibreCatalogo === 'function') {
+                window.abrirModalGuardarVentaLibreCatalogo(nombre.toUpperCase(), unidad, precioIngresado, cant);
+            }
+        };
+
+        window.tipoVentaLibreCatalogoActual = 'PRODUCTO';
+        window.seleccionarTipoVentaLibreCatalogo = function(tipo) {
+            window.tipoVentaLibreCatalogoActual = tipo;
+            const btnProd = document.getElementById('btn-vl-tipo-producto');
+            const btnServ = document.getElementById('btn-vl-tipo-servicio');
+            const boxUnidad = document.getElementById('box-vl-unidad');
+            const boxStock = document.getElementById('box-vl-stock');
+            const inpCat = document.getElementById('vl-cat-categoria');
+
+            if (tipo === 'SERVICIO') {
+                if (btnServ) btnServ.className = "py-2.5 px-3 rounded-2xl border-2 border-indigo-600 bg-indigo-600 text-white font-black uppercase text-[10.5px] flex items-center justify-center gap-1.5 shadow-sm transition-all";
+                if (btnProd) btnProd.className = "py-2.5 px-3 rounded-2xl border-2 border-slate-300 bg-white text-slate-700 font-black uppercase text-[10.5px] flex items-center justify-center gap-1.5 transition-all";
+                if (boxUnidad) boxUnidad.classList.add('hidden');
+                if (boxStock) boxStock.classList.add('hidden');
+                if (inpCat && (!inpCat.value || inpCat.value === 'GENERAL')) inpCat.value = 'SERVICIOS';
+            } else {
+                if (btnProd) btnProd.className = "py-2.5 px-3 rounded-2xl border-2 border-blue-600 bg-blue-600 text-white font-black uppercase text-[10.5px] flex items-center justify-center gap-1.5 shadow-sm transition-all";
+                if (btnServ) btnServ.className = "py-2.5 px-3 rounded-2xl border-2 border-slate-300 bg-white text-slate-700 font-black uppercase text-[10.5px] flex items-center justify-center gap-1.5 transition-all";
+                if (boxUnidad) boxUnidad.classList.remove('hidden');
+                if (boxStock) boxStock.classList.remove('hidden');
+                if (inpCat && inpCat.value === 'SERVICIOS') inpCat.value = 'GENERAL';
+            }
+        };
+
+        window.abrirModalGuardarVentaLibreCatalogo = function(nombre, unidad, precioEnMonedaPOS, cantVendida) {
+            const moneda = window.monedaCargaPOS || 'USD';
+            const lblTag = document.getElementById('lbl-vl-moneda-tag');
+            if (lblTag) lblTag.innerText = `Cálculo de Precio en ${moneda}`;
+
+            document.getElementById('vl-cat-nombre').value = nombre;
+            document.getElementById('vl-cat-categoria').value = 'GENERAL';
+            document.getElementById('vl-cat-unidad').value = unidad || 'UND';
+            document.getElementById('vl-cat-stock').value = Math.max(1, Math.ceil(cantVendida || 10));
+
+            const fmtVal = moneda === 'COP' ? window.formatearMiles(precioEnMonedaPOS) : Number(precioEnMonedaPOS).toFixed(2).replace('.', ',');
+            document.getElementById('vl-cat-costo').value = '0,00';
+            document.getElementById('vl-cat-margen-tipo').value = 'MONTO';
+            document.getElementById('vl-cat-margen').value = fmtVal;
+            document.getElementById('vl-cat-venta').value = fmtVal;
+            document.getElementById('vl-cat-vitrina').checked = true;
+
+            window.seleccionarTipoVentaLibreCatalogo('PRODUCTO');
+            window.actualizarDatalistsCategorias();
+            document.getElementById('modal-guardar-venta-libre-catalogo').classList.remove('hidden');
+        };
+
+        window.confirmarGuardarVentaLibreEnCatalogo = function() {
+            const esServicio = (window.tipoVentaLibreCatalogoActual === 'SERVICIO');
+            const nombre = (document.getElementById('vl-cat-nombre').value || '').trim().toUpperCase();
+            const categoria = (document.getElementById('vl-cat-categoria').value || '').trim().toUpperCase() || (esServicio ? 'SERVICIOS' : 'GENERAL');
+            const unidad = esServicio ? 'UND' : (document.getElementById('vl-cat-unidad').value || 'UND');
+            const stock = esServicio ? 999999 : (parseFloat(document.getElementById('vl-cat-stock').value) || 1);
+            const valCosto = window.limpiarMontoManual(document.getElementById('vl-cat-costo').value) || 0;
+            const valVenta = window.limpiarMontoManual(document.getElementById('vl-cat-venta').value) || 0;
+            const mostrarEnVitrina = !!document.getElementById('vl-cat-vitrina').checked;
+
+            if (!nombre || valVenta <= 0) {
+                alert("⚠️ Ingrese un nombre válido y un precio de venta mayor a 0.");
+                return;
+            }
+
+            const moneda = window.monedaCargaPOS || 'USD';
+            let precioCostoUSD = valCosto;
+            let precioVentaUSD = valVenta;
+            if (moneda === 'COP') {
+                precioCostoUSD = window.calcularUSDDesdeCOP(valCosto);
+                precioVentaUSD = window.calcularUSDDesdeCOP(valVenta);
+            } else if (moneda === 'BS') {
+                precioCostoUSD = window.calcularUSDDesdeBs(valCosto);
+                precioVentaUSD = window.calcularUSDDesdeBs(valVenta);
+            }
+
+            const nuevoItem = {
+                id: (esServicio ? 'srv_' : 'p_') + Date.now(),
+                codigo: '',
+                nombre,
+                categoria,
+                desc: esServicio ? 'Servicio disponible' : 'Registrado desde Caja POS',
+                precioCosto: precioCostoUSD,
+                precioVenta: precioVentaUSD,
+                stock,
+                unidad,
+                esServicio,
+                mostrarEnVitrina,
+                foto: ''
+            };
+
+            window.dbInventario.push(nuevoItem);
+            window.guardarInventarioEnStorage();
+            if (typeof window.sincronizarTenantConFirebase === 'function') {
+                window.sincronizarTenantConFirebase('inventario', nuevoItem);
+            }
+
+            window.actualizarDatalistsCategorias();
+            window.renderizarBarraCategoriasPOS();
+            window.renderizarBarraCategoriasVitrina();
+            window.renderizarProductosVitrina();
+            window.actualizarBadgeTotalInventario();
+            window.recalcularReportesGanancias();
+
+            document.getElementById('modal-guardar-venta-libre-catalogo').classList.add('hidden');
+            alert(`✅ ${esServicio ? 'Servicio' : 'Producto'} "${nombre}" guardado con éxito${mostrarEnVitrina ? ' y publicado en tu Vitrina Web' : ' (solo uso interno en Caja)'}.`);
         };
 
         window.cambiarCantPOS = function(idx, delta) {
@@ -7152,6 +7408,7 @@ Las conversiones a Pesos (COP) y Bolívares (Bs) se sincronizaron con la tasa de
             document.getElementById('inv-input-nombre').value = ''; 
             if (inpCat) inpCat.value = '';
             document.getElementById('inv-input-costo').value = '';
+            const elIM = document.getElementById('inv-input-margen'); if (elIM) elIM.value = '';
             document.getElementById('inv-input-venta').value = ''; document.getElementById('inv-input-stock').value = '';
             document.getElementById('inv-input-desc').value = '';
 
@@ -7315,6 +7572,7 @@ $${(item.precioUSD * item.cant).toFixed(2)} USD
             let htmlProductos = '';
             const catFiltro = (window.categoriaActivaVitrina || 'TODOS').toUpperCase();
             const listaVitrina = (window.dbInventario || []).filter(p => {
+                if (p.mostrarEnVitrina === false) return false;
                 if (catFiltro === 'TODOS') return true;
                 return ((p.categoria || 'GENERAL').trim().toUpperCase() === catFiltro);
             });
@@ -7327,14 +7585,18 @@ $${(item.precioUSD * item.cant).toFixed(2)} USD
                     const venta = p.precioVenta || p.precioUSD || 0;
                     const cop = window.calcularPesosDesdeUSD(venta);
                     const bs = window.calcularBsDesdeUSD(venta);
-                    const disponible = (p.stock || 0) > 0;
+                    const esServicio = !!p.esServicio;
+                    const disponible = esServicio || (p.stock || 0) > 0;
+                    const badgeVitrina = esServicio
+                        ? `<span class="absolute top-2 right-2 bg-indigo-600 text-white font-black text-[8px] sm:text-[9px] px-2 py-0.5 rounded-lg uppercase shadow">🛠️ Servicio</span>`
+                        : (!disponible ? `<span class="absolute top-2 right-2 bg-red-600 text-white font-black text-[8px] sm:text-[9px] px-2 py-0.5 rounded-lg uppercase shadow">Agotado</span>` : (p.unidad === 'KG' ? `<span class="absolute top-2 right-2 bg-emerald-600 text-white font-black text-[8px] sm:text-[9px] px-2 py-0.5 rounded-lg uppercase font-mono shadow">${(Number(p.stock)||0).toFixed(p.stock % 1 === 0 ? 0 : 2)} Kg Disponibles</span>` : `<span class="absolute top-2 right-2 bg-emerald-600 text-white font-black text-[8px] sm:text-[9px] px-2 py-0.5 rounded-lg uppercase font-mono shadow">${p.stock} Disponibles</span>`));
 
                     return `
                         <div class="card-light p-2.5 sm:p-3.5 space-y-2 flex flex-col justify-between hover:border-blue-300 transition-all w-full">
                             <div class="space-y-1.5">
                                 <div class="w-full aspect-[3/4] bg-slate-100 rounded-2xl overflow-hidden flex items-center justify-center text-slate-400 text-3xl relative">
-                                    ${p.foto ? `<img src="${p.foto}" class="w-full h-full object-cover">` : `<i class="fa-solid fa-box-open"></i>`}
-                                    ${!disponible ? `<span class="absolute top-2 right-2 bg-red-600 text-white font-black text-[8px] sm:text-[9px] px-2 py-0.5 rounded-lg uppercase shadow">Agotado</span>` : (p.unidad === 'KG' ? `<span class="absolute top-2 right-2 bg-emerald-600 text-white font-black text-[8px] sm:text-[9px] px-2 py-0.5 rounded-lg uppercase font-mono shadow">${(Number(p.stock)||0).toFixed(p.stock % 1 === 0 ? 0 : 2)} Kg Disponibles</span>` : `<span class="absolute top-2 right-2 bg-emerald-600 text-white font-black text-[8px] sm:text-[9px] px-2 py-0.5 rounded-lg uppercase font-mono shadow">${p.stock} Disponibles</span>`)}
+                                    ${p.foto ? `<img src="${p.foto}" class="w-full h-full object-cover">` : `<i class="fa-solid ${esServicio ? 'fa-screwdriver-wrench text-indigo-400' : 'fa-box-open'}"></i>`}
+                                    ${badgeVitrina}
                                 </div>
                                 <h3 class="font-black text-slate-900 text-[11px] sm:text-xs uppercase truncate pt-1">${window.escapeHTML(p.nombre)} ${p.unidad === 'KG' ? '<span class="text-[9px] text-amber-600 bg-amber-50 px-1 py-0.5 rounded border border-amber-200">/ Kg</span>' : ''}</h3>
                                 <p class="text-[9px] sm:text-[10px] text-slate-500 leading-tight line-clamp-2">${window.escapeHTML(p.desc || '')}</p>
@@ -8786,6 +9048,7 @@ window.abrirModalReporteZ = function() {
                 if(lblCosto) lblCosto.innerText = "P. Costo en Bolívares (Bs) *";
                 if(lblVenta) lblVenta.innerText = "P. Venta en Bolívares (Bs) *";
             }
+            if (typeof window.recalcularVentaDesdeMargen === 'function') window.recalcularVentaDesdeMargen('COMPRA');
         };
 
         
@@ -9064,7 +9327,7 @@ window.abrirModalReporteZ = function() {
         window.autocompletarProductoPorCodigoEnCompra = function(codigoVal) {
             const cod = (codigoVal || '').trim();
             if (!cod) return;
-            const prod = window.dbInventario.find(p => (p.codigo && p.codigo.toLowerCase() === cod.toLowerCase()) || p.nombre.toLowerCase().includes(cod.toLowerCase()));
+            const prod = window.dbInventario.find(p => !p.esServicio && ((p.codigo && p.codigo.toLowerCase() === cod.toLowerCase()) || p.nombre.toLowerCase().includes(cod.toLowerCase())));
             if (prod) {
                 document.getElementById('prov-prod-nombre').value = prod.nombre;
                 const selUnidad = document.getElementById('prov-prod-unidad');
@@ -9080,8 +9343,13 @@ window.abrirModalReporteZ = function() {
                     ventaDisplay = window.calcularBsDesdeUSD(ventaDisplay);
                 }
                 
-                document.getElementById('prov-prod-costo').value = costoDisplay > 0 ? costoDisplay : '';
-                document.getElementById('prov-prod-venta').value = ventaDisplay > 0 ? ventaDisplay : '';
+                const gananciaDisplay = Math.max(0, ventaDisplay - costoDisplay);
+                document.getElementById('prov-prod-costo').value = costoDisplay > 0 ? (window.monedaCargaCompra === 'COP' ? window.formatearMiles(costoDisplay) : costoDisplay.toFixed(2).replace('.', ',')) : '';
+                const elMType = document.getElementById('prov-prod-margen-tipo');
+                if (elMType) elMType.value = 'MONTO';
+                const elMVal = document.getElementById('prov-prod-margen');
+                if (elMVal) elMVal.value = gananciaDisplay > 0 ? (window.monedaCargaCompra === 'COP' ? window.formatearMiles(gananciaDisplay) : gananciaDisplay.toFixed(2).replace('.', ',')) : '';
+                document.getElementById('prov-prod-venta').value = ventaDisplay > 0 ? (window.monedaCargaCompra === 'COP' ? window.formatearMiles(ventaDisplay) : ventaDisplay.toFixed(2).replace('.', ',')) : '';
                 
                 const cantInp = document.getElementById('prov-prod-cant');
                 if (cantInp) {
@@ -9147,6 +9415,7 @@ window.abrirModalReporteZ = function() {
             document.getElementById('prov-prod-nombre').value = '';
             document.getElementById('prov-prod-cant').value = '1';
             document.getElementById('prov-prod-costo').value = '';
+            const elPM = document.getElementById('prov-prod-margen'); if (elPM) elPM.value = '';
             document.getElementById('prov-prod-venta').value = '';
             window.renderizarCarritoCompras();
             if (inpCod) inpCod.focus();
@@ -9942,6 +10211,129 @@ window.abrirModalReporteZ = function() {
 
 
         // -------------------------------------------------------------
+        // CÁPSULA DE MARKETING WHATSAPP + EDITOR EXCLUSIVO MÁSTER + FORMULARIO 7 DÍAS GRATIS
+        // -------------------------------------------------------------
+        window.DEFAULT_PROMO_MASTER_TEXT = `🚀 *¿SABES REALMENTE CUÁNTO TE QUEDA LIBRE AL FINAL DEL DÍA EN TU NEGOCIO… O SE TE VA LA PLATA SIN DARTE CUENTA?* 🤔💸
+
+Muchos comercios venden todos los días, pero al cerrar la santamaría no saben cuánto deben apartar para reponer mercancía, cuánto se fue en gastos y cuánto es ganancia real.
+
+⚡ *PRESENTAMOS: TCL COMERCIO WEB (SISTEMA MÁSTER 2026)*
+
+La plataforma todo-en-uno diseñada para blindar tu caja y multiplicar el control de tu negocio desde tu propio celular, tablet o computadora:
+
+✅ *Caja POS Multimoneda en Vivo:*
+Cobra en Dólares ($), Pesos (COP) y Bolívares (Bs) con calculadora de vuelto inteligente y pagos mixtos.
+
+✅ *Cierres Inteligentes:*
+El sistema te separa automáticamente cuánto es para *reponer mercancía* y cuánto es *ganancia libre para ti*.
+
+✅ *Inventario + Vitrina Web 24/7:*
+Tus clientes ven tus productos con precios actualizados y te envían sus pedidos directo al WhatsApp.
+
+✅ *Control Total de Mostrador:*
+Fiados, abonos, compras a proveedores, lector de código de barras e impresión térmica (58mm / 80mm).
+
+👀 *MIRA LA PLATAFORMA POR DENTRO AQUÍ:*
+👉 https://tucocel.github.io/tclcomercioweb/?promo=7dias
+
+🎁 *¿QUIERES PROBARLO EN TU NEGOCIO SIN COMPROMISO?*
+
+Escríbenos ahora mismo y *SOLICITA TUS 7 DÍAS GRATIS DE PRUEBA* (te activamos tu propio usuario y vitrina en minutos). 🔥📲
+
+📞 *Atención Directa:* 0424-7357549
+_Un respaldo de TUCOCEL C.A. & @PublionlineMK_`;
+
+        window.obtenerTextoPromoMaster = function() {
+            const guardado = localStorage.getItem('tcl_master_promo_copy_2026');
+            if (guardado && guardado.trim().length > 10) {
+                return guardado.replace(/https:\/\/tucocel\.github\.io\/tclcomercioweb\/(?!\?)/g, 'https://tucocel.github.io/tclcomercioweb/?promo=7dias');
+            }
+            return window.DEFAULT_PROMO_MASTER_TEXT;
+        };
+
+        window.enviarPromoAppMasterWhatsApp = function() {
+            if (!window.esMasterLogueado) return;
+            const texto = window.obtenerTextoPromoMaster();
+            window.despacharWhatsApp('', texto);
+        };
+
+        window.abrirEditorPromoMaster = function() {
+            if (!window.esMasterLogueado) return;
+            const ta = document.getElementById('textarea-promo-master-editor');
+            if (ta) ta.value = window.obtenerTextoPromoMaster();
+            document.getElementById('modal-editor-promo-master').classList.remove('hidden');
+        };
+
+        window.restaurarTextoPromoMasterDefault = function() {
+            if (!window.esMasterLogueado) return;
+            const ta = document.getElementById('textarea-promo-master-editor');
+            if (ta) ta.value = window.DEFAULT_PROMO_MASTER_TEXT;
+        };
+
+        window.guardarTextoPromoMaster = function(enviarInmediato = false) {
+            if (!window.esMasterLogueado) return;
+            const ta = document.getElementById('textarea-promo-master-editor');
+            const nuevoTexto = ta ? ta.value.trim() : '';
+            if (!nuevoTexto) {
+                alert("⚠️ El mensaje publicitario no puede estar vacío.");
+                return;
+            }
+            window.tclSafeSetItem('tcl_master_promo_copy_2026', nuevoTexto);
+            document.getElementById('modal-editor-promo-master').classList.add('hidden');
+            if (enviarInmediato) {
+                window.despacharWhatsApp('', nuevoTexto);
+            } else {
+                alert("✅ Mensaje publicitario guardado con éxito.");
+            }
+        };
+
+        window.abrirModalSolicitarDemo7Dias = function() {
+            document.getElementById('modal-solicitar-demo-7dias').classList.remove('hidden');
+        };
+
+        window.enviarSolicitudDemo7DiasWhatsApp = function() {
+            const negocio = (document.getElementById('lead-demo-negocio').value || '').trim();
+            const responsable = (document.getElementById('lead-demo-responsable').value || '').trim();
+            const telefono = (document.getElementById('lead-demo-telefono').value || '').trim();
+            const ubicacion = (document.getElementById('lead-demo-ubicacion').value || '').trim();
+            const rif = (document.getElementById('lead-demo-rif').value || '').trim();
+            const ramo = (document.getElementById('lead-demo-ramo').value || '').trim();
+            const direccion = (document.getElementById('lead-demo-direccion').value || '').trim();
+            const origen = (document.getElementById('lead-demo-origen').value || '').trim();
+
+            if (!negocio || !responsable || !telefono || !ubicacion) {
+                alert("⚠️ Por favor completa los campos obligatorios (*).");
+                return;
+            }
+
+            let msj = `🔔 *NUEVA SOLICITUD DE 7 DÍAS GRATIS DE PRUEBA* 🎁
+
+`;
+            msj += `🏪 *Negocio:* ${negocio.toUpperCase()}
+`;
+            msj += `👤 *Responsable:* ${responsable}
+`;
+            msj += `📞 *Teléfono / WA:* ${telefono}
+`;
+            msj += `📍 *Ubicación:* ${ubicacion}
+`;
+            msj += `📦 *Ramo:* ${ramo}
+`;
+            if (rif) msj += `🪪 *RIF:* ${rif.toUpperCase()}
+`;
+            if (direccion) msj += `🗺️ *Dirección:* ${direccion}
+`;
+            msj += `📣 *Nos conoció por:* ${origen}
+
+`;
+            msj += `🚀 *¡Hola Tucocel C.A.! Quiero activar mis 7 días gratis de prueba en TCL Comercio Web.*`;
+
+            document.getElementById('modal-solicitar-demo-7dias').classList.add('hidden');
+            // Enviar directo al WhatsApp del Máster (584247357549)
+            window.despacharWhatsApp('584247357549', msj);
+        };
+
+        // -------------------------------------------------------------
         // INICIALIZACIÓN AUTOMÁTICA DEL SISTEMA Y ENRUTADOR DE URL
         // -------------------------------------------------------------
         window.inicializarRouterURL = async function() {
@@ -10104,6 +10496,59 @@ window.abrirModalReporteZ = function() {
                                 }, (errSnap) => console.warn("Aviso snapshot en vivo:", errSnap));
                             window.listenersFirestoreActivos.push(unsubPublicInv);
                         } catch(eSnap) {}
+                    }
+                } else {
+                    const esPromo7Dias = searchParams.get('promo') === '7dias' || searchParams.get('demo') === '7dias' || window.location.href.includes('promo=7dias');
+                    const boxCtaDemo = document.getElementById('box-cta-demo-7dias');
+                    if (boxCtaDemo) {
+                        if (esPromo7Dias) {
+                            boxCtaDemo.classList.remove('hidden');
+                        } else {
+                            boxCtaDemo.classList.add('hidden');
+                        }
+                    }
+
+                    // Restaurar sesión activa automáticamente si no han pasado más de 20 minutos (solo si no viene de enlace promocional nuevo)
+                    const sesionStr = localStorage.getItem('tcl_sesion_persistente_2026');
+                    const ultimoTs = window.getUltimaActividadTimestamp ? window.getUltimaActividadTimestamp() : 0;
+                    const diffMin = ultimoTs > 0 ? ((Date.now() - ultimoTs) / (1000 * 60)) : 999;
+
+                    if (sesionStr && diffMin < (window.limiteInactividadMinutos || 20)) {
+                        try {
+                            const ses = JSON.parse(sesionStr);
+                            if (ses.tipo === 'MASTER') {
+                                window.esMasterLogueado = true;
+                                window.setUltimaActividadTimestamp();
+                                window.activarVistaPrincipal('vista-master-admin');
+                                const diagEl = document.getElementById('diagnostico-master-flotante');
+                                if (diagEl) { diagEl.classList.remove('hidden'); diagEl.style.removeProperty('display'); }
+                                const boxDesc = document.getElementById('box-controles-descarga-segura');
+                                if (boxDesc) boxDesc.classList.remove('hidden');
+                                window.recalcularTotalesYBadgesComercios();
+                                if (typeof window.sincronizarClientesSaaSDesdeFirestore === 'function') window.sincronizarClientesSaaSDesdeFirestore();
+                                if (typeof window.iniciarListenerClientesMasterFirestore === 'function') window.iniciarListenerClientesMasterFirestore();
+                                return;
+                            } else if (ses.tipo === 'CLIENTE' && ses.slug) {
+                                const cliRestaurado = (window.dbClientesSaaS || []).find(c => (c.slug && c.slug.toLowerCase() === ses.slug) || (c.user && c.user.toLowerCase() === ses.slug));
+                                if (cliRestaurado) {
+                                    const checkVig = window.comprobarVigenciaComercio(cliRestaurado);
+                                    if (checkVig.valido) {
+                                        window.clienteActivoSesion = cliRestaurado;
+                                        window.setUltimaActividadTimestamp();
+                                        window.cargarDatosDelComercioActivo();
+                                        if (!cliRestaurado.contratoAceptado) {
+                                            window.mostrarContratoDirecto(cliRestaurado);
+                                        } else {
+                                            window.abrirPanelClientePrivadoDirecto();
+                                        }
+                                        return;
+                                    }
+                                }
+                            }
+                        } catch(eSes) {}
+                    } else if (sesionStr) {
+                        localStorage.removeItem('tcl_sesion_persistente_2026');
+                        localStorage.removeItem('tcl_ultima_actividad_ts');
                     }
                 }
             } catch(e) {
@@ -10630,6 +11075,224 @@ window.abrirModalReporteZ = function() {
                     Hacerlo más tarde / Ir a Caja
                 </button>
             </div>
+        </div>
+    </div>
+
+    <!-- MODAL VENTANA INTELIGENTE VENTA LIBRE: GUARDAR COMO PRODUCTO O SERVICIO -->
+    <div id="modal-guardar-venta-libre-catalogo" class="fixed inset-0 bg-slate-950/85 backdrop-blur-md z-[260] p-4 flex items-center justify-center hidden no-print">
+        <div class="bg-white border border-slate-200 w-full max-w-md rounded-3xl overflow-hidden shadow-2xl flex flex-col max-h-[92vh]">
+            <div class="bg-slate-900 px-5 py-4 text-white flex justify-between items-center shrink-0">
+                <div class="flex items-center gap-2">
+                    <i class="fa-solid fa-wand-magic-sparkles text-amber-400"></i>
+                    <h3 class="font-black text-xs uppercase tracking-wider">¿Guardar en Catálogo Permanente?</h3>
+                </div>
+                <button type="button" onclick="document.getElementById('modal-guardar-venta-libre-catalogo').classList.add('hidden')" class="text-slate-400 hover:text-white"><i class="fa-solid fa-xmark text-sm"></i></button>
+            </div>
+
+            <div class="p-5 overflow-y-auto space-y-3.5 text-xs font-bold text-slate-800 no-scrollbar">
+                <p class="text-[11px] text-slate-500 font-medium leading-relaxed">
+                    Acabas de facturar este artículo al vuelo. ¿Deseas dejarlo registrado para futuras ventas en caja y en tu vitrina?
+                </p>
+
+                <!-- SELECTOR PRODUCTO VS SERVICIO -->
+                <div class="grid grid-cols-2 gap-2">
+                    <button type="button" id="btn-vl-tipo-producto" onclick="window.seleccionarTipoVentaLibreCatalogo('PRODUCTO')" class="py-2.5 px-3 rounded-2xl border-2 border-blue-600 bg-blue-600 text-white font-black uppercase text-[10.5px] flex items-center justify-center gap-1.5 shadow-sm transition-all">
+                        <i class="fa-solid fa-box-open"></i> <span>Producto Físico</span>
+                    </button>
+                    <button type="button" id="btn-vl-tipo-servicio" onclick="window.seleccionarTipoVentaLibreCatalogo('SERVICIO')" class="py-2.5 px-3 rounded-2xl border-2 border-slate-300 bg-white text-slate-700 font-black uppercase text-[10.5px] flex items-center justify-center gap-1.5 transition-all">
+                        <i class="fa-solid fa-screwdriver-wrench text-indigo-600"></i> <span>Servicio</span>
+                    </button>
+                </div>
+
+                <div class="space-y-2.5">
+                    <div>
+                        <label class="text-[9.5px] text-slate-500 uppercase block mb-0.5">Nombre del Producto o Servicio *</label>
+                        <input type="text" id="vl-cat-nombre" class="input-clean font-mono uppercase">
+                    </div>
+
+                    <div class="grid grid-cols-1 sm:grid-cols-2 gap-2">
+                        <div>
+                            <label class="text-[9.5px] text-slate-500 uppercase block mb-0.5">Categoría / Departamento *</label>
+                            <input type="text" id="vl-cat-categoria" list="lista-categorias-inventario" placeholder="Ej: VÍVERES / SERVICIOS" class="input-clean font-mono uppercase">
+                        </div>
+                        <div id="box-vl-unidad">
+                            <label class="text-[9.5px] text-slate-500 uppercase block mb-0.5">Unidad de Medida</label>
+                            <select id="vl-cat-unidad" class="input-clean font-bold text-xs">
+                                <option value="UND">Unidad (UND)</option>
+                                <option value="KG">Kilogramo (KG)</option>
+                            </select>
+                        </div>
+                    </div>
+
+                    <!-- STOCK SOLO PARA PRODUCTO FÍSICO -->
+                    <div id="box-vl-stock" class="bg-slate-50 p-2.5 rounded-xl border border-slate-200">
+                        <label class="text-[9.5px] text-slate-600 uppercase block mb-0.5">Cantidad / Stock Disponible en Almacén *</label>
+                        <input type="number" step="any" id="vl-cat-stock" value="10" class="input-clean font-mono font-black text-emerald-700">
+                    </div>
+
+                    <!-- CALCULADORA COSTO + GANANCIA -> VENTA PROTEGIDA -->
+                    <div class="bg-blue-50/60 p-3 rounded-2xl border border-blue-200 space-y-2">
+                        <span id="lbl-vl-moneda-tag" class="text-[9px] font-mono font-black text-blue-800 uppercase block">Cálculo de Precio en USD</span>
+                        <div class="grid grid-cols-3 gap-2">
+                            <div>
+                                <label class="text-[9px] text-slate-500 uppercase block mb-0.5">Costo</label>
+                                <input type="text" inputmode="decimal" id="vl-cat-costo" oninput="window.autoFormatearSeparadoresInput(this, true); window.recalcularVentaDesdeMargen('VENTA_LIBRE');" placeholder="0,00" class="input-clean font-mono">
+                            </div>
+                            <div>
+                                <div class="flex justify-between items-center mb-0.5">
+                                    <label class="text-[9px] text-emerald-700 uppercase font-black">Ganancia</label>
+                                    <select id="vl-cat-margen-tipo" onchange="window.recalcularVentaDesdeMargen('VENTA_LIBRE')" class="text-[8px] font-black bg-emerald-100 text-emerald-900 border border-emerald-300 rounded px-1">
+                                        <option value="MONTO">Monto</option>
+                                        <option value="PCT">%</option>
+                                    </select>
+                                </div>
+                                <input type="text" inputmode="decimal" id="vl-cat-margen" oninput="window.autoFormatearSeparadoresInput(this, true); window.recalcularVentaDesdeMargen('VENTA_LIBRE');" placeholder="0,00" class="input-clean font-mono text-emerald-700 font-black bg-white">
+                            </div>
+                            <div>
+                                <div class="flex justify-between items-center mb-0.5">
+                                    <label class="text-[9px] text-slate-500 uppercase">P. Venta</label>
+                                    <span class="text-[7.5px] font-mono font-black text-blue-700 bg-blue-100 px-1 rounded">Auto</span>
+                                </div>
+                                <input type="text" readonly id="vl-cat-venta" class="input-clean font-mono text-blue-700 font-black bg-blue-50 border-blue-300 cursor-not-allowed">
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- INTERRUPTOR VITRINA WEB -->
+                    <label class="flex items-center justify-between bg-emerald-50/70 p-3 rounded-2xl border border-emerald-200 cursor-pointer">
+                        <div class="flex items-center gap-2">
+                            <i class="fa-solid fa-globe text-emerald-600 text-base"></i>
+                            <div>
+                                <span class="text-[10.5px] font-black text-slate-900 uppercase block">Mostrar en Vitrina Web</span>
+                                <span class="text-[9px] text-slate-500 font-normal block">Visible en el catálogo online de WhatsApp</span>
+                            </div>
+                        </div>
+                        <input type="checkbox" id="vl-cat-vitrina" checked class="w-5 h-5 accent-emerald-600 rounded">
+                    </label>
+                </div>
+            </div>
+
+            <div class="bg-slate-100 p-4 border-t border-slate-200 grid grid-cols-2 gap-2 shrink-0">
+                <button type="button" onclick="document.getElementById('modal-guardar-venta-libre-catalogo').classList.add('hidden')" class="bg-white hover:bg-slate-200 text-slate-700 border border-slate-300 py-3 rounded-xl uppercase text-[10px] font-black">
+                    Solo por esta vez
+                </button>
+                <button type="button" onclick="window.confirmarGuardarVentaLibreEnCatalogo()" class="btn-brand py-3 text-[10px] shadow-md">
+                    💾 Guardar en Catálogo
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <!-- MODAL EDITOR HOJA BLANCA DE MARKETING (EXCLUSIVO PANEL MÁSTER) -->
+    <div id="modal-editor-promo-master" class="fixed inset-0 bg-slate-950/90 backdrop-blur-md z-[290] p-2 sm:p-5 flex items-center justify-center hidden no-print">
+        <div class="bg-white border border-slate-200 w-full max-w-2xl rounded-3xl overflow-hidden shadow-2xl flex flex-col h-[90vh]">
+            <div class="bg-slate-900 px-5 py-4 text-white flex justify-between items-center shrink-0">
+                <div class="flex items-center gap-2">
+                    <i class="fa-solid fa-pen-nib text-amber-400"></i>
+                    <h3 class="font-black text-xs uppercase tracking-wider">Editor Publicitario WhatsApp (Solo Máster)</h3>
+                </div>
+                <button type="button" onclick="document.getElementById('modal-editor-promo-master').classList.add('hidden')" class="text-slate-400 hover:text-white"><i class="fa-solid fa-xmark text-base"></i></button>
+            </div>
+
+            <div class="p-4 bg-amber-50 border-b border-amber-200 flex flex-wrap items-center justify-between gap-2 text-[10.5px] text-amber-900 font-bold">
+                <span><i class="fa-solid fa-circle-info text-amber-600 mr-1"></i> Mantén los párrafos separados con líneas en blanco para que luzca impecable en WhatsApp.</span>
+                <button type="button" onclick="window.restaurarTextoPromoMasterDefault()" class="bg-white hover:bg-amber-100 text-amber-900 border border-amber-300 px-2.5 py-1 rounded-lg text-[9.5px] font-black uppercase">
+                    🔄 Restaurar Original
+                </button>
+            </div>
+
+            <div class="p-4 sm:p-5 flex-grow flex flex-col bg-slate-50">
+                <textarea id="textarea-promo-master-editor" class="w-full h-full bg-white border-2 border-slate-300 focus:border-blue-600 rounded-2xl p-4 text-xs sm:text-sm font-sans text-slate-900 leading-relaxed outline-none resize-none shadow-inner"></textarea>
+            </div>
+
+            <div class="bg-slate-100 p-4 border-t border-slate-200 grid grid-cols-2 gap-2.5 shrink-0">
+                <button type="button" onclick="window.guardarTextoPromoMaster(false)" class="bg-slate-900 hover:bg-slate-800 text-white font-black py-3.5 rounded-xl uppercase text-xs shadow">
+                    💾 Guardar Cambios
+                </button>
+                <button type="button" onclick="window.guardarTextoPromoMaster(true)" class="bg-emerald-600 hover:bg-emerald-500 text-white font-black py-3.5 rounded-xl uppercase text-xs shadow flex items-center justify-center gap-1.5">
+                    <i class="fa-brands fa-whatsapp text-base"></i> Guardar y Enviar
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <!-- MODAL SOLICITAR 7 DÍAS GRATIS DE PRUEBA (CAPTACIÓN DE LEADS DESDE LOGIN) -->
+    <div id="modal-solicitar-demo-7dias" class="fixed inset-0 bg-slate-950/85 backdrop-blur-md z-[270] p-3 sm:p-4 flex items-center justify-center hidden no-print">
+        <div class="bg-white border border-slate-200 w-full max-w-md rounded-3xl overflow-hidden shadow-2xl flex flex-col max-h-[92vh]">
+            <div class="bg-gradient-to-r from-emerald-600 to-teal-700 px-5 py-4 text-white flex justify-between items-center shrink-0">
+                <div class="flex items-center gap-2">
+                    <i class="fa-solid fa-gift text-amber-300 text-base"></i>
+                    <div>
+                        <h3 class="font-black text-xs sm:text-sm uppercase tracking-wider">Solicita tus 7 Días Gratis</h3>
+                        <p class="text-[10px] text-emerald-100 font-medium">Activación rápida para probar en tu negocio</p>
+                    </div>
+                </div>
+                <button type="button" onclick="document.getElementById('modal-solicitar-demo-7dias').classList.add('hidden')" class="text-white/80 hover:text-white"><i class="fa-solid fa-xmark text-base"></i></button>
+            </div>
+
+            <form onsubmit="event.preventDefault(); window.enviarSolicitudDemo7DiasWhatsApp();" class="p-5 overflow-y-auto space-y-3 text-xs font-bold text-slate-800 no-scrollbar">
+                <div>
+                    <label class="text-[9.5px] text-slate-500 uppercase block mb-0.5">Nombre del Negocio / Comercio *</label>
+                    <input type="text" id="lead-demo-negocio" required placeholder="Ej: Repuestos El Águila C.A." class="input-clean">
+                </div>
+
+                <div class="grid grid-cols-1 sm:grid-cols-2 gap-2.5">
+                    <div>
+                        <label class="text-[9.5px] text-slate-500 uppercase block mb-0.5">Nombre del Responsable *</label>
+                        <input type="text" id="lead-demo-responsable" required placeholder="Ej: Carlos Pérez" class="input-clean">
+                    </div>
+                    <div>
+                        <label class="text-[9.5px] text-slate-500 uppercase block mb-0.5">Teléfono / WhatsApp *</label>
+                        <input type="tel" id="lead-demo-telefono" required placeholder="Ej: 0414-1234567" class="input-clean font-mono">
+                    </div>
+                </div>
+
+                <div class="grid grid-cols-1 sm:grid-cols-2 gap-2.5">
+                    <div>
+                        <label class="text-[9.5px] text-slate-500 uppercase block mb-0.5">Ubicación / Ciudad / Municipio *</label>
+                        <input type="text" id="lead-demo-ubicacion" required placeholder="Ej: Cordero / San Cristóbal / Cúcuta" class="input-clean">
+                    </div>
+                    <div>
+                        <label class="text-[9.5px] text-slate-500 uppercase block mb-0.5">RIF (Opcional)</label>
+                        <input type="text" id="lead-demo-rif" placeholder="Ej: J-12345678-0" class="input-clean font-mono">
+                    </div>
+                </div>
+
+                <div>
+                    <label class="text-[9.5px] text-slate-500 uppercase block mb-0.5">Tipo de Negocio / Ramo *</label>
+                    <select id="lead-demo-ramo" required class="input-clean font-bold text-xs">
+                        <option value="Repuestos / Ferretería">🔧 Repuestos / Ferretería</option>
+                        <option value="Víveres / Bodega / Abastos">🛒 Víveres / Bodega / Abastos</option>
+                        <option value="Charcutería / Carnicería">🧀 Charcutería / Carnicería</option>
+                        <option value="Farmacia / Salud">💊 Farmacia / Salud</option>
+                        <option value="Tienda de Ropa / Calzado / Accesorios">👕 Tienda de Ropa / Calzado / Accesorios</option>
+                        <option value="Autowash / Taller / Servicios">🚗 Autowash / Taller / Servicios</option>
+                        <option value="Otro Comercio">🏪 Otro Comercio</option>
+                    </select>
+                </div>
+
+                <div>
+                    <label class="text-[9.5px] text-slate-500 uppercase block mb-0.5">Dirección Física (Opcional)</label>
+                    <input type="text" id="lead-demo-direccion" placeholder="Ej: Calle Principal, Local #4..." class="input-clean">
+                </div>
+
+                <div>
+                    <label class="text-[9.5px] text-slate-500 uppercase block mb-0.5">¿Cómo se enteró de nosotros?</label>
+                    <select id="lead-demo-origen" class="input-clean font-bold text-xs">
+                        <option value="Grupo de WhatsApp">📲 Grupo de WhatsApp</option>
+                        <option value="Redes Sociales">📱 Redes Sociales (Instagram / Facebook / TikTok)</option>
+                        <option value="Recomendación de otro comerciante">🤝 Recomendación de otro comerciante</option>
+                        <option value="Visto en la calle / Publicidad">🏪 Visto en la calle / Publicidad</option>
+                    </select>
+                </div>
+
+                <div class="pt-2">
+                    <button type="submit" class="w-full bg-emerald-600 hover:bg-emerald-500 text-white font-black py-3.5 rounded-2xl uppercase text-xs tracking-wider shadow-lg active:scale-95 transition-all flex items-center justify-center gap-2">
+                        <i class="fa-brands fa-whatsapp text-lg"></i>
+                        <span>SOLICITAR MIS 7 DÍAS GRATIS</span>
+                    </button>
+                </div>
+            </form>
         </div>
     </div>
 </body>
