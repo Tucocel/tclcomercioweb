@@ -449,9 +449,14 @@
 
         <!-- 4. CENTRAL DE ACCESOS Y GESTIÓN (CUADRÍCULA 4 MÓDULOS DE 1 SOLO TOQUE) -->
         <div class="card-light p-3.5 space-y-2 border-blue-200">
-            <h2 class="text-xs font-black text-slate-500 uppercase tracking-wider flex items-center gap-1.5 border-b border-slate-100 pb-2">
-                <i class="fa-solid fa-grip text-blue-600"></i> Central de Accesos y Gestión
-            </h2>
+            <div class="flex items-center justify-between gap-2 border-b border-slate-100 pb-2">
+                <h2 class="text-xs font-black text-slate-500 uppercase tracking-wider flex items-center gap-1.5 min-w-0">
+                    <i class="fa-solid fa-grip text-blue-600 shrink-0"></i> <span class="truncate">Central de Accesos y Gestión</span>
+                </h2>
+                <button type="button" onclick="window.abrirModalNotificarMejorasMaster()" class="bg-indigo-600 hover:bg-indigo-500 text-white px-2.5 py-1.5 rounded-xl text-[10px] font-black uppercase flex items-center gap-1.5 shadow-sm transition-all active:scale-95 shrink-0" title="Notificar mejoras públicas a los comercios">
+                    <i class="fa-solid fa-bullhorn text-amber-300 text-[11px]"></i> <span>Notificar Mejoras</span>
+                </button>
+            </div>
 
             <div class="grid grid-cols-2 sm:grid-cols-4 gap-2 pt-0.5">
                 <!-- Botón 1: Base Clientes -->
@@ -743,6 +748,26 @@
                         <i class="fa-solid fa-pen-to-square text-xs"></i> <span>Ajustar Tasa</span>
                     </button>
                 </div>
+            </div>
+
+            <!-- TARJETA DE NOVEDADES DEL SISTEMA PARA EL CLIENTE (SE OCULTA AL TOCAR ¡ENTENDIDO!) -->
+            <div id="card-novedades-sistema-cliente" class="hidden bg-gradient-to-br from-indigo-50 via-blue-50 to-white border-2 border-indigo-300 rounded-3xl p-4 shadow-md space-y-3 transition-all">
+                <div class="flex items-center justify-between gap-2 border-b border-indigo-200/80 pb-2">
+                    <div class="flex items-center gap-2 min-w-0">
+                        <div class="w-8 h-8 rounded-xl bg-indigo-600 text-white flex items-center justify-center text-sm shadow-sm shrink-0">
+                            <i class="fa-solid fa-wand-magic-sparkles text-amber-300"></i>
+                        </div>
+                        <div class="min-w-0">
+                            <h3 class="text-xs sm:text-sm font-black text-indigo-950 uppercase tracking-tight truncate">✨ Novedades en tu Sistema TCL</h3>
+                            <span id="lbl-fecha-novedad-cliente" class="text-[9px] font-mono font-bold text-indigo-600 block">Actualización Reciente</span>
+                        </div>
+                    </div>
+                    <span class="bg-emerald-100 text-emerald-800 border border-emerald-300 text-[8.5px] font-black uppercase px-2 py-0.5 rounded-full shrink-0">Nuevo</span>
+                </div>
+                <div id="lbl-contenido-novedades-cliente" class="text-xs text-slate-700 leading-relaxed whitespace-pre-line font-medium bg-white/80 p-3 rounded-2xl border border-indigo-100"></div>
+                <button type="button" onclick="window.marcarNovedadSistemaLeida()" class="w-full bg-indigo-600 hover:bg-indigo-500 text-white font-black py-2.5 px-4 rounded-xl text-xs uppercase tracking-wider shadow-sm active:scale-95 transition-all flex items-center justify-center gap-1.5">
+                    <i class="fa-solid fa-check-double"></i> <span>¡Entendido!</span>
+                </button>
             </div>
 
             <!-- 2. RESUMEN EJECUTIVO EN TIEMPO REAL (VENTAS HOY, NOTAS HOY, POR COBRAR) -->
@@ -2303,6 +2328,10 @@
                             <input type="text" inputmode="decimal" id="prov-prod-cant" value="1" oninput="window.autoFormatearSeparadoresInput(this, true)" placeholder="Ej: 10" class="input-clean font-mono text-center font-black text-blue-600">
                         </div>
                     </div>
+                    <div>
+                        <label class="text-[9px] text-slate-500 uppercase block mb-0.5">Descripción Breve para Vitrina Web (Opcional)</label>
+                        <input type="text" id="prov-prod-desc" placeholder="Ej: Presentación 500g / Color blanco / Con vitamina E..." class="input-clean text-xs">
+                    </div>
                     <div class="grid grid-cols-1 sm:grid-cols-12 gap-2 pt-1 items-end">
                         <div class="sm:col-span-3">
                             <label id="lbl-compra-costo-moneda" class="text-[9px] text-slate-500 uppercase block mb-0.5">P. Costo ($ USD) *</label>
@@ -2610,10 +2639,19 @@
                 </div>
             </div>
 
-            <div class="p-3 bg-slate-100 border-b border-slate-200 shrink-0">
+            <div class="p-3 bg-slate-100 border-b border-slate-200 shrink-0 space-y-2">
                 <div class="relative">
                     <i class="fa-solid fa-magnifying-glass absolute left-3.5 top-3 text-slate-400 text-xs"></i>
                     <input type="text" id="busqueda-inventario-input" onkeyup="window.renderizarTablaModalInventario()" placeholder="Escriba para buscar: harina, aceite, filtro..." class="input-clean pl-9 bg-white font-mono text-xs">
+                </div>
+                <div class="flex items-center gap-1.5 flex-wrap">
+                    <button type="button" id="btn-filtro-inv-todos" onclick="window.setFiltroStockInventario('TODOS')" class="bg-blue-600 text-white px-2.5 py-1 rounded-lg text-[10px] font-black uppercase shadow-xs transition-all">
+                        📦 Todos
+                    </button>
+                    <button type="button" id="btn-filtro-inv-bajo" onclick="window.setFiltroStockInventario('BAJO_AGOTADO')" class="bg-white hover:bg-amber-50 text-amber-900 border border-amber-300 px-2.5 py-1 rounded-lg text-[10px] font-black uppercase transition-all flex items-center gap-1">
+                        <span>⚠️ Stock Bajo / Agotado</span>
+                        <span id="badge-cnt-stock-bajo" class="bg-amber-200 text-amber-950 px-1.5 py-0.2 rounded-full font-mono text-[9px]">0</span>
+                    </button>
                 </div>
             </div>
             <div class="p-3 sm:p-5 overflow-y-auto no-scrollbar flex-grow space-y-3">
@@ -4996,6 +5034,177 @@ Tu nueva clave de acceso es: ${nuevaClave}`);
             }
         };
 
+        // -------------------------------------------------------------
+        // BITÁCORA DE MEJORAS PÚBLICAS PARA CLIENTES (SINGULAR / PLURAL + APP + WHATSAPP)
+        // -------------------------------------------------------------
+        window.MEJORAS_PUBLICAS_CLIENTES = [
+            {
+                titulo: "Nuevo Cierre Inteligente (Reposición vs. Ganancia Libre)",
+                detalle: "Tanto en el Cierre del Día como en el Cierre del Mes, el sistema ahora separa automáticamente cuánto corresponde al costo para reponer mercancía, cuánto salió en gastos operativos y cuánto le queda de Ganancia Libre para usted, sin restar sus compras a proveedores como gastos del turno."
+            },
+            {
+                titulo: "Calculadora Automática de Ganancia (% o Monto Fijo)",
+                detalle: "Al cargar una compra, registrar un producto o crear un servicio, solo debe ingresar el Costo y elegir su ganancia por Porcentaje (%) o Monto Fijo (USD, COP o Bs). El sistema calcula y protege automáticamente el precio de venta al público."
+            },
+            {
+                titulo: "Registro Rápido de Servicios y Productos al Vuelo",
+                detalle: "Al cobrar un ítem en Venta Libre (Sin Inventario), ahora puede guardarlo de forma permanente en su catálogo como Producto (UND/KG) o como Servicio sin afectar su inventario físico."
+            },
+            {
+                titulo: "Sesión Activa por 20 Minutos y Recordatorio de Cierre",
+                detalle: "Su sesión permanece abierta durante 20 minutos aunque minimice o cierre el navegador, y el sistema le avisará amablemente si quedó algún cierre diario pendiente por cuadrar."
+            }
+        ];
+
+        window.generarComunicadoMejorasClientes = function(lista = null) {
+            const mejoras = Array.isArray(lista) && lista.length > 0 ? lista : (window.MEJORAS_PUBLICAS_CLIENTES || []);
+            const esSingular = (mejoras.length === 1);
+
+            let msj = `📢 *COMUNICADO DE ACTUALIZACIÓN — TCL COMERCIO WEB* ✨\n\n`;
+            if (esSingular) {
+                msj += `Estimado usuario, le informamos que hemos realizado una importante actualización en nuestro sistema para optimizar la experiencia y la gestión diaria de su negocio. La siguiente mejora fue implementada:\n\n`;
+                const m = mejoras[0];
+                msj += `✅ *${m.titulo}:*\n${m.detalle}\n\n`;
+            } else {
+                msj += `Estimados usuarios, les informamos que hemos realizado una actualización en nuestro sistema para optimizar la experiencia y la gestión diaria de sus negocios. Las siguientes mejoras fueron implementadas:\n\n`;
+                mejoras.forEach((m, i) => {
+                    msj += `✅ *${i + 1}. ${m.titulo}:*\n${m.detalle}\n\n`;
+                });
+            }
+
+            msj += `🔄 *Nota:* Solo debe actualizar o recargar su página para disfrutar de estas mejoras de inmediato.\n\n`;
+            msj += `*Sistema TCL Comercio Web*\n_Un respaldo de TUCOCEL C.A. & @PublionlineMK_`;
+            return msj;
+        };
+
+        window.abrirModalNotificarMejorasMaster = function() {
+            if (!window.esMasterLogueado) return;
+            const ta = document.getElementById('textarea-mejoras-clientes-editor');
+            if (ta) {
+                ta.value = window.generarComunicadoMejorasClientes();
+            }
+            document.getElementById('modal-notificar-mejoras-master').classList.remove('hidden');
+        };
+
+        window.regenerarComunicadoMejorasMaster = function() {
+            if (!window.esMasterLogueado) return;
+            const ta = document.getElementById('textarea-mejoras-clientes-editor');
+            if (ta) {
+                ta.value = window.generarComunicadoMejorasClientes();
+            }
+        };
+
+        window.publicarNovedadesClientes = async function(enApp = true, enWhatsApp = false) {
+            if (!window.esMasterLogueado) return;
+            const ta = document.getElementById('textarea-mejoras-clientes-editor');
+            const texto = ta ? ta.value.trim() : '';
+            if (!texto) {
+                alert("⚠️ El comunicado no puede estar vacío.");
+                return;
+            }
+
+            if (enApp) {
+                const versionId = 'nov_' + Date.now();
+                const fechaISO = window.obtenerFechaLocalISO();
+                // Extraer solo el cuerpo limpio para la tarjeta interna de la App
+                const cuerpoApp = texto
+                    .replace(/^📢[^\n]*\n+/i, '')
+                    .replace(/🔄 \*Nota:\*[^\n]*\n*/i, '')
+                    .replace(/\*Sistema TCL Comercio Web\*[\s\S]*$/i, '')
+                    .replace(/\*/g, '')
+                    .trim();
+
+                const payloadNovedad = {
+                    versionId,
+                    fecha: fechaISO,
+                    mensajeCompleto: texto,
+                    resumenApp: cuerpoApp || texto,
+                    publicadoMs: Date.now()
+                };
+
+                window.tclSafeSetItem('tcl_novedades_globales_clientes_2026', JSON.stringify(payloadNovedad));
+
+                if (window.dbNube) {
+                    try {
+                        await window.dbNube.collection('configuracion_global').doc('novedades_clientes').set(payloadNovedad, { merge: true });
+                    } catch (eNov) {
+                        console.warn("Aviso publicación novedad en Firestore:", eNov);
+                    }
+                }
+            }
+
+            document.getElementById('modal-notificar-mejoras-master').classList.add('hidden');
+
+            if (enWhatsApp) {
+                window.despacharWhatsApp('', texto);
+            } else if (enApp) {
+                alert("✅ ¡Novedad publicada! Todos los comercios verán la tarjeta de actualización al ingresar a su Panel Principal.");
+            }
+        };
+
+        window.verificarNovedadesSistemaCliente = async function() {
+            const card = document.getElementById('card-novedades-sistema-cliente');
+            const lblContenido = document.getElementById('lbl-contenido-novedades-cliente');
+            const lblFecha = document.getElementById('lbl-fecha-novedad-cliente');
+            if (!card || !lblContenido) return;
+
+            // Si es el Máster entrando en modo soporte, no mostrarle su propio aviso
+            if (window.esMasterLogueado) {
+                card.classList.add('hidden');
+                return;
+            }
+
+            let novedad = null;
+            if (window.dbNube) {
+                try {
+                    const docNov = await window.dbNube.collection('configuracion_global').doc('novedades_clientes').get();
+                    if (docNov && docNov.exists) {
+                        novedad = docNov.data();
+                        window.tclSafeSetItem('tcl_novedades_globales_clientes_2026', JSON.stringify(novedad));
+                    }
+                } catch (e) {}
+            }
+
+            if (!novedad) {
+                const localNov = localStorage.getItem('tcl_novedades_globales_clientes_2026');
+                if (localNov) {
+                    try { novedad = JSON.parse(localNov); } catch (e) {}
+                }
+            }
+
+            if (!novedad || !novedad.versionId) {
+                card.classList.add('hidden');
+                return;
+            }
+
+            const slug = (window.clienteActivoSesion && (window.clienteActivoSesion.slug || window.clienteActivoSesion.user))
+                ? (window.clienteActivoSesion.slug || window.clienteActivoSesion.user).toLowerCase().trim()
+                : 'demo';
+            const leidaId = localStorage.getItem(`tcl_tenant_${slug}_novedad_leida_id`);
+
+            if (leidaId === novedad.versionId) {
+                card.classList.add('hidden');
+                return;
+            }
+
+            window._novedadActivaVersionId = novedad.versionId;
+            if (lblFecha) lblFecha.innerText = novedad.fecha ? `Actualización del ${novedad.fecha}` : 'Actualización Reciente';
+            lblContenido.innerText = novedad.resumenApp || novedad.mensajeCompleto || '';
+            card.classList.remove('hidden');
+        };
+
+        window.marcarNovedadSistemaLeida = function() {
+            const card = document.getElementById('card-novedades-sistema-cliente');
+            if (card) card.classList.add('hidden');
+
+            const slug = (window.clienteActivoSesion && (window.clienteActivoSesion.slug || window.clienteActivoSesion.user))
+                ? (window.clienteActivoSesion.slug || window.clienteActivoSesion.user).toLowerCase().trim()
+                : 'demo';
+            if (window._novedadActivaVersionId) {
+                window.tclSafeSetItem(`tcl_tenant_${slug}_novedad_leida_id`, window._novedadActivaVersionId);
+            }
+        };
+
         window.verificarCierreDiarioPendienteAlEntrar = function() {
             const ventas = window.dbVentas || [];
             if (ventas.length === 0) return;
@@ -5076,6 +5285,9 @@ Tu nueva clave de acceso es: ${nuevaClave}`);
             setTimeout(() => {
                 if (typeof window.verificarTasaAperturaDia === 'function') {
                     window.verificarTasaAperturaDia();
+                }
+                if (typeof window.verificarNovedadesSistemaCliente === 'function') {
+                    window.verificarNovedadesSistemaCliente();
                 }
                 if (typeof window.verificarCierreDiarioPendienteAlEntrar === 'function') {
                     window.verificarCierreDiarioPendienteAlEntrar();
@@ -7420,18 +7632,126 @@ Las conversiones a Pesos (COP) y Bolívares (Bs) se sincronizaron con la tasa de
             window.recalcularReportesGanancias();
         };
 
+        // UTILIDAD: LIMPIAR ETIQUETAS INTERNAS DE PROVEEDOR EN VITRINA PÚBLICA
+        window.obtenerDescripcionPublicaProducto = function(descRaw) {
+            if (!descRaw) return '';
+            const txt = String(descRaw).trim();
+            if (!txt) return '';
+            const lower = txt.toLowerCase();
+            if (lower.startsWith('proveedor:') || lower === 'sin descripción' || lower === 'sin descripcion') {
+                return '';
+            }
+            return txt;
+        };
+
         // CHECKOUT TIENDA PÚBLICA
-        window.agregarAlCarrito = function(nombre, precioUSD) {
+        window.agregarAlCarrito = function(nombre, precioUSD, cantAgregar = 1) {
+            const cantVal = Math.max(0.01, Number(cantAgregar) || 1);
             const index = window.carritoTienda.findIndex(item => item.nombre === nombre);
-            if (index !== -1) window.carritoTienda[index].cant += 1; else window.carritoTienda.push({ nombre, precioUSD, cant: 1 });
+            if (index !== -1) window.carritoTienda[index].cant = parseFloat((window.carritoTienda[index].cant + cantVal).toFixed(3));
+            else window.carritoTienda.push({ nombre, precioUSD, cant: cantVal });
             window.actualizarResumenCarrito();
         };
 
-        window.agregarAlCarritoPorId = function(prodId) {
+        window.agregarAlCarritoPorId = function(prodId, cantAgregar = 1) {
             const p = (window.dbInventario || []).find(item => item.id === prodId);
             if (!p) return;
             const precioUSD = p.precioVenta || p.precioUSD || 0;
-            window.agregarAlCarrito(p.nombre, precioUSD);
+            window.agregarAlCarrito(p.nombre, precioUSD, cantAgregar);
+        };
+
+        // VISTA AMPLIADA FLOTANTE DE PRODUCTO EN VITRINA (QUICK VIEW)
+        window.abrirDetalleProductoVitrina = function(prodId) {
+            const p = (window.dbInventario || []).find(item => item.id === prodId);
+            if (!p) return;
+
+            const venta = p.precioVenta || p.precioUSD || 0;
+            const cop = window.calcularPesosDesdeUSD(venta);
+            const bs = window.calcularBsDesdeUSD(venta);
+            const esServicio = !!p.esServicio;
+            const disponible = esServicio || (p.stock || 0) > 0;
+            const descPublica = window.obtenerDescripcionPublicaProducto(p.desc);
+
+            document.getElementById('qv-prod-id').value = p.id;
+            document.getElementById('qv-prod-categoria').innerText = (p.categoria || 'GENERAL').toUpperCase();
+            document.getElementById('qv-prod-nombre').innerHTML = `${window.escapeHTML(p.nombre)} ${p.unidad === 'KG' ? '<span class="text-xs text-amber-700 bg-amber-50 px-1.5 py-0.5 rounded border border-amber-200 align-middle">/ Kg</span>' : ''}`;
+
+            const elDesc = document.getElementById('qv-prod-desc');
+            if (descPublica) {
+                elDesc.innerText = descPublica;
+                elDesc.classList.remove('hidden');
+            } else {
+                elDesc.innerText = '';
+                elDesc.classList.add('hidden');
+            }
+
+            const imgBox = document.getElementById('qv-prod-imagen-box');
+            imgBox.innerHTML = p.foto
+                ? `<img src="${p.foto}" class="w-full h-full object-contain bg-white">`
+                : `<i class="fa-solid ${esServicio ? 'fa-screwdriver-wrench text-indigo-400' : 'fa-box-open text-slate-300'}"></i>`;
+
+            const badgeBox = document.getElementById('qv-prod-badge-stock');
+            badgeBox.innerHTML = esServicio
+                ? `<span class="absolute top-3 right-3 bg-indigo-600 text-white font-black text-[10px] px-2.5 py-1 rounded-xl uppercase shadow">🛠️ Servicio Disponible</span>`
+                : (!disponible
+                    ? `<span class="absolute top-3 right-3 bg-red-600 text-white font-black text-[10px] px-2.5 py-1 rounded-xl uppercase shadow">Agotado</span>`
+                    : (p.unidad === 'KG'
+                        ? `<span class="absolute top-3 right-3 bg-emerald-600 text-white font-black text-[10px] px-2.5 py-1 rounded-xl uppercase font-mono shadow">${(Number(p.stock)||0).toFixed(p.stock % 1 === 0 ? 0 : 2)} Kg Disponibles</span>`
+                        : `<span class="absolute top-3 right-3 bg-emerald-600 text-white font-black text-[10px] px-2.5 py-1 rounded-xl uppercase font-mono shadow">${p.stock} Disponibles</span>`));
+
+            const preciosBox = document.getElementById('qv-prod-precios-box');
+            preciosBox.innerHTML = `
+                <span class="text-[9px] text-slate-400 uppercase font-bold block">Precio al Público:</span>
+                ${window.monedasVisibles.usd ? `<div class="text-blue-600 font-black text-lg sm:text-xl">$${venta.toFixed(2)} USD</div>` : ''}
+                <div class="flex flex-wrap items-center gap-3 text-xs pt-0.5">
+                    ${window.monedasVisibles.cop ? `<span class="text-slate-800 font-extrabold bg-white border border-slate-200 px-2 py-0.5 rounded-lg">${window.formatearMiles(cop)} COP</span>` : ''}
+                    ${window.monedasVisibles.bs ? `<span class="text-emerald-700 font-extrabold bg-emerald-50 border border-emerald-200 px-2 py-0.5 rounded-lg">${window.formatBS(bs)} Bs</span>` : ''}
+                </div>
+            `;
+
+            const inpCant = document.getElementById('qv-prod-cant');
+            if (inpCant) {
+                inpCant.value = '1';
+                inpCant.step = p.unidad === 'KG' ? '0.1' : '1';
+                inpCant.dataset.unidad = p.unidad || 'UND';
+                inpCant.dataset.max = esServicio ? '9999' : String(p.stock || 1);
+            }
+
+            const btnAdd = document.getElementById('btn-qv-agregar-carrito');
+            if (btnAdd) {
+                if (disponible) {
+                    btnAdd.disabled = false;
+                    btnAdd.className = "col-span-2 btn-brand py-3 text-xs shadow-md flex items-center justify-center gap-1.5";
+                    btnAdd.innerHTML = `<i class="fa-solid fa-cart-plus text-sm"></i> <span>AGREGAR AL CARRITO</span>`;
+                } else {
+                    btnAdd.disabled = true;
+                    btnAdd.className = "col-span-2 bg-slate-200 text-red-600 border border-red-200 py-3 rounded-xl font-black text-xs uppercase cursor-not-allowed";
+                    btnAdd.innerHTML = `⚠️ PRODUCTO AGOTADO`;
+                }
+            }
+
+            document.getElementById('modal-producto-vitrina-detalle').classList.remove('hidden');
+        };
+
+        window.cambiarCantidadQuickView = function(delta) {
+            const inp = document.getElementById('qv-prod-cant');
+            if (!inp) return;
+            const esKg = inp.dataset.unidad === 'KG';
+            const step = esKg ? 0.5 : 1;
+            const max = parseFloat(inp.dataset.max) || 9999;
+            let actual = parseFloat(inp.value) || 1;
+            let nuevo = actual + (delta * step);
+            if (nuevo < (esKg ? 0.1 : 1)) nuevo = esKg ? 0.1 : 1;
+            if (nuevo > max) nuevo = max;
+            inp.value = esKg ? parseFloat(nuevo.toFixed(3)) : Math.round(nuevo);
+        };
+
+        window.agregarDesdeQuickViewAlCarrito = function() {
+            const prodId = document.getElementById('qv-prod-id').value;
+            const inp = document.getElementById('qv-prod-cant');
+            const cant = Math.max(0.01, parseFloat(inp ? inp.value : 1) || 1);
+            window.agregarAlCarritoPorId(prodId, cant);
+            document.getElementById('modal-producto-vitrina-detalle').classList.add('hidden');
         };
 
         window.cambiarCantidadCarrito = function(index, delta) {
@@ -7591,15 +7911,20 @@ $${(item.precioUSD * item.cant).toFixed(2)} USD
                         ? `<span class="absolute top-2 right-2 bg-indigo-600 text-white font-black text-[8px] sm:text-[9px] px-2 py-0.5 rounded-lg uppercase shadow">🛠️ Servicio</span>`
                         : (!disponible ? `<span class="absolute top-2 right-2 bg-red-600 text-white font-black text-[8px] sm:text-[9px] px-2 py-0.5 rounded-lg uppercase shadow">Agotado</span>` : (p.unidad === 'KG' ? `<span class="absolute top-2 right-2 bg-emerald-600 text-white font-black text-[8px] sm:text-[9px] px-2 py-0.5 rounded-lg uppercase font-mono shadow">${(Number(p.stock)||0).toFixed(p.stock % 1 === 0 ? 0 : 2)} Kg Disponibles</span>` : `<span class="absolute top-2 right-2 bg-emerald-600 text-white font-black text-[8px] sm:text-[9px] px-2 py-0.5 rounded-lg uppercase font-mono shadow">${p.stock} Disponibles</span>`));
 
+                    const descPublica = window.obtenerDescripcionPublicaProducto(p.desc);
+                    const safeId = window.escapeHTML(p.id);
                     return `
                         <div class="card-light p-2.5 sm:p-3.5 space-y-2 flex flex-col justify-between hover:border-blue-300 transition-all w-full">
-                            <div class="space-y-1.5">
+                            <div onclick="window.abrirDetalleProductoVitrina('${safeId}')" class="space-y-1.5 cursor-pointer group">
                                 <div class="w-full aspect-[3/4] bg-slate-100 rounded-2xl overflow-hidden flex items-center justify-center text-slate-400 text-3xl relative">
-                                    ${p.foto ? `<img src="${p.foto}" class="w-full h-full object-cover">` : `<i class="fa-solid ${esServicio ? 'fa-screwdriver-wrench text-indigo-400' : 'fa-box-open'}"></i>`}
+                                    ${p.foto ? `<img src="${p.foto}" class="w-full h-full object-cover group-hover:scale-105 transition-transform duration-200">` : `<i class="fa-solid ${esServicio ? 'fa-screwdriver-wrench text-indigo-400' : 'fa-box-open'}"></i>`}
                                     ${badgeVitrina}
+                                    <span class="absolute bottom-2 left-2 bg-slate-900/75 backdrop-blur-xs text-white text-[8px] font-bold px-2 py-0.5 rounded-lg uppercase opacity-90 group-hover:bg-blue-600 transition-colors">
+                                        <i class="fa-solid fa-magnifying-glass-plus mr-0.5"></i> Ver detalle
+                                    </span>
                                 </div>
-                                <h3 class="font-black text-slate-900 text-[11px] sm:text-xs uppercase truncate pt-1">${window.escapeHTML(p.nombre)} ${p.unidad === 'KG' ? '<span class="text-[9px] text-amber-600 bg-amber-50 px-1 py-0.5 rounded border border-amber-200">/ Kg</span>' : ''}</h3>
-                                <p class="text-[9px] sm:text-[10px] text-slate-500 leading-tight line-clamp-2">${window.escapeHTML(p.desc || '')}</p>
+                                <h3 class="font-black text-slate-900 text-[11px] sm:text-xs uppercase leading-snug break-words pt-1 group-hover:text-blue-700 transition-colors">${window.escapeHTML(p.nombre)} ${p.unidad === 'KG' ? '<span class="text-[9px] text-amber-600 bg-amber-50 px-1 py-0.5 rounded border border-amber-200">/ Kg</span>' : ''}</h3>
+                                ${descPublica ? `<p class="text-[9.5px] sm:text-[10.5px] text-slate-500 leading-snug break-words">${window.escapeHTML(descPublica)}</p>` : ''}
                             </div>
                             <div class="space-y-2 pt-1.5 border-t border-slate-100 font-mono">
                                 <div class="text-[11px] sm:text-xs space-y-0.5">
@@ -7641,13 +7966,48 @@ $${(item.precioUSD * item.cant).toFixed(2)} USD
             grid.innerHTML = htmlProductos;
         };
 
+        window.filtroStockInventarioActual = 'TODOS';
+        window.setFiltroStockInventario = function(modo) {
+            window.filtroStockInventarioActual = modo;
+            const bTodos = document.getElementById('btn-filtro-inv-todos');
+            const bBajo = document.getElementById('btn-filtro-inv-bajo');
+            if (bTodos && bBajo) {
+                if (modo === 'BAJO_AGOTADO') {
+                    bBajo.className = "bg-amber-500 text-slate-950 border border-amber-600 px-2.5 py-1 rounded-lg text-[10px] font-black uppercase shadow-xs transition-all flex items-center gap-1";
+                    bTodos.className = "bg-white hover:bg-slate-50 text-slate-700 border border-slate-300 px-2.5 py-1 rounded-lg text-[10px] font-black uppercase transition-all";
+                } else {
+                    bTodos.className = "bg-blue-600 text-white px-2.5 py-1 rounded-lg text-[10px] font-black uppercase shadow-xs transition-all";
+                    bBajo.className = "bg-white hover:bg-amber-50 text-amber-900 border border-amber-300 px-2.5 py-1 rounded-lg text-[10px] font-black uppercase transition-all flex items-center gap-1";
+                }
+            }
+            window.renderizarTablaModalInventario();
+        };
+
         window.renderizarTablaModalInventario = function() {
             const container = document.getElementById('contenedor-tarjetas-inventario');
             const busqueda = (document.getElementById('busqueda-inventario-input').value || '').toLowerCase().trim();
+            const badgeBajo = document.getElementById('badge-cnt-stock-bajo');
+            if (badgeBajo) {
+                const cntBajo = (window.dbInventario || []).filter(p => !p.esServicio && (Number(p.stock) || 0) <= 3).length;
+                badgeBajo.innerText = cntBajo;
+            }
             if (!container) return;
-            const filtrados = window.dbInventario.filter(p => !busqueda || p.nombre.toLowerCase().includes(busqueda) || (p.desc && p.desc.toLowerCase().includes(busqueda)));
+            const filtrados = (window.dbInventario || []).filter(p => {
+                const matchBusq = !busqueda || (p.nombre && p.nombre.toLowerCase().includes(busqueda)) || (p.desc && p.desc.toLowerCase().includes(busqueda)) || (p.codigo && p.codigo.toLowerCase().includes(busqueda));
+                if (!matchBusq) return false;
+                if (window.filtroStockInventarioActual === 'BAJO_AGOTADO') {
+                    return !p.esServicio && (Number(p.stock) || 0) <= 3;
+                }
+                return true;
+            });
 
-            if (filtrados.length === 0) { container.innerHTML = `<div class="col-span-1 sm:col-span-2 py-8 text-center text-slate-400 font-bold text-xs">No se encontraron productos coincidentes.</div>`; return; }
+            if (filtrados.length === 0) {
+                const msgVacio = window.filtroStockInventarioActual === 'BAJO_AGOTADO'
+                    ? '✅ ¡Excelente! No tienes productos agotados ni con stock bajo (≤ 3).'
+                    : 'No se encontraron productos coincidentes.';
+                container.innerHTML = `<div class="col-span-1 sm:col-span-2 py-8 text-center text-slate-400 font-bold text-xs">${msgVacio}</div>`;
+                return;
+            }
 
             container.innerHTML = filtrados.map(p => {
                 const costo = p.precioCosto || 0; const venta = p.precioVenta || p.precioUSD || 0; const margen = venta - costo; const disponible = (p.stock || 0) > 0;
@@ -7686,6 +8046,11 @@ $${(item.precioUSD * item.cant).toFixed(2)} USD
 
         window.abrirModalInventarioCompleto = function() {
             document.getElementById('busqueda-inventario-input').value = '';
+            window.filtroStockInventarioActual = 'TODOS';
+            const bTodos = document.getElementById('btn-filtro-inv-todos');
+            const bBajo = document.getElementById('btn-filtro-inv-bajo');
+            if (bTodos) bTodos.className = "bg-blue-600 text-white px-2.5 py-1 rounded-lg text-[10px] font-black uppercase shadow-xs transition-all";
+            if (bBajo) bBajo.className = "bg-white hover:bg-amber-50 text-amber-900 border border-amber-300 px-2.5 py-1 rounded-lg text-[10px] font-black uppercase transition-all flex items-center gap-1";
             window.renderizarTablaModalInventario();
             document.getElementById('modal-inventario-completo').classList.remove('hidden');
         };
@@ -8003,9 +8368,29 @@ $${(item.precioUSD * item.cant).toFixed(2)} USD
 
                 const d = new Date(rec.fechaMs || Date.now());
                 const fechaStr = `${d.getDate().toString().padStart(2,'0')}/${(d.getMonth()+1).toString().padStart(2,'0')}/${d.getFullYear()} ${d.getHours()}:${d.getMinutes().toString().padStart(2,'0')}`;
-                const totUSD = rec.totalUSD || rec.totalInversionUSD || 0;
-                const totCOP = window.calcularPesosDesdeUSD(totUSD);
-                const totBs = window.calcularBsDesdeUSD(totUSD);
+                const totUSD = Number(rec.totalUSD || rec.totalInversionUSD || 0);
+                const mOrig = rec.monedaOriginal || 'USD';
+                const totCOP = (mOrig === 'COP' && rec.totalOriginal !== undefined) ? rec.totalOriginal : window.calcularPesosDesdeUSD(totUSD, rec.tasaCopMomento);
+                const totBs = (mOrig === 'BS' && rec.totalOriginal !== undefined) ? rec.totalOriginal : window.calcularBsDesdeUSD(totUSD, rec.tasaCopMomento, rec.factorBsMomento);
+
+                let lineaTotalPrincipal = `TOTAL INVERSIÓN: $${totUSD.toFixed(2)} USD`;
+                let lineasEquivalentes = `
+                    <p style="margin:1px 0;">TOTAL COP: ${window.formatearMiles(totCOP)} COP</p>
+                    <p style="margin:1px 0;">TOTAL Bs. (Paridad): ${window.formatBS(totBs)} Bs</p>
+                `;
+                if (mOrig === 'COP') {
+                    lineaTotalPrincipal = `TOTAL INVERSIÓN: ${window.formatearMiles(totCOP)} COP`;
+                    lineasEquivalentes = `
+                        <p style="margin:1px 0;">Equiv. USD: $${totUSD.toFixed(2)} USD</p>
+                        <p style="margin:1px 0;">Equiv. Bs. (Paridad): ${window.formatBS(totBs)} Bs</p>
+                    `;
+                } else if (mOrig === 'BS') {
+                    lineaTotalPrincipal = `TOTAL INVERSIÓN: ${window.formatBS(totBs)} Bs`;
+                    lineasEquivalentes = `
+                        <p style="margin:1px 0;">Equiv. USD: $${totUSD.toFixed(2)} USD</p>
+                        <p style="margin:1px 0;">Equiv. COP: ${window.formatearMiles(totCOP)} COP</p>
+                    `;
+                }
 
                 const itemsCompra = rec.items && rec.items.length > 0 ? rec.items : [
                     { nombre: rec.prodNombre || 'PRODUCTO DIVERSO', cant: rec.cant || 1, costoUSD: rec.costo || totUSD, ventaUSD: rec.venta || 0, subtotalUSD: totUSD }
@@ -8013,16 +8398,16 @@ $${(item.precioUSD * item.cant).toFixed(2)} USD
 
                 ticketHtml = `
                     <div style="text-align:center;margin-bottom:8px;font-family:monospace;color:#000;">
-                        <h2 style="font-size:13px;font-weight:900;margin:0;line-height:1.2;">${nombreNegocio}</h2>
-                        <p style="font-size:9px;margin:2px 0;">WhatsApp: ${telNegocio}</p>
+                        <h2 style="font-size:13px;font-weight:900;margin:0;line-height:1.2;">${window.escapeHTML(nombreNegocio)}</h2>
+                        <p style="font-size:9px;margin:2px 0;">WhatsApp: ${window.escapeHTML(telNegocio)}</p>
                         <p style="font-size:10px;font-weight:bold;margin:4px 0;border-top:1px dashed #000;border-bottom:1px dashed #000;padding:3px 0;">COMPROBANTE DE COMPRA / INGRESO</p>
                     </div>
                     <div style="margin-bottom:8px;font-size:9px;font-family:monospace;line-height:1.3;color:#000;">
                         <p style="margin:1px 0;"><strong>FECHA:</strong> ${fechaStr}</p>
-                        <p style="margin:1px 0;"><strong>ENCARGADO QUE RECIBE:</strong> ${rec.encargado || 'N/A'}</p>
-                        <p style="margin:1px 0;"><strong>PROVEEDOR:</strong> ${rec.provNombre}</p>
-                        <p style="margin:1px 0;"><strong>TELÉFONO PROVEEDOR:</strong> ${rec.provTel || 'N/A'}</p>
-                        <p style="margin:1px 0;"><strong>DIRECCIÓN PROVEEDOR:</strong> ${rec.provDir || 'N/A'}</p>
+                        <p style="margin:1px 0;"><strong>ENCARGADO QUE RECIBE:</strong> ${window.escapeHTML(rec.encargado || 'N/A')}</p>
+                        <p style="margin:1px 0;"><strong>PROVEEDOR:</strong> ${window.escapeHTML(rec.provNombre || '')}</p>
+                        <p style="margin:1px 0;"><strong>TELÉFONO PROVEEDOR:</strong> ${window.escapeHTML(rec.provTel || 'N/A')}</p>
+                        <p style="margin:1px 0;"><strong>DIRECCIÓN PROVEEDOR:</strong> ${window.escapeHTML(rec.provDir || 'N/A')}</p>
                     </div>
                     <table style="width:100%;margin-bottom:8px;font-size:9px;font-family:monospace;border-collapse:collapse;color:#000;">
                         <thead>
@@ -8032,18 +8417,23 @@ $${(item.precioUSD * item.cant).toFixed(2)} USD
                             </tr>
                         </thead>
                         <tbody style="border-bottom:1px dashed #000;">
-                            ${itemsCompra.map(it => `
-                                <tr>
-                                    <td style="padding:3px 0;vertical-align:top;"><strong>${it.cant}x</strong> ${it.nombre}<br><span style="font-size:8px;color:#333;">Costo: $${(it.costoUSD || 0).toFixed(2)} | Venta: $${(it.ventaUSD || 0).toFixed(2)}</span></td>
-                                    <td style="text-align:right;padding:3px 0;vertical-align:top;">$${(it.subtotalUSD || (it.costoUSD*it.cant) || 0).toFixed(2)}</td>
-                                </tr>
-                            `).join('')}
+                            ${itemsCompra.map(it => {
+                                const itMon = it.monedaOriginal || mOrig;
+                                const costoItStr = window.formatearMontoPorMoneda(it.costoOriginal !== undefined ? it.costoOriginal : (it.costoUSD || 0), itMon);
+                                const ventaItStr = window.formatearMontoPorMoneda(it.ventaOriginal !== undefined ? it.ventaOriginal : (it.ventaUSD || 0), itMon);
+                                const subItStr = window.formatearMontoPorMoneda(it.subtotalOriginal !== undefined ? it.subtotalOriginal : (it.subtotalUSD || (it.costoUSD*it.cant) || 0), itMon);
+                                return `
+                                    <tr>
+                                        <td style="padding:3px 0;vertical-align:top;"><strong>${it.cant}x</strong> ${window.escapeHTML(it.nombre)}<br><span style="font-size:8px;color:#333;">Costo: ${costoItStr} | Venta: ${ventaItStr}</span></td>
+                                        <td style="text-align:right;padding:3px 0;vertical-align:top;font-weight:bold;">${subItStr}</td>
+                                    </tr>
+                                `;
+                            }).join('')}
                         </tbody>
                     </table>
-                    <div style="text-align:right;font-size:10px;font-family:monospace;margin-bottom:8px;color:#000;line-height:1.3;">
-                        <p style="margin:1px 0;"><strong>TOTAL INVERSIÓN: $${totUSD.toFixed(2)} USD</strong></p>
-                        <p style="margin:1px 0;">TOTAL COP: ${window.formatearMiles(totCOP)}</p>
-                        <p style="margin:1px 0;">TOTAL Bs. (Paridad): ${window.formatBS(totBs)}</p>
+                    <div style="text-align:right;font-size:10px;font-family:monospace;margin-bottom:8px;color:#000;line-height:1.35;">
+                        <p style="margin:1px 0;font-size:11px;"><strong>${lineaTotalPrincipal}</strong></p>
+                        ${lineasEquivalentes}
                     </div>
                     <div style="text-align:center;font-size:8px;font-family:monospace;margin-top:8px;border-top:1px dashed #000;padding-top:6px;color:#000;line-height:1.3;">
                         <p style="margin:1px 0;font-weight:bold;">¡Mercancía ingresada y verificada en inventario!</p>
@@ -8068,24 +8458,43 @@ $${(item.precioUSD * item.cant).toFixed(2)} USD
 
                 const d = new Date(g.fechaMs || Date.now());
                 const fechaStr = `${d.getDate().toString().padStart(2,'0')}/${(d.getMonth()+1).toString().padStart(2,'0')}/${d.getFullYear()} ${d.getHours()}:${d.getMinutes().toString().padStart(2,'0')}`;
-                const totCOP = window.calcularPesosDesdeUSD(g.montoUSD);
-                const totBs = window.calcularBsDesdeUSD(g.montoUSD);
+                const mOrigG = g.monedaOriginal || 'USD';
+                const totCOP = (mOrigG === 'COP' && g.montoOriginal !== undefined) ? g.montoOriginal : window.calcularPesosDesdeUSD(g.montoUSD);
+                const totBs = (mOrigG === 'BS' && g.montoOriginal !== undefined) ? g.montoOriginal : window.calcularBsDesdeUSD(g.montoUSD);
+
+                let lineaSalidaPrincipal = `MONTO DE SALIDA: -$${g.montoUSD.toFixed(2)} USD`;
+                let lineasEquivGasto = `
+                    <p style="margin:1px 0;">Equivalente COP: ${window.formatearMiles(totCOP)} COP</p>
+                    <p style="margin:1px 0;">Equivalente Bs. (Paridad): ${window.formatBS(totBs)} Bs</p>
+                `;
+                if (mOrigG === 'COP') {
+                    lineaSalidaPrincipal = `MONTO DE SALIDA: -${window.formatearMiles(totCOP)} COP`;
+                    lineasEquivGasto = `
+                        <p style="margin:1px 0;">Equivalente USD: -$${g.montoUSD.toFixed(2)} USD</p>
+                        <p style="margin:1px 0;">Equivalente Bs. (Paridad): ${window.formatBS(totBs)} Bs</p>
+                    `;
+                } else if (mOrigG === 'BS') {
+                    lineaSalidaPrincipal = `MONTO DE SALIDA: -${window.formatBS(totBs)} Bs`;
+                    lineasEquivGasto = `
+                        <p style="margin:1px 0;">Equivalente USD: -$${g.montoUSD.toFixed(2)} USD</p>
+                        <p style="margin:1px 0;">Equivalente COP: ${window.formatearMiles(totCOP)} COP</p>
+                    `;
+                }
 
                 ticketHtml = `
                     <div style="text-align:center;margin-bottom:8px;font-family:monospace;color:#000;">
-                        <h2 style="font-size:13px;font-weight:900;margin:0;line-height:1.2;">${nombreNegocio}</h2>
-                        <p style="font-size:9px;margin:2px 0;">WhatsApp: ${telNegocio}</p>
+                        <h2 style="font-size:13px;font-weight:900;margin:0;line-height:1.2;">${window.escapeHTML(nombreNegocio)}</h2>
+                        <p style="font-size:9px;margin:2px 0;">WhatsApp: ${window.escapeHTML(telNegocio)}</p>
                         <p style="font-size:10px;font-weight:bold;margin:4px 0;border-top:1px dashed #000;border-bottom:1px dashed #000;padding:3px 0;">COMPROBANTE DE EGRESO / SALIDA DE CAJA</p>
                     </div>
                     <div style="margin-bottom:8px;font-size:9px;font-family:monospace;line-height:1.3;color:#000;">
                         <p style="margin:1px 0;"><strong>FECHA Y HORA:</strong> ${fechaStr}</p>
-                        <p style="margin:1px 0;"><strong>TIPO DE EGRESO:</strong> ${g.tipo}</p>
-                        <p style="margin:1px 0;"><strong>CONCEPTO / DESCRIPCIÓN:</strong> ${g.desc}</p>
+                        <p style="margin:1px 0;"><strong>TIPO DE EGRESO:</strong> ${window.escapeHTML(g.tipo)}</p>
+                        <p style="margin:1px 0;"><strong>CONCEPTO / DESCRIPCIÓN:</strong> ${window.escapeHTML(g.desc)}</p>
                     </div>
                     <div style="text-align:right;font-size:10px;font-family:monospace;margin:12px 0 8px 0;border-top:1px dashed #000;border-bottom:1px dashed #000;padding:6px 0;color:#000;line-height:1.4;">
-                        <p style="margin:1px 0;font-size:11px;font-weight:900;">MONTO DE SALIDA: -$${g.montoUSD.toFixed(2)} USD</p>
-                        <p style="margin:1px 0;">Equivalente COP: ${window.formatearMiles(totCOP)} COP</p>
-                        <p style="margin:1px 0;">Equivalente Bs. (Paridad): ${window.formatBS(totBs)} Bs</p>
+                        <p style="margin:1px 0;font-size:11px;font-weight:900;">${lineaSalidaPrincipal}</p>
+                        ${lineasEquivGasto}
                     </div>
                     <div style="text-align:center;font-size:8px;font-family:monospace;margin-top:8px;padding-top:4px;color:#000;line-height:1.3;">
                         <p style="margin:1px 0;">Salida de dinero debitada de la caja registradora.</p>
@@ -8195,9 +8604,11 @@ $${(item.precioUSD * item.cant).toFixed(2)} USD
                 window.despacharWhatsApp(targetTel, msj);
             } else if (it.tipo === 'COMPRA') {
                 const rec = it.data;
-                const totUSD = rec.totalUSD || rec.totalInversionUSD || 0;
-                const totCOP = window.calcularPesosDesdeUSD(totUSD);
-                const totBs = window.calcularBsDesdeUSD(totUSD);
+                const totUSD = Number(rec.totalUSD || rec.totalInversionUSD || 0);
+                const mOrig = rec.monedaOriginal || 'USD';
+                const totCOP = (mOrig === 'COP' && rec.totalOriginal !== undefined) ? rec.totalOriginal : window.calcularPesosDesdeUSD(totUSD, rec.tasaCopMomento);
+                const totBs = (mOrig === 'BS' && rec.totalOriginal !== undefined) ? rec.totalOriginal : window.calcularBsDesdeUSD(totUSD, rec.tasaCopMomento, rec.factorBsMomento);
+                const totPrincipalStr = window.formatearMontoPorMoneda(rec.totalOriginal !== undefined ? rec.totalOriginal : totUSD, mOrig);
                 const itemsCompra = rec.items && rec.items.length > 0 ? rec.items : [
                     { nombre: rec.prodNombre || 'PRODUCTO DIVERSO', cant: rec.cant || 1, subtotalUSD: totUSD }
                 ];
@@ -8214,12 +8625,14 @@ $${(item.precioUSD * item.cant).toFixed(2)} USD
                 msj += `━━━━━━━━━━━━━━━━━━━━━━\n`;
                 msj += `📦 *MERCANCÍA INGRESADA:*\n`;
                 itemsCompra.forEach(i => {
-                    msj += `• ${i.cant}x ${i.nombre} ➔ $${(i.subtotalUSD || 0).toFixed(2)} USD\n`;
+                    const subItStr = window.formatearMontoPorMoneda(i.subtotalOriginal !== undefined ? i.subtotalOriginal : (i.subtotalUSD || 0), i.monedaOriginal || mOrig);
+                    msj += `• ${i.cant}x ${i.nombre} ➔ ${subItStr}\n`;
                 });
                 msj += `━━━━━━━━━━━━━━━━━━━━━━\n`;
-                msj += `💰 *TOTAL INVERSIÓN:* $${totUSD.toFixed(2)} USD\n`;
-                msj += `🇨🇴 Total COP: ${window.formatearMiles(totCOP)} COP\n`;
-                msj += `🇻🇪 Total Bs: ${window.formatBS(totBs)} Bs (Paridad ${window.tasasConfig.paridadBs})\n`;
+                msj += `💰 *TOTAL INVERSIÓN:* ${totPrincipalStr}\n`;
+                if (mOrig !== 'USD') msj += `💵 Equiv. USD: $${totUSD.toFixed(2)} USD\n`;
+                if (mOrig !== 'COP') msj += `🇨🇴 Equiv. COP: ${window.formatearMiles(totCOP)} COP\n`;
+                if (mOrig !== 'BS') msj += `🇻🇪 Equiv. Bs: ${window.formatBS(totBs)} Bs\n`;
                 msj += `━━━━━━━━━━━━━━━━━━━━━━\n`;
                 msj += `¡Mercancía sumada a inventario y registrada en auditoría!\n`;
                 msj += `*Sistema TCL Comercio — TUCOCEL C.A. & PublionlineMK* 🔒`;
@@ -8228,8 +8641,10 @@ $${(item.precioUSD * item.cant).toFixed(2)} USD
                 window.despacharWhatsApp(targetTel, msj);
             } else if (it.tipo === 'GASTO') {
                 const g = it.data;
-                const totCOP = window.calcularPesosDesdeUSD(g.montoUSD);
-                const totBs = window.calcularBsDesdeUSD(g.montoUSD);
+                const mOrigG = g.monedaOriginal || 'USD';
+                const totCOP = (mOrigG === 'COP' && g.montoOriginal !== undefined) ? g.montoOriginal : window.calcularPesosDesdeUSD(g.montoUSD);
+                const totBs = (mOrigG === 'BS' && g.montoOriginal !== undefined) ? g.montoOriginal : window.calcularBsDesdeUSD(g.montoUSD);
+                const montoOrigStr = window.formatearMontoPorMoneda(g.montoOriginal !== undefined ? g.montoOriginal : g.montoUSD, mOrigG);
 
                 msj = `━━━━━━━━━━━━━━━━━━━━━━\n`;
                 msj += `🏢 *${nombreNegocio}*\n`;
@@ -8239,9 +8654,10 @@ $${(item.precioUSD * item.cant).toFixed(2)} USD
                 msj += `🏷️ Tipo: ${g.tipo}\n`;
                 msj += `📝 Concepto: ${g.desc}\n`;
                 msj += `━━━━━━━━━━━━━━━━━━━━━━\n`;
-                msj += `💵 *MONTO DE SALIDA:* -$${g.montoUSD.toFixed(2)} USD\n`;
-                msj += `🇨🇴 Equivalente COP: ${window.formatearMiles(totCOP)} COP\n`;
-                msj += `🇻🇪 Equivalente Bs: ${window.formatBS(totBs)} Bs (Paridad ${window.tasasConfig.paridadBs})\n`;
+                msj += `💸 *MONTO DE SALIDA:* -${montoOrigStr}\n`;
+                if (mOrigG !== 'USD') msj += `💵 Equivalente USD: -$${g.montoUSD.toFixed(2)} USD\n`;
+                if (mOrigG !== 'COP') msj += `🇨🇴 Equivalente COP: ${window.formatearMiles(totCOP)} COP\n`;
+                if (mOrigG !== 'BS') msj += `🇻🇪 Equivalente Bs: ${window.formatBS(totBs)} Bs (Paridad ${window.tasasConfig.paridadBs})\n`;
                 msj += `━━━━━━━━━━━━━━━━━━━━━━\n`;
                 msj += `_Control interno de egresos de caja registradora._\n`;
                 msj += `*Sistema TCL Comercio — TUCOCEL C.A. & PublionlineMK* 🔒`;
@@ -8303,12 +8719,23 @@ $${(item.precioUSD * item.cant).toFixed(2)} USD
                     <p style="font-size:9px;margin:2px 0;">FECHA EVALUADA: ${datos.targetDateStr}</p>
                 </div>
 
-                <div style="margin: 6px 0; font-size: 9px; font-family: monospace; color: #000; line-height: 1.3;">
-                    <p style="margin: 1px 0;"><strong>TOTAL FACTURADO:</strong> $${datos.totalVentasUSD.toFixed(2)} USD</p>
-                    <p style="margin: 1px 0;"><strong>TOTAL COP:</strong> ${window.formatearMiles(totalCOP)} COP</p>
-                    <p style="margin: 1px 0;"><strong>TOTAL Bs:</strong> ${window.formatBS(totalBs)} Bs (Paridad ${window.tasasConfig.paridadBs})</p>
-                    <p style="margin: 1px 0;"><strong>TOTAL EGRESOS / GASTOS:</strong> -$${datos.totalGastosUSD.toFixed(2)} USD</p>
-                    <p style="margin: 2px 0; font-weight: 900; font-size: 10px; border-top: 1px dashed #000; border-bottom: 1px dashed #000; padding: 2px 0;">FLUJO NETO EN CAJA: $${datos.flujoCajaNeto.toFixed(2)} USD</p>
+                <div style="margin: 6px 0; font-size: 9px; font-family: monospace; color: #000; line-height: 1.35;">
+                    <p style="margin: 1px 0;"><strong>1. TOTAL VENDIDO:</strong> $${datos.totalVentasUSD.toFixed(2)} USD</p>
+                    <p style="margin: 1px 0;">• Equiv. COP: ${window.formatearMiles(totalCOP)} COP</p>
+                    <p style="margin: 1px 0;">• Equiv. Bs: ${window.formatBS(totalBs)} Bs (Paridad ${window.tasasConfig.paridadBs})</p>
+                    <div style="border-top: 1px dashed #000; border-bottom: 1px dashed #000; padding: 3px 0; margin: 4px 0;">
+                        <p style="margin: 1px 0;"><strong>2. REPONER MERCANCÍA:</strong> $${(datos.costoReposicionUSD || 0).toFixed(2)} USD</p>
+                        <p style="margin: 1px 0;"><strong>3. GASTOS OPERATIVOS:</strong> -$${datos.totalGastosUSD.toFixed(2)} USD</p>
+                        <p style="margin: 2px 0 0 0; font-weight: 900; font-size: 10px;">4. GANANCIA LIBRE: $${(datos.gananciaLibreUSD || 0).toFixed(2)} USD</p>
+                    </div>
+                    <p style="margin: 1px 0;"><strong>EFECTIVO EN GAVETA:</strong> $${(datos.efectivoEsperadoGaveta || 0).toFixed(2)} USD</p>
+                    ${datos.arqueoMonedas ? `
+                        <div style="border-top: 1px dashed #000; padding-top: 3px; margin-top: 3px;">
+                            <p style="margin: 1px 0; font-weight: 900;">RECAUDO POR MONEDA:</p>
+                            <p style="margin: 1px 0;">• USD: $${(datos.arqueoMonedas.usd || 0).toFixed(2)} | COP: ${window.formatearMiles(datos.arqueoMonedas.cop || 0)}</p>
+                            <p style="margin: 1px 0;">• Bolívares: ${window.formatBS(datos.arqueoMonedas.bs || 0)} Bs</p>
+                        </div>
+                    ` : ''}
                 </div>
 
                 <div style="font-family: monospace; font-size: 8.5px;">
@@ -8360,12 +8787,17 @@ $${(item.precioUSD * item.cant).toFixed(2)} USD
             const datos = window.obtenerDatosCierreDia();
             if (!datos) return;
 
-            // 1. Guardar el registro formal del cierre
+            // 1. Guardar el registro formal del cierre con todos sus sobres contables
             const registro = {
                 id: 'cie_' + Date.now(),
                 fechaStr: datos.targetDateStr,
                 totalVentasUSD: datos.totalVentasUSD,
+                costoReposicionUSD: datos.costoReposicionUSD || 0,
                 totalGastosUSD: datos.totalGastosUSD,
+                gananciaLibreUSD: datos.gananciaLibreUSD || 0,
+                efectivoEsperadoGaveta: datos.efectivoEsperadoGaveta || 0,
+                baseCajaInicial: datos.baseCajaInicial || 0,
+                arqueoMonedas: datos.arqueoMonedas || { usd: 0, cop: 0, bs: 0 },
                 flujoCajaNeto: datos.flujoCajaNeto,
                 cantNotas: datos.ventasDia.length,
                 cantGastos: datos.gastosDia.length,
@@ -8479,17 +8911,37 @@ window.abrirModalReporteZ = function() {
             const metodos = {};
             let totalEfectivoUSD = 0;
             let totalDigitalUSD = 0;
+            let arqueoMonedas = { usd: 0, cop: 0, bs: 0 };
+
             ventasDia.forEach(v => {
                 const m = v.pago || 'Otro';
+                const mLow = m.toLowerCase();
                 metodos[m] = (metodos[m] || 0) + v.totalUSD;
-                if (m.toLowerCase().includes('efectivo') || m.toLowerCase().includes('dólares') || m.toLowerCase().includes('usd')) {
-                    totalEfectivoUSD += v.totalUSD;
-                } else if (v.desgloseMixto) {
-                    const efMix = (Number(v.desgloseMixto.abonoUSD) || 0);
-                    totalEfectivoUSD += efMix;
-                    totalDigitalUSD += Math.max(0, v.totalUSD - efMix);
-                } else {
+
+                if (v.desgloseMixto) {
+                    const mUSD = Number(v.desgloseMixto.abonoUSD) || 0;
+                    const mCOP = Number(v.desgloseMixto.abonoCOP) || 0;
+                    const mBS = Number(v.desgloseMixto.abonoBS) || 0;
+                    arqueoMonedas.usd += mUSD;
+                    arqueoMonedas.cop += mCOP;
+                    arqueoMonedas.bs += mBS;
+                    totalEfectivoUSD += mUSD;
+                    totalDigitalUSD += Math.max(0, v.totalUSD - mUSD);
+                } else if (mLow.includes('nequi') || mLow.includes('bancolombia') || mLow.includes('pesos') || mLow.includes('cop')) {
+                    const eqCop = (v.tasasMomento && v.tasasMomento.totalCOP !== undefined) ? v.tasasMomento.totalCOP : window.calcularPesosDesdeUSD(v.totalUSD);
+                    arqueoMonedas.cop += eqCop;
                     totalDigitalUSD += v.totalUSD;
+                } else if (mLow.includes('bs') || mLow.includes('bolívar') || mLow.includes('pago móvil')) {
+                    const eqBs = (v.tasasMomento && v.tasasMomento.totalBs !== undefined) ? v.tasasMomento.totalBs : window.calcularBsDesdeUSD(v.totalUSD);
+                    arqueoMonedas.bs += eqBs;
+                    totalDigitalUSD += v.totalUSD;
+                } else {
+                    arqueoMonedas.usd += v.totalUSD;
+                    if (mLow.includes('efectivo') || mLow.includes('dólares')) {
+                        totalEfectivoUSD += v.totalUSD;
+                    } else {
+                        totalDigitalUSD += v.totalUSD;
+                    }
                 }
             });
 
@@ -8500,7 +8952,7 @@ window.abrirModalReporteZ = function() {
                 totalVentasUSD, totalGastosUSD, totalComprasDiaUSD,
                 costoReposicionUSD, gananciaLibreUSD, flujoCajaNeto, 
                 baseCajaInicial, totalEfectivoUSD, totalDigitalUSD, efectivoEsperadoGaveta, 
-                metodos 
+                arqueoMonedas, metodos 
             };
         };
 
@@ -8581,6 +9033,25 @@ window.abrirModalReporteZ = function() {
                         <div class="bg-white p-2 rounded-xl border border-slate-200"><span class="text-[8.5px] text-slate-500 block font-bold uppercase">Efectivo Ventas</span><span class="text-xs font-black text-emerald-600">$${(datos.totalEfectivoUSD || 0).toFixed(2)} USD</span></div>
                         <div class="bg-white p-2 rounded-xl border border-slate-200"><span class="text-[8.5px] text-slate-500 block font-bold uppercase">Digital / Bancos</span><span class="text-xs font-black text-blue-600">$${(datos.totalDigitalUSD || 0).toFixed(2)} USD</span></div>
                         <div class="bg-emerald-50 p-2 rounded-xl border border-emerald-300"><span class="text-[8.5px] text-emerald-800 block font-black uppercase">Efectivo en Gaveta</span><span class="text-xs font-black text-emerald-700">$${(datos.efectivoEsperadoGaveta || 0).toFixed(2)} USD</span></div>
+                    </div>
+
+                    <!-- BLOQUE 2B: ARQUEO DE RECAUDO POR MONEDA REAL (USD / COP / BS) -->
+                    <div class="bg-white p-3 rounded-2xl border border-blue-200 space-y-1.5 font-mono">
+                        <span class="text-[9.5px] font-black uppercase text-blue-900 tracking-wider block">💱 Recaudo Real por Moneda Recibida:</span>
+                        <div class="grid grid-cols-3 gap-2 text-center">
+                            <div class="bg-blue-50/70 p-2 rounded-xl border border-blue-200">
+                                <span class="text-[8px] text-blue-800 block font-black uppercase">💵 Dólares ($)</span>
+                                <strong class="text-xs font-black text-blue-700">$${((datos.arqueoMonedas && datos.arqueoMonedas.usd) || 0).toFixed(2)}</strong>
+                            </div>
+                            <div class="bg-slate-50 p-2 rounded-xl border border-slate-200">
+                                <span class="text-[8px] text-slate-600 block font-black uppercase">🇨🇴 Pesos COP</span>
+                                <strong class="text-xs font-black text-slate-900">${window.formatearMiles((datos.arqueoMonedas && datos.arqueoMonedas.cop) || 0)}</strong>
+                            </div>
+                            <div class="bg-emerald-50/70 p-2 rounded-xl border border-emerald-200">
+                                <span class="text-[8px] text-emerald-800 block font-black uppercase">🇻🇪 Bolívares</span>
+                                <strong class="text-xs font-black text-emerald-700">${window.formatBS((datos.arqueoMonedas && datos.arqueoMonedas.bs) || 0)}</strong>
+                            </div>
+                        </div>
                     </div>
 
                     <div class="space-y-1 pt-1">
@@ -8704,6 +9175,20 @@ window.abrirModalReporteZ = function() {
             alert(`✅ Salida de dinero registrada:\n• Moneda: ${window.monedaGastoActual}\n• Monto: ${montoFormateado}\n• Equivalente Contable: $${montoUSD.toFixed(2)} USD`);
         };
 
+        window.eliminarGastoRegistro = async function(id) {
+            if (!id) return;
+            if (!confirm("⚠️ ¿Desea eliminar este gasto / egreso del registro?")) return;
+            window.dbGastos = (window.dbGastos || []).filter(g => g.id !== id);
+            window.guardarGastosEnStorage();
+            if (typeof window.eliminarItemDeRaizFirebase === 'function') {
+                await window.eliminarItemDeRaizFirebase('gastos', id);
+            }
+            if (typeof window.actualizarKPIsPanelCliente === 'function') {
+                window.actualizarKPIsPanelCliente();
+            }
+            window.renderizarListaGastos();
+        };
+
         window.renderizarListaGastos = function() {
             const container = document.getElementById('contenedor-lista-gastos');
             if (window.dbGastos.length === 0) {
@@ -8732,12 +9217,13 @@ window.abrirModalReporteZ = function() {
                             </div>
                             <h5 class="text-xs font-bold text-slate-900 mt-1">${g.desc}</h5>
                         </div>
-                        <div class="flex items-center gap-2 text-right">
+                        <div class="flex items-center gap-1.5 text-right shrink-0">
                             <div>
                                 <span class="text-xs font-black text-rose-600 font-mono block">-$${(g.montoUSD || 0).toFixed(2)} USD</span>
                                 ${detalleMoneda}
                             </div>
-                            <button onclick="window.abrirAuditoriaDetallada('GASTO', '${g.id}')" class="bg-slate-100 hover:bg-slate-200 text-slate-700 font-black px-2 py-1 rounded-lg text-[9.5px] uppercase"><i class="fa-solid fa-eye"></i> Ver</button>
+                            <button onclick="window.abrirAuditoriaDetallada('GASTO', '${g.id}')" class="bg-slate-100 hover:bg-slate-200 text-slate-700 font-black px-2 py-1.5 rounded-lg text-[9.5px] uppercase"><i class="fa-solid fa-eye"></i> Ver</button>
+                            <button onclick="window.eliminarGastoRegistro('${g.id}')" class="bg-rose-50 hover:bg-rose-100 text-rose-600 border border-rose-200 px-2 py-1.5 rounded-lg text-[9.5px] font-black" title="Eliminar egreso"><i class="fa-solid fa-trash-can"></i></button>
                         </div>
                     </div>
                 `;
@@ -9359,10 +9845,21 @@ window.abrirModalReporteZ = function() {
             }
         };
 
+        // FORMATEADOR DE MONEDA ORIGINAL DE COMPRA (CON RECONVERSIÓN)
+        window.formatearMontoPorMoneda = function(monto, moneda) {
+            const m = (moneda || 'USD').toUpperCase();
+            const val = Number(monto) || 0;
+            if (m === 'COP') return `${window.formatearMiles(val)} COP`;
+            if (m === 'BS') return `${window.formatBS(val)} Bs`;
+            return `$${val.toFixed(2)} USD`;
+        };
+
         window.agregarItemAlCarritoCompra = function() {
             const inpCod = document.getElementById('prov-prod-codigo');
             const codigo = inpCod ? inpCod.value.trim() : '';
             const nombre = document.getElementById('prov-prod-nombre').value.trim();
+            const inpDescCompra = document.getElementById('prov-prod-desc');
+            const desc = inpDescCompra ? inpDescCompra.value.trim() : '';
             const inpCatCompra = document.getElementById('prov-prod-categoria');
             const categoria = (inpCatCompra && inpCatCompra.value.trim()) ? inpCatCompra.value.trim().toUpperCase() : 'GENERAL';
             const unidad = document.getElementById('prov-prod-unidad').value || 'UND';
@@ -9370,6 +9867,7 @@ window.abrirModalReporteZ = function() {
             const valCosto = window.limpiarMontoManual(document.getElementById('prov-prod-costo').value);
             const valVenta = window.limpiarMontoManual(document.getElementById('prov-prod-venta').value);
             const fotoBase64 = document.getElementById('prov-prod-foto-base64') ? document.getElementById('prov-prod-foto-base64').value : '';
+            const monedaOrig = window.monedaCargaCompra || 'USD';
 
             if (!nombre || valCosto <= 0 || valVenta <= 0 || cant <= 0) {
                 alert("⚠️ Complete el Producto, Cantidad válida (>0) y Precios de Costo y Venta.");
@@ -9377,10 +9875,10 @@ window.abrirModalReporteZ = function() {
             }
 
             let costoUSD = valCosto, ventaUSD = valVenta;
-            if (window.monedaCargaCompra === 'COP') {
+            if (monedaOrig === 'COP') {
                 costoUSD = window.calcularUSDDesdeCOP(valCosto);
                 ventaUSD = window.calcularUSDDesdeCOP(valVenta);
-            } else if (window.monedaCargaCompra === 'BS') {
+            } else if (monedaOrig === 'BS') {
                 costoUSD = window.calcularUSDDesdeBs(valCosto);
                 ventaUSD = window.calcularUSDDesdeBs(valVenta);
             }
@@ -9392,6 +9890,11 @@ window.abrirModalReporteZ = function() {
                 window.carritoCompras[idxExistente].costoUSD = costoUSD;
                 window.carritoCompras[idxExistente].ventaUSD = ventaUSD;
                 window.carritoCompras[idxExistente].subtotalUSD = window.carritoCompras[idxExistente].cant * costoUSD;
+                window.carritoCompras[idxExistente].monedaOriginal = monedaOrig;
+                window.carritoCompras[idxExistente].costoOriginal = valCosto;
+                window.carritoCompras[idxExistente].ventaOriginal = valVenta;
+                window.carritoCompras[idxExistente].subtotalOriginal = window.carritoCompras[idxExistente].cant * valCosto;
+                if (desc) window.carritoCompras[idxExistente].desc = desc;
                 if (fotoBase64 && !window.carritoCompras[idxExistente].foto) {
                     window.carritoCompras[idxExistente].foto = fotoBase64;
                 }
@@ -9399,10 +9902,15 @@ window.abrirModalReporteZ = function() {
                 window.carritoCompras.push({
                     codigo,
                     nombre: nombre.toUpperCase(),
+                    desc,
                     categoria,
                     unidad,
                     cant, costoUSD, ventaUSD,
                     subtotalUSD: cant * costoUSD,
+                    monedaOriginal: monedaOrig,
+                    costoOriginal: valCosto,
+                    ventaOriginal: valVenta,
+                    subtotalOriginal: cant * valCosto,
                     foto: fotoBase64 || ''
                 });
             }
@@ -9413,6 +9921,7 @@ window.abrirModalReporteZ = function() {
 
             if (inpCod) inpCod.value = '';
             document.getElementById('prov-prod-nombre').value = '';
+            if (inpDescCompra) inpDescCompra.value = '';
             document.getElementById('prov-prod-cant').value = '1';
             document.getElementById('prov-prod-costo').value = '';
             const elPM = document.getElementById('prov-prod-margen'); if (elPM) elPM.value = '';
@@ -9437,18 +9946,28 @@ window.abrirModalReporteZ = function() {
                 return;
             }
 
-            container.innerHTML = window.carritoCompras.map((item, idx) => `
-                <div class="bg-white p-2.5 rounded-xl border border-slate-200 flex justify-between items-center shadow-sm text-xs font-mono">
-                    <div class="min-w-0 flex-1">
-                        <span class="font-black text-slate-900 uppercase truncate block">${item.cant}x ${item.nombre}</span>
-                        <span class="text-[10px] text-slate-500">Costo: $${item.costoUSD.toFixed(2)} | Venta: $${item.ventaUSD.toFixed(2)}</span>
+            container.innerHTML = window.carritoCompras.map((item, idx) => {
+                const mOrig = item.monedaOriginal || 'USD';
+                const costoStr = window.formatearMontoPorMoneda(item.costoOriginal !== undefined ? item.costoOriginal : item.costoUSD, mOrig);
+                const ventaStr = window.formatearMontoPorMoneda(item.ventaOriginal !== undefined ? item.ventaOriginal : item.ventaUSD, mOrig);
+                const subStr = window.formatearMontoPorMoneda(item.subtotalOriginal !== undefined ? item.subtotalOriginal : item.subtotalUSD, mOrig);
+                return `
+                    <div class="bg-white p-2.5 rounded-xl border border-slate-200 flex justify-between items-center shadow-sm text-xs font-mono">
+                        <div class="min-w-0 flex-1">
+                            <span class="font-black text-slate-900 uppercase block break-words">${item.cant}x ${window.escapeHTML(item.nombre)}</span>
+                            ${item.desc ? `<span class="text-[9.5px] text-indigo-700 font-sans block">${window.escapeHTML(item.desc)}</span>` : ''}
+                            <span class="text-[10px] text-slate-500">Costo: ${costoStr} | Venta: ${ventaStr}</span>
+                        </div>
+                        <div class="flex items-center gap-2 shrink-0 ml-2">
+                            <div class="text-right">
+                                <strong class="text-blue-600 font-black block">${subStr}</strong>
+                                ${mOrig !== 'USD' ? `<span class="text-[9px] text-slate-400 block">$${(item.subtotalUSD || 0).toFixed(2)} USD</span>` : ''}
+                            </div>
+                            <button onclick="window.quitarItemCarritoCompra(${idx})" class="w-6 h-6 bg-red-100 hover:bg-red-200 text-red-600 rounded-lg flex items-center justify-center text-xs"><i class="fa-solid fa-trash-can text-[10px]"></i></button>
+                        </div>
                     </div>
-                    <div class="flex items-center gap-2 shrink-0">
-                        <strong class="text-blue-600 font-black">$${item.subtotalUSD.toFixed(2)} USD</strong>
-                        <button onclick="window.quitarItemCarritoCompra(${idx})" class="w-6 h-6 bg-red-100 hover:bg-red-200 text-red-600 rounded-lg flex items-center justify-center text-xs"><i class="fa-solid fa-trash-can text-[10px]"></i></button>
-                    </div>
-                </div>
-            `).join('');
+                `;
+            }).join('');
 
             const totUSD = window.carritoCompras.reduce((acc, x) => acc + x.subtotalUSD, 0);
             const totCOP = window.calcularPesosDesdeUSD(totUSD);
@@ -9479,23 +9998,33 @@ window.abrirModalReporteZ = function() {
                 }
 
                 const totUSD = window.carritoCompras.reduce((acc, x) => acc + x.subtotalUSD, 0);
+                const monedaOrig = (window.carritoCompras[0] && window.carritoCompras[0].monedaOriginal) ? window.carritoCompras[0].monedaOriginal : (window.monedaCargaCompra || 'USD');
+                const totOrig = window.carritoCompras.reduce((acc, x) => acc + (x.subtotalOriginal !== undefined ? x.subtotalOriginal : x.subtotalUSD), 0);
+                const tasaCopMomento = parseFloat(window.tasasConfig.cop) || 3600;
+                const factorBsMomento = parseFloat(window.tasasConfig.paridadBs) || 3.3;
+
                 window.operacionPendienteCierre = {
                     tipo: 'COMPRA',
                     encargado, provNombre, provTel, provDir,
                     items: JSON.parse(JSON.stringify(window.carritoCompras)),
                     totalUSD: totUSD,
+                    monedaOriginal: monedaOrig,
+                    totalOriginal: totOrig,
+                    tasaCopMomento,
+                    factorBsMomento,
                     fechaMs: Date.now(),
                     id: 'cmp_' + Date.now()
                 };
 
                 const box = document.getElementById('box-resumen-cierre-rapido');
                 if (box) {
+                    const totPrincipalStr = window.formatearMontoPorMoneda(totOrig, monedaOrig);
                     box.innerHTML = `
                         <p><strong>DOCUMENTO:</strong> INGRESO DE COMPRA / PROVEEDOR</p>
-                        <p><strong>ENCARGADO:</strong> ${encargado}</p>
-                        <p><strong>PROVEEDOR:</strong> ${provNombre}</p>
+                        <p><strong>ENCARGADO:</strong> ${window.escapeHTML(encargado)}</p>
+                        <p><strong>PROVEEDOR:</strong> ${window.escapeHTML(provNombre)}</p>
                         <p><strong>TOTAL ÍTEMS:</strong> ${window.carritoCompras.length} productos</p>
-                        <p class="text-blue-600 font-black"><strong>TOTAL INVERSIÓN:</strong> $${totUSD.toFixed(2)} USD</p>
+                        <p class="text-blue-600 font-black"><strong>TOTAL INVERSIÓN:</strong> ${totPrincipalStr} ${monedaOrig !== 'USD' ? `($${totUSD.toFixed(2)} USD)` : ''}</p>
                     `;
                 }
             }
@@ -9529,6 +10058,11 @@ window.abrirModalReporteZ = function() {
                         if (it.foto && !window.dbInventario[idx].foto) {
                             window.dbInventario[idx].foto = it.foto;
                         }
+                        if (it.desc) {
+                            window.dbInventario[idx].desc = it.desc;
+                        } else if (window.dbInventario[idx].desc && String(window.dbInventario[idx].desc).toLowerCase().startsWith('proveedor:')) {
+                            window.dbInventario[idx].desc = '';
+                        }
                         itemsSincronizar.push(window.dbInventario[idx]);
                     } else {
                         const nuevoProd = {
@@ -9536,7 +10070,7 @@ window.abrirModalReporteZ = function() {
                             codigo: it.codigo || '',
                             nombre: it.nombre,
                             categoria: it.categoria || 'GENERAL',
-                            desc: `Proveedor: ${op.provNombre}`,
+                            desc: it.desc || '',
                             precioCosto: it.costoUSD,
                             precioVenta: it.ventaUSD,
                             stock: Number(it.cant) || 1,
@@ -9580,30 +10114,29 @@ window.abrirModalReporteZ = function() {
                 }
 
                 // 4. Ejecutar la acción elegida
+                const mOrigOp = op.monedaOriginal || 'USD';
+                const totOrigOp = op.totalOriginal !== undefined ? op.totalOriginal : op.totalUSD;
+                const totCopOp = mOrigOp === 'COP' ? totOrigOp : window.calcularPesosDesdeUSD(op.totalUSD, op.tasaCopMomento);
+                const totBsOp = mOrigOp === 'BS' ? totOrigOp : window.calcularBsDesdeUSD(op.totalUSD, op.tasaCopMomento, op.factorBsMomento);
+                const totPrincipalOpStr = window.formatearMontoPorMoneda(totOrigOp, mOrigOp);
+
                 if (accion === 'IMPRIMIR') {
-                    const printDirecto = document.getElementById('seccion-impresion-termica-directa');
-                    if (printDirecto) {
-                        printDirecto.innerHTML = `
-                            <div style="text-align:center;font-family:monospace;">
-                                <h3>${(window.clienteActivoSesion ? window.clienteActivoSesion.nombre : 'TUCOCEL C.A.').toUpperCase()}</h3>
-                                <p>COMPROBANTE DE COMPRA / INGRESO</p>
-                                <p>Encargado: ${op.encargado} | Prov: ${op.provNombre}</p>
-                                <hr style="border-top:1px dashed #000;">
-                                ${op.items.map(i => `<p style="text-align:left;">${i.cant}x ${i.nombre} - $${i.subtotalUSD.toFixed(2)}</p>`).join('')}
-                                <hr style="border-top:1px dashed #000;">
-                                <p style="text-align:right;font-weight:bold;">TOTAL: $${op.totalUSD.toFixed(2)} USD</p>
-                                <p style="font-size:8px;">Sistema TCL Comercio — TUCOCEL C.A. & PublionlineMK</p>
-                            </div>
-                        `;
-                        window.print();
-                    }
+                    window.abrirAuditoriaDetallada('COMPRA', op.id);
+                    setTimeout(() => { window.print(); }, 250);
                 } else if (accion === 'WHATSAPP') {
                     let msj = `📦 *COMPROBANTE DE COMPRA / INGRESO DE MERCANCÍA*\n`;
                     msj += `🏢 Local: ${(window.clienteActivoSesion ? window.clienteActivoSesion.nombre : 'TUCOCEL C.A.').toUpperCase()}\n`;
                     msj += `👤 Encargado: ${op.encargado}\n`;
                     msj += `🚛 Proveedor: ${op.provNombre}\n------------------------------------\n`;
-                    op.items.forEach(i => { msj += `• ${i.cant}x ${i.nombre}: $${i.subtotalUSD.toFixed(2)} USD\n`; });
-                    msj += `------------------------------------\n💰 *Total Invertido: $${op.totalUSD.toFixed(2)} USD*\n\n¡Cargado al inventario y reportes!\n*Sistema TCL Comercio — TUCOCEL C.A. & PublionlineMK*`;
+                    op.items.forEach(i => {
+                        const subItStr = window.formatearMontoPorMoneda(i.subtotalOriginal !== undefined ? i.subtotalOriginal : i.subtotalUSD, i.monedaOriginal || mOrigOp);
+                        msj += `• ${i.cant}x ${i.nombre}: ${subItStr}\n`;
+                    });
+                    msj += `------------------------------------\n💰 *Total Invertido: ${totPrincipalOpStr}*\n`;
+                    if (mOrigOp !== 'USD') msj += `💵 Equiv. USD: $${op.totalUSD.toFixed(2)} USD\n`;
+                    if (mOrigOp !== 'COP') msj += `🇨🇴 Equiv. COP: ${window.formatearMiles(totCopOp)} COP\n`;
+                    if (mOrigOp !== 'BS') msj += `🇻🇪 Equiv. Bs: ${window.formatBS(totBsOp)} Bs\n`;
+                    msj += `\n¡Cargado al inventario y reportes!\n*Sistema TCL Comercio — TUCOCEL C.A. & PublionlineMK*`;
                     window.despacharWhatsApp('', msj);
                 }
 
@@ -9916,6 +10449,20 @@ window.abrirModalReporteZ = function() {
                 </div>
             `;
 
+            const printDirecto = document.getElementById('seccion-impresion-termica-directa');
+            const boxAcciones = document.getElementById('box-acciones-modal-auditoria');
+            if (printDirecto) printDirecto.innerHTML = htmlTicketPeriodo;
+            if (boxAcciones) {
+                boxAcciones.innerHTML = `
+                    <button onclick="window.imprimirAuditoriaActual()" class="bg-slate-900 hover:bg-slate-800 text-white font-black py-2.5 px-4 rounded-xl uppercase text-[11px] flex items-center justify-center gap-1.5 shadow-sm active:scale-95 transition-all">
+                        <i class="fa-solid fa-print"></i> IMPRIMIR BALANCE
+                    </button>
+                    <button onclick="window.enviarCierrePeriodoWhatsApp()" class="bg-emerald-600 hover:bg-emerald-500 text-white font-black py-2.5 px-4 rounded-xl uppercase text-[11px] flex items-center justify-center gap-1.5 shadow-sm active:scale-95 transition-all">
+                        <i class="fa-brands fa-whatsapp text-sm"></i> ENVIAR POR WHATSAPP
+                    </button>
+                `;
+            }
+
             document.getElementById('lbl-auditoria-titulo').innerHTML = `<i class="fa-solid fa-chart-pie text-purple-400"></i> BALANCE GERENCIAL`;
             document.getElementById('cuerpo-modal-auditoria').innerHTML = htmlTicketPeriodo;
             document.getElementById('modal-detalle-auditoria').classList.remove('hidden');
@@ -10043,10 +10590,23 @@ window.abrirModalReporteZ = function() {
                 return gDateISO === targetDateStr || gDateLoc === targetDateStr;
             });
 
+            const costoRepCalc = (cie.costoReposicionUSD !== undefined)
+                ? cie.costoReposicionUSD
+                : window.calcularCostoReposicionVentas(ventasDia);
+            const gananciaLibCalc = (cie.gananciaLibreUSD !== undefined)
+                ? cie.gananciaLibreUSD
+                : (cie.totalVentasUSD - costoRepCalc - cie.totalGastosUSD);
+            const efectivoGavCalc = (cie.efectivoEsperadoGaveta !== undefined)
+                ? cie.efectivoEsperadoGaveta
+                : cie.flujoCajaNeto;
+
             const datos = {
                 targetDateStr: cie.fechaStr,
                 totalVentasUSD: cie.totalVentasUSD,
+                costoReposicionUSD: costoRepCalc,
                 totalGastosUSD: cie.totalGastosUSD,
+                gananciaLibreUSD: gananciaLibCalc,
+                efectivoEsperadoGaveta: efectivoGavCalc,
                 flujoCajaNeto: cie.flujoCajaNeto,
                 ventasDia: ventasDia,
                 gastosDia: gastosDia
@@ -10877,13 +11437,40 @@ _Un respaldo de TUCOCEL C.A. & @PublionlineMK_`;
                 const d = new Date(c.fechaMs || Date.now());
                 const fStr = `${d.getDate().toString().padStart(2,'0')}/${(d.getMonth()+1).toString().padStart(2,'0')}/${d.getFullYear()}`;
                 const itemsTxt = (c.items || []).map(it => `${it.cant}x ${it.nombre}`).join(', ');
+
+                const totUSD = Number(c.totalUSD || c.totalInversionUSD || 0);
+                const mOrig = c.monedaOriginal || 'USD';
+                const totCOP = (mOrig === 'COP' && c.totalOriginal !== undefined) ? c.totalOriginal : window.calcularPesosDesdeUSD(totUSD, c.tasaCopMomento);
+                const totBs = (mOrig === 'BS' && c.totalOriginal !== undefined) ? c.totalOriginal : window.calcularBsDesdeUSD(totUSD, c.tasaCopMomento, c.factorBsMomento);
+
+                let montoPrincipal = `$${totUSD.toFixed(2)} USD`;
+                let subConversion = `${window.formatearMiles(totCOP)} COP | ${window.formatBS(totBs)} Bs`;
+
+                if (mOrig === 'COP') {
+                    montoPrincipal = `${window.formatearMiles(totCOP)} COP`;
+                    subConversion = `$${totUSD.toFixed(2)} USD | ${window.formatBS(totBs)} Bs`;
+                } else if (mOrig === 'BS') {
+                    montoPrincipal = `${window.formatBS(totBs)} Bs`;
+                    subConversion = `$${totUSD.toFixed(2)} USD | ${window.formatearMiles(totCOP)} COP`;
+                }
+
                 return `
-                    <div class="bg-white border border-slate-200 rounded-2xl p-3 shadow-sm space-y-1">
-                        <div class="flex justify-between items-center">
-                            <strong class="text-slate-900 font-black uppercase">${window.escapeHTML(c.provNombre || 'Proveedor')}</strong>
-                            <span class="text-blue-700 font-black">$${(c.totalUSD || 0).toFixed(2)} USD</span>
+                    <div class="bg-white border border-slate-200 rounded-2xl p-3 shadow-sm space-y-1.5">
+                        <div class="flex justify-between items-start gap-2">
+                            <div class="min-w-0 flex-1">
+                                <strong class="text-slate-900 font-black uppercase block break-words">${window.escapeHTML(c.provNombre || 'Proveedor')}</strong>
+                                <div class="text-[10px] text-slate-500">Fecha: ${fStr} | Recibió: ${window.escapeHTML(c.encargado || 'N/A')}</div>
+                            </div>
+                            <div class="flex items-center gap-2 shrink-0">
+                                <div class="text-right">
+                                    <span class="text-blue-700 font-black text-xs block">${montoPrincipal}</span>
+                                    <span class="text-[9px] text-slate-500 font-bold block">${subConversion}</span>
+                                </div>
+                                <button type="button" onclick="window.abrirAuditoriaDetallada('COMPRA', '${window.escapeHTML(c.id)}')" class="bg-blue-50 hover:bg-blue-100 text-blue-700 border border-blue-200 px-2.5 py-1.5 rounded-xl text-[9.5px] font-black uppercase flex items-center gap-1 shadow-2xs active:scale-95 transition-all">
+                                    <i class="fa-solid fa-eye"></i> <span>VER</span>
+                                </button>
+                            </div>
                         </div>
-                        <div class="text-[10px] text-slate-500">Fecha: ${fStr} | Recibió: ${window.escapeHTML(c.encargado || 'N/A')}</div>
                         <div class="text-[10px] text-slate-700 bg-slate-50 p-2 rounded-xl border border-slate-100">${window.escapeHTML(itemsTxt || 'Sin detalle')}</div>
                     </div>
                 `;
@@ -11293,6 +11880,102 @@ _Un respaldo de TUCOCEL C.A. & @PublionlineMK_`;
                     </button>
                 </div>
             </form>
+        </div>
+    </div>
+
+    <!-- MODAL CENTRO DE NOVEDADES Y MEJORAS PARA CLIENTES (EXCLUSIVO MÁSTER) -->
+    <div id="modal-notificar-mejoras-master" class="fixed inset-0 bg-slate-950/90 backdrop-blur-md z-[295] p-2 sm:p-5 flex items-center justify-center hidden no-print">
+        <div class="bg-white border border-slate-200 w-full max-w-2xl rounded-3xl overflow-hidden shadow-2xl flex flex-col h-[90vh]">
+            <div class="bg-slate-900 px-5 py-4 text-white flex justify-between items-center shrink-0">
+                <div class="flex items-center gap-2">
+                    <i class="fa-solid fa-bullhorn text-amber-400"></i>
+                    <div>
+                        <h3 class="font-black text-xs uppercase tracking-wider">Centro de Novedades para Clientes</h3>
+                        <p class="text-[9.5px] text-slate-400 font-mono">Solo incluye mejoras públicas beneficiosas para los comercios</p>
+                    </div>
+                </div>
+                <button type="button" onclick="document.getElementById('modal-notificar-mejoras-master').classList.add('hidden')" class="text-slate-400 hover:text-white"><i class="fa-solid fa-xmark text-base"></i></button>
+            </div>
+
+            <div class="p-3.5 bg-indigo-50 border-b border-indigo-200 flex flex-wrap items-center justify-between gap-2 text-[10.5px] text-indigo-950 font-bold">
+                <span><i class="fa-solid fa-circle-info text-indigo-600 mr-1"></i> Puedes revisar o ajustar el comunicado antes de enviarlo al grupo o publicarlo en la App.</span>
+                <button type="button" onclick="window.regenerarComunicadoMejorasMaster()" class="bg-white hover:bg-indigo-100 text-indigo-900 border border-indigo-300 px-2.5 py-1 rounded-lg text-[9.5px] font-black uppercase shrink-0">
+                    🔄 Regenerar Bitácora
+                </button>
+            </div>
+
+            <div class="p-4 sm:p-5 flex-grow flex flex-col bg-slate-50">
+                <textarea id="textarea-mejoras-clientes-editor" class="w-full h-full bg-white border-2 border-slate-300 focus:border-indigo-600 rounded-2xl p-4 text-xs sm:text-sm font-sans text-slate-900 leading-relaxed outline-none resize-none shadow-inner"></textarea>
+            </div>
+
+            <div class="bg-slate-100 p-3.5 sm:p-4 border-t border-slate-200 grid grid-cols-1 sm:grid-cols-3 gap-2 shrink-0">
+                <button type="button" onclick="window.publicarNovedadesClientes(true, false)" class="bg-indigo-600 hover:bg-indigo-500 text-white font-black py-3 rounded-xl uppercase text-[10.5px] shadow flex items-center justify-center gap-1.5">
+                    <i class="fa-solid fa-bell"></i> <span>Publicar en App</span>
+                </button>
+                <button type="button" onclick="window.publicarNovedadesClientes(false, true)" class="bg-emerald-600 hover:bg-emerald-500 text-white font-black py-3 rounded-xl uppercase text-[10.5px] shadow flex items-center justify-center gap-1.5">
+                    <i class="fa-brands fa-whatsapp text-sm"></i> <span>Enviar a WhatsApp</span>
+                </button>
+                <button type="button" onclick="window.publicarNovedadesClientes(true, true)" class="bg-slate-900 hover:bg-slate-800 text-amber-400 border border-amber-400/40 font-black py-3 rounded-xl uppercase text-[10.5px] shadow flex items-center justify-center gap-1.5">
+                    <i class="fa-solid fa-paper-plane"></i> <span>App + WhatsApp</span>
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <!-- MODAL VISTA AMPLIADA DE PRODUCTO EN VITRINA WEB (QUICK VIEW) -->
+    <div id="modal-producto-vitrina-detalle" class="fixed inset-0 bg-slate-950/85 backdrop-blur-md z-[85] p-3 sm:p-4 flex items-center justify-center hidden no-print" onclick="if(event.target === this) document.getElementById('modal-producto-vitrina-detalle').classList.add('hidden')">
+        <div class="bg-white border border-slate-200 w-full max-w-md rounded-3xl overflow-hidden shadow-2xl flex flex-col max-h-[92vh]">
+            <div class="bg-slate-900 px-4 py-3 text-white flex justify-between items-center shrink-0">
+                <span id="qv-prod-categoria" class="text-[10px] font-mono font-black uppercase tracking-wider text-blue-300 bg-blue-950/80 border border-blue-700/50 px-2.5 py-0.5 rounded-full">
+                    GENERAL
+                </span>
+                <button type="button" onclick="document.getElementById('modal-producto-vitrina-detalle').classList.add('hidden')" class="text-slate-400 hover:text-white p-1">
+                    <i class="fa-solid fa-xmark text-base"></i>
+                </button>
+            </div>
+
+            <div class="p-4 sm:p-5 overflow-y-auto space-y-4 no-scrollbar flex-grow">
+                <input type="hidden" id="qv-prod-id" value="">
+
+                <!-- Imagen Ampliada -->
+                <div class="w-full aspect-square max-h-72 bg-slate-100 rounded-2xl overflow-hidden flex items-center justify-center text-slate-400 text-5xl relative border border-slate-200">
+                    <div id="qv-prod-imagen-box" class="w-full h-full flex items-center justify-center"></div>
+                    <div id="qv-prod-badge-stock"></div>
+                </div>
+
+                <!-- Título completo y Descripción completa sin cortes -->
+                <div class="space-y-1.5">
+                    <h3 id="qv-prod-nombre" class="font-black text-slate-900 text-base sm:text-lg uppercase leading-snug break-words">
+                        NOMBRE DEL PRODUCTO
+                    </h3>
+                    <p id="qv-prod-desc" class="text-xs sm:text-sm text-slate-600 leading-relaxed whitespace-pre-line break-words">
+                    </p>
+                </div>
+
+                <!-- Bloque de Precios Multimoneda -->
+                <div id="qv-prod-precios-box" class="bg-slate-50 p-3.5 rounded-2xl border border-slate-200 space-y-1 font-mono">
+                </div>
+            </div>
+
+            <!-- Controles inferiores: Cantidad + Agregar al Carrito -->
+            <div id="qv-prod-footer-acciones" class="bg-slate-100 p-3.5 sm:p-4 border-t border-slate-200 shrink-0 space-y-2.5">
+                <div class="flex items-center justify-between gap-3">
+                    <span class="text-[10px] font-black uppercase text-slate-600 font-mono">Cantidad a Pedir:</span>
+                    <div class="inline-flex items-center bg-white border border-slate-300 rounded-xl overflow-hidden shadow-xs">
+                        <button type="button" onclick="window.cambiarCantidadQuickView(-1)" class="w-9 h-9 flex items-center justify-center text-slate-700 hover:bg-slate-100 font-black text-sm">−</button>
+                        <input type="number" step="any" min="0.1" id="qv-prod-cant" value="1" class="w-14 text-center font-mono font-black text-sm text-slate-900 border-x border-slate-200 py-1.5 outline-none">
+                        <button type="button" onclick="window.cambiarCantidadQuickView(1)" class="w-9 h-9 flex items-center justify-center text-slate-700 hover:bg-slate-100 font-black text-sm">+</button>
+                    </div>
+                </div>
+                <div class="grid grid-cols-3 gap-2">
+                    <button type="button" onclick="document.getElementById('modal-producto-vitrina-detalle').classList.add('hidden')" class="bg-white hover:bg-slate-200 text-slate-700 border border-slate-300 py-3 rounded-xl font-black text-xs uppercase">
+                        Cerrar
+                    </button>
+                    <button type="button" id="btn-qv-agregar-carrito" onclick="window.agregarDesdeQuickViewAlCarrito()" class="col-span-2 btn-brand py-3 text-xs shadow-md flex items-center justify-center gap-1.5">
+                        <i class="fa-solid fa-cart-plus text-sm"></i> <span>AGREGAR AL CARRITO</span>
+                    </button>
+                </div>
+            </div>
         </div>
     </div>
 </body>
