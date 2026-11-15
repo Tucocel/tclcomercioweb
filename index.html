@@ -84,6 +84,21 @@
     <!-- ESCÁNER CÓDIGO DE BARRAS HTML5-QRCODE -->
     <script src="https://unpkg.com/html5-qrcode"></script>
 
+    <!-- ENRUTAMIENTO INSTANTÁNEO DE VITRINA PÚBLICA (EVITA PARPADEO DE LOGIN EN CUALQUIER NAVEGADOR) -->
+    <script>
+        (function() {
+            try {
+                var rawUrl = (window.location.search || '') + '&' + (window.location.hash || '');
+                if (/[?&#](comercio|tenant|u|user)=[^&#]+/i.test(rawUrl)) {
+                    document.documentElement.classList.add('modo-vitrina-directa');
+                }
+            } catch (e) {}
+        })();
+    </script>
+    <style>
+        html.modo-vitrina-directa #vista-login { display: none !important; }
+    </style>
+
     <style>
         @import url('https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800;900&display=swap');
         body { font-family: 'Plus Jakarta Sans', sans-serif; background-color: #f8fafc; color: #0f172a; overflow-x: hidden; width: 100%; }
@@ -919,6 +934,30 @@
                     </button>
                 </div>
 
+                <!-- SELECTOR DE MONEDAS VISIBLES AL PÚBLICO EN VITRINA -->
+                <div class="bg-slate-50 border border-slate-200 rounded-2xl p-2.5 space-y-1.5">
+                    <div class="flex items-center justify-between gap-2">
+                        <span class="text-[9.5px] font-black uppercase text-slate-700 tracking-wide flex items-center gap-1">
+                            <i class="fa-solid fa-coins text-amber-500"></i> Monedas visibles en Vitrina Web
+                        </span>
+                        <span class="text-[8.5px] font-mono text-slate-500">Elige qué precios mostrar</span>
+                    </div>
+                    <div class="grid grid-cols-3 gap-1.5 text-[10px] font-black">
+                        <label class="flex items-center justify-center gap-1.5 bg-white hover:bg-blue-50/60 border border-slate-200 rounded-xl py-1.5 px-2 cursor-pointer select-none transition-colors">
+                            <input type="checkbox" id="chk-vitrina-moneda-usd" checked onchange="window.actualizarMonedasVisiblesVitrina()" class="accent-blue-600 w-3.5 h-3.5 rounded">
+                            <span class="text-blue-700">$ USD</span>
+                        </label>
+                        <label class="flex items-center justify-center gap-1.5 bg-white hover:bg-slate-100 border border-slate-200 rounded-xl py-1.5 px-2 cursor-pointer select-none transition-colors">
+                            <input type="checkbox" id="chk-vitrina-moneda-cop" checked onchange="window.actualizarMonedasVisiblesVitrina()" class="accent-slate-800 w-3.5 h-3.5 rounded">
+                            <span class="text-slate-800">COP</span>
+                        </label>
+                        <label class="flex items-center justify-center gap-1.5 bg-white hover:bg-emerald-50/60 border border-slate-200 rounded-xl py-1.5 px-2 cursor-pointer select-none transition-colors">
+                            <input type="checkbox" id="chk-vitrina-moneda-bs" checked onchange="window.actualizarMonedasVisiblesVitrina()" class="accent-emerald-600 w-3.5 h-3.5 rounded">
+                            <span class="text-emerald-700">Bs</span>
+                        </label>
+                    </div>
+                </div>
+
                 <div class="grid grid-cols-3 gap-2">
                     <button onclick="window.verVitrinaComoCliente()" class="bg-blue-600 hover:bg-blue-500 text-white p-2.5 rounded-2xl flex flex-col items-center justify-center gap-1 font-black text-[10px] uppercase shadow-sm active:scale-95 transition-all text-center">
                         <i class="fa-solid fa-eye text-sm"></i>
@@ -1306,7 +1345,7 @@
                     <h2 class="text-xs font-black uppercase text-slate-700 tracking-wider flex items-center gap-1.5">
                         <i class="fa-solid fa-layer-group text-blue-600"></i> Catálogo por Departamentos
                     </h2>
-                    <span class="text-[9px] text-slate-400 font-mono">Precios calculados con tasa de frontera</span>
+                    <span class="text-[9px] text-slate-400 font-mono">Precios actualizados en tiempo real</span>
                 </div>
                 <div id="contenedor-pildoras-vitrina" class="flex items-center gap-1.5 overflow-x-auto no-scrollbar py-1 text-xs"></div>
             </div>
@@ -2715,6 +2754,24 @@
                 <label class="text-[10px] text-slate-500 uppercase block mb-1">Descripción Breve</label>
                 <input type="text" id="sub-input-desc" class="input-clean">
             </div>
+            <div class="bg-slate-50 border border-slate-200 rounded-2xl p-2.5 flex items-center gap-3">
+                <input type="hidden" id="sub-input-foto-base64" value="">
+                <div id="sub-box-preview-foto" class="w-14 h-14 rounded-xl bg-white border border-slate-300 flex items-center justify-center overflow-hidden shrink-0 text-slate-400">
+                    <i class="fa-solid fa-image text-lg"></i>
+                </div>
+                <div class="flex-grow space-y-1 min-w-0">
+                    <label class="text-[9.5px] text-slate-600 uppercase font-black block">Fotografía del Producto (Vitrina)</label>
+                    <div class="flex flex-wrap items-center gap-1.5">
+                        <label class="bg-blue-600 hover:bg-blue-500 text-white px-2.5 py-1.5 rounded-lg text-[9.5px] font-black uppercase cursor-pointer inline-flex items-center gap-1 shadow-xs active:scale-95 transition-all">
+                            <i class="fa-solid fa-camera"></i> <span>Subir / Cambiar Foto</span>
+                            <input type="file" id="sub-input-foto-file" accept="image/*" onchange="window.procesarFotoSubmodalEdicion(this)" class="hidden">
+                        </label>
+                        <button type="button" onclick="window.quitarFotoSubmodalEdicion()" class="bg-white hover:bg-red-50 text-red-600 border border-red-200 px-2 py-1.5 rounded-lg text-[9.5px] font-bold uppercase">
+                            Quitar
+                        </button>
+                    </div>
+                </div>
+            </div>
             <div class="grid grid-cols-2 gap-2 pt-2">
                 <button onclick="document.getElementById('submodal-edicion-rapida').classList.add('hidden')" class="bg-slate-100 hover:bg-slate-200 text-slate-700 py-3 rounded-xl uppercase text-xs">Cancelar</button>
                 <button onclick="window.guardarEdicionRapidaSubmodal()" class="btn-brand py-3 text-xs shadow-md">💾 Guardar Cambios</button>
@@ -3891,6 +3948,55 @@ Saldo restante: $${nota.credito.saldoPendienteUSD.toFixed(2)} USD`);
             }
         };
 
+        window.sincronizarCheckboxesMonedasVitrina = function() {
+            if (window.clienteActivoSesion && window.clienteActivoSesion.monedasVisibles) {
+                window.monedasVisibles = { usd: true, cop: true, bs: true, ...window.clienteActivoSesion.monedasVisibles };
+            } else {
+                window.monedasVisibles = { usd: true, cop: true, bs: true };
+            }
+            const cUsd = document.getElementById('chk-vitrina-moneda-usd');
+            const cCop = document.getElementById('chk-vitrina-moneda-cop');
+            const cBs = document.getElementById('chk-vitrina-moneda-bs');
+            if (cUsd) cUsd.checked = !!window.monedasVisibles.usd;
+            if (cCop) cCop.checked = !!window.monedasVisibles.cop;
+            if (cBs) cBs.checked = !!window.monedasVisibles.bs;
+        };
+
+        window.actualizarMonedasVisiblesVitrina = async function() {
+            const cUsd = document.getElementById('chk-vitrina-moneda-usd');
+            const cCop = document.getElementById('chk-vitrina-moneda-cop');
+            const cBs = document.getElementById('chk-vitrina-moneda-bs');
+            const usd = cUsd ? cUsd.checked : true;
+            const cop = cCop ? cCop.checked : true;
+            const bs = cBs ? cBs.checked : true;
+
+            if (!usd && !cop && !bs) {
+                alert("⚠️ Debe mantener al menos una moneda visible en su catálogo.");
+                if (cUsd) cUsd.checked = true;
+                window.monedasVisibles = { usd: true, cop: false, bs: false };
+            } else {
+                window.monedasVisibles = { usd, cop, bs };
+            }
+
+            if (window.clienteActivoSesion) {
+                window.clienteActivoSesion.monedasVisibles = { ...window.monedasVisibles };
+                window.guardarClientesEnStorage();
+                const docId = (window.clienteActivoSesion.id || window.clienteActivoSesion.slug || window.clienteActivoSesion.user || '').toLowerCase().trim();
+                if (window.dbNube && docId) {
+                    try {
+                        await window.dbNube.collection('comercios_saas').doc(docId).set({
+                            monedasVisibles: { ...window.monedasVisibles }
+                        }, { merge: true });
+                    } catch (e) {
+                        console.warn("Aviso guardado monedasVisibles nube:", e);
+                    }
+                }
+            }
+            if (typeof window.renderizarProductosVitrina === 'function') {
+                window.renderizarProductosVitrina();
+            }
+        };
+
         // -------------------------------------------------------------
         // VINCULACIÓN EXPLÍCITA DE FUNCIONES DE INVENTARIO
         // -------------------------------------------------------------
@@ -3977,7 +4083,40 @@ Saldo restante: $${nota.credito.saldoPendienteUSD.toFixed(2)} USD`);
             document.getElementById('sub-input-stock').value = prod.stock || 0;
             document.getElementById('sub-input-desc').value = prod.desc || '';
 
+            const subFotoInp = document.getElementById('sub-input-foto-base64');
+            const subFotoBox = document.getElementById('sub-box-preview-foto');
+            const subFotoFile = document.getElementById('sub-input-foto-file');
+            if (subFotoFile) subFotoFile.value = '';
+            if (subFotoInp) subFotoInp.value = prod.foto || '';
+            if (subFotoBox) {
+                subFotoBox.innerHTML = prod.foto
+                    ? `<img src="${prod.foto}" class="w-full h-full object-cover">`
+                    : `<i class="fa-solid fa-image text-lg"></i>`;
+            }
+
             document.getElementById('submodal-edicion-rapida').classList.remove('hidden');
+        };
+
+        window.procesarFotoSubmodalEdicion = async function(input) {
+            if (!input.files || !input.files[0]) return;
+            try {
+                const { base64, pesoKB } = await window.comprimirImagenAdaptativa(input.files[0], 560, 120 * 1024);
+                const inpHidden = document.getElementById('sub-input-foto-base64');
+                const boxPrev = document.getElementById('sub-box-preview-foto');
+                if (inpHidden) inpHidden.value = base64;
+                if (boxPrev) boxPrev.innerHTML = `<img src="${base64}" class="w-full h-full object-cover" title="${pesoKB} KB">`;
+            } catch (err) {
+                alert("⚠️ No se pudo procesar la imagen. Intente con otra foto.");
+            }
+        };
+
+        window.quitarFotoSubmodalEdicion = function() {
+            const inpHidden = document.getElementById('sub-input-foto-base64');
+            const boxPrev = document.getElementById('sub-box-preview-foto');
+            const subFotoFile = document.getElementById('sub-input-foto-file');
+            if (subFotoFile) subFotoFile.value = '';
+            if (inpHidden) inpHidden.value = '';
+            if (boxPrev) boxPrev.innerHTML = `<i class="fa-solid fa-image text-lg"></i>`;
         };
 
         window.sumarStockRapido = function(id) {
@@ -4046,7 +4185,9 @@ Saldo restante: $${nota.credito.saldoPendienteUSD.toFixed(2)} USD`);
             if (idx !== -1) {
                 const catInp = document.getElementById('sub-input-categoria');
                 const categoria = (catInp && catInp.value.trim()) ? catInp.value.trim().toUpperCase() : (window.dbInventario[idx].categoria || 'GENERAL');
-                window.dbInventario[idx] = { ...window.dbInventario[idx], codigo, nombre, categoria, precioCosto, precioVenta, stock, desc, actualizadoMs: Date.now() };
+                const subFotoInp = document.getElementById('sub-input-foto-base64');
+                const foto = subFotoInp ? subFotoInp.value : (window.dbInventario[idx].foto || '');
+                window.dbInventario[idx] = { ...window.dbInventario[idx], codigo, nombre, categoria, precioCosto, precioVenta, stock, desc, foto, actualizadoMs: Date.now() };
                 window.guardarInventarioEnStorage();
                 if (typeof window.sincronizarTenantConFirebase === 'function') {
                     window.sincronizarTenantConFirebase('inventario', window.dbInventario[idx]);
@@ -4083,6 +4224,13 @@ Saldo restante: $${nota.credito.saldoPendienteUSD.toFixed(2)} USD`);
                 if(btnBS) btnBS.className = "py-2 rounded-lg border border-emerald-600 bg-emerald-600 text-white text-center font-black shadow-sm";
                 if(lblLibre) lblLibre.innerText = "Monto en Bolívares (Bs Paridad) *";
             }
+            
+            // Sincronizar automáticamente la calculadora de vuelto a la misma moneda (Mejora: Moneda Dinámica)
+            if (typeof window.seleccionarMonedaPagoVuelto === 'function') {
+                window.seleccionarMonedaPagoVuelto(moneda);
+            }
+            
+            window.renderizarInventarioPOS(); // Refrescar inventario para mostrar precio nuevo
             window.renderizarCarritoPOS();
         };
 
@@ -4927,6 +5075,9 @@ Tu nueva clave de acceso es: ${nuevaClave}`);
         window.regresarAlPanelMaster = function() {
             if (!window.esMasterLogueado) return;
             window.activarVistaPrincipal('vista-master-admin');
+            if (typeof window.actualizarVisibilidadCajaNegra === 'function') {
+                window.actualizarVisibilidadCajaNegra();
+            }
             const bbg = document.getElementById('bottom-bar-gerencial');
             if (bbg) { bbg.classList.add('hidden'); bbg.style.removeProperty('display'); }
             const bfc = document.getElementById('barra-flotante-carrito-vitrina');
@@ -5035,24 +5186,24 @@ Tu nueva clave de acceso es: ${nuevaClave}`);
         };
 
         // -------------------------------------------------------------
-        // BITÁCORA DE MEJORAS PÚBLICAS PARA CLIENTES (SINGULAR / PLURAL + APP + WHATSAPP)
+        // BITÁCORA DE MEJORAS PÚBLICAS PARA CLIENTES (ÚLTIMA VERSIÓN PUBLICADA)
         // -------------------------------------------------------------
         window.MEJORAS_PUBLICAS_CLIENTES = [
             {
-                titulo: "Nuevo Cierre Inteligente (Reposición vs. Ganancia Libre)",
-                detalle: "Tanto en el Cierre del Día como en el Cierre del Mes, el sistema ahora separa automáticamente cuánto corresponde al costo para reponer mercancía, cuánto salió en gastos operativos y cuánto le queda de Ganancia Libre para usted, sin restar sus compras a proveedores como gastos del turno."
+                titulo: "Compras en su Moneda Original y Comprobante Detallado [VER]",
+                detalle: "Al registrar compras a proveedores en Pesos (COP), Dólares (USD) o Bolívares (Bs), el sistema conserva esa misma moneda como principal en su historial y le permite abrir el comprobante completo para imprimirlo o enviarlo por WhatsApp."
             },
             {
-                titulo: "Calculadora Automática de Ganancia (% o Monto Fijo)",
-                detalle: "Al cargar una compra, registrar un producto o crear un servicio, solo debe ingresar el Costo y elegir su ganancia por Porcentaje (%) o Monto Fijo (USD, COP o Bs). El sistema calcula y protege automáticamente el precio de venta al público."
+                titulo: "Selector de Monedas Visibles en Vitrina Web",
+                detalle: "Desde su panel privado ahora puede elegir qué monedas (USD, COP o Bs) desea mostrar públicamente a sus clientes en su catálogo en línea."
             },
             {
-                titulo: "Registro Rápido de Servicios y Productos al Vuelo",
-                detalle: "Al cobrar un ítem en Venta Libre (Sin Inventario), ahora puede guardarlo de forma permanente en su catálogo como Producto (UND/KG) o como Servicio sin afectar su inventario físico."
+                titulo: "Subir o Cambiar Foto al Editar Productos",
+                detalle: "En su inventario, al editar cualquier producto ya registrado, ahora puede cargar o actualizar su fotografía directamente con compresión automática."
             },
             {
-                titulo: "Sesión Activa por 20 Minutos y Recordatorio de Cierre",
-                detalle: "Su sesión permanece abierta durante 20 minutos aunque minimice o cierre el navegador, y el sistema le avisará amablemente si quedó algún cierre diario pendiente por cuadrar."
+                titulo: "Apertura Instantánea de Vitrina y Enlace Compartido Mejorado",
+                detalle: "Su catálogo web abre al instante desde cualquier navegador y genera un mensaje profesional personalizado con el nombre de su negocio para impulsar sus pedidos por WhatsApp."
             }
         ];
 
@@ -5273,6 +5424,9 @@ Tu nueva clave de acceso es: ${nuevaClave}`);
 
             if (cliente) window.actualizarContadorRegresivoPanelCliente(cliente);
             window.actualizarInterfazSwitchVitrina();
+            if (typeof window.sincronizarCheckboxesMonedasVitrina === 'function') {
+                window.sincronizarCheckboxesMonedasVitrina();
+            }
             window.activarVistaPrincipal('vista-panel-cliente-privado');
             const bbg = document.getElementById('bottom-bar-gerencial');
             if (bbg) { bbg.classList.add('hidden'); bbg.style.removeProperty('display'); }
@@ -5336,6 +5490,10 @@ Tu nueva clave de acceso es: ${nuevaClave}`);
             }
 
             window.activarVistaPrincipal('vista-tienda-comercio');
+            document.documentElement.classList.remove('modo-vitrina-directa');
+            if (typeof window.actualizarVisibilidadCajaNegra === 'function') {
+                window.actualizarVisibilidadCajaNegra();
+            }
             const bbg = document.getElementById('bottom-bar-gerencial');
             if (bbg) { bbg.classList.add('hidden'); bbg.style.removeProperty('display'); }
 
@@ -7461,9 +7619,17 @@ Las conversiones a Pesos (COP) y Bolívares (Bs) se sincronizaron con la tasa de
                 return;
             }
 
-            // 0. Sincronizar estado de Vitrina Prendida / Apagada
+            // 0. Sincronizar estado de Vitrina Prendida / Apagada y Monedas Visibles
             if (window.clienteActivoSesion && window.clienteActivoSesion.vitrinaPrendida !== undefined) {
                 window.vitrinaPrendida = (window.clienteActivoSesion.vitrinaPrendida !== false);
+            }
+            if (window.clienteActivoSesion && window.clienteActivoSesion.monedasVisibles) {
+                window.monedasVisibles = { usd: true, cop: true, bs: true, ...window.clienteActivoSesion.monedasVisibles };
+            } else {
+                window.monedasVisibles = { usd: true, cop: true, bs: true };
+            }
+            if (typeof window.sincronizarCheckboxesMonedasVitrina === 'function') {
+                window.sincronizarCheckboxesMonedasVitrina();
             }
 
             // 1. Inventario Aislado por Comercio
@@ -7660,6 +7826,32 @@ Las conversiones a Pesos (COP) y Bolívares (Bs) se sincronizaron con la tasa de
             window.agregarAlCarrito(p.nombre, precioUSD, cantAgregar);
         };
 
+        // CONTROL CENTRALIZADO DE VISIBILIDAD DE CAJA NEGRA (>_)
+        window.actualizarVisibilidadCajaNegra = function() {
+            const diagEl = document.getElementById('diagnostico-master-flotante');
+            if (!diagEl) return;
+            const vistaTienda = document.getElementById('vista-tienda-comercio');
+            const modalQv = document.getElementById('modal-producto-vitrina-detalle');
+            const enVitrina = vistaTienda && !vistaTienda.classList.contains('hidden');
+            const enQuickView = modalQv && !modalQv.classList.contains('hidden');
+
+            if (!window.esMasterLogueado || enVitrina || enQuickView) {
+                diagEl.classList.add('hidden');
+                diagEl.style.setProperty('display', 'none', 'important');
+            } else {
+                diagEl.classList.remove('hidden');
+                diagEl.style.removeProperty('display');
+            }
+        };
+
+        window.cerrarDetalleProductoVitrina = function() {
+            const modalQv = document.getElementById('modal-producto-vitrina-detalle');
+            if (modalQv) modalQv.classList.add('hidden');
+            if (typeof window.actualizarVisibilidadCajaNegra === 'function') {
+                window.actualizarVisibilidadCajaNegra();
+            }
+        };
+
         // VISTA AMPLIADA FLOTANTE DE PRODUCTO EN VITRINA (QUICK VIEW)
         window.abrirDetalleProductoVitrina = function(prodId) {
             const p = (window.dbInventario || []).find(item => item.id === prodId);
@@ -7731,6 +7923,9 @@ Las conversiones a Pesos (COP) y Bolívares (Bs) se sincronizaron con la tasa de
             }
 
             document.getElementById('modal-producto-vitrina-detalle').classList.remove('hidden');
+            if (typeof window.actualizarVisibilidadCajaNegra === 'function') {
+                window.actualizarVisibilidadCajaNegra();
+            }
         };
 
         window.cambiarCantidadQuickView = function(delta) {
@@ -7751,7 +7946,7 @@ Las conversiones a Pesos (COP) y Bolívares (Bs) se sincronizaron con la tasa de
             const inp = document.getElementById('qv-prod-cant');
             const cant = Math.max(0.01, parseFloat(inp ? inp.value : 1) || 1);
             window.agregarAlCarritoPorId(prodId, cant);
-            document.getElementById('modal-producto-vitrina-detalle').classList.add('hidden');
+            window.cerrarDetalleProductoVitrina();
         };
 
         window.cambiarCantidadCarrito = function(index, delta) {
@@ -7907,37 +8102,58 @@ $${(item.precioUSD * item.cant).toFixed(2)} USD
                     const bs = window.calcularBsDesdeUSD(venta);
                     const esServicio = !!p.esServicio;
                     const disponible = esServicio || (p.stock || 0) > 0;
-                    const badgeVitrina = esServicio
-                        ? `<span class="absolute top-2 right-2 bg-indigo-600 text-white font-black text-[8px] sm:text-[9px] px-2 py-0.5 rounded-lg uppercase shadow">🛠️ Servicio</span>`
-                        : (!disponible ? `<span class="absolute top-2 right-2 bg-red-600 text-white font-black text-[8px] sm:text-[9px] px-2 py-0.5 rounded-lg uppercase shadow">Agotado</span>` : (p.unidad === 'KG' ? `<span class="absolute top-2 right-2 bg-emerald-600 text-white font-black text-[8px] sm:text-[9px] px-2 py-0.5 rounded-lg uppercase font-mono shadow">${(Number(p.stock)||0).toFixed(p.stock % 1 === 0 ? 0 : 2)} Kg Disponibles</span>` : `<span class="absolute top-2 right-2 bg-emerald-600 text-white font-black text-[8px] sm:text-[9px] px-2 py-0.5 rounded-lg uppercase font-mono shadow">${p.stock} Disponibles</span>`));
-
                     const descPublica = window.obtenerDescripcionPublicaProducto(p.desc);
                     const safeId = window.escapeHTML(p.id);
+                    const cate = (p.categoria || 'GENERAL').toUpperCase();
+                    
+                    // Diseño limpio y estructurado de la tarjeta
                     return `
-                        <div class="card-light p-2.5 sm:p-3.5 space-y-2 flex flex-col justify-between hover:border-blue-300 transition-all w-full">
-                            <div onclick="window.abrirDetalleProductoVitrina('${safeId}')" class="space-y-1.5 cursor-pointer group">
-                                <div class="w-full aspect-[3/4] bg-slate-100 rounded-2xl overflow-hidden flex items-center justify-center text-slate-400 text-3xl relative">
-                                    ${p.foto ? `<img src="${p.foto}" class="w-full h-full object-cover group-hover:scale-105 transition-transform duration-200">` : `<i class="fa-solid ${esServicio ? 'fa-screwdriver-wrench text-indigo-400' : 'fa-box-open'}"></i>`}
-                                    ${badgeVitrina}
-                                    <span class="absolute bottom-2 left-2 bg-slate-900/75 backdrop-blur-xs text-white text-[8px] font-bold px-2 py-0.5 rounded-lg uppercase opacity-90 group-hover:bg-blue-600 transition-colors">
-                                        <i class="fa-solid fa-magnifying-glass-plus mr-0.5"></i> Ver detalle
-                                    </span>
-                                </div>
-                                <h3 class="font-black text-slate-900 text-[11px] sm:text-xs uppercase leading-snug break-words pt-1 group-hover:text-blue-700 transition-colors">${window.escapeHTML(p.nombre)} ${p.unidad === 'KG' ? '<span class="text-[9px] text-amber-600 bg-amber-50 px-1 py-0.5 rounded border border-amber-200">/ Kg</span>' : ''}</h3>
-                                ${descPublica ? `<p class="text-[9.5px] sm:text-[10.5px] text-slate-500 leading-snug break-words">${window.escapeHTML(descPublica)}</p>` : ''}
+                        <div class="card-light p-2.5 sm:p-3.5 space-y-2.5 flex flex-col justify-between hover:border-blue-300 transition-all w-full relative group">
+                            
+                            <!-- ZONA 1: IMAGEN TOTALMENTE LIMPIA -->
+                            <div onclick="window.abrirDetalleProductoVitrina('${safeId}')" class="w-full aspect-square bg-slate-100 rounded-2xl overflow-hidden flex items-center justify-center text-slate-400 text-3xl relative cursor-pointer">
+                                ${p.foto ? `<img src="${p.foto}" class="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300">` : `<i class="fa-solid ${esServicio ? 'fa-screwdriver-wrench text-indigo-400' : 'fa-box-open'}"></i>`}
+                                <span class="absolute bottom-2 left-1/2 -translate-x-1/2 bg-slate-900/80 backdrop-blur-md text-white text-[8px] font-black px-3 py-1 rounded-xl uppercase opacity-0 group-hover:opacity-100 transition-opacity shadow-sm flex items-center gap-1">
+                                    <i class="fa-solid fa-magnifying-glass-plus"></i> Ver Detalle
+                                </span>
                             </div>
-                            <div class="space-y-2 pt-1.5 border-t border-slate-100 font-mono">
-                                <div class="text-[11px] sm:text-xs space-y-0.5">
-                                    ${window.monedasVisibles.usd ? `<div class="text-blue-600 font-black text-xs sm:text-sm">$${venta.toFixed(2)} USD</div>` : ''}
-                                    ${window.monedasVisibles.cop ? `<div class="text-slate-600 font-bold text-[9.5px]">${window.formatearMiles(cop)} COP</div>` : ''}
-                                    ${window.monedasVisibles.bs ? `<div class="text-slate-500 font-bold text-[9.5px]">${window.formatBS(bs)} Bs</div>` : ''}
+
+                            <!-- ZONA 2: TÍTULO Y CATEGORÍA AGRUPADOS -->
+                            <div class="space-y-1 pt-0.5">
+                                <span class="text-[8px] sm:text-[8.5px] font-mono font-black uppercase text-blue-500 tracking-wider flex items-center gap-1">
+                                    <i class="fa-solid fa-tag text-[7px] text-blue-400"></i> ${window.escapeHTML(cate)}
+                                </span>
+                                <h3 class="font-black text-slate-900 text-[11px] sm:text-xs uppercase leading-snug break-words group-hover:text-blue-700 transition-colors">
+                                    ${window.escapeHTML(p.nombre)} ${p.unidad === 'KG' ? '<span class="text-[9px] text-amber-600 bg-amber-50 px-1 py-0.5 rounded border border-amber-200">/ Kg</span>' : ''}
+                                </h3>
+                                ${descPublica ? `<p class="text-[9.5px] sm:text-[10.5px] text-slate-500 leading-snug break-words line-clamp-2">${window.escapeHTML(descPublica)}</p>` : ''}
+                            </div>
+
+                            <!-- ZONA 3: PRECIOS Y STOCK DIVIDIDOS -->
+                            <div class="pt-2 border-t border-slate-100 flex items-end justify-between gap-1">
+                                <!-- Columna Izquierda: Precios Multimoneda -->
+                                <div class="font-mono text-[10.5px] sm:text-xs space-y-0.5 min-w-0">
+                                    ${window.monedasVisibles.usd ? `<div class="text-blue-600 font-black text-xs sm:text-[13px] tracking-tight">$${venta.toFixed(2)} USD</div>` : ''}
+                                    ${window.monedasVisibles.cop ? `<div class="text-slate-600 font-bold text-[9px] tracking-tight truncate">${window.formatearMiles(cop)} COP</div>` : ''}
+                                    ${window.monedasVisibles.bs ? `<div class="text-slate-500 font-bold text-[9px] tracking-tight truncate">${window.formatBS(bs)} Bs</div>` : ''}
                                 </div>
+                                
+                                <!-- Columna Derecha: Disponibilidad Encajonada -->
+                                <div class="shrink-0 text-right pb-0.5">
+                                    ${esServicio ? `<span class="bg-indigo-50 text-indigo-700 border border-indigo-200 font-black text-[7.5px] sm:text-[8px] px-1.5 py-0.5 rounded-md uppercase block whitespace-nowrap"><i class="fa-solid fa-wrench mr-0.5"></i> Servicio</span>` 
+                                    : (!disponible ? `<span class="bg-red-50 text-red-600 border border-red-200 font-black text-[7.5px] sm:text-[8px] px-1.5 py-0.5 rounded-md uppercase block whitespace-nowrap"><i class="fa-solid fa-xmark mr-0.5"></i> Agotado</span>` 
+                                    : `<span class="bg-emerald-50 text-emerald-700 border border-emerald-200 font-black text-[7.5px] sm:text-[8px] px-1.5 py-0.5 rounded-md uppercase block whitespace-nowrap font-mono tracking-tight"><i class="fa-solid fa-box mr-0.5 text-emerald-500"></i> ${(p.unidad === 'KG' ? (Number(p.stock)||0).toFixed(p.stock % 1 === 0 ? 0 : 2) : p.stock)} Disp.</span>`)}
+                                </div>
+                            </div>
+                            
+                            <!-- ZONA 4: BOTÓN ACCIÓN FINAL -->
+                            <div class="pt-1">
                                 ${disponible ? `
-                                    <button onclick="window.agregarAlCarritoPorId('${window.escapeHTML(p.id)}')" class="btn-brand w-full py-2 sm:py-2.5 text-[9.5px] sm:text-xs flex items-center justify-center gap-1 shadow-sm">
+                                    <button onclick="window.agregarAlCarritoPorId('${safeId}')" class="btn-brand w-full py-2.5 text-[9.5px] sm:text-[10.5px] flex items-center justify-center gap-1.5 shadow-sm hover:shadow-md">
                                         <i class="fa-solid fa-cart-plus"></i> AGREGAR
                                     </button>
                                 ` : `
-                                    <div class="w-full bg-slate-100 text-red-600 font-black py-2 rounded-xl text-[9px] text-center border border-red-200 uppercase">⚠️ NO DISPONIBLE</div>
+                                    <div class="w-full bg-slate-100 text-red-600 font-black py-2.5 rounded-xl text-[9px] text-center border border-red-200 uppercase">NO DISPONIBLE</div>
                                 `}
                             </div>
                         </div>
@@ -10501,17 +10717,16 @@ window.abrirModalReporteZ = function() {
         // CÁPSULA VERDE: COMPARTIR CATÁLOGO EN WHATSAPP
         // -------------------------------------------------------------
         window.compartirCatalogoWhatsApp = function() {
-            const nombreNegocio = (window.clienteActivoSesion ? window.clienteActivoSesion.nombre : 'TUCOCEL C.A.').toUpperCase();
-            const slug = window.clienteActivoSesion ? (window.clienteActivoSesion.slug || 'comercio') : 'demo';
+            const nombreNegocio = (window.clienteActivoSesion && window.clienteActivoSesion.nombre ? window.clienteActivoSesion.nombre : 'NUESTRA TIENDA').toUpperCase();
+            const slug = window.clienteActivoSesion ? (window.clienteActivoSesion.slug || window.clienteActivoSesion.user || 'comercio') : 'demo';
             const urlCatalogo = `https://tucocel.github.io/tclcomercioweb/?comercio=${slug}`;
 
-            let texto = `🛍️ *¡CATÁLOGO DIGITAL DISPONIBLE!* ✨\n`;
-            texto += `🏢 *${nombreNegocio}*\n\n`;
-            texto += `📦 Revisa nuestros productos actualizados, disponibilidad y precios de frontera en tiempo real:\n\n`;
-            texto += `👉 *Haz tu pedido en línea aquí:*\n${urlCatalogo}\n\n`;
-            texto += `🚚 *Envíos a domicilio y retiros en tienda.*\n`;
-            texto += `💬 ¡Escríbenos y con gusto te atenderemos! 🚀\n\n`;
-            texto += `_Plataforma TCL Comercio Web — TUCOCEL C.A. & PublionlineMK_`;
+            let texto = `🛍️ *¡CATÁLOGO DIGITAL EN LÍNEA!* ✨\n`;
+            texto += `🏪 *${nombreNegocio}*\n\n`;
+            texto += `📦 Explora nuestros productos disponibles, precios actualizados al instante y arma tu carrito de compras en segundos:\n\n`;
+            texto += `👉 *Ingresa a nuestra vitrina aquí:*\n${urlCatalogo}\n\n`;
+            texto += `🚚 *Entregas a domicilio y retiros en tienda.*\n`;
+            texto += `💬 ¡Envía tu pedido directo por WhatsApp y te atenderemos de inmediato! 🚀`;
 
             window.despacharWhatsApp('', texto);
         };
@@ -10914,16 +11129,27 @@ _Un respaldo de TUCOCEL C.A. & @PublionlineMK_`;
                     return;
                 }
 
-                const comercioSlug = searchParams.get('comercio') || searchParams.get('tenant') || searchParams.get('u') || searchParams.get('user');
+                let comercioSlug = searchParams.get('comercio') || searchParams.get('tenant') || searchParams.get('u') || searchParams.get('user');
+                if (!comercioSlug) {
+                    const matchUrl = (window.location.href || '').match(/[?&#](?:comercio|tenant|u|user)=([^&#]+)/i);
+                    if (matchUrl && matchUrl[1]) comercioSlug = matchUrl[1];
+                }
                 if (comercioSlug) {
-                    const slugLimpio = comercioSlug.toLowerCase().trim();
-                    let cli = (window.dbClientesSaaS || []).find(c => (c.slug && c.slug.toLowerCase() === slugLimpio) || (c.user && c.user.toLowerCase() === slugLimpio));
+                    let slugLimpio = comercioSlug;
+                    try { slugLimpio = decodeURIComponent(comercioSlug); } catch (eDec) {}
+                    slugLimpio = slugLimpio.toLowerCase().trim();
+                    let docIdReal = slugLimpio;
+                    let cli = (window.dbClientesSaaS || []).find(c =>
+                        (c.slug && c.slug.toLowerCase().trim() === slugLimpio) ||
+                        (c.user && c.user.toLowerCase().trim() === slugLimpio)
+                    );
+                    if (cli && cli.id) docIdReal = cli.id;
                     
-                    // CONSULTA A LA NUBE (FIRESTORE) PARA DISPOSITIVOS EXTERNOS / NUEVOS VISITANTES
-                    if (!cli && window.dbNube) {
+                    // CONSULTA A LA NUBE (FIRESTORE) PARA DISPOSITIVOS EXTERNOS / NUEVOS VISITANTES / INCÓGNITO
+                    if (window.dbNube) {
                         try {
                             // Buscar primero por ID directo
-                            let docSnap = await window.dbNube.collection('comercios_saas').doc(slugLimpio).get();
+                            let docSnap = await window.dbNube.collection('comercios_saas').doc(docIdReal).get();
                             if (!docSnap.exists) {
                                 // Buscar por campo slug o user
                                 const querySlug = await window.dbNube.collection('comercios_saas').where('slug', '==', slugLimpio).limit(1).get();
@@ -10931,14 +11157,35 @@ _Un respaldo de TUCOCEL C.A. & @PublionlineMK_`;
                                     docSnap = querySlug.docs[0];
                                 } else {
                                     const queryUser = await window.dbNube.collection('comercios_saas').where('user', '==', slugLimpio).limit(1).get();
-                                    if (!queryUser.empty) docSnap = queryUser.docs[0];
+                                    if (!queryUser.empty) {
+                                        docSnap = queryUser.docs[0];
+                                    } else {
+                                        // Respaldo insensible a mayúsculas/minúsculas para cualquier navegador
+                                        const allSnap = await window.dbNube.collection('comercios_saas').limit(150).get();
+                                        allSnap.forEach(d => {
+                                            if (!docSnap || !docSnap.exists) {
+                                                const dt = d.data() || {};
+                                                const s = (dt.slug || '').toLowerCase().trim();
+                                                const u = (dt.user || '').toLowerCase().trim();
+                                                if (d.id.toLowerCase().trim() === slugLimpio || s === slugLimpio || u === slugLimpio) {
+                                                    docSnap = d;
+                                                }
+                                            }
+                                        });
+                                    }
                                 }
                             }
                             if (docSnap && docSnap.exists) {
-                                cli = docSnap.data();
-                                // Guardar en caché local del teléfono del visitante
+                                docIdReal = docSnap.id;
+                                cli = { id: docSnap.id, ...docSnap.data() };
+                                // Guardar/actualizar en caché local del teléfono del visitante
                                 if (!window.dbClientesSaaS) window.dbClientesSaaS = [];
-                                window.dbClientesSaaS.push(cli);
+                                const idxCli = window.dbClientesSaaS.findIndex(x =>
+                                    (x.slug && x.slug.toLowerCase().trim() === slugLimpio) ||
+                                    (x.user && x.user.toLowerCase().trim() === slugLimpio)
+                                );
+                                if (idxCli !== -1) window.dbClientesSaaS[idxCli] = cli;
+                                else window.dbClientesSaaS.push(cli);
                                 window.guardarClientesEnStorage();
                             }
                         } catch(errCloud) {
@@ -10948,6 +11195,7 @@ _Un respaldo de TUCOCEL C.A. & @PublionlineMK_`;
 
                     // Verificación de existencia y vigencia de plan / cuenta demo
                     if (!cli) {
+                        document.documentElement.classList.remove('modo-vitrina-directa');
                         window.mostrarMensajeCuentaBloqueada('NO_EXISTE');
                         window.location.href = window.location.pathname;
                         return;
@@ -10955,6 +11203,7 @@ _Un respaldo de TUCOCEL C.A. & @PublionlineMK_`;
 
                     const checkVigRouter = window.comprobarVigenciaComercio(cli);
                     if (!checkVigRouter.valido) {
+                        document.documentElement.classList.remove('modo-vitrina-directa');
                         window.mostrarMensajeCuentaBloqueada(checkVigRouter.motivo, checkVigRouter.esDemo);
                         window.location.href = window.location.pathname;
                         return;
@@ -10966,9 +11215,15 @@ _Un respaldo de TUCOCEL C.A. & @PublionlineMK_`;
                     if (cli.vitrinaPrendida !== undefined) {
                         window.vitrinaPrendida = (cli.vitrinaPrendida !== false);
                     }
+                    if (cli.monedasVisibles) {
+                        window.monedasVisibles = { usd: true, cop: true, bs: true, ...cli.monedasVisibles };
+                    } else {
+                        window.monedasVisibles = { usd: true, cop: true, bs: true };
+                    }
 
                     // Si la vitrina está apagada por el dueño, mostrar modo mantenimiento
                     if (!window.vitrinaPrendida && !window.esMasterLogueado) {
+                        document.documentElement.classList.remove('modo-vitrina-directa');
                         window.cerrarSesionCompleta();
                         return;
                     }
@@ -10990,10 +11245,15 @@ _Un respaldo de TUCOCEL C.A. & @PublionlineMK_`;
                         try { window.dbInventario = JSON.parse(gInvLocal); } catch(e) { window.dbInventario = []; }
                     }
 
+                    // Mostrar vitrina inmediatamente con caché local (si existe) y sincronizar servidor en vivo
+                    if (typeof window.actualizarDatalistsCategorias === 'function') window.actualizarDatalistsCategorias();
+                    if (typeof window.renderizarBarraCategoriasVitrina === 'function') window.renderizarBarraCategoriasVitrina();
+                    window.verVitrinaComoCliente();
+
                     if (window.dbNube) {
                         try {
-                            const invSnap = await window.dbNube.collection('comercios_saas').doc(slugLimpio).collection('inventario').get({ source: 'server' })
-                                .catch(() => window.dbNube.collection('comercios_saas').doc(slugLimpio).collection('inventario').get());
+                            const invSnap = await window.dbNube.collection('comercios_saas').doc(docIdReal).collection('inventario').get({ source: 'server' })
+                                .catch(() => window.dbNube.collection('comercios_saas').doc(docIdReal).collection('inventario').get());
                             if (invSnap && !invSnap.empty) {
                                 const prodsServidor = [];
                                 invSnap.forEach(d => {
@@ -11003,6 +11263,8 @@ _Un respaldo de TUCOCEL C.A. & @PublionlineMK_`;
                                 if (prodsServidor.length > 0) {
                                     window.dbInventario = prodsServidor;
                                     window.tclSafeSetItem(window.getTenantStorageKey('inventario'), JSON.stringify(window.dbInventario));
+                                    if (typeof window.renderizarBarraCategoriasVitrina === 'function') window.renderizarBarraCategoriasVitrina();
+                                    window.renderizarProductosVitrina();
                                 }
                             }
                         } catch(eFetchInv) {
@@ -11010,20 +11272,19 @@ _Un respaldo de TUCOCEL C.A. & @PublionlineMK_`;
                         }
                     }
 
-                    if (typeof window.actualizarDatalistsCategorias === 'function') window.actualizarDatalistsCategorias();
-                    if (typeof window.renderizarBarraCategoriasVitrina === 'function') window.renderizarBarraCategoriasVitrina();
-                    window.verVitrinaComoCliente();
-
                     // 2. ESCUCHADORES CONTROLADOS EN TIEMPO REAL (REGISTRADOS PARA LIMPIEZA AL CERRAR SESIÓN)
                     if (window.dbNube) {
                         try {
-                            const unsubPublicComercio = window.dbNube.collection('comercios_saas').doc(slugLimpio)
+                            const unsubPublicComercio = window.dbNube.collection('comercios_saas').doc(docIdReal)
                                 .onSnapshot((docComercio) => {
                                     if (docComercio && docComercio.exists) {
                                         const dataCom = docComercio.data();
                                         window.clienteActivoSesion = { ...window.clienteActivoSesion, ...dataCom };
                                         if (dataCom.tasas) {
                                             window.tasasConfig = { ...window.tasasConfig, ...dataCom.tasas };
+                                        }
+                                        if (dataCom.monedasVisibles) {
+                                            window.monedasVisibles = { usd: true, cop: true, bs: true, ...dataCom.monedasVisibles };
                                         }
                                         if (dataCom.vitrinaPrendida !== undefined) {
                                             window.vitrinaPrendida = (dataCom.vitrinaPrendida !== false);
@@ -11037,7 +11298,7 @@ _Un respaldo de TUCOCEL C.A. & @PublionlineMK_`;
                                 });
                             window.listenersFirestoreActivos.push(unsubPublicComercio);
 
-                            const unsubPublicInv = window.dbNube.collection('comercios_saas').doc(slugLimpio).collection('inventario')
+                            const unsubPublicInv = window.dbNube.collection('comercios_saas').doc(docIdReal).collection('inventario')
                                 .onSnapshot((snapshot) => {
                                     if (snapshot && !snapshot.empty) {
                                         const prodsEnVivo = [];
@@ -11923,13 +12184,13 @@ _Un respaldo de TUCOCEL C.A. & @PublionlineMK_`;
     </div>
 
     <!-- MODAL VISTA AMPLIADA DE PRODUCTO EN VITRINA WEB (QUICK VIEW) -->
-    <div id="modal-producto-vitrina-detalle" class="fixed inset-0 bg-slate-950/85 backdrop-blur-md z-[85] p-3 sm:p-4 flex items-center justify-center hidden no-print" onclick="if(event.target === this) document.getElementById('modal-producto-vitrina-detalle').classList.add('hidden')">
+    <div id="modal-producto-vitrina-detalle" class="fixed inset-0 bg-slate-950/85 backdrop-blur-md z-[85] p-3 sm:p-4 flex items-center justify-center hidden no-print" onclick="if(event.target === this) window.cerrarDetalleProductoVitrina()">
         <div class="bg-white border border-slate-200 w-full max-w-md rounded-3xl overflow-hidden shadow-2xl flex flex-col max-h-[92vh]">
             <div class="bg-slate-900 px-4 py-3 text-white flex justify-between items-center shrink-0">
                 <span id="qv-prod-categoria" class="text-[10px] font-mono font-black uppercase tracking-wider text-blue-300 bg-blue-950/80 border border-blue-700/50 px-2.5 py-0.5 rounded-full">
                     GENERAL
                 </span>
-                <button type="button" onclick="document.getElementById('modal-producto-vitrina-detalle').classList.add('hidden')" class="text-slate-400 hover:text-white p-1">
+                <button type="button" onclick="window.cerrarDetalleProductoVitrina()" class="text-slate-400 hover:text-white p-1">
                     <i class="fa-solid fa-xmark text-base"></i>
                 </button>
             </div>
@@ -11968,7 +12229,7 @@ _Un respaldo de TUCOCEL C.A. & @PublionlineMK_`;
                     </div>
                 </div>
                 <div class="grid grid-cols-3 gap-2">
-                    <button type="button" onclick="document.getElementById('modal-producto-vitrina-detalle').classList.add('hidden')" class="bg-white hover:bg-slate-200 text-slate-700 border border-slate-300 py-3 rounded-xl font-black text-xs uppercase">
+                    <button type="button" onclick="window.cerrarDetalleProductoVitrina()" class="bg-white hover:bg-slate-200 text-slate-700 border border-slate-300 py-3 rounded-xl font-black text-xs uppercase">
                         Cerrar
                     </button>
                     <button type="button" id="btn-qv-agregar-carrito" onclick="window.agregarDesdeQuickViewAlCarrito()" class="col-span-2 btn-brand py-3 text-xs shadow-md flex items-center justify-center gap-1.5">
