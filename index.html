@@ -2355,28 +2355,49 @@
                         </button>
                     </div>
 
-                    <!-- CÁPSULA OPCIONAL DE FOTO DEL PRODUCTO EN COMPRA -->
-                    <div class="bg-white p-2 sm:p-2.5 rounded-xl border border-slate-200 flex items-center justify-between gap-2.5 shadow-sm">
-                        <div class="flex items-center gap-2.5 min-w-0">
-                            <div id="box-preview-foto-compra" class="w-11 h-11 bg-slate-100 rounded-lg flex items-center justify-center text-slate-400 text-lg overflow-hidden shrink-0 border border-slate-300">
-                                <i class="fa-solid fa-camera"></i>
-                            </div>
-                            <div class="min-w-0">
-                                <span class="text-[9.5px] font-black text-slate-700 uppercase block truncate">¿Deseas cargar foto del producto? (Opcional)</span>
-                                <span id="lbl-status-foto-compra" class="text-[8.5px] font-mono text-slate-400 block truncate">Formato liviano HD automático</span>
-                            </div>
+                    <!-- GALERÍA OPCIONAL DE HASTA 3 FOTOS DEL PRODUCTO EN COMPRA -->
+                    <div class="bg-white p-2.5 rounded-xl border border-slate-200 space-y-2 shadow-sm">
+                        <div class="flex items-center justify-between gap-2">
+                            <span class="text-[9.5px] font-black text-slate-700 uppercase block">📷 Fotos del Producto (Opcional — 1 a 3 fotos)</span>
+                            <span id="lbl-status-foto-compra" class="text-[8.5px] font-mono text-slate-400">Compresión HD ligera</span>
                         </div>
-                        <div class="flex items-center gap-1 shrink-0">
-                            <input type="file" id="input-camara-compra" accept="image/*" capture="environment" class="hidden" onchange="window.procesarFotoProductoCompra(this)">
-                            <input type="file" id="input-galeria-compra" accept="image/*" class="hidden" onchange="window.procesarFotoProductoCompra(this)">
-                            <input type="hidden" id="prov-prod-foto-base64" value="">
-
-                            <button type="button" onclick="document.getElementById('input-camara-compra').click()" class="bg-blue-600 hover:bg-blue-500 text-white px-2.5 py-1.5 rounded-lg text-[9.5px] font-black uppercase flex items-center gap-1 shadow-sm active:scale-95 transition-all">
-                                <i class="fa-solid fa-camera"></i> <span class="hidden sm:inline">Cámara</span>
-                            </button>
-                            <button type="button" onclick="document.getElementById('input-galeria-compra').click()" class="bg-slate-800 hover:bg-slate-700 text-amber-400 px-2.5 py-1.5 rounded-lg text-[9.5px] font-black uppercase flex items-center gap-1 shadow-sm active:scale-95 transition-all">
-                                <i class="fa-solid fa-image"></i> <span class="hidden sm:inline">Galería</span>
-                            </button>
+                        <input type="hidden" id="prov-prod-foto-base64" value="">
+                        <input type="hidden" id="prov-prod-foto-2-base64" value="">
+                        <input type="hidden" id="prov-prod-foto-3-base64" value="">
+                        <div class="grid grid-cols-3 gap-2">
+                            <div class="bg-slate-50 border border-slate-200 rounded-xl p-1.5 flex flex-col items-center gap-1">
+                                <div id="box-preview-foto-compra" class="w-11 h-11 bg-white rounded-lg flex items-center justify-center text-slate-400 text-sm overflow-hidden border border-slate-300 relative">
+                                    <i class="fa-solid fa-camera"></i>
+                                </div>
+                                <span class="text-[8px] font-mono font-black text-blue-700 uppercase">Foto 1 (Princ.)</span>
+                                <input type="file" id="input-galeria-compra" accept="image/*" class="hidden" onchange="window.procesarSlotFoto('COMPRA', 1, this)">
+                                <div class="flex gap-1 w-full">
+                                    <button type="button" onclick="document.getElementById('input-galeria-compra').click()" class="flex-1 bg-blue-600 hover:bg-blue-500 text-white py-1 rounded-lg text-[8.5px] font-black uppercase">Subir</button>
+                                    <button type="button" onclick="window.limpiarSlotFoto('COMPRA', 1)" class="px-1.5 bg-slate-200 hover:bg-red-100 text-slate-600 hover:text-red-600 rounded-lg text-[8.5px] font-black" title="Quitar">✕</button>
+                                </div>
+                            </div>
+                            <div class="bg-slate-50 border border-slate-200 rounded-xl p-1.5 flex flex-col items-center gap-1">
+                                <div id="box-preview-foto-compra-2" class="w-11 h-11 bg-white rounded-lg flex items-center justify-center text-slate-400 text-sm overflow-hidden border border-slate-300 relative">
+                                    <i class="fa-solid fa-image"></i>
+                                </div>
+                                <span class="text-[8px] font-mono font-bold text-slate-500 uppercase">Foto 2 (Opc.)</span>
+                                <input type="file" id="input-galeria-compra-2" accept="image/*" class="hidden" onchange="window.procesarSlotFoto('COMPRA', 2, this)">
+                                <div class="flex gap-1 w-full">
+                                    <button type="button" onclick="document.getElementById('input-galeria-compra-2').click()" class="flex-1 bg-slate-800 hover:bg-slate-700 text-amber-300 py-1 rounded-lg text-[8.5px] font-black uppercase">Subir</button>
+                                    <button type="button" onclick="window.limpiarSlotFoto('COMPRA', 2)" class="px-1.5 bg-slate-200 hover:bg-red-100 text-slate-600 hover:text-red-600 rounded-lg text-[8.5px] font-black" title="Quitar">✕</button>
+                                </div>
+                            </div>
+                            <div class="bg-slate-50 border border-slate-200 rounded-xl p-1.5 flex flex-col items-center gap-1">
+                                <div id="box-preview-foto-compra-3" class="w-11 h-11 bg-white rounded-lg flex items-center justify-center text-slate-400 text-sm overflow-hidden border border-slate-300 relative">
+                                    <i class="fa-solid fa-image"></i>
+                                </div>
+                                <span class="text-[8px] font-mono font-bold text-slate-500 uppercase">Foto 3 (Opc.)</span>
+                                <input type="file" id="input-galeria-compra-3" accept="image/*" class="hidden" onchange="window.procesarSlotFoto('COMPRA', 3, this)">
+                                <div class="flex gap-1 w-full">
+                                    <button type="button" onclick="document.getElementById('input-galeria-compra-3').click()" class="flex-1 bg-slate-800 hover:bg-slate-700 text-amber-300 py-1 rounded-lg text-[8.5px] font-black uppercase">Subir</button>
+                                    <button type="button" onclick="window.limpiarSlotFoto('COMPRA', 3)" class="px-1.5 bg-slate-200 hover:bg-red-100 text-slate-600 hover:text-red-600 rounded-lg text-[8.5px] font-black" title="Quitar">✕</button>
+                                </div>
+                            </div>
                         </div>
                     </div>
 
@@ -2611,30 +2632,36 @@
 
     <!-- MODALES DE INVENTARIO -->
     <div id="modal-inventario-completo" class="fixed inset-0 bg-slate-900/80 backdrop-blur-md z-50 p-2 sm:p-4 flex items-center justify-center hidden no-print">
-        <div class="bg-white border border-slate-200 w-full max-w-4xl rounded-3xl overflow-hidden shadow-2xl flex flex-col h-[90vh]">
-            <div class="bg-slate-900 px-4 py-3.5 text-white flex justify-between items-center shrink-0 gap-2">
-                <h3 class="font-black text-xs sm:text-sm uppercase tracking-wider flex items-center gap-2 truncate">
-                    <i class="fa-solid fa-boxes-stacked text-amber-400"></i> Inventario & Productos
+        <div class="bg-white border border-slate-200 w-full max-w-4xl rounded-3xl overflow-hidden shadow-2xl flex flex-col h-[92vh]">
+            <div class="bg-slate-900 px-3 sm:px-4 py-3 text-white flex justify-between items-center shrink-0 gap-1.5">
+                <h3 class="font-black text-[11px] sm:text-sm uppercase tracking-wider flex items-center gap-1.5 min-w-0">
+                    <i class="fa-solid fa-boxes-stacked text-amber-400 shrink-0"></i>
+                    <span class="truncate">Inventario</span>
                 </h3>
-                <div class="flex items-center gap-1.5 shrink-0 flex-wrap justify-end">
-                    <button type="button" onclick="window.toggleFormularioNuevoProducto()" class="bg-blue-600 hover:bg-blue-500 text-white px-2.5 py-1.5 rounded-xl text-[10px] font-black uppercase flex items-center gap-1 shadow">
+                <div class="flex items-center gap-1 shrink-0">
+                    <button type="button" onclick="window.toggleFormularioNuevoProducto()" class="bg-blue-600 hover:bg-blue-500 text-white px-2 py-1.5 rounded-xl text-[9.5px] sm:text-[10px] font-black uppercase flex items-center gap-1 shadow">
                         <i class="fa-solid fa-plus"></i> <span>Nuevo</span>
                     </button>
-                    <button type="button" onclick="window.imprimirInventarioFormato('A4')" class="bg-amber-500 hover:bg-amber-400 text-slate-950 px-2.5 py-1.5 rounded-xl text-[10px] font-black uppercase flex items-center gap-1 shadow" title="Imprimir Inventario en Hoja Completa A4">
+                    <button type="button" onclick="window.imprimirInventarioFormato('A4')" class="bg-amber-500 hover:bg-amber-400 text-slate-950 px-2 py-1.5 rounded-xl text-[9.5px] sm:text-[10px] font-black uppercase flex items-center gap-1 shadow" title="Imprimir Inventario en Hoja Completa A4">
                         <i class="fa-solid fa-file-lines"></i> <span>A4</span>
                     </button>
-                    <button type="button" onclick="window.imprimirInventarioFormato('TERMICO')" class="bg-slate-700 hover:bg-slate-600 text-white px-2.5 py-1.5 rounded-xl text-[10px] font-black uppercase flex items-center gap-1 shadow" title="Imprimir Inventario en Papel Térmico">
+                    <button type="button" onclick="window.imprimirInventarioFormato('TERMICO')" class="bg-slate-700 hover:bg-slate-600 text-white px-2 py-1.5 rounded-xl text-[9.5px] sm:text-[10px] font-black uppercase flex items-center gap-1 shadow" title="Imprimir Inventario en Papel Térmico">
                         <i class="fa-solid fa-print"></i> <span class="hidden sm:inline">Ticket</span>
                     </button>
-                    <button onclick="window.exportarInventarioWhatsApp()" class="bg-emerald-600 hover:bg-emerald-500 text-white px-2.5 py-1.5 rounded-xl text-[10px] font-black uppercase flex items-center gap-1">
+                    <button onclick="window.exportarInventarioWhatsApp()" class="bg-emerald-600 hover:bg-emerald-500 text-white px-2 py-1.5 rounded-xl text-[9.5px] sm:text-[10px] font-black uppercase flex items-center gap-1">
                         <i class="fa-brands fa-whatsapp"></i> <span class="hidden sm:inline">WhatsApp</span>
                     </button>
-                    <button onclick="document.getElementById('modal-inventario-completo').classList.add('hidden')" class="text-slate-400 hover:text-white p-1"><i class="fa-solid fa-xmark text-base"></i></button>
+                    <button onclick="document.getElementById('modal-inventario-completo').classList.add('hidden')" class="text-slate-300 hover:text-white bg-slate-800 hover:bg-red-600 w-7 h-7 rounded-lg flex items-center justify-center shrink-0 ml-0.5" title="Cerrar Inventario">
+                        <i class="fa-solid fa-xmark text-sm"></i>
+                    </button>
                 </div>
             </div>
 
+            <!-- CONTENEDOR ÚNICO DESPLAZABLE PARA TODO EL INVENTARIO (SIN CORTES NI BLOQUEOS EN MÓVIL) -->
+            <div class="overflow-y-auto flex-grow flex flex-col no-scrollbar">
+
             <!-- FORMULARIO DESPLEGABLE PARA METER PRODUCTO NUEVO DIRECTAMENTE -->
-            <div id="panel-nuevo-producto-inv" class="hidden bg-blue-50/70 border-b border-blue-200 p-3.5 space-y-2.5 text-xs font-bold shrink-0 overflow-y-auto max-h-[55vh]">
+            <div id="panel-nuevo-producto-inv" class="hidden bg-blue-50/70 border-b border-blue-200 p-3.5 space-y-2.5 text-xs font-bold shrink-0">
                 <div class="flex justify-between items-center">
                     <span class="text-[10px] font-black uppercase text-blue-900 tracking-wider flex items-center gap-1.5">
                         <i class="fa-solid fa-circle-plus text-blue-600"></i> Registrar Nuevo Producto en Catálogo
@@ -2643,6 +2670,18 @@
                 </div>
                 <input type="hidden" id="inv-edit-id" value="">
                 <input type="hidden" id="inv-input-foto-base64" value="">
+                <input type="hidden" id="inv-input-foto-2-base64" value="">
+                <input type="hidden" id="inv-input-foto-3-base64" value="">
+
+                <!-- SELECTOR PRODUCTO FÍSICO VS SERVICIO -->
+                <div class="grid grid-cols-2 gap-2">
+                    <button type="button" id="btn-inv-tipo-producto" onclick="window.seleccionarTipoRegistroInventario('PRODUCTO')" class="py-2 px-3 rounded-xl border-2 border-blue-600 bg-blue-600 text-white font-black uppercase text-[10px] flex items-center justify-center gap-1.5 shadow-xs transition-all">
+                        <i class="fa-solid fa-box-open"></i> <span>Producto Físico (Con Stock)</span>
+                    </button>
+                    <button type="button" id="btn-inv-tipo-servicio" onclick="window.seleccionarTipoRegistroInventario('SERVICIO')" class="py-2 px-3 rounded-xl border-2 border-slate-300 bg-white text-slate-700 font-black uppercase text-[10px] flex items-center justify-center gap-1.5 transition-all">
+                        <i class="fa-solid fa-screwdriver-wrench text-indigo-600"></i> <span>Servicio (Sin Stock)</span>
+                    </button>
+                </div>
 
                 <div class="grid grid-cols-1 sm:grid-cols-12 gap-2">
                     <div class="sm:col-span-3">
@@ -2650,7 +2689,7 @@
                         <input type="text" id="inv-input-codigo" placeholder="Escanear / Código" class="input-clean font-mono">
                     </div>
                     <div class="sm:col-span-5">
-                        <label class="text-[9px] text-slate-500 uppercase block mb-0.5">Nombre del Producto *</label>
+                        <label id="lbl-inv-nombre-tipo" class="text-[9px] text-slate-500 uppercase block mb-0.5">Nombre del Producto *</label>
                         <input type="text" id="inv-input-nombre" placeholder="Ej: Harina PAN 1Kg / Aceite" class="input-clean">
                     </div>
                     <div class="sm:col-span-4">
@@ -2690,34 +2729,53 @@
                         </div>
                         <input type="text" readonly id="inv-input-venta" placeholder="0,00" class="input-clean font-mono text-blue-700 font-black bg-blue-50/70 border-blue-300 cursor-not-allowed">
                     </div>
-                    <div>
+                    <div id="box-inv-unidad-wrap">
                         <label class="text-[9px] text-slate-500 uppercase block mb-0.5">Unidad</label>
                         <select id="inv-input-unidad" class="input-clean font-bold text-xs">
                             <option value="UND">UND</option>
                             <option value="KG">KG (Peso)</option>
                         </select>
                     </div>
-                    <div>
+                    <div id="box-inv-stock-wrap">
                         <label class="text-[9px] text-slate-500 uppercase block mb-0.5">Stock Inicial *</label>
                         <input type="number" step="any" id="inv-input-stock" value="1" class="input-clean font-mono text-emerald-700 font-black">
                     </div>
                 </div>
 
+                <div>
+                    <input type="text" id="inv-input-desc" placeholder="Descripción corta para la vitrina web (opcional)" class="input-clean text-xs">
+                </div>
+
+                <!-- 3 SLOTS DE FOTOS OPCIONALES EN INVENTARIO + BOTÓN GUARDAR -->
                 <div class="grid grid-cols-1 sm:grid-cols-12 gap-2 items-center">
-                    <div class="sm:col-span-6">
-                        <input type="text" id="inv-input-desc" placeholder="Descripción corta para la vitrina web (opcional)" class="input-clean text-xs">
-                    </div>
-                    <div class="sm:col-span-3 flex items-center gap-2">
-                        <div id="box-preview-foto" class="w-9 h-9 rounded-lg bg-white border border-slate-300 flex items-center justify-center text-slate-400 overflow-hidden shrink-0">
-                            <i class="fa-solid fa-image"></i>
+                    <div class="sm:col-span-8 grid grid-cols-3 gap-1.5">
+                        <div class="bg-white border border-slate-200 rounded-xl p-1.5 flex items-center gap-1.5">
+                            <div id="box-preview-foto" class="w-8 h-8 rounded-lg bg-slate-100 border border-slate-300 flex items-center justify-center text-slate-400 overflow-hidden shrink-0">
+                                <i class="fa-solid fa-camera text-xs"></i>
+                            </div>
+                            <input type="file" id="inv-file-foto" accept="image/*" class="hidden" onchange="window.procesarSlotFoto('INV', 1, this)">
+                            <button type="button" onclick="document.getElementById('inv-file-foto').click()" class="bg-blue-600 text-white px-2 py-1.5 rounded-lg text-[9px] font-black uppercase flex-1 truncate">Foto 1</button>
+                            <button type="button" onclick="window.limpiarSlotFoto('INV', 1)" class="text-slate-400 hover:text-red-600 text-[10px] font-black px-1">✕</button>
                         </div>
-                        <input type="file" id="inv-file-foto" accept="image/*" class="hidden" onchange="window.procesarYComprimirImagen(this)">
-                        <button type="button" onclick="document.getElementById('inv-file-foto').click()" class="bg-slate-800 text-white px-2.5 py-2 rounded-xl text-[10px] font-black uppercase w-full">
-                            📷 Foto
-                        </button>
+                        <div class="bg-white border border-slate-200 rounded-xl p-1.5 flex items-center gap-1.5">
+                            <div id="box-preview-foto-2" class="w-8 h-8 rounded-lg bg-slate-100 border border-slate-300 flex items-center justify-center text-slate-400 overflow-hidden shrink-0">
+                                <i class="fa-solid fa-image text-xs"></i>
+                            </div>
+                            <input type="file" id="inv-file-foto-2" accept="image/*" class="hidden" onchange="window.procesarSlotFoto('INV', 2, this)">
+                            <button type="button" onclick="document.getElementById('inv-file-foto-2').click()" class="bg-slate-800 text-amber-300 px-2 py-1.5 rounded-lg text-[9px] font-black uppercase flex-1 truncate">Foto 2</button>
+                            <button type="button" onclick="window.limpiarSlotFoto('INV', 2)" class="text-slate-400 hover:text-red-600 text-[10px] font-black px-1">✕</button>
+                        </div>
+                        <div class="bg-white border border-slate-200 rounded-xl p-1.5 flex items-center gap-1.5">
+                            <div id="box-preview-foto-3" class="w-8 h-8 rounded-lg bg-slate-100 border border-slate-300 flex items-center justify-center text-slate-400 overflow-hidden shrink-0">
+                                <i class="fa-solid fa-image text-xs"></i>
+                            </div>
+                            <input type="file" id="inv-file-foto-3" accept="image/*" class="hidden" onchange="window.procesarSlotFoto('INV', 3, this)">
+                            <button type="button" onclick="document.getElementById('inv-file-foto-3').click()" class="bg-slate-800 text-amber-300 px-2 py-1.5 rounded-lg text-[9px] font-black uppercase flex-1 truncate">Foto 3</button>
+                            <button type="button" onclick="window.limpiarSlotFoto('INV', 3)" class="text-slate-400 hover:text-red-600 text-[10px] font-black px-1">✕</button>
+                        </div>
                     </div>
-                    <div class="sm:col-span-3">
-                        <button type="button" onclick="window.guardarProductoInventario(); window.actualizarKPIsPanelCliente();" class="btn-brand w-full py-2.5 text-xs shadow">
+                    <div class="sm:col-span-4">
+                        <button type="button" id="btn-inv-guardar-item" onclick="window.guardarProductoInventario(); window.actualizarKPIsPanelCliente();" class="btn-brand w-full py-2.5 text-xs shadow">
                             💾 Guardar Producto
                         </button>
                     </div>
@@ -2773,20 +2831,22 @@
                     </div>
                 </div>
             </div>
-            <div class="p-3 sm:p-5 overflow-y-auto no-scrollbar flex-grow space-y-3">
+            <div class="p-3 sm:p-5 space-y-3">
                 <div id="contenedor-tarjetas-inventario" class="grid grid-cols-1 sm:grid-cols-2 gap-3"></div>
+            </div>
             </div>
         </div>
     </div>
 
-    <div id="submodal-edicion-rapida" class="fixed inset-0 bg-slate-950/80 backdrop-blur-md z-[60] p-4 flex items-center justify-center hidden no-print">
-        <div class="bg-white border border-slate-200 w-full max-w-md rounded-3xl overflow-hidden shadow-2xl p-5 space-y-4 font-bold text-xs">
-            <div class="flex justify-between items-center border-b border-slate-100 pb-3">
-                <h3 class="font-black text-slate-900 uppercase text-xs flex items-center gap-2">
-                    <i class="fa-solid fa-pen-to-square text-blue-600"></i> Edición Rápida de Producto
+    <div id="submodal-edicion-rapida" class="fixed inset-0 bg-slate-950/80 backdrop-blur-md z-[60] p-2 sm:p-4 flex items-center justify-center hidden no-print">
+        <div class="bg-white border border-slate-200 w-full max-w-lg rounded-3xl overflow-hidden shadow-2xl flex flex-col max-h-[90vh] font-bold text-xs">
+            <div class="bg-slate-900 px-4 py-3 text-white flex justify-between items-center shrink-0">
+                <h3 class="font-black uppercase text-xs flex items-center gap-2">
+                    <i class="fa-solid fa-pen-to-square text-amber-400"></i> Edición Rápida de Producto
                 </h3>
-                <button onclick="document.getElementById('submodal-edicion-rapida').classList.add('hidden')" class="text-slate-400 hover:text-slate-700"><i class="fa-solid fa-xmark text-sm"></i></button>
+                <button type="button" onclick="document.getElementById('submodal-edicion-rapida').classList.add('hidden')" class="text-slate-300 hover:text-white bg-slate-800 hover:bg-red-600 w-7 h-7 rounded-lg flex items-center justify-center"><i class="fa-solid fa-xmark text-sm"></i></button>
             </div>
+            <div class="p-4 sm:p-5 overflow-y-auto space-y-3.5 flex-grow no-scrollbar">
             <input type="hidden" id="sub-edit-id" value="">
             <div class="grid grid-cols-1 sm:grid-cols-12 gap-2">
                 <div class="sm:col-span-3">
@@ -2842,27 +2902,51 @@
                 <label class="text-[10px] text-slate-500 uppercase block mb-1">Descripción Breve</label>
                 <input type="text" id="sub-input-desc" class="input-clean">
             </div>
-            <div class="bg-slate-50 border border-slate-200 rounded-2xl p-2.5 flex items-center gap-3">
+            <div class="bg-slate-50 border border-slate-200 rounded-2xl p-2.5 space-y-2">
+                <label class="text-[9.5px] text-slate-600 uppercase font-black block">Galería de Fotos (Hasta 3 fotos opcionales)</label>
                 <input type="hidden" id="sub-input-foto-base64" value="">
-                <div id="sub-box-preview-foto" class="w-14 h-14 rounded-xl bg-white border border-slate-300 flex items-center justify-center overflow-hidden shrink-0 text-slate-400">
-                    <i class="fa-solid fa-image text-lg"></i>
-                </div>
-                <div class="flex-grow space-y-1 min-w-0">
-                    <label class="text-[9.5px] text-slate-600 uppercase font-black block">Fotografía del Producto (Vitrina)</label>
-                    <div class="flex flex-wrap items-center gap-1.5">
-                        <label class="bg-blue-600 hover:bg-blue-500 text-white px-2.5 py-1.5 rounded-lg text-[9.5px] font-black uppercase cursor-pointer inline-flex items-center gap-1 shadow-xs active:scale-95 transition-all">
-                            <i class="fa-solid fa-camera"></i> <span>Subir / Cambiar Foto</span>
-                            <input type="file" id="sub-input-foto-file" accept="image/*" onchange="window.procesarFotoSubmodalEdicion(this)" class="hidden">
-                        </label>
-                        <button type="button" onclick="window.quitarFotoSubmodalEdicion()" class="bg-white hover:bg-red-50 text-red-600 border border-red-200 px-2 py-1.5 rounded-lg text-[9.5px] font-bold uppercase">
-                            Quitar
-                        </button>
+                <input type="hidden" id="sub-input-foto-2-base64" value="">
+                <input type="hidden" id="sub-input-foto-3-base64" value="">
+                <div class="grid grid-cols-3 gap-2">
+                    <div class="bg-white border border-slate-200 rounded-xl p-1.5 flex flex-col items-center gap-1">
+                        <div id="sub-box-preview-foto" class="w-12 h-12 rounded-lg bg-slate-50 border border-slate-300 flex items-center justify-center overflow-hidden text-slate-400">
+                            <i class="fa-solid fa-camera text-sm"></i>
+                        </div>
+                        <span class="text-[8px] font-mono font-black text-blue-700 uppercase">Foto 1</span>
+                        <input type="file" id="sub-input-foto-file" accept="image/*" onchange="window.procesarSlotFoto('SUB', 1, this)" class="hidden">
+                        <div class="flex gap-1 w-full">
+                            <button type="button" onclick="document.getElementById('sub-input-foto-file').click()" class="flex-1 bg-blue-600 text-white py-1 rounded-lg text-[8.5px] font-black uppercase">Cambiar</button>
+                            <button type="button" onclick="window.limpiarSlotFoto('SUB', 1)" class="px-1.5 bg-slate-100 text-red-600 rounded-lg text-[8.5px] font-black">✕</button>
+                        </div>
+                    </div>
+                    <div class="bg-white border border-slate-200 rounded-xl p-1.5 flex flex-col items-center gap-1">
+                        <div id="sub-box-preview-foto-2" class="w-12 h-12 rounded-lg bg-slate-50 border border-slate-300 flex items-center justify-center overflow-hidden text-slate-400">
+                            <i class="fa-solid fa-image text-sm"></i>
+                        </div>
+                        <span class="text-[8px] font-mono font-bold text-slate-500 uppercase">Foto 2</span>
+                        <input type="file" id="sub-input-foto-file-2" accept="image/*" onchange="window.procesarSlotFoto('SUB', 2, this)" class="hidden">
+                        <div class="flex gap-1 w-full">
+                            <button type="button" onclick="document.getElementById('sub-input-foto-file-2').click()" class="flex-1 bg-slate-800 text-amber-300 py-1 rounded-lg text-[8.5px] font-black uppercase">Subir</button>
+                            <button type="button" onclick="window.limpiarSlotFoto('SUB', 2)" class="px-1.5 bg-slate-100 text-red-600 rounded-lg text-[8.5px] font-black">✕</button>
+                        </div>
+                    </div>
+                    <div class="bg-white border border-slate-200 rounded-xl p-1.5 flex flex-col items-center gap-1">
+                        <div id="sub-box-preview-foto-3" class="w-12 h-12 rounded-lg bg-slate-50 border border-slate-300 flex items-center justify-center overflow-hidden text-slate-400">
+                            <i class="fa-solid fa-image text-sm"></i>
+                        </div>
+                        <span class="text-[8px] font-mono font-bold text-slate-500 uppercase">Foto 3</span>
+                        <input type="file" id="sub-input-foto-file-3" accept="image/*" onchange="window.procesarSlotFoto('SUB', 3, this)" class="hidden">
+                        <div class="flex gap-1 w-full">
+                            <button type="button" onclick="document.getElementById('sub-input-foto-file-3').click()" class="flex-1 bg-slate-800 text-amber-300 py-1 rounded-lg text-[8.5px] font-black uppercase">Subir</button>
+                            <button type="button" onclick="window.limpiarSlotFoto('SUB', 3)" class="px-1.5 bg-slate-100 text-red-600 rounded-lg text-[8.5px] font-black">✕</button>
+                        </div>
                     </div>
                 </div>
             </div>
-            <div class="grid grid-cols-2 gap-2 pt-2">
-                <button onclick="document.getElementById('submodal-edicion-rapida').classList.add('hidden')" class="bg-slate-100 hover:bg-slate-200 text-slate-700 py-3 rounded-xl uppercase text-xs">Cancelar</button>
-                <button onclick="window.guardarEdicionRapidaSubmodal()" class="btn-brand py-3 text-xs shadow-md">💾 Guardar Cambios</button>
+            </div>
+            <div class="bg-slate-100 px-4 py-3 border-t border-slate-200 grid grid-cols-2 gap-2 shrink-0">
+                <button type="button" onclick="document.getElementById('submodal-edicion-rapida').classList.add('hidden')" class="bg-white hover:bg-slate-200 text-slate-700 border border-slate-300 py-2.5 rounded-xl uppercase text-xs font-black">Cancelar</button>
+                <button type="button" onclick="window.guardarEdicionRapidaSubmodal()" class="btn-brand py-2.5 text-xs shadow-md">💾 Guardar Cambios</button>
             </div>
         </div>
     </div>
@@ -4228,16 +4312,21 @@ Saldo restante: $${nota.credito.saldoPendienteUSD.toFixed(2)} USD`);
             document.getElementById('sub-input-desc').value = prod.desc || '';
             window.cambiarMonedaSubmodalEdicion(monOrig);
 
-            const subFotoInp = document.getElementById('sub-input-foto-base64');
-            const subFotoBox = document.getElementById('sub-box-preview-foto');
-            const subFotoFile = document.getElementById('sub-input-foto-file');
-            if (subFotoFile) subFotoFile.value = '';
-            if (subFotoInp) subFotoInp.value = prod.foto || '';
-            if (subFotoBox) {
-                subFotoBox.innerHTML = prod.foto
-                    ? `<img src="${prod.foto}" class="w-full h-full object-cover">`
-                    : `<i class="fa-solid fa-image text-lg"></i>`;
-            }
+            const fotosExistentes = (Array.isArray(prod.fotos) && prod.fotos.length > 0)
+                ? prod.fotos
+                : (prod.foto ? [prod.foto] : []);
+            [1, 2, 3].forEach(slot => {
+                window.limpiarSlotFoto('SUB', slot);
+                const fUrl = fotosExistentes[slot - 1] || '';
+                if (fUrl) {
+                    const hidId = slot === 1 ? 'sub-input-foto-base64' : `sub-input-foto-${slot}-base64`;
+                    const boxId = slot === 1 ? 'sub-box-preview-foto' : `sub-box-preview-foto-${slot}`;
+                    const elH = document.getElementById(hidId);
+                    const elB = document.getElementById(boxId);
+                    if (elH) elH.value = fUrl;
+                    if (elB) elB.innerHTML = `<img src="${fUrl}" class="w-full h-full object-cover">`;
+                }
+            });
 
             document.getElementById('submodal-edicion-rapida').classList.remove('hidden');
         };
@@ -4340,8 +4429,8 @@ Saldo restante: $${nota.credito.saldoPendienteUSD.toFixed(2)} USD`);
             if (idx !== -1) {
                 const catInp = document.getElementById('sub-input-categoria');
                 const categoria = (catInp && catInp.value.trim()) ? catInp.value.trim().toUpperCase() : (window.dbInventario[idx].categoria || 'GENERAL');
-                const subFotoInp = document.getElementById('sub-input-foto-base64');
-                const foto = subFotoInp ? subFotoInp.value : (window.dbInventario[idx].foto || '');
+                const fotosSub = window.construirGaleriaFotosDesdeInputs('sub-input');
+                const foto = fotosSub[0] || '';
                 window.dbInventario[idx] = {
                     ...window.dbInventario[idx],
                     codigo, nombre, categoria,
@@ -4349,7 +4438,7 @@ Saldo restante: $${nota.credito.saldoPendienteUSD.toFixed(2)} USD`);
                     monedaOriginal: monOrig,
                     precioCostoOriginal: valCostoOrig,
                     precioVentaOriginal: valVentaOrig,
-                    stock, desc, foto,
+                    stock, desc, foto, fotos: fotosSub,
                     actualizadoMs: Date.now()
                 };
                 window.guardarInventarioEnStorage();
@@ -8272,23 +8361,114 @@ Las conversiones a Pesos (COP) y Bolívares (Bs) se sincronizaron con la tasa de
         window.cargarClientesDesdeStorage();
         window.cargarDatosDelComercioActivo();
 
+        window.tipoRegistroInventarioActual = 'PRODUCTO';
+        window.seleccionarTipoRegistroInventario = function(tipo) {
+            window.tipoRegistroInventarioActual = (tipo === 'SERVICIO') ? 'SERVICIO' : 'PRODUCTO';
+            const esServ = (window.tipoRegistroInventarioActual === 'SERVICIO');
+            const btnP = document.getElementById('btn-inv-tipo-producto');
+            const btnS = document.getElementById('btn-inv-tipo-servicio');
+            const lblNom = document.getElementById('lbl-inv-nombre-tipo');
+            const boxUni = document.getElementById('box-inv-unidad-wrap');
+            const boxStk = document.getElementById('box-inv-stock-wrap');
+            const btnSave = document.getElementById('btn-inv-guardar-item');
+
+            if (btnP && btnS) {
+                btnP.className = !esServ
+                    ? "py-2 px-3 rounded-xl border-2 border-blue-600 bg-blue-600 text-white font-black uppercase text-[10px] flex items-center justify-center gap-1.5 shadow-xs transition-all"
+                    : "py-2 px-3 rounded-xl border-2 border-slate-300 bg-white text-slate-700 font-black uppercase text-[10px] flex items-center justify-center gap-1.5 transition-all";
+                btnS.className = esServ
+                    ? "py-2 px-3 rounded-xl border-2 border-indigo-600 bg-indigo-600 text-white font-black uppercase text-[10px] flex items-center justify-center gap-1.5 shadow-xs transition-all"
+                    : "py-2 px-3 rounded-xl border-2 border-slate-300 bg-white text-slate-700 font-black uppercase text-[10px] flex items-center justify-center gap-1.5 transition-all";
+            }
+            if (lblNom) lblNom.innerText = esServ ? 'Nombre del Servicio *' : 'Nombre del Producto *';
+            if (boxUni) boxUni.classList.toggle('hidden', esServ);
+            if (boxStk) boxStk.classList.toggle('hidden', esServ);
+            if (btnSave) btnSave.innerText = esServ ? '💾 Guardar Servicio' : '💾 Guardar Producto';
+        };
+
+        window.procesarSlotFoto = async function(contexto, slot, input) {
+            if (!input || !input.files || !input.files[0]) return;
+            try {
+                // Compresión HD ligera (~85 KB por foto para soportar hasta 3 fotos por producto sin saturar Firestore)
+                const { base64, pesoKB } = await window.comprimirImagenAdaptativa(input.files[0], 540, 90 * 1024);
+                let hidId = '', boxId = '';
+                if (contexto === 'COMPRA') {
+                    hidId = slot === 1 ? 'prov-prod-foto-base64' : `prov-prod-foto-${slot}-base64`;
+                    boxId = slot === 1 ? 'box-preview-foto-compra' : `box-preview-foto-compra-${slot}`;
+                } else if (contexto === 'INV') {
+                    hidId = slot === 1 ? 'inv-input-foto-base64' : `inv-input-foto-${slot}-base64`;
+                    boxId = slot === 1 ? 'box-preview-foto' : `box-preview-foto-${slot}`;
+                } else if (contexto === 'SUB') {
+                    hidId = slot === 1 ? 'sub-input-foto-base64' : `sub-input-foto-${slot}-base64`;
+                    boxId = slot === 1 ? 'sub-box-preview-foto' : `sub-box-preview-foto-${slot}`;
+                }
+                const elHid = document.getElementById(hidId);
+                const elBox = document.getElementById(boxId);
+                if (elHid) elHid.value = base64;
+                if (elBox) elBox.innerHTML = `<img src="${base64}" class="w-full h-full object-cover" title="${pesoKB} KB">`;
+                if (contexto === 'COMPRA') {
+                    const lblStat = document.getElementById('lbl-status-foto-compra');
+                    if (lblStat) {
+                        lblStat.innerText = `✓ Foto ${slot} lista (${pesoKB} KB)`;
+                        lblStat.className = "text-[8.5px] font-mono text-emerald-600 font-bold";
+                    }
+                }
+            } catch (err) {
+                alert("⚠️ No se pudo procesar la fotografía.");
+            }
+        };
+
+        window.limpiarSlotFoto = function(contexto, slot) {
+            let hidId = '', boxId = '', fileId = '';
+            if (contexto === 'COMPRA') {
+                hidId = slot === 1 ? 'prov-prod-foto-base64' : `prov-prod-foto-${slot}-base64`;
+                boxId = slot === 1 ? 'box-preview-foto-compra' : `box-preview-foto-compra-${slot}`;
+                fileId = slot === 1 ? 'input-galeria-compra' : `input-galeria-compra-${slot}`;
+            } else if (contexto === 'INV') {
+                hidId = slot === 1 ? 'inv-input-foto-base64' : `inv-input-foto-${slot}-base64`;
+                boxId = slot === 1 ? 'box-preview-foto' : `box-preview-foto-${slot}`;
+                fileId = slot === 1 ? 'inv-file-foto' : `inv-file-foto-${slot}`;
+            } else if (contexto === 'SUB') {
+                hidId = slot === 1 ? 'sub-input-foto-base64' : `sub-input-foto-${slot}-base64`;
+                boxId = slot === 1 ? 'sub-box-preview-foto' : `sub-box-preview-foto-${slot}`;
+                fileId = slot === 1 ? 'sub-input-foto-file' : `sub-input-foto-file-${slot}`;
+            }
+            const elHid = document.getElementById(hidId);
+            const elBox = document.getElementById(boxId);
+            const elFile = document.getElementById(fileId);
+            if (elHid) elHid.value = '';
+            if (elFile) elFile.value = '';
+            if (elBox) elBox.innerHTML = `<i class="fa-solid ${slot === 1 ? 'fa-camera' : 'fa-image'} text-xs"></i>`;
+        };
+
+        window.construirGaleriaFotosDesdeInputs = function(prefijo) {
+            const lista = [];
+            [1, 2, 3].forEach(slot => {
+                const hidId = slot === 1 ? `${prefijo}-foto-base64` : `${prefijo}-foto-${slot}-base64`;
+                const val = (document.getElementById(hidId) || {}).value || '';
+                if (val && val.trim()) lista.push(val.trim());
+            });
+            return lista;
+        };
+
         window.guardarProductoInventario = function() {
             const idEdit = document.getElementById('inv-edit-id').value;
+            const esServicio = (window.tipoRegistroInventarioActual === 'SERVICIO');
             const codigo = (document.getElementById('inv-input-codigo') ? document.getElementById('inv-input-codigo').value.trim() : '');
             const nombre = document.getElementById('inv-input-nombre').value.trim();
             const inpCat = document.getElementById('inv-input-categoria');
-            const categoria = inpCat ? (inpCat.value.trim().toUpperCase() || 'GENERAL') : 'GENERAL';
+            const categoria = inpCat ? (inpCat.value.trim().toUpperCase() || (esServicio ? 'SERVICIOS' : 'GENERAL')) : (esServicio ? 'SERVICIOS' : 'GENERAL');
             const monedaBase = document.getElementById('inv-input-moneda-base').value;
             let valCosto = window.limpiarMontoManual(document.getElementById('inv-input-costo').value);
             let valVenta = window.limpiarMontoManual(document.getElementById('inv-input-venta').value);
             const unidadEl = document.getElementById('inv-input-unidad');
-            const unidad = unidadEl ? unidadEl.value : 'UND';
-            const stock = parseFloat(document.getElementById('inv-input-stock').value) || 0;
-            const desc = document.getElementById('inv-input-desc').value.trim() || 'Sin descripción';
-            const foto = document.getElementById('inv-input-foto-base64').value || '';
+            const unidad = esServicio ? 'UND' : (unidadEl ? unidadEl.value : 'UND');
+            const stock = esServicio ? 999999 : (parseFloat(document.getElementById('inv-input-stock').value) || 0);
+            const desc = document.getElementById('inv-input-desc').value.trim() || (esServicio ? 'Servicio disponible' : 'Sin descripción');
+            const fotosArr = window.construirGaleriaFotosDesdeInputs('inv-input');
+            const fotoPrincipal = fotosArr[0] || '';
 
             if (!nombre || valVenta <= 0) { alert("⚠️ Ingrese un nombre válido y un precio mayor a 0."); return; }
-            if (!categoria) { alert("⚠️ Por favor asigne o escriba una categoría / departamento para el producto."); return; }
 
             let precioCostoUSD = valCosto, precioVentaUSD = valVenta;
             if (monedaBase === 'COP') { 
@@ -8303,6 +8483,7 @@ Las conversiones a Pesos (COP) y Bolívares (Bs) se sincronizaron con la tasa de
             if (idEdit) {
                 const idx = window.dbInventario.findIndex(p => p.id === idEdit);
                 if (idx !== -1) {
+                    const fotosFinales = fotosArr.length > 0 ? fotosArr : (window.dbInventario[idx].fotos || (window.dbInventario[idx].foto ? [window.dbInventario[idx].foto] : []));
                     window.dbInventario[idx] = {
                         ...window.dbInventario[idx],
                         codigo, nombre, categoria, desc,
@@ -8311,40 +8492,44 @@ Las conversiones a Pesos (COP) y Bolívares (Bs) se sincronizaron con la tasa de
                         monedaOriginal: monedaBase || 'USD',
                         precioCostoOriginal: valCosto,
                         precioVentaOriginal: valVenta,
-                        stock, unidad,
-                        foto: foto || window.dbInventario[idx].foto || ''
+                        stock, unidad, esServicio,
+                        foto: fotosFinales[0] || '',
+                        fotos: fotosFinales
                     };
                     itemFinal = window.dbInventario[idx];
                 }
-                alert("✨ Producto actualizado en inventario.");
+                alert("✨ Registro actualizado en inventario.");
             } else {
                 itemFinal = {
-                    id: 'p_' + Date.now(),
+                    id: (esServicio ? 'srv_' : 'p_') + Date.now(),
                     codigo, nombre, categoria, desc,
                     precioCosto: precioCostoUSD,
                     precioVenta: precioVentaUSD,
                     monedaOriginal: monedaBase || 'USD',
                     precioCostoOriginal: valCosto,
                     precioVentaOriginal: valVenta,
-                    stock, unidad, foto
+                    stock, unidad, esServicio,
+                    foto: fotoPrincipal,
+                    fotos: fotosArr
                 };
                 window.dbInventario.push(itemFinal);
-                alert("✅ Producto agregado al inventario.");
+                alert(esServicio ? "✅ Servicio registrado y publicado en tu catálogo." : "✅ Producto agregado al inventario.");
             }
 
             window.guardarInventarioEnStorage();
             if (itemFinal && typeof window.sincronizarTenantConFirebase === 'function') {
                 window.sincronizarTenantConFirebase('inventario', itemFinal);
             }
-            document.getElementById('inv-edit-id').value = ''; document.getElementById('inv-input-foto-base64').value = '';
+            document.getElementById('inv-edit-id').value = '';
+            [1, 2, 3].forEach(s => window.limpiarSlotFoto('INV', s));
             const inpCod = document.getElementById('inv-input-codigo'); if (inpCod) inpCod.value = '';
-            document.getElementById('box-preview-foto').innerHTML = `<i class="fa-solid fa-image"></i>`;
             document.getElementById('inv-input-nombre').value = ''; 
             if (inpCat) inpCat.value = '';
             document.getElementById('inv-input-costo').value = '';
             const elIM = document.getElementById('inv-input-margen'); if (elIM) elIM.value = '';
-            document.getElementById('inv-input-venta').value = ''; document.getElementById('inv-input-stock').value = '';
+            document.getElementById('inv-input-venta').value = ''; document.getElementById('inv-input-stock').value = '1';
             document.getElementById('inv-input-desc').value = '';
+            window.seleccionarTipoRegistroInventario('PRODUCTO');
 
             window.actualizarDatalistsCategorias();
             window.renderizarBarraCategoriasPOS();
@@ -8433,10 +8618,39 @@ Las conversiones a Pesos (COP) y Bolívares (Bs) se sincronizaron con la tasa de
                 elDesc.classList.add('hidden');
             }
 
+            const galeriaQV = (Array.isArray(p.fotos) && p.fotos.length > 0)
+                ? p.fotos
+                : (p.foto ? [p.foto] : []);
+            window._qvGaleriaActual = galeriaQV;
+            window._qvIndiceFotoActual = 0;
+
             const imgBox = document.getElementById('qv-prod-imagen-box');
-            imgBox.innerHTML = p.foto
-                ? `<img src="${p.foto}" class="w-full h-full object-contain bg-white">`
+            imgBox.innerHTML = galeriaQV.length > 0
+                ? `<img src="${galeriaQV[0]}" class="w-full h-full object-contain bg-white transition-all duration-200">`
                 : `<i class="fa-solid ${esServicio ? 'fa-screwdriver-wrench text-indigo-400' : 'fa-box-open text-slate-300'}"></i>`;
+
+            const btnPrev = document.getElementById('btn-qv-prev-foto');
+            const btnNext = document.getElementById('btn-qv-next-foto');
+            const miniBox = document.getElementById('qv-prod-miniaturas-box');
+            if (galeriaQV.length > 1) {
+                if (btnPrev) btnPrev.classList.remove('hidden');
+                if (btnNext) btnNext.classList.remove('hidden');
+                if (miniBox) {
+                    miniBox.innerHTML = galeriaQV.map((src, idx) => `
+                        <button type="button" onclick="window.seleccionarFotoCarruselQuickView(${idx})" id="qv-thumb-${idx}" class="w-12 h-12 rounded-xl overflow-hidden border-2 ${idx === 0 ? 'border-blue-600 scale-105 shadow-sm' : 'border-slate-300 opacity-75'} bg-white transition-all">
+                            <img src="${src}" class="w-full h-full object-cover">
+                        </button>
+                    `).join('');
+                    miniBox.classList.remove('hidden');
+                }
+            } else {
+                if (btnPrev) btnPrev.classList.add('hidden');
+                if (btnNext) btnNext.classList.add('hidden');
+                if (miniBox) {
+                    miniBox.innerHTML = '';
+                    miniBox.classList.add('hidden');
+                }
+            }
 
             const badgeBox = document.getElementById('qv-prod-badge-stock');
             badgeBox.innerHTML = esServicio
@@ -8495,6 +8709,51 @@ Las conversiones a Pesos (COP) y Bolívares (Bs) se sincronizaron con la tasa de
             if (nuevo < (esKg ? 0.1 : 1)) nuevo = esKg ? 0.1 : 1;
             if (nuevo > max) nuevo = max;
             inp.value = esKg ? parseFloat(nuevo.toFixed(3)) : Math.round(nuevo);
+        };
+
+        window.seleccionarFotoCarruselQuickView = function(idx) {
+            const gal = window._qvGaleriaActual || [];
+            if (!gal[idx]) return;
+            window._qvIndiceFotoActual = idx;
+            const imgBox = document.getElementById('qv-prod-imagen-box');
+            if (imgBox) {
+                imgBox.innerHTML = `<img src="${gal[idx]}" class="w-full h-full object-contain bg-white transition-all duration-200">`;
+            }
+            gal.forEach((_, i) => {
+                const th = document.getElementById(`qv-thumb-${i}`);
+                if (th) {
+                    th.className = `w-12 h-12 rounded-xl overflow-hidden border-2 ${i === idx ? 'border-blue-600 scale-105 shadow-sm' : 'border-slate-300 opacity-75'} bg-white transition-all`;
+                }
+            });
+        };
+
+        window.navegarCarruselQuickView = function(delta) {
+            const gal = window._qvGaleriaActual || [];
+            if (gal.length <= 1) return;
+            const nextIdx = ((window._qvIndiceFotoActual || 0) + delta + gal.length) % gal.length;
+            window.seleccionarFotoCarruselQuickView(nextIdx);
+        };
+
+        window.compartirProductoVitrinaWhatsApp = function(prodId) {
+            const p = (window.dbInventario || []).find(item => item.id === prodId);
+            if (!p) return;
+            const slugCom = (window.clienteActivoSesion && (window.clienteActivoSesion.slug || window.clienteActivoSesion.user))
+                ? (window.clienteActivoSesion.slug || window.clienteActivoSesion.user).toLowerCase().trim()
+                : 'demo';
+            const baseUrl = window.location.origin + window.location.pathname;
+            const linkProducto = `${baseUrl}?comercio=${encodeURIComponent(slugCom)}&prod=${encodeURIComponent(p.id)}`;
+            const descPub = window.obtenerDescripcionPublicaProducto(p.desc);
+
+            let msj = `🔥 *¡DISPONIBLE EN NUESTRA TIENDA!* ✨\n\n`;
+            msj += `📦 *${(p.nombre || '').toUpperCase()}*\n`;
+            if (descPub) {
+                msj += `📝 _${descPub}_\n`;
+            }
+            msj += `\n👀 *Entra al enlace para saber más del producto, ver sus fotos y disponibilidad:* 👇\n`;
+            msj += `${linkProducto}\n\n`;
+            msj += `🛒 _¡Pídelo directo desde nuestra vitrina digital!_`;
+
+            window.despacharWhatsApp('', msj);
         };
 
         window.agregarDesdeQuickViewAlCarrito = function() {
@@ -8669,6 +8928,7 @@ $${(item.precioUSD * item.cant).toFixed(2)} USD
                             <!-- ZONA 1: IMAGEN TOTALMENTE LIMPIA -->
                             <div onclick="window.abrirDetalleProductoVitrina('${safeId}')" class="w-full aspect-square bg-slate-100 rounded-2xl overflow-hidden flex items-center justify-center text-slate-400 text-3xl relative cursor-pointer">
                                 ${p.foto ? `<img src="${p.foto}" class="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300">` : `<i class="fa-solid ${esServicio ? 'fa-screwdriver-wrench text-indigo-400' : 'fa-box-open'}"></i>`}
+                                ${(Array.isArray(p.fotos) && p.fotos.length > 1) ? `<span class="absolute top-2 right-2 bg-slate-900/80 backdrop-blur-md text-white text-[8.5px] font-mono font-black px-2 py-0.5 rounded-full shadow"><i class="fa-solid fa-images text-amber-300 mr-0.5"></i> ${p.fotos.length}</span>` : ''}
                                 <span class="absolute bottom-2 left-1/2 -translate-x-1/2 bg-slate-900/80 backdrop-blur-md text-white text-[8px] font-black px-3 py-1 rounded-xl uppercase opacity-0 group-hover:opacity-100 transition-opacity shadow-sm flex items-center gap-1">
                                     <i class="fa-solid fa-magnifying-glass-plus"></i> Ver Detalle
                                 </span>
@@ -8702,15 +8962,19 @@ $${(item.precioUSD * item.cant).toFixed(2)} USD
                                 </div>
                             </div>
                             
-                            <!-- ZONA 4: BOTÓN ACCIÓN FINAL -->
-                            <div class="pt-1">
+                            <!-- ZONA 4: BOTONERA ENCAJONADA (AGREGAR + CÁPSULA COMPARTIR) -->
+                            <div class="pt-1 flex items-center gap-1.5">
                                 ${disponible ? `
-                                    <button onclick="window.agregarAlCarritoPorId('${safeId}')" class="btn-brand w-full py-2.5 text-[9.5px] sm:text-[10.5px] flex items-center justify-center gap-1.5 shadow-sm hover:shadow-md">
-                                        <i class="fa-solid fa-cart-plus"></i> AGREGAR
+                                    <button onclick="window.agregarAlCarritoPorId('${safeId}')" class="btn-brand flex-1 py-2.5 px-2 text-[9px] sm:text-[10px] flex items-center justify-center gap-1 shadow-sm hover:shadow-md truncate">
+                                        <i class="fa-solid fa-cart-plus"></i> <span>AGREGAR</span>
                                     </button>
                                 ` : `
-                                    <div class="w-full bg-slate-100 text-red-600 font-black py-2.5 rounded-xl text-[9px] text-center border border-red-200 uppercase">NO DISPONIBLE</div>
+                                    <div class="flex-1 bg-slate-100 text-red-600 font-black py-2.5 px-1.5 rounded-xl text-[8.5px] text-center border border-red-200 uppercase truncate">AGOTADO</div>
                                 `}
+                                <button type="button" onclick="window.compartirProductoVitrinaWhatsApp('${safeId}')" class="bg-emerald-50 hover:bg-emerald-600 text-emerald-700 hover:text-white border border-emerald-300 hover:border-emerald-600 px-2.5 py-2.5 rounded-xl text-[9px] sm:text-[9.5px] font-black uppercase flex items-center justify-center gap-1 shrink-0 shadow-2xs transition-all active:scale-95" title="Compartir este producto por WhatsApp">
+                                    <i class="fa-brands fa-whatsapp text-xs"></i>
+                                    <span class="hidden sm:inline">Compartir</span>
+                                </button>
                             </div>
                         </div>
                     `;
@@ -10901,7 +11165,8 @@ window.abrirModalReporteZ = function() {
             const cant = window.limpiarMontoManual(document.getElementById('prov-prod-cant').value) || 1;
             const valCosto = window.limpiarMontoManual(document.getElementById('prov-prod-costo').value);
             const valVenta = window.limpiarMontoManual(document.getElementById('prov-prod-venta').value);
-            const fotoBase64 = document.getElementById('prov-prod-foto-base64') ? document.getElementById('prov-prod-foto-base64').value : '';
+            const fotosCompraArr = window.construirGaleriaFotosDesdeInputs('prov-prod');
+            const fotoBase64 = fotosCompraArr[0] || '';
             const monedaOrig = window.monedaCargaCompra || 'USD';
 
             if (!nombre || valCosto <= 0 || valVenta <= 0 || cant <= 0) {
@@ -10930,8 +11195,9 @@ window.abrirModalReporteZ = function() {
                 window.carritoCompras[idxExistente].ventaOriginal = valVenta;
                 window.carritoCompras[idxExistente].subtotalOriginal = window.carritoCompras[idxExistente].cant * valCosto;
                 if (desc) window.carritoCompras[idxExistente].desc = desc;
-                if (fotoBase64 && !window.carritoCompras[idxExistente].foto) {
-                    window.carritoCompras[idxExistente].foto = fotoBase64;
+                if (fotosCompraArr.length > 0) {
+                    window.carritoCompras[idxExistente].foto = fotosCompraArr[0];
+                    window.carritoCompras[idxExistente].fotos = fotosCompraArr;
                 }
             } else {
                 window.carritoCompras.push({
@@ -10946,13 +11212,13 @@ window.abrirModalReporteZ = function() {
                     costoOriginal: valCosto,
                     ventaOriginal: valVenta,
                     subtotalOriginal: cant * valCosto,
-                    foto: fotoBase64 || ''
+                    foto: fotoBase64 || '',
+                    fotos: fotosCompraArr
                 });
             }
 
-            const inpHidFoto = document.getElementById('prov-prod-foto-base64'); if (inpHidFoto) inpHidFoto.value = '';
-            const prevFoto = document.getElementById('box-preview-foto-compra'); if (prevFoto) prevFoto.innerHTML = `<i class="fa-solid fa-camera"></i>`;
-            const lblStat = document.getElementById('lbl-status-foto-compra'); if (lblStat) { lblStat.innerText = "Formato liviano HD automático"; lblStat.className = "text-[8.5px] font-mono text-slate-400 block truncate"; }
+            [1, 2, 3].forEach(s => window.limpiarSlotFoto('COMPRA', s));
+            const lblStat = document.getElementById('lbl-status-foto-compra'); if (lblStat) { lblStat.innerText = "Compresión HD ligera"; lblStat.className = "text-[8.5px] font-mono text-slate-400"; }
 
             if (inpCod) inpCod.value = '';
             document.getElementById('prov-prod-nombre').value = '';
@@ -11097,8 +11363,12 @@ window.abrirModalReporteZ = function() {
                         if (it.codigo && !window.dbInventario[idx].codigo) {
                             window.dbInventario[idx].codigo = it.codigo;
                         }
-                        if (it.foto && !window.dbInventario[idx].foto) {
+                        if (Array.isArray(it.fotos) && it.fotos.length > 0) {
+                            window.dbInventario[idx].foto = it.fotos[0];
+                            window.dbInventario[idx].fotos = it.fotos;
+                        } else if (it.foto && !window.dbInventario[idx].foto) {
                             window.dbInventario[idx].foto = it.foto;
+                            window.dbInventario[idx].fotos = [it.foto];
                         }
                         if (it.desc) {
                             window.dbInventario[idx].desc = it.desc;
@@ -11121,6 +11391,7 @@ window.abrirModalReporteZ = function() {
                             stock: Number(it.cant) || 1,
                             unidad: it.unidad || 'UND',
                             foto: it.foto || '',
+                            fotos: Array.isArray(it.fotos) ? it.fotos : (it.foto ? [it.foto] : []),
                             actualizadoMs: Date.now()
                         };
                         window.dbInventario.push(nuevoProd);
@@ -12101,10 +12372,15 @@ _Un respaldo de TUCOCEL C.A. & @PublionlineMK_`;
                         return;
                     }
 
+                    const prodDeepId = searchParams.get('prod') || searchParams.get('producto') || '';
+
                     // Mostrar vitrina inmediatamente con caché local (si existe) y sincronizar servidor en vivo
                     if (typeof window.actualizarDatalistsCategorias === 'function') window.actualizarDatalistsCategorias();
                     if (typeof window.renderizarBarraCategoriasVitrina === 'function') window.renderizarBarraCategoriasVitrina();
                     window.verVitrinaComoCliente();
+                    if (prodDeepId && (window.dbInventario || []).some(x => x.id === prodDeepId)) {
+                        setTimeout(() => window.abrirDetalleProductoVitrina(prodDeepId), 120);
+                    }
 
                     if (window.dbNube) {
                         try {
@@ -12121,6 +12397,9 @@ _Un respaldo de TUCOCEL C.A. & @PublionlineMK_`;
                                     window.tclSafeSetItem(window.getTenantStorageKey('inventario'), JSON.stringify(window.dbInventario));
                                     if (typeof window.renderizarBarraCategoriasVitrina === 'function') window.renderizarBarraCategoriasVitrina();
                                     window.renderizarProductosVitrina();
+                                    if (prodDeepId && prodsServidor.some(x => x.id === prodDeepId)) {
+                                        window.abrirDetalleProductoVitrina(prodDeepId);
+                                    }
                                 }
                             }
                         } catch(eFetchInv) {
@@ -13668,10 +13947,19 @@ ${alertasStock.join('\n')}`);
             <div class="p-4 sm:p-5 overflow-y-auto space-y-4 no-scrollbar flex-grow">
                 <input type="hidden" id="qv-prod-id" value="">
 
-                <!-- Imagen Ampliada -->
-                <div class="w-full aspect-square max-h-72 bg-slate-100 rounded-2xl overflow-hidden flex items-center justify-center text-slate-400 text-5xl relative border border-slate-200">
-                    <div id="qv-prod-imagen-box" class="w-full h-full flex items-center justify-center"></div>
-                    <div id="qv-prod-badge-stock"></div>
+                <!-- Imagen Ampliada + Carrusel de Fotos -->
+                <div class="space-y-2">
+                    <div class="w-full aspect-square max-h-72 bg-slate-100 rounded-2xl overflow-hidden flex items-center justify-center text-slate-400 text-5xl relative border border-slate-200">
+                        <div id="qv-prod-imagen-box" class="w-full h-full flex items-center justify-center"></div>
+                        <div id="qv-prod-badge-stock"></div>
+                        <button type="button" id="btn-qv-prev-foto" onclick="window.navegarCarruselQuickView(-1)" class="hidden absolute left-2 top-1/2 -translate-y-1/2 w-8 h-8 rounded-full bg-slate-900/75 text-white hover:bg-slate-900 flex items-center justify-center shadow-md">
+                            <i class="fa-solid fa-chevron-left text-xs"></i>
+                        </button>
+                        <button type="button" id="btn-qv-next-foto" onclick="window.navegarCarruselQuickView(1)" class="hidden absolute right-2 top-1/2 -translate-y-1/2 w-8 h-8 rounded-full bg-slate-900/75 text-white hover:bg-slate-900 flex items-center justify-center shadow-md">
+                            <i class="fa-solid fa-chevron-right text-xs"></i>
+                        </button>
+                    </div>
+                    <div id="qv-prod-miniaturas-box" class="hidden flex items-center justify-center gap-2 pt-0.5"></div>
                 </div>
 
                 <!-- Título completo y Descripción completa sin cortes -->
@@ -13698,12 +13986,15 @@ ${alertasStock.join('\n')}`);
                         <button type="button" onclick="window.cambiarCantidadQuickView(1)" class="w-9 h-9 flex items-center justify-center text-slate-700 hover:bg-slate-100 font-black text-sm">+</button>
                     </div>
                 </div>
-                <div class="grid grid-cols-3 gap-2">
-                    <button type="button" onclick="window.cerrarDetalleProductoVitrina()" class="bg-white hover:bg-slate-200 text-slate-700 border border-slate-300 py-3 rounded-xl font-black text-xs uppercase">
+                <div class="grid grid-cols-12 gap-1.5">
+                    <button type="button" onclick="window.cerrarDetalleProductoVitrina()" class="col-span-3 bg-white hover:bg-slate-200 text-slate-700 border border-slate-300 py-3 rounded-xl font-black text-[10.5px] uppercase">
                         Cerrar
                     </button>
-                    <button type="button" id="btn-qv-agregar-carrito" onclick="window.agregarDesdeQuickViewAlCarrito()" class="col-span-2 btn-brand py-3 text-xs shadow-md flex items-center justify-center gap-1.5">
-                        <i class="fa-solid fa-cart-plus text-sm"></i> <span>AGREGAR AL CARRITO</span>
+                    <button type="button" onclick="window.compartirProductoVitrinaWhatsApp(document.getElementById('qv-prod-id').value)" class="col-span-4 bg-emerald-600 hover:bg-emerald-500 text-white py-3 rounded-xl font-black text-[10.5px] uppercase shadow-sm flex items-center justify-center gap-1 active:scale-95 transition-all">
+                        <i class="fa-brands fa-whatsapp text-sm"></i> <span>Compartir</span>
+                    </button>
+                    <button type="button" id="btn-qv-agregar-carrito" onclick="window.agregarDesdeQuickViewAlCarrito()" class="col-span-5 btn-brand py-3 text-[10.5px] shadow-md flex items-center justify-center gap-1">
+                        <i class="fa-solid fa-cart-plus text-xs"></i> <span>AGREGAR</span>
                     </button>
                 </div>
             </div>
