@@ -89,7 +89,8 @@
         (function() {
             try {
                 var rawUrl = (window.location.search || '') + '&' + (window.location.hash || '');
-                if (/[?&#](comercio|tenant|u|user)=[^&#]+/i.test(rawUrl)) {
+                var esModoAdmin = /[?&#](modo=admin|panel=)/i.test(rawUrl);
+                if (!esModoAdmin && /[?&#](comercio|tenant|u|user)=[^&#]+/i.test(rawUrl)) {
                     document.documentElement.classList.add('modo-vitrina-directa');
                 }
             } catch (e) {}
@@ -190,6 +191,14 @@
                 padding: 2mm 3mm !important;
                 font-size: 10.5px !important;
                 line-height: 1.25 !important;
+            }
+            #seccion-impresion-termica-directa.formato-a4 {
+                width: 100% !important;
+                max-width: 210mm !important;
+                padding: 8mm 10mm !important;
+                font-family: 'Plus Jakarta Sans', Arial, sans-serif !important;
+                font-size: 10.5px !important;
+                line-height: 1.35 !important;
             }
             .no-print {
                 display: none !important;
@@ -589,12 +598,24 @@
                 </div>
 
                 <div class="bg-slate-50 p-4 rounded-2xl border border-slate-200 space-y-3">
-                    <label class="text-[10px] font-black text-emerald-600 uppercase tracking-wider block">VERIFICACIÓN KYC & ENLACES</label>
-                    <div class="flex gap-2">
-                        <input type="text" id="saas-link-generado" readonly value="https://tucocel.github.io/tclcomercioweb/?comercio=multirepuestosminel" class="input-clean font-mono text-blue-600 bg-white">
-                        <button onclick="window.copiarEnlaceComercioGenerado()" class="bg-slate-900 hover:bg-slate-800 text-white px-4 rounded-xl font-bold uppercase text-xs shrink-0 flex items-center gap-1">
-                            <i class="fa-solid fa-copy"></i> Copiar
-                        </button>
+                    <label class="text-[10px] font-black text-emerald-600 uppercase tracking-wider block">ENLACES SEPARADOS (ADMINISTRACIÓN VS VITRINA)</label>
+                    <div class="space-y-1">
+                        <span class="text-[9px] text-slate-600 uppercase font-black block">🔐 1. Enlace Directo Panel Admin (Para el Dueño / PC):</span>
+                        <div class="flex gap-2">
+                            <input type="text" id="saas-link-admin-generado" readonly value="https://tucocel.github.io/tclcomercioweb/?comercio=multirepuestosminel&modo=admin" class="input-clean font-mono text-indigo-700 bg-white text-[11px]">
+                            <button type="button" onclick="window.copiarEnlaceAdminGenerado()" class="bg-indigo-700 hover:bg-indigo-600 text-white px-3.5 rounded-xl font-bold uppercase text-[10px] shrink-0 flex items-center gap-1">
+                                <i class="fa-solid fa-copy"></i> Admin
+                            </button>
+                        </div>
+                    </div>
+                    <div class="space-y-1">
+                        <span class="text-[9px] text-slate-600 uppercase font-black block">🛍️ 2. Enlace Público Vitrina Web (Para Clientes):</span>
+                        <div class="flex gap-2">
+                            <input type="text" id="saas-link-generado" readonly value="https://tucocel.github.io/tclcomercioweb/?comercio=multirepuestosminel" class="input-clean font-mono text-blue-600 bg-white text-[11px]">
+                            <button type="button" onclick="window.copiarEnlaceComercioGenerado()" class="bg-slate-900 hover:bg-slate-800 text-white px-3.5 rounded-xl font-bold uppercase text-[10px] shrink-0 flex items-center gap-1">
+                                <i class="fa-solid fa-copy"></i> Vitrina
+                            </button>
+                        </div>
                     </div>
 
                     <div class="grid grid-cols-2 gap-2">
@@ -1327,9 +1348,14 @@
                         <p id="header-shop-sub" class="text-[10px] sm:text-[11px] text-slate-500 font-medium truncate">Ciudad — Estado | WhatsApp: 04XX-0000000</p>
                     </div>
                 </div>
-                <button onclick="window.solicitarAccesoPanelGestionProtegido()" class="w-9 h-9 sm:w-10 sm:h-10 bg-slate-100 hover:bg-slate-200 text-slate-700 rounded-xl flex items-center justify-center border border-slate-300 shrink-0 transition-all active:scale-95 shadow-sm">
-                    <i class="fa-solid fa-user-lock text-sm"></i>
-                </button>
+                <div class="flex items-center gap-1.5 shrink-0">
+                    <button type="button" id="btn-regresar-panel-desde-vitrina" onclick="window.regresarAlPanelDesdeVitrina()" class="hidden bg-emerald-600 hover:bg-emerald-500 text-white font-black px-3 py-2 rounded-xl text-[10.5px] uppercase flex items-center gap-1.5 shadow-md active:scale-95 transition-all">
+                        <i class="fa-solid fa-gauge-high text-xs"></i> <span>Regresar al Panel</span>
+                    </button>
+                    <button type="button" onclick="window.solicitarAccesoPanelGestionProtegido()" class="bg-slate-100 hover:bg-slate-200 text-slate-800 px-3 py-2 rounded-xl flex items-center gap-1.5 border border-slate-300 shrink-0 transition-all active:scale-95 shadow-sm text-[10.5px] font-black uppercase" title="Acceso exclusivo para administración del comercio">
+                        <i class="fa-solid fa-user-lock text-blue-600 text-xs"></i> <span>Acceso Admin</span>
+                    </button>
+                </div>
             </div>
         </header>
 
@@ -2359,9 +2385,10 @@
                             <label class="text-[9px] text-slate-500 uppercase block mb-0.5">Cód. Barras (Opcional)</label>
                             <input type="text" id="prov-prod-codigo" onchange="window.autocompletarProductoPorCodigoEnCompra(this.value)" placeholder="Escanear / Teclado..." class="input-clean font-mono">
                         </div>
-                        <div class="sm:col-span-4">
-                            <label class="text-[9px] text-slate-500 uppercase block mb-0.5">Nombre del Producto *</label>
-                            <input type="text" id="prov-prod-nombre" placeholder="Ej: Bombillo LED / Harina / Filtro" class="input-clean font-mono">
+                        <div class="sm:col-span-4 relative">
+                            <label class="text-[9px] text-slate-500 uppercase block mb-0.5">Nombre del Producto (Buscar o Nuevo) *</label>
+                            <input type="text" id="prov-prod-nombre" autocomplete="off" oninput="window.filtrarSugerenciasProductosCompra(this.value)" onfocus="window.filtrarSugerenciasProductosCompra(this.value)" placeholder="Escribe para buscar en inventario o crear..." class="input-clean font-mono">
+                            <div id="lista-sugerencias-compra-inv" class="hidden absolute left-0 right-0 top-full mt-1 bg-white border-2 border-blue-500 rounded-2xl shadow-2xl z-50 max-h-56 overflow-y-auto divide-y divide-slate-100"></div>
                         </div>
                         <div class="sm:col-span-3">
                             <label class="text-[9px] text-slate-500 uppercase block mb-0.5">Categoría / Departamento *</label>
@@ -2589,12 +2616,18 @@
                 <h3 class="font-black text-xs sm:text-sm uppercase tracking-wider flex items-center gap-2 truncate">
                     <i class="fa-solid fa-boxes-stacked text-amber-400"></i> Inventario & Productos
                 </h3>
-                <div class="flex items-center gap-1.5 shrink-0">
-                    <button type="button" onclick="window.toggleFormularioNuevoProducto()" class="bg-blue-600 hover:bg-blue-500 text-white px-3 py-1.5 rounded-xl text-[10px] font-black uppercase flex items-center gap-1 shadow">
-                        <i class="fa-solid fa-plus"></i> <span>Nuevo Producto</span>
+                <div class="flex items-center gap-1.5 shrink-0 flex-wrap justify-end">
+                    <button type="button" onclick="window.toggleFormularioNuevoProducto()" class="bg-blue-600 hover:bg-blue-500 text-white px-2.5 py-1.5 rounded-xl text-[10px] font-black uppercase flex items-center gap-1 shadow">
+                        <i class="fa-solid fa-plus"></i> <span>Nuevo</span>
+                    </button>
+                    <button type="button" onclick="window.imprimirInventarioFormato('A4')" class="bg-amber-500 hover:bg-amber-400 text-slate-950 px-2.5 py-1.5 rounded-xl text-[10px] font-black uppercase flex items-center gap-1 shadow" title="Imprimir Inventario en Hoja Completa A4">
+                        <i class="fa-solid fa-file-lines"></i> <span>A4</span>
+                    </button>
+                    <button type="button" onclick="window.imprimirInventarioFormato('TERMICO')" class="bg-slate-700 hover:bg-slate-600 text-white px-2.5 py-1.5 rounded-xl text-[10px] font-black uppercase flex items-center gap-1 shadow" title="Imprimir Inventario en Papel Térmico">
+                        <i class="fa-solid fa-print"></i> <span class="hidden sm:inline">Ticket</span>
                     </button>
                     <button onclick="window.exportarInventarioWhatsApp()" class="bg-emerald-600 hover:bg-emerald-500 text-white px-2.5 py-1.5 rounded-xl text-[10px] font-black uppercase flex items-center gap-1">
-                        <i class="fa-brands fa-whatsapp"></i> <span class="hidden sm:inline">Exportar</span>
+                        <i class="fa-brands fa-whatsapp"></i> <span class="hidden sm:inline">WhatsApp</span>
                     </button>
                     <button onclick="document.getElementById('modal-inventario-completo').classList.add('hidden')" class="text-slate-400 hover:text-white p-1"><i class="fa-solid fa-xmark text-base"></i></button>
                 </div>
@@ -3538,6 +3571,19 @@
                 }, (err) => console.warn("Aviso listener cotizaciones:", err));
                 window.listenersFirestoreActivos.push(unsubCot);
 
+                // Escuchador en Tiempo Real: ABONOS / COBROS DE FIADOS
+                const unsubAbonos = tenantBase.collection('abonos').onSnapshot((snapshot) => {
+                    const abonos = [];
+                    snapshot.forEach(doc => {
+                        const data = doc.data();
+                        if (data && data.id) abonos.push(data);
+                    });
+                    window.dbAbonos = abonos.sort((a, b) => (b.fechaMs || 0) - (a.fechaMs || 0));
+                    window.tclSafeSetItem(window.getTenantStorageKey('abonos'), JSON.stringify(window.dbAbonos));
+                    if (typeof window.actualizarKPIsPanelCliente === 'function') window.actualizarKPIsPanelCliente();
+                }, (err) => console.warn("Aviso listener abonos:", err));
+                window.listenersFirestoreActivos.push(unsubAbonos);
+
             } catch(eListeners) {
                 console.warn("Aviso activación listeners tiempo real:", eListeners);
             }
@@ -4475,27 +4521,40 @@ Saldo restante: $${nota.credito.saldoPendienteUSD.toFixed(2)} USD`);
                 `;
             }
 
+            const mNotaTicket = (nota.monedaOriginal || 'USD').toUpperCase();
+            const fmtTicketVal = (usdVal) => {
+                if (mNotaTicket === 'COP') return `${window.formatearMiles(window.calcularPesosDesdeUSD(usdVal, tasaCopUsada))} COP`;
+                if (mNotaTicket === 'BS') return `${window.formatBS(window.calcularBsDesdeUSD(usdVal, tasaCopUsada, factorBsUsado))} Bs`;
+                return `$${Number(usdVal || 0).toFixed(2)}`;
+            };
+
             let vueltoHtml = '';
             if (nota.vueltoInfo && nota.vueltoInfo.recibidoUSD > 0) {
+                const recMain = fmtTicketVal(nota.vueltoInfo.recibidoUSD);
+                const vueMain = fmtTicketVal(nota.vueltoInfo.vueltoUSD);
+                const vueSec = mNotaTicket === 'COP'
+                    ? `$${nota.vueltoInfo.vueltoUSD.toFixed(2)} USD`
+                    : `${window.formatCOP(nota.vueltoInfo.vueltoCOP)} COP`;
                 vueltoHtml = `
                     <div style="border-top: 1px dashed #000; padding-top: 3px; margin-top: 3px; font-size: ${fBody}; text-align: right; color: #000;">
-                        <p style="margin: 1px 0;">RECIBIDO: $${nota.vueltoInfo.recibidoUSD.toFixed(2)} USD</p>
-                        <p style="margin: 1px 0; font-weight: 900;">VUELTO: $${nota.vueltoInfo.vueltoUSD.toFixed(2)} USD (${window.formatCOP(nota.vueltoInfo.vueltoCOP)} COP)</p>
+                        <p style="margin: 1px 0;">RECIBIDO: ${recMain}</p>
+                        <p style="margin: 1px 0; font-weight: 900;">VUELTO: ${vueMain} (${vueSec})</p>
                     </div>
                 `;
             }
 
             const itemsRows = nota.items.map(it => {
-                const subItem = (it.precioUSD * it.cant).toFixed(2);
+                const unitMain = fmtTicketVal(it.precioUSD);
+                const subMain = fmtTicketVal(it.precioUSD * it.cant);
                 const nomSafe = window.escapeHTML(it.nombre);
                 if (es58) {
                     return `
                         <tr style="border-bottom: 1px dotted #000;">
                             <td style="padding: 2.5px 0; vertical-align: top;">
                                 <div style="font-weight: 900;">${nomSafe}</div>
-                                <div style="font-size: 8px;">${it.cant} x $${it.precioUSD.toFixed(2)}</div>
+                                <div style="font-size: 8px;">${it.cant} x ${unitMain}</div>
                             </td>
-                            <td style="padding: 2.5px 0; vertical-align: bottom; text-align: right; font-weight: 900; white-space: nowrap;">$${subItem}</td>
+                            <td style="padding: 2.5px 0; vertical-align: bottom; text-align: right; font-weight: 900; white-space: nowrap;">${subMain}</td>
                         </tr>
                     `;
                 }
@@ -4503,9 +4562,9 @@ Saldo restante: $${nota.credito.saldoPendienteUSD.toFixed(2)} USD`);
                     <tr>
                         <td style="padding: 3px 2px 3px 0; vertical-align: top;">
                             <strong>${it.cant}x</strong> ${nomSafe}<br>
-                            <span style="font-size: 8.5px;">Unit: $${it.precioUSD.toFixed(2)}</span>
+                            <span style="font-size: 8.5px;">Unit: ${unitMain}</span>
                         </td>
-                        <td style="text-align: right; padding: 3px 0; vertical-align: top; font-weight: 900; white-space: nowrap;">$${subItem}</td>
+                        <td style="text-align: right; padding: 3px 0; vertical-align: top; font-weight: 900; white-space: nowrap;">${subMain}</td>
                     </tr>
                 `;
             }).join('');
@@ -4718,29 +4777,21 @@ Saldo restante: $${nota.credito.saldoPendienteUSD.toFixed(2)} USD`);
                 setTimeout(() => { window.print(); }, 250);
             } else if (accion === 'whatsapp') {
                 window.abrirPreviewNota(window.notaPendiente, 'HISTORIAL', numCorrelativo);
-                let msj = `📄 *NOTA DE ENTREGA #${numCorrelativo}*
-`;
-                msj += `👤 Cajero: ${window.notaPendiente.cajero}
-`;
-                msj += `🪪 RIF/Cédula: ${window.notaPendiente.cedula}
-`;
-                msj += `👤 Cliente: ${window.notaPendiente.cliente}
-`;
-                msj += `💳 Pago: ${window.notaPendiente.pago}
-`;
-                msj += `--------------------------
-`;
+                const mWa = (window.notaPendiente.monedaOriginal || 'USD').toUpperCase();
+                const presWaTot = window.obtenerPresentacionMultimoneda(window.notaPendiente.totalUSD, mWa, window.notaPendiente.totalOriginal);
+                let msj = `📄 *NOTA DE ENTREGA #${numCorrelativo}*\n`;
+                msj += `👤 Cajero: ${window.notaPendiente.cajero}\n`;
+                msj += `🪪 RIF/Cédula: ${window.notaPendiente.cedula}\n`;
+                msj += `👤 Cliente: ${window.notaPendiente.cliente}\n`;
+                msj += `💳 Pago: ${window.notaPendiente.pago}\n`;
+                msj += `--------------------------\n`;
                 window.notaPendiente.items.forEach(it => {
-                    msj += `${it.cant}x ${it.nombre}: $${(it.precioUSD * it.cant).toFixed(2)}
-`;
+                    const pIt = window.obtenerPresentacionMultimoneda(it.precioUSD * it.cant, mWa);
+                    msj += `• ${it.cant}x ${it.nombre}: ${pIt.principal}\n`;
                 });
-                msj += `--------------------------
-💰 *Total: $${window.notaPendiente.totalUSD.toFixed(2)} USD*
-`;
-                msj += `🇨🇴 Total COP: ${window.formatearMiles(totalCOP)}
-`;
-                msj += `🇻🇪 Total Bs: ${window.formatBS(totalBs)}
-`;
+                msj += `--------------------------\n`;
+                msj += `💰 *TOTAL: ${presWaTot.principal}*\n`;
+                msj += `(${presWaTot.secundario})\n`;
                 if (window.notaPendiente.desgloseMixto) {
                     msj += `• USD: $${window.notaPendiente.desgloseMixto.abonoUSD.toFixed(2)}
 `;
@@ -5637,6 +5688,28 @@ Tu nueva clave de acceso es: ${nuevaClave}`);
                 }
             }
 
+            // Mostrar botón verde "Regresar al Panel" SOLO si el dueño o Máster está autenticado dentro de los 20 min
+            const btnRegresarPanel = document.getElementById('btn-regresar-panel-desde-vitrina');
+            if (btnRegresarPanel) {
+                let mostrarBtnPanel = !!window.esMasterLogueado;
+                if (!mostrarBtnPanel) {
+                    try {
+                        const sesStr = localStorage.getItem('tcl_sesion_persistente_2026');
+                        const ultimoTs = window.getUltimaActividadTimestamp ? window.getUltimaActividadTimestamp() : 0;
+                        const diffMin = ultimoTs > 0 ? ((Date.now() - ultimoTs) / (1000 * 60)) : 999;
+                        if (sesStr && diffMin < (window.limiteInactividadMinutos || 20)) {
+                            const ses = JSON.parse(sesStr);
+                            const slugActual = (window.clienteActivoSesion && (window.clienteActivoSesion.slug || window.clienteActivoSesion.user) || '').toLowerCase().trim();
+                            if (ses.tipo === 'MASTER' || (ses.tipo === 'CLIENTE' && ses.slug && (!slugActual || ses.slug === slugActual))) {
+                                mostrarBtnPanel = true;
+                            }
+                        }
+                    } catch (e) {}
+                }
+                if (mostrarBtnPanel) btnRegresarPanel.classList.remove('hidden');
+                else btnRegresarPanel.classList.add('hidden');
+            }
+
             window.activarVistaPrincipal('vista-tienda-comercio');
             document.documentElement.classList.remove('modo-vitrina-directa');
             if (typeof window.actualizarVisibilidadCajaNegra === 'function') {
@@ -6006,6 +6079,37 @@ Tu nueva clave de acceso es: ${nuevaClave}`);
                     window.sincronizarTenantConFirebase('ventas', nota);
                 }
             });
+
+            const viaPagoRaw = (prompt(
+                `¿Cómo recibió el abono de ${presAbonoFinal.principal}?\n` +
+                `Escriba 1 o 2:\n` +
+                `1 = Efectivo en Caja (Gaveta)\n` +
+                `2 = Transferencia / Nequi / Pago Móvil (Banco)`,
+                '1'
+            ) || '1').trim();
+            const esDigitalAbono = (viaPagoRaw === '2');
+            const descMetodoAbono = esDigitalAbono
+                ? (monedaElegida === 'COP' ? '🇨🇴 Nequi / Bancolombia (Abono)' : (monedaElegida === 'BS' ? '🇻🇪 Pago Móvil / Transf. Bs (Abono)' : '💻 Digital / USDT (Abono)'))
+                : (monedaElegida === 'COP' ? '🇨🇴 Efectivo Pesos COP (Abono)' : (monedaElegida === 'BS' ? '🇻🇪 Efectivo Bolívares Bs (Abono)' : '💵 Efectivo Dólares $ (Abono)'));
+
+            if (!window.dbAbonos) window.dbAbonos = [];
+            const nuevoRegistroAbono = {
+                id: 'abo_' + Date.now() + '_' + Math.random().toString(36).substr(2, 4),
+                cliente: nombreCliente.toUpperCase(),
+                claveCliente,
+                montoUSD: abonoUSD,
+                monedaOriginal: monedaElegida,
+                montoOriginal: montoNum,
+                esDigital: esDigitalAbono,
+                metodoPago: descMetodoAbono,
+                detalleNotas: detalleAplicado,
+                fechaMs: Date.now()
+            };
+            window.dbAbonos.unshift(nuevoRegistroAbono);
+            window.tclSafeSetItem(window.getTenantStorageKey('abonos'), JSON.stringify(window.dbAbonos));
+            if (typeof window.sincronizarTenantConFirebase === 'function') {
+                window.sincronizarTenantConFirebase('abonos', nuevoRegistroAbono);
+            }
 
             window.guardarVentasEnStorage();
             if (typeof window.actualizarKPIsPanelCliente === 'function') window.actualizarKPIsPanelCliente();
@@ -6816,16 +6920,15 @@ Tu nueva clave de acceso es: ${nuevaClave}`);
                 msj += `👤 Cliente: ${n.cliente}
 --------------------------
 `;
-                n.items.forEach(it => { msj += `${it.cant}x ${it.nombre}: $${(it.precioUSD * it.cant).toFixed(2)}
-`; });
-                msj += `--------------------------
-💰 *Total: $${n.totalUSD.toFixed(2)} USD*
-`;
-                msj += `🇨🇴 Total COP: ${window.formatearMiles(totalCOP)}
-`;
-                msj += `🇻🇪 Total Bs: ${window.formatBS(totalBs)}
-
-`;
+                const mRe = (n.monedaOriginal || 'USD').toUpperCase();
+                const presRe = window.obtenerPresentacionMultimoneda(n.totalUSD, mRe, n.totalOriginal, n.tasasMomento || null);
+                n.items.forEach(it => {
+                    const pIt = window.obtenerPresentacionMultimoneda(it.precioUSD * it.cant, mRe, null, n.tasasMomento || null);
+                    msj += `• ${it.cant}x ${it.nombre}: ${pIt.principal}\n`;
+                });
+                msj += `--------------------------\n`;
+                msj += `💰 *TOTAL: ${presRe.principal}*\n`;
+                msj += `(${presRe.secundario})\n\n`;
                 msj += `_Comprobante de Recepción Interna._
 *Sistema TCL Comercio — Un Programa de TUCOCEL C.A. & PublionlineMK*`;
                 
@@ -6896,18 +6999,29 @@ Esta acción no devuelve stock.`)) {
             const slug = nombre.toLowerCase().normalize("NFD").replace(/[̀-ͯ]/g, "").replace(/[^a-z0-9]/g, "");
             document.getElementById('saas-input-user').value = slug;
             document.getElementById('saas-link-generado').value = `https://tucocel.github.io/tclcomercioweb/?comercio=${slug || 'comercio'}`;
+            const inpAdm = document.getElementById('saas-link-admin-generado');
+            if (inpAdm) inpAdm.value = `https://tucocel.github.io/tclcomercioweb/?comercio=${slug || 'comercio'}&modo=admin`;
         };
 
         window.actualizarLinkGeneradoManual = function() {
             const user = document.getElementById('saas-input-user').value.toLowerCase().replace(/[^a-z0-9]/g, "");
             document.getElementById('saas-input-user').value = user;
             document.getElementById('saas-link-generado').value = `https://tucocel.github.io/tclcomercioweb/?comercio=${user || 'comercio'}`;
+            const inpAdm = document.getElementById('saas-link-admin-generado');
+            if (inpAdm) inpAdm.value = `https://tucocel.github.io/tclcomercioweb/?comercio=${user || 'comercio'}&modo=admin`;
+        };
+
+        window.copiarEnlaceAdminGenerado = function() {
+            const inpAdm = document.getElementById('saas-link-admin-generado');
+            if (!inpAdm) return;
+            navigator.clipboard.writeText(inpAdm.value);
+            alert("🔐 Enlace directo de Panel Admin copiado (para enviar al dueño del comercio).");
         };
 
         window.copiarEnlaceComercioGenerado = function() {
             const link = document.getElementById('saas-link-generado').value;
             navigator.clipboard.writeText(link);
-            alert("📋 Enlace web copiado.");
+            alert("🛍️ Enlace público de Vitrina Web copiado (para compartir con clientes).");
         };
 
         // DESPACHADOR UNIVERSAL WHATSAPP CON SELECTOR (PERSONAL, BUSINESS, COMPARTIR NATIVO O COPIAR)
@@ -7034,6 +7148,7 @@ Esta acción no devuelve stock.`)) {
             const etiquetaDias = dias === 1 ? '1 día' : `${dias} días`;
             const planTexto = window.obtenerFormatoPlanText(dias);
             const linkComercio = `https://tucocel.github.io/tclcomercioweb/?comercio=${user}`;
+            const linkAdminComercio = `https://tucocel.github.io/tclcomercioweb/?comercio=${user}&modo=admin`;
 
             const dVenc = new Date(Date.now() + (dias * 24 * 60 * 60 * 1000));
             const fechaVencStr = `${dVenc.getDate().toString().padStart(2,'0')}/${(dVenc.getMonth()+1).toString().padStart(2,'0')}/${dVenc.getFullYear()}`;
@@ -7050,11 +7165,12 @@ Esta acción no devuelve stock.`)) {
                            `• *Modalidad:* Cuenta Demo (Período de Evaluación)\n` +
                            `• *Tiempo asignado:* *${etiquetaDias} gratis*\n` +
                            `• *Fecha de vencimiento:* ${fechaVencStr}\n\n` +
-                           `🔐 *CREDENCIALES DE ACCESO:*\n` +
-                           `🔗 *Enlace de su Vitrina:* ${linkComercio}\n` +
+                           `🔐 *CREDENCIALES Y ENLACES DE ACCESO:*\n` +
+                           `🖥️ *Enlace Panel Admin (Solo Dueño):* ${linkAdminComercio}\n` +
+                           `🛍️ *Enlace Vitrina Pública (Clientes):* ${linkComercio}\n` +
                            `👤 *Usuario:* ${user}\n` +
                            `🔑 *Contraseña:* ${pass}\n\n` +
-                           `💡 _Instrucción rápida: Al abrir el enlace de su vitrina, toque el ícono del candado superior (🔒) e ingrese su usuario y contraseña para entrar al panel administrativo._\n\n` +
+                           `💡 _Instrucción rápida: Ingrese directamente desde su Enlace Panel Admin para facturar y gestionar su negocio, y comparta el Enlace Vitrina Pública con sus compradores._\n\n` +
                            `📌 *Notas importantes:*\n` +
                            `• Todos los productos e inventario que registre durante su prueba quedarán resguardados en la nube para cuando decida activar su plan formal.\n` +
                            `• Mantenga sus credenciales en absoluta confidencialidad.\n\n` +
@@ -7071,11 +7187,12 @@ Esta acción no devuelve stock.`)) {
                            `• *Plan contratado:* *${planTexto} (${etiquetaDias})*\n` +
                            `• *Estado:* Activo y sincronizado en tiempo real\n` +
                            `• *Vigente hasta:* ${fechaVencStr}\n\n` +
-                           `🔐 *CREDENCIALES DE ACCESO:*\n` +
-                           `🔗 *Enlace de su Vitrina:* ${linkComercio}\n` +
+                           `🔐 *CREDENCIALES Y ENLACES DE ACCESO:*\n` +
+                           `🖥️ *Enlace Panel Admin (Solo Dueño):* ${linkAdminComercio}\n` +
+                           `🛍️ *Enlace Vitrina Pública (Clientes):* ${linkComercio}\n` +
                            `👤 *Usuario:* ${user}\n` +
                            `🔑 *Contraseña:* ${pass}\n\n` +
-                           `💡 _Instrucción rápida: Al ingresar a su vitrina web, presione el ícono del candado superior (🔒) para acceder a su panel de facturación, inventario y reportes._\n\n` +
+                           `💡 _Instrucción rápida: Entre directo por su Enlace Panel Admin para administrar y facturar, y comparta el Enlace Vitrina Pública con sus clientes._\n\n` +
                            `📌 *Recomendaciones de seguridad:*\n` +
                            `• Por su seguridad, no comparta estas credenciales con terceros.\n` +
                            `• Guarde este enlace en sus favoritos o instale la App directa desde su panel.\n\n` +
@@ -8074,6 +8191,10 @@ Las conversiones a Pesos (COP) y Bolívares (Bs) se sincronizaron con la tasa de
             const gCierres = localStorage.getItem(window.getTenantStorageKey('cierres'));
             window.dbCierres = gCierres ? JSON.parse(gCierres) : [];
 
+            // 6. Abonos / Cobros de Fiados Aislados por Comercio
+            const gAbonos = localStorage.getItem(window.getTenantStorageKey('abonos'));
+            window.dbAbonos = gAbonos ? JSON.parse(gAbonos) : [];
+
             if (typeof window.actualizarDatalistsCategorias === 'function') window.actualizarDatalistsCategorias();
             if (typeof window.renderizarBarraCategoriasPOS === 'function') window.renderizarBarraCategoriasPOS();
             if (typeof window.renderizarBarraCategoriasVitrina === 'function') window.renderizarBarraCategoriasVitrina();
@@ -8780,23 +8901,172 @@ $${(item.precioUSD * item.cant).toFixed(2)} USD
 
         window.exportarInventarioWhatsApp = function() {
             if (window.dbInventario.length === 0) { alert("⚠️ El inventario está vacío."); return; }
-            let msj = `📦 *INFORME DE INVENTARIO Y STOCK ACTUAL*
-`;
-            msj += `📅 Fecha: ${new Date().toLocaleDateString()}
-`;
-            msj += `🏢 Local: ${(window.clienteActivoSesion ? window.clienteActivoSesion.nombre : 'TUCOCEL C.A.').toUpperCase()}
-`;
-            msj += `------------------------------------
-`;
+            let capUSD = 0, venUSD = 0;
+            let msj = `📦 *INFORME DE INVENTARIO MULTIMONEDA*\n`;
+            msj += `📅 Fecha: ${new Date().toLocaleDateString()}\n`;
+            msj += `🏢 Local: ${(window.clienteActivoSesion ? window.clienteActivoSesion.nombre : 'TUCOCEL C.A.').toUpperCase()}\n`;
+            msj += `------------------------------------\n`;
             window.dbInventario.forEach(p => {
-                msj += `• *${p.nombre}*
-  Stock: ${p.stock} un. | Costo: $${(p.precioCosto || 0).toFixed(2)} | Venta: $${(p.precioVenta || 0).toFixed(2)}
-`;
+                const st = Math.max(0, Number(p.stock) || 0);
+                const cUSD = Number(p.precioCosto) || 0;
+                const vUSD = Number(p.precioVenta || p.precioUSD) || 0;
+                if (!p.esServicio) {
+                    capUSD += cUSD * st;
+                    venUSD += vUSD * st;
+                }
+                const mOrig = (p.monedaOriginal || 'USD').toUpperCase();
+                const presC = window.obtenerPresentacionMultimoneda(cUSD, mOrig, p.precioCostoOriginal);
+                const presV = window.obtenerPresentacionMultimoneda(vUSD, mOrig, p.precioVentaOriginal);
+                msj += `• *${p.nombre}* (${st} ${p.unidad || 'und'})\n`;
+                msj += `  Costo: ${presC.principal} (${presC.secundario})\n`;
+                msj += `  Venta: ${presV.principal} (${presV.secundario})\n`;
             });
-            msj += `------------------------------------
-📊 Total Ítems: ${window.dbInventario.length}
-*Sistema TCL Comercio — TUCOCEL C.A. & PublionlineMK*`;
+            msj += `------------------------------------\n`;
+            msj += `📊 *Total Ítems:* ${window.dbInventario.length}\n`;
+            msj += `💰 *Inversión Total (Costo):* $${capUSD.toFixed(2)} USD | ${window.formatCOP(window.calcularPesosDesdeUSD(capUSD))} COP | ${window.formatBS(window.calcularBsDesdeUSD(capUSD))} Bs\n`;
+            msj += `🏷️ *Valor en Estante (Venta):* $${venUSD.toFixed(2)} USD | ${window.formatCOP(window.calcularPesosDesdeUSD(venUSD))} COP | ${window.formatBS(window.calcularBsDesdeUSD(venUSD))} Bs\n`;
+            msj += `*Sistema TCL Comercio — TUCOCEL C.A. & PublionlineMK*`;
             window.despacharWhatsApp('', msj);
+        };
+
+        window.imprimirInventarioFormato = function(formato = 'A4') {
+            if (!window.dbInventario || window.dbInventario.length === 0) {
+                alert("⚠️ El inventario está vacío.");
+                return;
+            }
+            const nombreNegocio = window.escapeHTML((window.clienteActivoSesion ? window.clienteActivoSesion.nombre : 'TUCOCEL C.A.').toUpperCase());
+            const rifNegocio = window.clienteActivoSesion && window.clienteActivoSesion.rif ? window.escapeHTML(window.clienteActivoSesion.rif) : '';
+            const fechaHoy = new Date().toLocaleString();
+            let capUSD = 0, venUSD = 0, unidTot = 0;
+
+            window.dbInventario.forEach(p => {
+                if (p.esServicio) return;
+                const st = Math.max(0, Number(p.stock) || 0);
+                capUSD += (Number(p.precioCosto) || 0) * st;
+                venUSD += (Number(p.precioVenta || p.precioUSD) || 0) * st;
+                unidTot += st;
+            });
+            const ganUSD = Math.max(0, venUSD - capUSD);
+
+            const printDirecto = document.getElementById('seccion-impresion-termica-directa');
+            if (!printDirecto) return;
+
+            if (formato === 'A4') {
+                const rowsHtml = window.dbInventario.map((p, i) => {
+                    const st = Number(p.stock) || 0;
+                    const cUSD = Number(p.precioCosto) || 0;
+                    const vUSD = Number(p.precioVenta || p.precioUSD) || 0;
+                    const mOrig = (p.monedaOriginal || 'USD').toUpperCase();
+                    const pC = window.obtenerPresentacionMultimoneda(cUSD, mOrig, p.precioCostoOriginal);
+                    const pV = window.obtenerPresentacionMultimoneda(vUSD, mOrig, p.precioVentaOriginal);
+                    const subC = window.obtenerPresentacionMultimoneda(cUSD * st, mOrig, p.precioCostoOriginal !== undefined ? p.precioCostoOriginal * st : null);
+                    return `
+                        <tr style="border-bottom: 1px solid #cbd5e1;">
+                            <td style="padding: 5px 4px; text-align: center;">${i + 1}</td>
+                            <td style="padding: 5px 4px;">
+                                <strong>${window.escapeHTML(p.nombre)}</strong>
+                                ${p.codigo ? `<div style="font-size: 8.5px; color: #475569;">Cód: ${window.escapeHTML(p.codigo)}</div>` : ''}
+                            </td>
+                            <td style="padding: 5px 4px; font-size: 9px;">${window.escapeHTML((p.categoria || 'GENERAL').toUpperCase())}</td>
+                            <td style="padding: 5px 4px; text-align: center; font-weight: 800;">${st} ${p.unidad || 'UND'}</td>
+                            <td style="padding: 5px 4px; text-align: right;">
+                                <strong>${pC.principal}</strong>
+                                <div style="font-size: 8px; color: #475569;">${pC.secundario}</div>
+                            </td>
+                            <td style="padding: 5px 4px; text-align: right;">
+                                <strong>${pV.principal}</strong>
+                                <div style="font-size: 8px; color: #475569;">${pV.secundario}</div>
+                            </td>
+                            <td style="padding: 5px 4px; text-align: right; font-weight: 800;">${subC.principal}</td>
+                        </tr>
+                    `;
+                }).join('');
+
+                printDirecto.className = 'hidden formato-a4';
+                printDirecto.innerHTML = `
+                    <div style="width: 100%; color: #0f172a; background: #fff;">
+                        <div style="display: flex; justify-content: space-between; align-items: flex-start; border-bottom: 2px solid #0f172a; padding-bottom: 8px; margin-bottom: 10px;">
+                            <div>
+                                <h1 style="font-size: 16px; font-weight: 900; margin: 0;">${nombreNegocio}</h1>
+                                ${rifNegocio ? `<p style="font-size: 10px; margin: 2px 0;">RIF: ${rifNegocio}</p>` : ''}
+                                <p style="font-size: 11px; font-weight: 800; color: #1d4ed8; margin: 2px 0;">REPORTE GENERAL DE INVENTARIO Y VALORIZACIÓN MULTIMONEDA</p>
+                            </div>
+                            <div style="text-align: right; font-size: 9.5px;">
+                                <p style="margin: 1px 0;"><strong>Emisión:</strong> ${fechaHoy}</p>
+                                <p style="margin: 1px 0;"><strong>Tasa COP:</strong> ${window.formatCOP(window.tasasConfig.cop || 3600)} COP/$</p>
+                                <p style="margin: 1px 0;"><strong>Factor Bs:</strong> ${Number(window.tasasConfig.paridadBs || 3.3).toFixed(1)}</p>
+                            </div>
+                        </div>
+
+                        <table style="width: 100%; border-collapse: collapse; font-size: 9.5px; margin-bottom: 12px;">
+                            <thead>
+                                <tr style="background: #0f172a; color: #ffffff;">
+                                    <th style="padding: 6px 4px; text-align: center;">#</th>
+                                    <th style="padding: 6px 4px; text-align: left;">PRODUCTO</th>
+                                    <th style="padding: 6px 4px; text-align: left;">DPTO</th>
+                                    <th style="padding: 6px 4px; text-align: center;">STOCK</th>
+                                    <th style="padding: 6px 4px; text-align: right;">P. COSTO</th>
+                                    <th style="padding: 6px 4px; text-align: right;">P. VENTA</th>
+                                    <th style="padding: 6px 4px; text-align: right;">INVERSIÓN</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                ${rowsHtml}
+                            </tbody>
+                        </table>
+
+                        <div style="border: 2px solid #0f172a; border-radius: 8px; padding: 10px; background: #f8fafc; font-size: 10px;">
+                            <div style="display: flex; justify-content: space-between; margin-bottom: 4px;">
+                                <span><strong>TOTAL PRODUCTOS:</strong> ${window.dbInventario.length} ítems (${unidTot} unidades)</span>
+                                <span><strong>GANANCIA PROYECTADA:</strong> +$${ganUSD.toFixed(2)} USD (${window.formatCOP(window.calcularPesosDesdeUSD(ganUSD))} COP)</span>
+                            </div>
+                            <div style="border-top: 1px dashed #94a3b8; padding-top: 6px; margin-top: 4px;">
+                                <p style="margin: 2px 0; font-size: 11px;"><strong>💰 INVERSIÓN TOTAL EN COSTO:</strong> $${capUSD.toFixed(2)} USD | ${window.formatCOP(window.calcularPesosDesdeUSD(capUSD))} COP | ${window.formatBS(window.calcularBsDesdeUSD(capUSD))} Bs</p>
+                                <p style="margin: 2px 0; font-size: 11px;"><strong>🏷️ VALOR TOTAL EN ESTANTE (VENTA):</strong> $${venUSD.toFixed(2)} USD | ${window.formatCOP(window.calcularPesosDesdeUSD(venUSD))} COP | ${window.formatBS(window.calcularBsDesdeUSD(venUSD))} Bs</p>
+                            </div>
+                        </div>
+                        <p style="text-align: center; font-size: 8.5px; color: #64748b; margin-top: 8px;">Sistema TCL Comercio Web • TUCOCEL C.A. & @PublionlineMK</p>
+                    </div>
+                `;
+            } else {
+                const es58 = (window.formatoTicketActualMM === '58mm');
+                const rowsTerm = window.dbInventario.map(p => {
+                    const st = Number(p.stock) || 0;
+                    const cUSD = Number(p.precioCosto) || 0;
+                    const vUSD = Number(p.precioVenta || p.precioUSD) || 0;
+                    const mOrig = (p.monedaOriginal || 'USD').toUpperCase();
+                    const pC = window.obtenerPresentacionMultimoneda(cUSD, mOrig, p.precioCostoOriginal);
+                    const pV = window.obtenerPresentacionMultimoneda(vUSD, mOrig, p.precioVentaOriginal);
+                    return `
+                        <div style="border-bottom: 1px dashed #000; padding: 3px 0;">
+                            <div style="font-weight: 900;">${window.escapeHTML(p.nombre)} (${st} ${p.unidad || 'und'})</div>
+                            <div>Costo: ${pC.principal} | Venta: ${pV.principal}</div>
+                            <div style="font-size: 8px;">Ref: ${pV.secundario}</div>
+                        </div>
+                    `;
+                }).join('');
+
+                printDirecto.className = es58 ? 'hidden ticket-58mm' : 'hidden ticket-80mm';
+                printDirecto.innerHTML = `
+                    <div style="width: 100%; font-family: 'Courier New', monospace; color: #000;">
+                        <div style="text-align: center; border-bottom: 1.5px solid #000; padding-bottom: 4px; margin-bottom: 4px;">
+                            <strong style="font-size: 12px;">${nombreNegocio}</strong><br>
+                            <strong>INVENTARIO VALORIZADO</strong><br>
+                            <span style="font-size: 8px;">${fechaHoy}</span>
+                        </div>
+                        ${rowsTerm}
+                        <div style="margin-top: 6px; border-top: 1.5px solid #000; padding-top: 4px; font-weight: 900;">
+                            <div>ÍTEMS: ${window.dbInventario.length} (${unidTot} und)</div>
+                            <div>INVERSIÓN COSTO:</div>
+                            <div>$${capUSD.toFixed(2)} USD | ${window.formatCOP(window.calcularPesosDesdeUSD(capUSD))} COP | ${window.formatBS(window.calcularBsDesdeUSD(capUSD))} Bs</div>
+                            <div style="margin-top: 3px;">VALOR VENTA ESTANTE:</div>
+                            <div>$${venUSD.toFixed(2)} USD | ${window.formatCOP(window.calcularPesosDesdeUSD(venUSD))} COP</div>
+                        </div>
+                    </div>
+                `;
+            }
+
+            setTimeout(() => { window.print(); }, 180);
         };
 
         window.abrirModalConfigurarEntornoSaaS = function(modo) {
@@ -8919,6 +9189,8 @@ $${(item.precioUSD * item.cant).toFixed(2)} USD
             document.getElementById('saas-input-user').value = cliente.user;
             document.getElementById('saas-input-pass').value = cliente.pass;
             document.getElementById('saas-link-generado').value = `https://tucocel.github.io/tclcomercioweb/?comercio=${cliente.slug}`;
+            const inpAdmEd = document.getElementById('saas-link-admin-generado');
+            if (inpAdmEd) inpAdmEd.value = `https://tucocel.github.io/tclcomercioweb/?comercio=${cliente.slug}&modo=admin`;
             
             const diasCli = cliente.dias || 180;
             window.seleccionarPildoraDias(diasCli);
@@ -9620,12 +9892,18 @@ window.abrirModalReporteZ = function() {
                 return cDateStr === fechaVal;
             });
 
+            const abonosDia = (window.dbAbonos || []).filter(a => {
+                const aDateStr = window.formatearFechaTimestampAISO(a.fechaMs);
+                return aDateStr === fechaVal;
+            });
+
             const totalVentasUSD = ventasDia.reduce((acc, v) => acc + v.totalUSD, 0);
+            const totalAbonosDiaUSD = abonosDia.reduce((acc, a) => acc + (Number(a.montoUSD) || 0), 0);
             const totalGastosUSD = gastosDia.reduce((acc, g) => acc + g.montoUSD, 0);
             const totalComprasDiaUSD = comprasDia.reduce((acc, c) => acc + (c.totalUSD || c.totalInversionUSD || 0), 0);
             const costoReposicionUSD = window.calcularCostoReposicionVentas(ventasDia);
             const gananciaLibreUSD = totalVentasUSD - costoReposicionUSD - totalGastosUSD;
-            const flujoCajaNeto = totalVentasUSD - totalGastosUSD;
+            const flujoCajaNeto = totalVentasUSD + totalAbonosDiaUSD - totalGastosUSD;
 
             // Recuperar base inicial de efectivo guardada para esta fecha
             const _slugBase = (window.clienteActivoSesion && (window.clienteActivoSesion.slug || window.clienteActivoSesion.user)) ? (window.clienteActivoSesion.slug || window.clienteActivoSesion.user).toLowerCase().trim() : 'demo';
@@ -9635,6 +9913,25 @@ window.abrirModalReporteZ = function() {
             let totalEfectivoUSD = 0;
             let totalDigitalUSD = 0;
             let arqueoMonedas = { usd: 0, cop: 0, bs: 0 };
+
+            // Sumar abonos cobrados en el día al arqueo real de gaveta / bancos
+            abonosDia.forEach(a => {
+                const mAbo = a.metodoPago || '💰 Abono de Fiado';
+                const uAbo = Number(a.montoUSD) || 0;
+                const mOrigAbo = (a.monedaOriginal || 'USD').toUpperCase();
+                metodos[mAbo] = (metodos[mAbo] || 0) + uAbo;
+
+                if (mOrigAbo === 'COP') {
+                    arqueoMonedas.cop += (a.montoOriginal !== undefined ? Number(a.montoOriginal) : window.calcularPesosDesdeUSD(uAbo));
+                } else if (mOrigAbo === 'BS') {
+                    arqueoMonedas.bs += (a.montoOriginal !== undefined ? Number(a.montoOriginal) : window.calcularBsDesdeUSD(uAbo));
+                } else {
+                    arqueoMonedas.usd += uAbo;
+                }
+
+                if (a.esDigital) totalDigitalUSD += uAbo;
+                else totalEfectivoUSD += uAbo;
+            });
 
             ventasDia.forEach(v => {
                 const m = v.pago || 'Otro';
@@ -9671,8 +9968,8 @@ window.abrirModalReporteZ = function() {
             const efectivoEsperadoGaveta = baseCajaInicial + totalEfectivoUSD - totalGastosUSD;
 
             return { 
-                fechaVal, targetDateStr, ventasDia, gastosDia, comprasDia,
-                totalVentasUSD, totalGastosUSD, totalComprasDiaUSD,
+                fechaVal, targetDateStr, ventasDia, abonosDia, gastosDia, comprasDia,
+                totalVentasUSD, totalAbonosDiaUSD, totalGastosUSD, totalComprasDiaUSD,
                 costoReposicionUSD, gananciaLibreUSD, flujoCajaNeto, 
                 baseCajaInicial, totalEfectivoUSD, totalDigitalUSD, efectivoEsperadoGaveta, 
                 arqueoMonedas, metodos 
@@ -9742,6 +10039,20 @@ window.abrirModalReporteZ = function() {
                                 <span class="text-[8px] text-emerald-100 block font-sans">Libre para ti</span>
                             </div>
                         </div>
+                        ${datos.totalAbonosDiaUSD > 0 ? `
+                            <div class="bg-emerald-50 border border-emerald-300 rounded-xl px-2.5 py-2 text-[10px] text-emerald-950 font-sans space-y-1">
+                                <div class="flex items-center justify-between font-black">
+                                    <span><i class="fa-solid fa-hand-holding-dollar text-emerald-600 mr-1"></i> Abonos / Cobros de Fiados Hoy (${datos.abonosDia.length}):</span>
+                                    <strong class="font-mono text-emerald-700">+$${datos.totalAbonosDiaUSD.toFixed(2)} USD (${window.formatCOP(window.calcularPesosDesdeUSD(datos.totalAbonosDiaUSD))} COP)</strong>
+                                </div>
+                                <div class="text-[9px] text-emerald-800 font-mono space-y-0.5 pl-4">
+                                    ${datos.abonosDia.map(a => {
+                                        const pA = window.obtenerPresentacionMultimoneda(a.montoUSD, a.monedaOriginal || 'USD', a.montoOriginal);
+                                        return `<div>• ${window.escapeHTML(a.cliente)}: <strong>${pA.principal}</strong> (${window.escapeHTML(a.metodoPago)})</div>`;
+                                    }).join('')}
+                                </div>
+                            </div>
+                        ` : ''}
                         ${datos.totalComprasDiaUSD > 0 ? `
                             <div class="bg-blue-50/80 border border-blue-200 rounded-xl px-2.5 py-1.5 text-[9.5px] text-blue-900 font-sans flex items-center justify-between">
                                 <span><i class="fa-solid fa-truck-ramp-box text-blue-600 mr-1"></i> Mercancía cargada hoy a inventario:</span>
@@ -11763,6 +12074,33 @@ _Un respaldo de TUCOCEL C.A. & @PublionlineMK_`;
                         try { window.dbInventario = JSON.parse(gInvLocal); } catch(e) { window.dbInventario = []; }
                     }
 
+                    const esModoAdminDirecto = searchParams.get('modo') === 'admin' || !!searchParams.get('panel') || /[?&#](?:modo=admin|panel=)/i.test(window.location.href || '');
+                    if (esModoAdminDirecto) {
+                        document.documentElement.classList.remove('modo-vitrina-directa');
+                        const inpUserLogin = document.getElementById('login-user-field');
+                        if (inpUserLogin && cli.user) inpUserLogin.value = cli.user;
+
+                        // Si ya tiene sesión activa dentro de los 20 min, entrar directo a su panel
+                        try {
+                            const sesStr = localStorage.getItem('tcl_sesion_persistente_2026');
+                            const ultimoTs = window.getUltimaActividadTimestamp ? window.getUltimaActividadTimestamp() : 0;
+                            const diffMin = ultimoTs > 0 ? ((Date.now() - ultimoTs) / (1000 * 60)) : 999;
+                            if (sesStr && diffMin < (window.limiteInactividadMinutos || 20)) {
+                                const ses = JSON.parse(sesStr);
+                                if (ses.tipo === 'CLIENTE' && ses.slug === slugLimpio) {
+                                    window.setUltimaActividadTimestamp();
+                                    window.cargarDatosDelComercioActivo();
+                                    if (!cli.contratoAceptado) window.mostrarContratoDirecto(cli);
+                                    else window.abrirPanelClientePrivadoDirecto();
+                                    return;
+                                }
+                            }
+                        } catch (e) {}
+
+                        window.activarVistaPrincipal('vista-login');
+                        return;
+                    }
+
                     // Mostrar vitrina inmediatamente con caché local (si existe) y sincronizar servidor en vivo
                     if (typeof window.actualizarDatalistsCategorias === 'function') window.actualizarDatalistsCategorias();
                     if (typeof window.renderizarBarraCategoriasVitrina === 'function') window.renderizarBarraCategoriasVitrina();
@@ -12310,18 +12648,25 @@ _Un respaldo de TUCOCEL C.A. & @PublionlineMK_`;
             const nombreNegocio = window.escapeHTML((window.clienteActivoSesion ? window.clienteActivoSesion.nombre : 'TUCOCEL C.A.').toUpperCase());
             const nroDoc = window.escapeHTML(window.clienteActivoSesion ? (window.clienteActivoSesion.wa || '0424-0000000') : '0424-7357549');
 
+            const mCot = (cot.monedaOriginal || 'USD').toUpperCase();
+            const fmtCotVal = (u) => {
+                if (mCot === 'COP') return `${window.formatearMiles(window.calcularPesosDesdeUSD(u))} COP`;
+                if (mCot === 'BS') return `${window.formatBS(window.calcularBsDesdeUSD(u))} Bs`;
+                return `$${Number(u || 0).toFixed(2)}`;
+            };
             const totalCOP = window.calcularPesosDesdeUSD(cot.totalUSD);
             const totalBs = window.calcularBsDesdeUSD(cot.totalUSD);
 
             const itemsRows = (cot.items || []).map(it => {
-                const subItem = (it.precioUSD * it.cant).toFixed(2);
+                const uMain = fmtCotVal(it.precioUSD);
+                const sMain = fmtCotVal(it.precioUSD * it.cant);
                 return `
                     <tr style="border-bottom: 1px dotted #000;">
                         <td style="padding: 2.5px 0; vertical-align: top;">
                             <strong>${it.cant}x</strong> ${window.escapeHTML(it.nombre)}<br>
-                            <span style="font-size: 8px;">Unit: $${it.precioUSD.toFixed(2)}</span>
+                            <span style="font-size: 8px;">Unit: ${uMain}</span>
                         </td>
-                        <td style="text-align: right; padding: 2.5px 0; vertical-align: top; font-weight: 900; white-space: nowrap;">$${subItem}</td>
+                        <td style="text-align: right; padding: 2.5px 0; vertical-align: top; font-weight: 900; white-space: nowrap;">${sMain}</td>
                     </tr>
                 `;
             }).join('');
@@ -12387,6 +12732,7 @@ _Un respaldo de TUCOCEL C.A. & @PublionlineMK_`;
             const nuevaCot = {
                 id: 'cot_' + Date.now() + '_' + Math.random().toString(36).substr(2, 4),
                 numero: numCot,
+                monedaOriginal: window.monedaCargaPOS || 'USD',
                 cajero,
                 cedula,
                 cliente,
@@ -12536,6 +12882,151 @@ ${alertasStock.join('\n')}`);
                 alert(`✅ Cotización ${cot.numero} cargada en caja lista para facturar.`);
             }
         };
+
+        // =============================================================
+        // RETORNO RÁPIDO DESDE VITRINA AL PANEL DE ADMINISTRACIÓN
+        // =============================================================
+        window.regresarAlPanelDesdeVitrina = function() {
+            const bfc = document.getElementById('barra-flotante-carrito-vitrina');
+            if (bfc) { bfc.classList.add('hidden'); bfc.style.display = 'none'; }
+
+            if (window.esMasterLogueado && !window.clienteActivoSesion) {
+                window.regresarAlPanelMaster();
+                return;
+            }
+
+            if (window.clienteActivoSesion) {
+                window.setUltimaActividadTimestamp();
+                window.cargarDatosDelComercioActivo();
+                window.abrirPanelClientePrivadoDirecto();
+                return;
+            }
+
+            try {
+                const sesStr = localStorage.getItem('tcl_sesion_persistente_2026');
+                if (sesStr) {
+                    const ses = JSON.parse(sesStr);
+                    if (ses.tipo === 'MASTER') {
+                        window.esMasterLogueado = true;
+                        window.regresarAlPanelMaster();
+                        return;
+                    }
+                    if (ses.tipo === 'CLIENTE' && ses.slug) {
+                        const cli = (window.dbClientesSaaS || []).find(c => (c.slug && c.slug.toLowerCase() === ses.slug) || (c.user && c.user.toLowerCase() === ses.slug));
+                        if (cli) {
+                            window.clienteActivoSesion = cli;
+                            window.setUltimaActividadTimestamp();
+                            window.cargarDatosDelComercioActivo();
+                            window.abrirPanelClientePrivadoDirecto();
+                            return;
+                        }
+                    }
+                }
+            } catch (e) {}
+
+            window.solicitarAccesoPanelGestionProtegido();
+        };
+
+        // =============================================================
+        // BUSCADOR INTELIGENTE DESPLEGABLE DE INVENTARIO EN COMPRAS
+        // =============================================================
+        window.filtrarSugerenciasProductosCompra = function(texto) {
+            const box = document.getElementById('lista-sugerencias-compra-inv');
+            if (!box) return;
+            const q = (texto || '').toLowerCase().trim();
+            if (!q) {
+                box.classList.add('hidden');
+                return;
+            }
+            const coincidencias = (window.dbInventario || []).filter(p =>
+                !p.esServicio && (
+                    (p.nombre && p.nombre.toLowerCase().includes(q)) ||
+                    (p.codigo && p.codigo.toLowerCase().includes(q)) ||
+                    (p.categoria && p.categoria.toLowerCase().includes(q))
+                )
+            ).slice(0, 8);
+
+            if (coincidencias.length === 0) {
+                box.classList.add('hidden');
+                return;
+            }
+
+            const monCompra = window.monedaCargaCompra || 'USD';
+            box.innerHTML = coincidencias.map(p => {
+                const cUSD = Number(p.precioCosto) || 0;
+                const vUSD = Number(p.precioVenta || p.precioUSD) || 0;
+                const presC = window.obtenerPresentacionMultimoneda(cUSD, monCompra, p.monedaOriginal === monCompra ? p.precioCostoOriginal : null);
+                const presV = window.obtenerPresentacionMultimoneda(vUSD, monCompra, p.monedaOriginal === monCompra ? p.precioVentaOriginal : null);
+                return `
+                    <button type="button" onclick="window.seleccionarProductoExistenteEnCompra('${window.escapeHTML(p.id)}')" class="w-full text-left px-3 py-2 hover:bg-blue-50 transition-colors flex justify-between items-center gap-2 text-xs font-mono">
+                        <div class="min-w-0 flex-1">
+                            <strong class="text-slate-900 font-black uppercase block truncate">${window.escapeHTML(p.nombre)}</strong>
+                            <span class="text-[9.5px] text-slate-500 block truncate">${window.escapeHTML(p.categoria || 'GENERAL')} • Stock actual: ${p.stock || 0} ${p.unidad || 'UND'}</span>
+                        </div>
+                        <div class="text-right shrink-0">
+                            <span class="text-[9.5px] text-slate-600 block">Costo: <strong>${presC.principal}</strong></span>
+                            <span class="text-[9.5px] text-blue-600 font-black block">Venta: ${presV.principal}</span>
+                        </div>
+                    </button>
+                `;
+            }).join('');
+            box.classList.remove('hidden');
+        };
+
+        window.seleccionarProductoExistenteEnCompra = function(prodId) {
+            const box = document.getElementById('lista-sugerencias-compra-inv');
+            if (box) box.classList.add('hidden');
+            const prod = (window.dbInventario || []).find(p => p.id === prodId);
+            if (!prod) return;
+
+            const inpCod = document.getElementById('prov-prod-codigo');
+            const inpNom = document.getElementById('prov-prod-nombre');
+            const inpCat = document.getElementById('prov-prod-categoria');
+            const selUni = document.getElementById('prov-prod-unidad');
+            const inpDesc = document.getElementById('prov-prod-desc');
+            const inpCosto = document.getElementById('prov-prod-costo');
+            const selMType = document.getElementById('prov-prod-margen-tipo');
+            const inpMVal = document.getElementById('prov-prod-margen');
+            const inpVenta = document.getElementById('prov-prod-venta');
+            const inpCant = document.getElementById('prov-prod-cant');
+
+            if (inpCod) inpCod.value = prod.codigo || '';
+            if (inpNom) inpNom.value = prod.nombre || '';
+            if (inpCat) inpCat.value = (prod.categoria || 'GENERAL').toUpperCase();
+            if (selUni && prod.unidad) selUni.value = prod.unidad;
+            if (inpDesc && prod.desc && prod.desc !== 'Sin descripción') inpDesc.value = prod.desc;
+
+            const monCompra = window.monedaCargaCompra || 'USD';
+            let costoDisp = Number(prod.precioCosto) || 0;
+            let ventaDisp = Number(prod.precioVenta || prod.precioUSD) || 0;
+            if (monCompra === 'COP') {
+                costoDisp = (prod.monedaOriginal === 'COP' && prod.precioCostoOriginal !== undefined) ? Number(prod.precioCostoOriginal) : window.calcularPesosDesdeUSD(costoDisp);
+                ventaDisp = (prod.monedaOriginal === 'COP' && prod.precioVentaOriginal !== undefined) ? Number(prod.precioVentaOriginal) : window.calcularPesosDesdeUSD(ventaDisp);
+            } else if (monCompra === 'BS') {
+                costoDisp = (prod.monedaOriginal === 'BS' && prod.precioCostoOriginal !== undefined) ? Number(prod.precioCostoOriginal) : window.calcularBsDesdeUSD(costoDisp);
+                ventaDisp = (prod.monedaOriginal === 'BS' && prod.precioVentaOriginal !== undefined) ? Number(prod.precioVentaOriginal) : window.calcularBsDesdeUSD(ventaDisp);
+            }
+            const ganDisp = Math.max(0, ventaDisp - costoDisp);
+            const fmtC = (v) => monCompra === 'COP' ? window.formatearMiles(Math.round(v)) : v.toFixed(2).replace('.', ',');
+
+            if (inpCosto) inpCosto.value = costoDisp > 0 ? fmtC(costoDisp) : '';
+            if (selMType) selMType.value = 'MONTO';
+            if (inpMVal) inpMVal.value = ganDisp > 0 ? fmtC(ganDisp) : '0';
+            if (inpVenta) inpVenta.value = ventaDisp > 0 ? fmtC(ventaDisp) : '';
+
+            if (inpCant) {
+                inpCant.focus();
+                inpCant.select();
+            }
+        };
+
+        document.addEventListener('click', function(e) {
+            const box = document.getElementById('lista-sugerencias-compra-inv');
+            const inp = document.getElementById('prov-prod-nombre');
+            if (box && inp && !box.contains(e.target) && e.target !== inp) {
+                box.classList.add('hidden');
+            }
+        });
 
         window.eliminarCotizacion = async function(cotId) {
             if (!confirm("¿Eliminar esta cotización guardada?")) return;
