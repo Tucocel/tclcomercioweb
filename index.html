@@ -64,14 +64,14 @@
     <meta property="og:site_name" content="Catálogo Digital & Pedidos en Línea">
     <meta property="og:title" content="🛍️ Catálogo Digital & Pedidos en Línea | Vitrina Interactiva">
     <meta property="og:description" content="📦 Explora nuestro catálogo actualizado, revisa disponibilidad al instante y envía tu pedido directo por WhatsApp.">
-    <meta property="og:image" content="https://images.unsplash.com/photo-1460925895917-afdab827c52f?auto=format&fit=crop&w=1200&q=80">
-    <meta property="og:image:secure_url" content="https://images.unsplash.com/photo-1460925895917-afdab827c52f?auto=format&fit=crop&w=1200&q=80">
+    <meta property="og:image" content="https://images.unsplash.com/photo-1556742049-0cfed4f6a45d?auto=format&fit=crop&w=1200&q=80">
+    <meta property="og:image:secure_url" content="https://images.unsplash.com/photo-1556742049-0cfed4f6a45d?auto=format&fit=crop&w=1200&q=80">
     <meta property="og:image:width" content="1200">
     <meta property="og:image:height" content="630">
     <meta name="twitter:card" content="summary_large_image">
     <meta name="twitter:title" content="🛍️ Catálogo Digital & Pedidos en Línea | Vitrina Interactiva">
     <meta name="twitter:description" content="📦 Explora nuestro catálogo actualizado, revisa disponibilidad al instante y envía tu pedido directo por WhatsApp.">
-    <meta name="twitter:image" content="https://images.unsplash.com/photo-1460925895917-afdab827c52f?auto=format&fit=crop&w=1200&q=80">
+    <meta name="twitter:image" content="https://images.unsplash.com/photo-1556742049-0cfed4f6a45d?auto=format&fit=crop&w=1200&q=80">
 
     <!-- TAILWIND CSS & FONT-AWESOME -->
     <script src="https://cdn.tailwindcss.com"></script>
@@ -477,9 +477,14 @@
                 <h2 class="text-xs font-black text-slate-500 uppercase tracking-wider flex items-center gap-1.5 min-w-0">
                     <i class="fa-solid fa-grip text-blue-600 shrink-0"></i> <span class="truncate">Central de Accesos y Gestión</span>
                 </h2>
-                <button type="button" onclick="window.abrirModalNotificarMejorasMaster()" class="bg-indigo-600 hover:bg-indigo-500 text-white px-2.5 py-1.5 rounded-xl text-[10px] font-black uppercase flex items-center gap-1.5 shadow-sm transition-all active:scale-95 shrink-0" title="Notificar mejoras públicas a los comercios">
-                    <i class="fa-solid fa-bullhorn text-amber-300 text-[11px]"></i> <span>Notificar Mejoras</span>
-                </button>
+                <div class="flex items-center gap-1.5 shrink-0">
+                    <button type="button" onclick="window.forzarActualizacionGlobalClientes()" class="bg-emerald-600 hover:bg-emerald-500 text-white px-2.5 py-1.5 rounded-xl text-[10px] font-black uppercase flex items-center gap-1 shadow-sm transition-all active:scale-95" title="Forzar recarga limpia en todas las PCs y teléfonos conectados">
+                        <i class="fa-solid fa-rotate text-[11px]"></i> <span class="hidden sm:inline">Actualizar PCs</span><span class="sm:hidden">Sync</span>
+                    </button>
+                    <button type="button" onclick="window.abrirModalNotificarMejorasMaster()" class="bg-indigo-600 hover:bg-indigo-500 text-white px-2.5 py-1.5 rounded-xl text-[10px] font-black uppercase flex items-center gap-1.5 shadow-sm transition-all active:scale-95" title="Notificar mejoras públicas a los comercios">
+                        <i class="fa-solid fa-bullhorn text-amber-300 text-[11px]"></i> <span>Notificar Mejoras</span>
+                    </button>
+                </div>
             </div>
 
             <div class="grid grid-cols-2 sm:grid-cols-4 gap-2 pt-0.5">
@@ -1393,8 +1398,8 @@
                 <p class="font-extrabold text-slate-900 tracking-tight">Sistema TCL Comercio Web</p>
                 <p class="font-semibold text-slate-600">Un Programa de TUCOCEL C.A. & PublionlineMK</p>
                 <p class="text-blue-600 font-bold flex items-center justify-center gap-1"><i class="fa-solid fa-phone text-[10px]"></i> Contacto: 0424-7357549</p>
-                <p class="pt-1.5 text-[11px] text-slate-600 font-medium">
-                    ¿Quieres este sistema para tu negocio? <a href="javascript:void(0)" onclick="window.abrirModalSolicitarDemo7Dias()" class="text-blue-600 hover:text-blue-800 font-extrabold underline">Solicita tus 7 días gratis aquí</a>
+                <p class="pt-1.5 text-[11px] text-slate-600 font-medium leading-relaxed">
+                    ¿Quieres este sistema para tu negocio?<br class="sm:hidden"> <a href="javascript:void(0)" onclick="window.abrirModalSolicitarDemo7Dias()" class="text-blue-600 hover:text-blue-800 font-extrabold underline whitespace-nowrap">Solicita tus 7 días gratis&nbsp;aquí</a>
                 </p>
             </footer>
         </main>
@@ -3682,6 +3687,26 @@
                 }, (err) => console.warn("Aviso listener abonos:", err));
                 window.listenersFirestoreActivos.push(unsubAbonos);
 
+                // Escuchador en Tiempo Real del Perfil/Licencia del Comercio (Bloqueo en caliente si Máster pausa o vence)
+                const unsubPerfilTenant = tenantBase.onSnapshot((docSnap) => {
+                    if (!docSnap || !docSnap.exists) return;
+                    const dataPerfil = docSnap.data() || {};
+                    if (window.clienteActivoSesion) {
+                        window.clienteActivoSesion = { ...window.clienteActivoSesion, ...dataPerfil };
+                        if (typeof window.actualizarContadorRegresivoPanelCliente === 'function') {
+                            window.actualizarContadorRegresivoPanelCliente(window.clienteActivoSesion);
+                        }
+                        if (!window.esMasterLogueado) {
+                            const vigLive = window.comprobarVigenciaComercio(window.clienteActivoSesion);
+                            if (!vigLive.valido) {
+                                window.cerrarSesionCompleta();
+                                window.mostrarMensajeCuentaBloqueada(vigLive.motivo, vigLive.esDemo);
+                            }
+                        }
+                    }
+                }, (err) => console.warn("Aviso listener perfil tenant:", err));
+                window.listenersFirestoreActivos.push(unsubPerfilTenant);
+
             } catch(eListeners) {
                 console.warn("Aviso activación listeners tiempo real:", eListeners);
             }
@@ -4928,6 +4953,14 @@ _Comprobante de Recepción Interna._
         };
 
         window.procesarCierrePOS = function() {
+            if (window.clienteActivoSesion && !window.esMasterLogueado) {
+                const vigPOS = window.comprobarVigenciaComercio(window.clienteActivoSesion);
+                if (!vigPOS.valido) {
+                    window.cerrarSesionCompleta();
+                    window.mostrarMensajeCuentaBloqueada(vigPOS.motivo, vigPOS.esDemo);
+                    return;
+                }
+            }
             const cajero = document.getElementById('pos-input-cajero').value.trim();
             if (!cajero) { alert("⚠️ El NOMBRE DEL CAJERO es obligatorio para facturar."); return; }
             if (window.carritoPOS.length === 0) { alert("⚠️ Agregue productos a la nota."); return; }
@@ -5015,19 +5048,26 @@ _Comprobante de Recepción Interna._
         // GESTIÓN DE SEGURIDAD Y CAMBIO DE CLAVES (MÁSTER Y CLIENTES)
         // -------------------------------------------------------------
         window.STORAGE_KEY_MASTER_AUTH = 'tcl_master_credentials_2026';
+        window.DEFAULT_MASTER_PASS_HASH = 'f59a4c0b11174c113859147ba94a0c637460dfd8b38a9862c18a02b0a946f9ec';
         
         window.obtenerCredencialesMaster = function() {
             const guardadas = localStorage.getItem(window.STORAGE_KEY_MASTER_AUTH);
             if (guardadas) {
-                try { return JSON.parse(guardadas); } catch(e) {}
+                try {
+                    const parsed = JSON.parse(guardadas);
+                    if (parsed && parsed.pass && !parsed.passHash) {
+                        parsed.passHash = window.DEFAULT_MASTER_PASS_HASH;
+                    }
+                    return parsed;
+                } catch(e) {}
             }
-            return { user: 'tucocel', pass: 'Razu2020.', personalizado: false };
+            return { user: 'tucocel', passHash: window.DEFAULT_MASTER_PASS_HASH, personalizado: false };
         };
 
         window.abrirModalCambioClaveMaster = function() {
             const masterCreds = window.obtenerCredencialesMaster();
-            document.getElementById('master-pass-current-user').value = masterCreds.user;
-            document.getElementById('master-pass-new').value = masterCreds.pass;
+            document.getElementById('master-pass-current-user').value = masterCreds.user || 'tucocel';
+            document.getElementById('master-pass-new').value = masterCreds.pass || '';
             document.getElementById('modal-cambio-clave-master').classList.remove('hidden');
         };
 
@@ -5140,13 +5180,27 @@ Tu nueva clave de acceso es: ${nuevaClave}`);
             if (!cliente) return { valido: false, motivo: 'NO_EXISTE' };
             if (cliente.estatus === 'INACTIVO') return { valido: false, motivo: 'INACTIVO' };
 
+            const ahoraMs = Date.now();
+            const toleranciaRelojMs = 15 * 60 * 1000; // 15 min de margen por zona horaria
+
+            // Protección Anti-Tampering: detectar si atrasaron el reloj del dispositivo
+            const ultimaVentaMs = (Array.isArray(window.dbVentas) && window.dbVentas.length > 0) ? (window.dbVentas[0].fechaMs || 0) : 0;
+            const refCronologicaMs = Math.max(
+                Number(cliente.ultimaRenovacionMs || 0),
+                Number(cliente.fechaCreacion || 0),
+                Number(ultimaVentaMs || 0)
+            );
+            if (refCronologicaMs > 0 && (ahoraMs + toleranciaRelojMs) < refCronologicaMs) {
+                return { valido: false, motivo: 'RELOJ_ALTERADO', esDemo: !!cliente.esDemo };
+            }
+
             // Comprobación estricta de tiempo de vencimiento
             let tiempoLimiteMs = cliente.fechaVencimientoMs;
             if (!tiempoLimiteMs && cliente.fechaVencimiento) {
                 tiempoLimiteMs = new Date(cliente.fechaVencimiento).getTime();
             }
 
-            if (tiempoLimiteMs && Date.now() > tiempoLimiteMs) {
+            if (tiempoLimiteMs && ahoraMs > tiempoLimiteMs) {
                 return { valido: false, motivo: 'VENCIDO', esDemo: !!cliente.esDemo };
             }
 
@@ -5154,6 +5208,14 @@ Tu nueva clave de acceso es: ${nuevaClave}`);
         };
 
         window.mostrarMensajeCuentaBloqueada = function(motivo = 'INACTIVO', esDemo = false) {
+            if (motivo === 'RELOJ_ALTERADO') {
+                alert(
+                    "⚠️ FECHA Y HORA DEL DISPOSITIVO INCORRECTAS\n\n" +
+                    "Se detectó que el reloj de este teléfono o computadora está atrasado respecto a las últimas operaciones registradas en la nube.\n\n" +
+                    "Por favor active la fecha y hora automáticas de red en su equipo e intente nuevamente."
+                );
+                return;
+            }
             if (motivo === 'VENCIDO') {
                 if (esDemo) {
                     alert(
@@ -5185,8 +5247,9 @@ Tu nueva clave de acceso es: ${nuevaClave}`);
             const usr = (document.getElementById('login-user-field') ? document.getElementById('login-user-field').value : '').trim().toLowerCase();
             const pass = document.getElementById('login-pass-field').value.trim();
             const passHash = (typeof window.calcularHashSHA256 === 'function') ? await window.calcularHashSHA256(pass) : '';
-            const masterCreds = (typeof window.obtenerCredencialesMaster === 'function') ? window.obtenerCredencialesMaster() : { user: 'tucocel', pass: 'Razu2020.', personalizado: false };
-            const loginMasterOk = (usr === masterCreds.user && (pass === masterCreds.pass || passHash === masterCreds.passHash)) || (!masterCreds.personalizado && usr === 'tucocel' && pass === 'Razu2020.');
+            const masterCreds = (typeof window.obtenerCredencialesMaster === 'function') ? window.obtenerCredencialesMaster() : { user: 'tucocel', passHash: window.DEFAULT_MASTER_PASS_HASH, personalizado: false };
+            const hashEsperadoMaster = masterCreds.passHash || window.DEFAULT_MASTER_PASS_HASH;
+            const loginMasterOk = (usr === masterCreds.user && ((masterCreds.pass && pass === masterCreds.pass) || passHash === hashEsperadoMaster)) || (!masterCreds.personalizado && usr === 'tucocel' && passHash === window.DEFAULT_MASTER_PASS_HASH);
 
             if (loginMasterOk) {
                 window.esMasterLogueado = true;
@@ -5266,8 +5329,9 @@ Tu nueva clave de acceso es: ${nuevaClave}`);
             const userIngresado = (document.getElementById('auth-user-gestion') ? document.getElementById('auth-user-gestion').value : '').trim().toLowerCase();
             const passIngresada = document.getElementById('auth-pass-gestion').value.trim();
             const passHashIngresada = (typeof window.calcularHashSHA256 === 'function') ? await window.calcularHashSHA256(passIngresada) : '';
-            const masterCreds = (typeof window.obtenerCredencialesMaster === 'function') ? window.obtenerCredencialesMaster() : { user: 'tucocel', pass: 'Razu2020.', personalizado: false };
-            const loginMasterOk = (userIngresado === masterCreds.user && (passIngresada === masterCreds.pass || passHashIngresada === masterCreds.passHash)) || (!masterCreds.personalizado && userIngresado === 'tucocel' && passIngresada === 'Razu2020.');
+            const masterCreds = (typeof window.obtenerCredencialesMaster === 'function') ? window.obtenerCredencialesMaster() : { user: 'tucocel', passHash: window.DEFAULT_MASTER_PASS_HASH, personalizado: false };
+            const hashEsperadoMaster2 = masterCreds.passHash || window.DEFAULT_MASTER_PASS_HASH;
+            const loginMasterOk = (userIngresado === masterCreds.user && ((masterCreds.pass && passIngresada === masterCreds.pass) || passHashIngresada === hashEsperadoMaster2)) || (!masterCreds.personalizado && userIngresado === 'tucocel' && passHashIngresada === window.DEFAULT_MASTER_PASS_HASH);
 
             if (loginMasterOk) {
                 window.esMasterLogueado = true;
@@ -5580,6 +5644,10 @@ Tu nueva clave de acceso es: ${nuevaClave}`);
                 if (window.dbNube) {
                     try {
                         await window.dbNube.collection('configuracion_global').doc('novedades_clientes').set(payloadNovedad, { merge: true });
+                        await window.dbNube.collection('configuracion_global').doc('version_sistema').set({
+                            buildId: versionId,
+                            forceReloadMs: Date.now()
+                        }, { merge: true });
                     } catch (eNov) {
                         console.warn("Aviso publicación novedad en Firestore:", eNov);
                     }
@@ -7366,6 +7434,12 @@ Esta acción no devuelve stock.`)) {
                 return; 
             }
 
+            const duplicado = (window.dbClientesSaaS || []).find(c => c.user && c.user.toLowerCase() === user && c.id !== idEdit);
+            if (duplicado) {
+                alert(`⚠️ El usuario "${user}" ya está asignado al comercio "${duplicado.nombre}". Elija un identificador distinto.`);
+                return;
+            }
+
             const passHash = (typeof window.calcularHashSHA256 === 'function') ? await window.calcularHashSHA256(pass) : '';
             const fechaVencimientoMs = Date.now() + (dias * 24 * 60 * 60 * 1000);
             const fechaVencimiento = new Date(fechaVencimientoMs).toISOString();
@@ -7375,14 +7449,19 @@ Esta acción no devuelve stock.`)) {
             if (idEdit) {
                 const idx = window.dbClientesSaaS.findIndex(c => c.id === idEdit);
                 if (idx !== -1) {
+                    const prev = window.dbClientesSaaS[idx];
+                    const cambioPlanODias = (prev.dias !== dias) || (prev.estatus === 'INACTIVO') || (!prev.fechaVencimientoMs || prev.fechaVencimientoMs <= Date.now());
+                    const baseMs = (prev.fechaVencimientoMs && prev.fechaVencimientoMs > Date.now()) ? prev.fechaVencimientoMs : Date.now();
+                    const nuevoVencMs = cambioPlanODias ? (baseMs + (dias * 24 * 60 * 60 * 1000)) : (prev.fechaVencimientoMs || fechaVencimientoMs);
+
                     window.dbClientesSaaS[idx] = { 
-                        ...window.dbClientesSaaS[idx], 
+                        ...prev, 
                         nombre, responsable, wa, user, pass, passHash, slug: user, dias,
                         esDemo: esDemo,
                         estatus: 'ACTIVO',
-                        fechaVencimiento: fechaVencimiento,
-                        fechaVencimientoMs: fechaVencimientoMs,
-                        ultimaRenovacionMs: Date.now()
+                        fechaVencimiento: new Date(nuevoVencMs).toISOString(),
+                        fechaVencimientoMs: nuevoVencMs,
+                        ultimaRenovacionMs: cambioPlanODias ? Date.now() : (prev.ultimaRenovacionMs || Date.now())
                     };
                     clienteGuardado = window.dbClientesSaaS[idx];
                 }
@@ -8028,28 +8107,12 @@ Las conversiones a Pesos (COP) y Bolívares (Bs) se sincronizaron con la tasa de
                 if (cliIdx !== -1) window.dbClientesSaaS[cliIdx] = clienteObj;
                 else window.dbClientesSaaS.push(clienteObj);
             } else {
-                clienteObj = {
-                    id: 'cli_' + Date.now(),
-                    nombre: nombre,
-                    responsable: firmaNombre || nombre,
-                    wa: tlf,
-                    user: slugLimpio,
-                    pass: '123456',
-                    slug: slugLimpio,
-                    dias: 180,
-                    estatus: 'ACTIVO',
-                    contratoAceptado: true,
-                    cedulaKYC: rif,
-                    firmaNombreKYC: firmaNombre,
-                    firmaCedulaKYC: firmaCedula,
-                    direccionKYC: dir,
-                    fechaFirmaContrato: fechaFirmaStr,
-                    kycActualizadoMs: Date.now(),
-                    fechaCreacion: Date.now(),
-                    fechaVencimiento: new Date(Date.now() + 180*24*60*60*1000).toISOString(),
-                    tasas: { cop: window.tasasConfig.cop || 3600, paridadBs: window.tasasConfig.paridadBs || 3.3 }
-                };
-                window.dbClientesSaaS.push(clienteObj);
+                alert("⚠️ El Usuario asignado no coincide con ninguna cuenta registrada por la administración. Verifique su Usuario ID.");
+                if (btnConfirmar) {
+                    btnConfirmar.disabled = false;
+                    btnConfirmar.innerHTML = `<i class="fa-solid fa-check-double"></i> <span>ACEPTAR TÉRMINOS Y ENVIAR ACTIVACIÓN</span>`;
+                }
+                return;
             }
 
             window.guardarClientesEnStorage();
@@ -9538,7 +9601,7 @@ $${(item.precioUSD * item.cant).toFixed(2)} USD
             const user = (cliente.user || '').toLowerCase().trim();
 
             // 1. Limpiar llaves locales de este tenant
-            const entidades = ['inventario', 'ventas', 'gastos', 'proveedores', 'cierres', 'directorio_prov'];
+            const entidades = ['inventario', 'ventas', 'gastos', 'proveedores', 'cierres', 'cotizaciones', 'abonos', 'directorio_prov'];
             [slug, user].forEach(kSlug => {
                 if (kSlug) {
                     entidades.forEach(ent => {
@@ -12253,8 +12316,60 @@ _Un respaldo de TUCOCEL C.A. & @PublionlineMK_`;
         // -------------------------------------------------------------
         // INICIALIZACIÓN AUTOMÁTICA DEL SISTEMA Y ENRUTADOR DE URL
         // -------------------------------------------------------------
+        window.iniciarAutoActualizadorVersionVivo = function() {
+            if (!window.dbNube || window._listenerVersionSistemaActivo) return;
+            window._listenerVersionSistemaActivo = true;
+            try {
+                window.dbNube.collection('configuracion_global').doc('version_sistema').onSnapshot((docSnap) => {
+                    if (!docSnap || !docSnap.exists) return;
+                    const dataVer = docSnap.data() || {};
+                    const remoteBuild = String(dataVer.buildId || '').trim();
+                    if (!remoteBuild) return;
+
+                    const localBuild = localStorage.getItem('tcl_ultima_version_ejecutada') || '';
+                    if (!localBuild) {
+                        window.tclSafeSetItem('tcl_ultima_version_ejecutada', remoteBuild);
+                        return;
+                    }
+                    if (localBuild !== remoteBuild) {
+                        // Evitar interrumpir si es el Máster o si el cajero está cobrando un carrito activo
+                        if (window.esMasterLogueado || (Array.isArray(window.carritoPOS) && window.carritoPOS.length > 0)) {
+                            window.tclSafeSetItem('tcl_ultima_version_ejecutada', remoteBuild);
+                            return;
+                        }
+                        window.tclSafeSetItem('tcl_ultima_version_ejecutada', remoteBuild);
+                        if ('caches' in window) {
+                            caches.keys().then(keys => Promise.all(keys.map(k => caches.delete(k)))).catch(() => {});
+                        }
+                        const urlObj = new URL(window.location.href);
+                        urlObj.searchParams.set('v', remoteBuild);
+                        window.location.replace(urlObj.toString());
+                    }
+                }, () => {});
+            } catch (eVer) {}
+        };
+
+        window.forzarActualizacionGlobalClientes = async function() {
+            if (!window.esMasterLogueado) return;
+            if (!confirm("🔄 ¿Deseas enviar una señal de actualización inmediata a todas las computadoras y teléfonos conectados para que descarguen la última versión?")) return;
+            const buildId = 'v_' + Date.now();
+            window.tclSafeSetItem('tcl_ultima_version_ejecutada', buildId);
+            if (window.dbNube) {
+                try {
+                    await window.dbNube.collection('configuracion_global').doc('version_sistema').set({
+                        buildId,
+                        forceReloadMs: Date.now()
+                    }, { merge: true });
+                    alert("✅ ¡Señal enviada! Todas las PCs y teléfonos conectados recargarán la última versión automáticamente.");
+                } catch (e) {
+                    alert("⚠️ No se pudo enviar la señal a Firestore. Verifique su conexión.");
+                }
+            }
+        };
+
         window.inicializarRouterURL = async function() {
             try {
+                if (typeof window.iniciarAutoActualizadorVersionVivo === 'function') window.iniciarAutoActualizadorVersionVivo();
                 if (typeof window.cargarTarifasSaasStorage === 'function') window.cargarTarifasSaasStorage();
     
                 const searchParams = new URLSearchParams(window.location.search);
@@ -12301,34 +12416,18 @@ _Un respaldo de TUCOCEL C.A. & @PublionlineMK_`;
                                     const queryUser = await window.dbNube.collection('comercios_saas').where('user', '==', slugLimpio).limit(1).get();
                                     if (!queryUser.empty) {
                                         docSnap = queryUser.docs[0];
-                                    } else {
-                                        // Respaldo insensible a mayúsculas/minúsculas para cualquier navegador
-                                        const allSnap = await window.dbNube.collection('comercios_saas').limit(150).get();
-                                        allSnap.forEach(d => {
-                                            if (!docSnap || !docSnap.exists) {
-                                                const dt = d.data() || {};
-                                                const s = (dt.slug || '').toLowerCase().trim();
-                                                const u = (dt.user || '').toLowerCase().trim();
-                                                if (d.id.toLowerCase().trim() === slugLimpio || s === slugLimpio || u === slugLimpio) {
-                                                    docSnap = d;
-                                                }
-                                            }
-                                        });
                                     }
                                 }
                             }
                             if (docSnap && docSnap.exists) {
                                 docIdReal = docSnap.id;
-                                cli = { id: docSnap.id, ...docSnap.data() };
-                                // Guardar/actualizar en caché local del teléfono del visitante
-                                if (!window.dbClientesSaaS) window.dbClientesSaaS = [];
-                                const idxCli = window.dbClientesSaaS.findIndex(x =>
-                                    (x.slug && x.slug.toLowerCase().trim() === slugLimpio) ||
-                                    (x.user && x.user.toLowerCase().trim() === slugLimpio)
-                                );
-                                if (idxCli !== -1) window.dbClientesSaaS[idxCli] = cli;
-                                else window.dbClientesSaaS.push(cli);
-                                window.guardarClientesEnStorage();
+                                const rawData = docSnap.data() || {};
+                                cli = { id: docSnap.id, ...rawData };
+                                // Guardar versión sanitizada (sin claves) en caché local del visitante
+                                const cliPublico = { ...cli };
+                                delete cliPublico.pass;
+                                delete cliPublico.passHash;
+                                window.tclSafeSetItem('tcl_vitrina_publica_cache', JSON.stringify(cliPublico));
                             }
                         } catch(errCloud) {
                             console.warn("Aviso consulta nube comercio:", errCloud);
@@ -14023,8 +14122,8 @@ ${alertasStock.join('\n')}`);
 
                 <!-- Imagen Ampliada + Carrusel de Fotos (Altura estable sin saltos) -->
                 <div class="space-y-2">
-                    <div class="w-full h-60 sm:h-72 bg-white rounded-2xl overflow-hidden flex items-center justify-center text-slate-400 text-5xl relative border border-slate-200 shadow-2xs">
-                        <div id="qv-prod-imagen-box" class="w-full h-full flex items-center justify-center p-2"></div>
+                    <div class="w-full h-72 sm:h-80 bg-white rounded-2xl overflow-hidden flex items-center justify-center text-slate-400 text-5xl relative border border-slate-200 shadow-2xs">
+                        <div id="qv-prod-imagen-box" class="w-full h-full flex items-center justify-center p-0.5"></div>
                         <div id="qv-prod-badge-stock"></div>
                         <button type="button" id="btn-qv-prev-foto" onclick="window.navegarCarruselQuickView(-1)" class="hidden absolute left-2 top-1/2 -translate-y-1/2 w-8 h-8 rounded-full bg-slate-900/80 text-white hover:bg-slate-900 flex items-center justify-center shadow-md">
                             <i class="fa-solid fa-chevron-left text-xs"></i>
