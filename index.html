@@ -46,7 +46,7 @@
     <meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate" />
     <meta http-equiv="Pragma" content="no-cache" />
     <meta http-equiv="Expires" content="0" />
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
     <!-- CONFIGURACIÓN PWA NATIVA (STANDALONE FULLSCREEN & APP ICON) -->
     <meta name="theme-color" content="#0f172a">
     <meta name="apple-mobile-web-app-capable" content="yes">
@@ -2641,26 +2641,28 @@
     <!-- MODALES DE INVENTARIO -->
     <div id="modal-inventario-completo" class="fixed inset-0 bg-slate-900/80 backdrop-blur-md z-50 p-2 sm:p-4 flex items-center justify-center hidden no-print">
         <div class="bg-white border border-slate-200 w-full max-w-4xl rounded-3xl overflow-hidden shadow-2xl flex flex-col h-[92vh]">
-            <div class="bg-slate-900 px-3 sm:px-4 py-3 text-white flex justify-between items-center shrink-0 gap-1.5">
-                <h3 class="font-black text-[11px] sm:text-sm uppercase tracking-wider flex items-center gap-1.5 min-w-0">
-                    <i class="fa-solid fa-boxes-stacked text-amber-400 shrink-0"></i>
-                    <span class="truncate">Inventario</span>
-                </h3>
-                <div class="flex items-center gap-1 shrink-0">
-                    <button type="button" onclick="window.toggleFormularioNuevoProducto()" class="bg-blue-600 hover:bg-blue-500 text-white px-2 py-1.5 rounded-xl text-[9.5px] sm:text-[10px] font-black uppercase flex items-center gap-1 shadow">
-                        <i class="fa-solid fa-plus"></i> <span>Nuevo</span>
+            <div class="bg-slate-900 px-3.5 sm:px-4 py-2.5 text-white shrink-0 space-y-2 border-b border-slate-800">
+                <div class="flex justify-between items-center gap-2">
+                    <h3 class="font-black text-xs sm:text-sm uppercase tracking-wider flex items-center gap-2">
+                        <i class="fa-solid fa-boxes-stacked text-amber-400 text-sm"></i>
+                        <span>INVENTARIO GENERAL</span>
+                    </h3>
+                    <button onclick="document.getElementById('modal-inventario-completo').classList.add('hidden')" class="text-slate-300 hover:text-white bg-slate-800 hover:bg-red-600 w-7 h-7 rounded-lg flex items-center justify-center shrink-0 transition-colors" title="Cerrar Inventario">
+                        <i class="fa-solid fa-xmark text-sm"></i>
                     </button>
-                    <button type="button" onclick="window.imprimirInventarioFormato('A4')" class="bg-amber-500 hover:bg-amber-400 text-slate-950 px-2 py-1.5 rounded-xl text-[9.5px] sm:text-[10px] font-black uppercase flex items-center gap-1 shadow" title="Imprimir Inventario en Hoja Completa A4">
+                </div>
+                <div class="flex items-center gap-1.5 flex-wrap">
+                    <button type="button" onclick="window.toggleFormularioNuevoProducto()" class="flex-1 sm:flex-initial bg-blue-600 hover:bg-blue-500 text-white px-3 py-1.5 rounded-xl text-[10px] font-black uppercase flex items-center justify-center gap-1.5 shadow-sm">
+                        <i class="fa-solid fa-plus"></i> <span>Cargar Producto</span>
+                    </button>
+                    <button type="button" onclick="window.imprimirInventarioFormato('A4')" class="bg-amber-500 hover:bg-amber-400 text-slate-950 px-2.5 py-1.5 rounded-xl text-[10px] font-black uppercase flex items-center justify-center gap-1 shadow-sm" title="Imprimir Inventario en Hoja Completa A4">
                         <i class="fa-solid fa-file-lines"></i> <span>A4</span>
                     </button>
-                    <button type="button" onclick="window.imprimirInventarioFormato('TERMICO')" class="bg-slate-700 hover:bg-slate-600 text-white px-2 py-1.5 rounded-xl text-[9.5px] sm:text-[10px] font-black uppercase flex items-center gap-1 shadow" title="Imprimir Inventario en Papel Térmico">
-                        <i class="fa-solid fa-print"></i> <span class="hidden sm:inline">Ticket</span>
+                    <button type="button" onclick="window.imprimirInventarioFormato('TERMICO')" class="bg-slate-700 hover:bg-slate-600 text-white px-2.5 py-1.5 rounded-xl text-[10px] font-black uppercase flex items-center justify-center gap-1 shadow-sm" title="Imprimir Inventario en Papel Térmico">
+                        <i class="fa-solid fa-print"></i> <span>Ticket</span>
                     </button>
-                    <button onclick="window.exportarInventarioWhatsApp()" class="bg-emerald-600 hover:bg-emerald-500 text-white px-2 py-1.5 rounded-xl text-[9.5px] sm:text-[10px] font-black uppercase flex items-center gap-1">
-                        <i class="fa-brands fa-whatsapp"></i> <span class="hidden sm:inline">WhatsApp</span>
-                    </button>
-                    <button onclick="document.getElementById('modal-inventario-completo').classList.add('hidden')" class="text-slate-300 hover:text-white bg-slate-800 hover:bg-red-600 w-7 h-7 rounded-lg flex items-center justify-center shrink-0 ml-0.5" title="Cerrar Inventario">
-                        <i class="fa-solid fa-xmark text-sm"></i>
+                    <button onclick="window.exportarInventarioWhatsApp()" class="bg-emerald-600 hover:bg-emerald-500 text-white px-2.5 py-1.5 rounded-xl text-[10px] font-black uppercase flex items-center justify-center gap-1 shadow-sm" title="Enviar Inventario por WhatsApp">
+                        <i class="fa-brands fa-whatsapp text-xs"></i> <span class="hidden sm:inline">WhatsApp</span>
                     </button>
                 </div>
             </div>
@@ -2668,13 +2670,19 @@
             <!-- CONTENEDOR ÚNICO DESPLAZABLE PARA TODO EL INVENTARIO (SIN CORTES NI BLOQUEOS EN MÓVIL) -->
             <div class="overflow-y-auto flex-grow flex flex-col no-scrollbar">
 
-            <!-- FORMULARIO DESPLEGABLE PARA METER PRODUCTO NUEVO DIRECTAMENTE -->
+            <!-- FORMULARIO DESPLEGABLE PARA CARGA RÁPIDA DE PRODUCTOS -->
             <div id="panel-nuevo-producto-inv" class="hidden bg-blue-50/70 border-b border-blue-200 p-3.5 space-y-2.5 text-xs font-bold shrink-0">
-                <div class="flex justify-between items-center">
-                    <span class="text-[10px] font-black uppercase text-blue-900 tracking-wider flex items-center gap-1.5">
-                        <i class="fa-solid fa-circle-plus text-blue-600"></i> Registrar Nuevo Producto en Catálogo
+                <div class="flex justify-between items-center gap-2">
+                    <span id="lbl-titulo-panel-carga-inv" class="text-[10px] font-black uppercase text-blue-900 tracking-wider flex items-center gap-1.5">
+                        <i class="fa-solid fa-circle-plus text-blue-600"></i> Carga Rápida de Producto / Servicio
                     </span>
-                    <button type="button" onclick="window.toggleFormularioNuevoProducto()" class="text-[10px] text-slate-500 hover:text-slate-800 font-black uppercase">Cerrar ✕</button>
+                    <div class="flex items-center gap-2">
+                        <button type="button" id="btn-limpiar-seleccion-inv-nuevo" onclick="window.limpiarFormularioCargaInventario()" class="hidden text-[9.5px] bg-white hover:bg-slate-100 text-blue-700 border border-blue-300 px-2 py-0.5 rounded-lg font-black uppercase">Limpiar</button>
+                        <button type="button" onclick="window.toggleFormularioNuevoProducto()" class="text-[10px] text-slate-500 hover:text-slate-800 font-black uppercase">Cerrar ✕</button>
+                    </div>
+                </div>
+                <div id="banner-producto-existente-inv-nuevo" class="hidden bg-emerald-50 border border-emerald-300 rounded-xl px-3 py-1.5 text-[10px] text-emerald-900 flex items-center justify-between gap-2">
+                    <span><i class="fa-solid fa-circle-check text-emerald-600 mr-1"></i> Producto existente seleccionado: al guardar se actualizarán sus datos y stock sin duplicarlo.</span>
                 </div>
                 <input type="hidden" id="inv-edit-id" value="">
                 <input type="hidden" id="inv-input-foto-base64" value="">
@@ -2694,11 +2702,12 @@
                 <div class="grid grid-cols-1 sm:grid-cols-12 gap-2">
                     <div class="sm:col-span-3">
                         <label class="text-[9px] text-slate-500 uppercase block mb-0.5">Cód. Barras (Opc.)</label>
-                        <input type="text" id="inv-input-codigo" placeholder="Escanear / Código" class="input-clean font-mono">
+                        <input type="text" id="inv-input-codigo" onchange="window.autocompletarProductoPorCodigoEnInventarioNuevo(this.value)" placeholder="Escanear / Código" class="input-clean font-mono">
                     </div>
-                    <div class="sm:col-span-5">
-                        <label id="lbl-inv-nombre-tipo" class="text-[9px] text-slate-500 uppercase block mb-0.5">Nombre del Producto *</label>
-                        <input type="text" id="inv-input-nombre" placeholder="Ej: Harina PAN 1Kg / Aceite" class="input-clean">
+                    <div class="sm:col-span-5 relative">
+                        <label id="lbl-inv-nombre-tipo" class="text-[9px] text-slate-500 uppercase block mb-0.5">Nombre del Producto (Buscar o Nuevo) *</label>
+                        <input type="text" id="inv-input-nombre" autocomplete="off" oninput="window.filtrarSugerenciasProductosInventarioNuevo(this.value)" onfocus="window.filtrarSugerenciasProductosInventarioNuevo(this.value)" placeholder="Escribe para buscar guardado o crear nuevo..." class="input-clean">
+                        <div id="lista-sugerencias-inv-nuevo" class="hidden absolute left-0 right-0 top-full mt-1 bg-white border-2 border-blue-500 rounded-2xl shadow-2xl z-50 max-h-56 overflow-y-auto divide-y divide-slate-100"></div>
                     </div>
                     <div class="sm:col-span-4">
                         <label class="text-[9px] text-slate-500 uppercase block mb-0.5">Categoría / Dpto *</label>
@@ -2707,45 +2716,45 @@
                     </div>
                 </div>
 
-                <div class="grid grid-cols-2 sm:grid-cols-6 gap-2">
-                    <div>
-                        <label class="text-[9px] text-slate-500 uppercase block mb-0.5">Moneda Carga</label>
+                <div class="grid grid-cols-2 sm:grid-cols-6 gap-2 items-end">
+                    <div class="flex flex-col justify-end">
+                        <label class="text-[9px] text-slate-500 uppercase block mb-1 whitespace-nowrap">Moneda Carga</label>
                         <select id="inv-input-moneda-base" onchange="window.recalcularVentaDesdeMargen('INV_NUEVO')" class="input-clean font-bold text-xs">
                             <option value="USD">💵 USD ($)</option>
                             <option value="COP">🇨🇴 COP</option>
                             <option value="BS">🇻🇪 Bolívares</option>
                         </select>
                     </div>
-                    <div>
-                        <label class="text-[9px] text-slate-500 uppercase block mb-0.5">Precio Costo</label>
+                    <div class="flex flex-col justify-end">
+                        <label class="text-[9px] text-slate-500 uppercase block mb-1 whitespace-nowrap">Precio Costo</label>
                         <input type="text" inputmode="decimal" id="inv-input-costo" oninput="window.autoFormatearSeparadoresInput(this, true); window.recalcularVentaDesdeMargen('INV_NUEVO');" placeholder="0,00" class="input-clean font-mono">
                     </div>
-                    <div>
-                        <div class="flex justify-between items-center mb-0.5">
-                            <label class="text-[9px] text-emerald-700 uppercase font-black">Ganancia *</label>
-                            <select id="inv-input-margen-tipo" onchange="window.recalcularVentaDesdeMargen('INV_NUEVO')" class="text-[8.5px] font-black bg-emerald-100 text-emerald-900 border border-emerald-300 rounded px-1">
+                    <div class="flex flex-col justify-end">
+                        <div class="flex justify-between items-center gap-1 mb-1">
+                            <label class="text-[9px] text-emerald-700 uppercase font-black whitespace-nowrap">Ganancia *</label>
+                            <select id="inv-input-margen-tipo" onchange="window.recalcularVentaDesdeMargen('INV_NUEVO')" class="text-[9px] font-black bg-emerald-100 text-emerald-900 border border-emerald-300 rounded px-1.5 py-0.5 shrink-0">
                                 <option value="PCT">%</option>
                                 <option value="MONTO">Monto</option>
                             </select>
                         </div>
                         <input type="text" inputmode="decimal" id="inv-input-margen" oninput="window.autoFormatearSeparadoresInput(this, true); window.recalcularVentaDesdeMargen('INV_NUEVO');" placeholder="Ej: 30" class="input-clean font-mono text-emerald-700 font-black bg-emerald-50/40 border-emerald-300">
                     </div>
-                    <div>
-                        <div class="flex justify-between items-center mb-0.5">
-                            <label class="text-[9px] text-slate-500 uppercase">P. Venta *</label>
-                            <span class="text-[8px] font-mono font-black text-blue-700 bg-blue-100 px-1 rounded"><i class="fa-solid fa-lock text-[7px]"></i> Auto</span>
+                    <div class="flex flex-col justify-end">
+                        <div class="flex justify-between items-center gap-1 mb-1">
+                            <label class="text-[9px] text-slate-500 uppercase whitespace-nowrap">P. Venta *</label>
+                            <span class="text-[8px] font-mono font-black text-blue-700 bg-blue-100 px-1.5 py-0.5 rounded shrink-0"><i class="fa-solid fa-lock text-[7px]"></i> Auto</span>
                         </div>
                         <input type="text" readonly id="inv-input-venta" placeholder="0,00" class="input-clean font-mono text-blue-700 font-black bg-blue-50/70 border-blue-300 cursor-not-allowed">
                     </div>
-                    <div id="box-inv-unidad-wrap">
-                        <label class="text-[9px] text-slate-500 uppercase block mb-0.5">Unidad</label>
+                    <div id="box-inv-unidad-wrap" class="flex flex-col justify-end">
+                        <label class="text-[9px] text-slate-500 uppercase block mb-1 whitespace-nowrap">Unidad</label>
                         <select id="inv-input-unidad" class="input-clean font-bold text-xs">
                             <option value="UND">UND</option>
                             <option value="KG">KG (Peso)</option>
                         </select>
                     </div>
-                    <div id="box-inv-stock-wrap">
-                        <label class="text-[9px] text-slate-500 uppercase block mb-0.5">Stock Inicial *</label>
+                    <div id="box-inv-stock-wrap" class="flex flex-col justify-end">
+                        <label class="text-[9px] text-slate-500 uppercase block mb-1 whitespace-nowrap">Stock Inicial *</label>
                         <input type="number" step="any" id="inv-input-stock" value="1" class="input-clean font-mono text-emerald-700 font-black">
                     </div>
                 </div>
@@ -2890,30 +2899,30 @@
                     <option value="BS">🇻🇪 Bolívares (Bs)</option>
                 </select>
             </div>
-            <div class="grid grid-cols-2 sm:grid-cols-4 gap-2">
-                <div>
-                    <label id="lbl-sub-costo-mon" class="text-[9.5px] text-slate-500 uppercase block mb-1">P. Costo</label>
+            <div id="grid-sub-precios-stock" class="grid grid-cols-2 sm:grid-cols-4 gap-2.5 items-end">
+                <div class="flex flex-col justify-end">
+                    <label id="lbl-sub-costo-mon" class="text-[9px] text-slate-500 uppercase block mb-1 whitespace-nowrap">P. Costo</label>
                     <input type="text" inputmode="decimal" id="sub-input-costo" oninput="window.autoFormatearSeparadoresInput(this, true); window.recalcularVentaDesdeMargen('SUBMODAL');" class="input-clean font-mono">
                 </div>
-                <div>
-                    <div class="flex justify-between items-center mb-1">
-                        <label class="text-[9.5px] text-emerald-700 uppercase font-black">Ganancia</label>
-                        <select id="sub-input-margen-tipo" onchange="window.recalcularVentaDesdeMargen('SUBMODAL')" class="text-[8.5px] font-black bg-emerald-100 text-emerald-900 border border-emerald-300 rounded px-1">
+                <div class="flex flex-col justify-end">
+                    <div class="flex justify-between items-center gap-1 mb-1">
+                        <label class="text-[9px] text-emerald-700 uppercase font-black whitespace-nowrap">Ganancia</label>
+                        <select id="sub-input-margen-tipo" onchange="window.recalcularVentaDesdeMargen('SUBMODAL')" class="text-[9px] font-black bg-emerald-100 text-emerald-900 border border-emerald-300 rounded px-1.5 py-0.5 shrink-0">
                             <option value="PCT">%</option>
                             <option value="MONTO">Monto</option>
                         </select>
                     </div>
                     <input type="text" inputmode="decimal" id="sub-input-margen" oninput="window.autoFormatearSeparadoresInput(this, true); window.recalcularVentaDesdeMargen('SUBMODAL');" class="input-clean font-mono text-emerald-700 font-black bg-emerald-50/40 border-emerald-300">
                 </div>
-                <div>
-                    <div class="flex justify-between items-center mb-1">
-                        <label id="lbl-sub-venta-mon" class="text-[9.5px] text-slate-500 uppercase">P. Venta</label>
-                        <span class="text-[8px] font-mono font-black text-blue-700 bg-blue-100 px-1 rounded"><i class="fa-solid fa-lock text-[7px]"></i> Auto</span>
+                <div class="flex flex-col justify-end">
+                    <div class="flex justify-between items-center gap-1 mb-1">
+                        <label id="lbl-sub-venta-mon" class="text-[9px] text-slate-500 uppercase whitespace-nowrap">P. Venta</label>
+                        <span class="text-[8px] font-mono font-black text-blue-700 bg-blue-100 px-1.5 py-0.5 rounded shrink-0"><i class="fa-solid fa-lock text-[7px]"></i> Auto</span>
                     </div>
                     <input type="text" readonly id="sub-input-venta" class="input-clean font-mono text-blue-700 font-black bg-blue-50/70 border-blue-300 cursor-not-allowed">
                 </div>
-                <div>
-                    <label class="text-[9.5px] text-slate-500 uppercase block mb-1">Stock</label>
+                <div id="box-sub-stock-wrap" class="flex flex-col justify-end">
+                    <label class="text-[9px] text-slate-500 uppercase block mb-1 whitespace-nowrap">Stock</label>
                     <input type="number" step="any" id="sub-input-stock" class="input-clean font-mono">
                 </div>
             </div>
@@ -4347,7 +4356,17 @@ Saldo restante: $${nota.credito.saldoPendienteUSD.toFixed(2)} USD`);
             const elMargen = document.getElementById('sub-input-margen');
             if (elMargen) elMargen.value = gananciaActual > 0 ? fmtVal(gananciaActual) : '0';
             document.getElementById('sub-input-venta').value = ventaActual > 0 ? fmtVal(ventaActual) : '';
-            document.getElementById('sub-input-stock').value = prod.stock || 0;
+            const boxSubStock = document.getElementById('box-sub-stock-wrap');
+            const gridSubPS = document.getElementById('grid-sub-precios-stock');
+            if (prod.esServicio) {
+                document.getElementById('sub-input-stock').value = 999999;
+                if (boxSubStock) boxSubStock.classList.add('hidden');
+                if (gridSubPS) gridSubPS.className = 'grid grid-cols-2 sm:grid-cols-3 gap-2.5 items-end';
+            } else {
+                document.getElementById('sub-input-stock').value = prod.stock || 0;
+                if (boxSubStock) boxSubStock.classList.remove('hidden');
+                if (gridSubPS) gridSubPS.className = 'grid grid-cols-2 sm:grid-cols-4 gap-2.5 items-end';
+            }
             document.getElementById('sub-input-desc').value = prod.desc || '';
             window.cambiarMonedaSubmodalEdicion(monOrig);
 
@@ -4470,6 +4489,7 @@ Saldo restante: $${nota.credito.saldoPendienteUSD.toFixed(2)} USD`);
                 const categoria = (catInp && catInp.value.trim()) ? catInp.value.trim().toUpperCase() : (window.dbInventario[idx].categoria || 'GENERAL');
                 const fotosSub = window.construirGaleriaFotosDesdeInputs('sub-input');
                 const foto = fotosSub[0] || '';
+                const stockFinalSub = window.dbInventario[idx].esServicio ? 999999 : stock;
                 window.dbInventario[idx] = {
                     ...window.dbInventario[idx],
                     codigo, nombre, categoria,
@@ -4477,7 +4497,7 @@ Saldo restante: $${nota.credito.saldoPendienteUSD.toFixed(2)} USD`);
                     monedaOriginal: monOrig,
                     precioCostoOriginal: valCostoOrig,
                     precioVentaOriginal: valVentaOrig,
-                    stock, desc, foto, fotos: fotosSub,
+                    stock: stockFinalSub, desc, foto, fotos: fotosSub,
                     actualizadoMs: Date.now()
                 };
                 window.guardarInventarioEnStorage();
@@ -8727,7 +8747,7 @@ Las conversiones a Pesos (COP) y Bolívares (Bs) se sincronizaron con la tasa de
 
             const imgBox = document.getElementById('qv-prod-imagen-box');
             imgBox.innerHTML = galeriaQV.length > 0
-                ? `<img src="${galeriaQV[0]}" class="w-full h-full object-contain bg-white transition-all duration-200">`
+                ? `<img src="${galeriaQV[0]}" onclick="window.abrirLightboxImagenQuickView()" title="Toca para ver en pantalla completa" class="w-full h-full object-contain bg-white transition-all duration-200 cursor-zoom-in">`
                 : `<i class="fa-solid ${esServicio ? 'fa-screwdriver-wrench text-indigo-400' : 'fa-box-open text-slate-300'}"></i>`;
 
             const btnPrev = document.getElementById('btn-qv-prev-foto');
@@ -8738,7 +8758,7 @@ Las conversiones a Pesos (COP) y Bolívares (Bs) se sincronizaron con la tasa de
                 if (btnNext) btnNext.classList.remove('hidden');
                 if (miniBox) {
                     miniBox.innerHTML = galeriaQV.map((src, idx) => `
-                        <button type="button" onclick="window.seleccionarFotoCarruselQuickView(${idx})" id="qv-thumb-${idx}" class="w-12 h-12 rounded-xl overflow-hidden border-2 ${idx === 0 ? 'border-blue-600 scale-105 shadow-sm' : 'border-slate-300 opacity-75'} bg-white transition-all">
+                        <button type="button" onclick="window.seleccionarFotoCarruselQuickView(${idx})" id="qv-thumb-${idx}" class="w-10 h-10 rounded-xl overflow-hidden border-2 ${idx === 0 ? 'border-blue-600 scale-105 shadow-sm' : 'border-slate-300 opacity-75'} bg-white transition-all">
                             <img src="${src}" class="w-full h-full object-cover">
                         </button>
                     `).join('');
@@ -8784,11 +8804,11 @@ Las conversiones a Pesos (COP) y Bolívares (Bs) se sincronizaron con la tasa de
             if (btnAdd) {
                 if (disponible) {
                     btnAdd.disabled = false;
-                    btnAdd.className = "w-full btn-brand py-3.5 text-xs shadow-md flex items-center justify-center gap-2";
+                    btnAdd.className = "w-full btn-brand py-2.5 text-xs shadow-md flex items-center justify-center gap-2";
                     btnAdd.innerHTML = `<i class="fa-solid fa-cart-plus text-sm"></i> <span>AGREGAR AL CARRITO</span>`;
                 } else {
                     btnAdd.disabled = true;
-                    btnAdd.className = "w-full bg-slate-200 text-red-600 border border-red-200 py-3.5 rounded-xl font-black text-xs uppercase cursor-not-allowed";
+                    btnAdd.className = "w-full bg-slate-200 text-red-600 border border-red-200 py-2.5 rounded-xl font-black text-xs uppercase cursor-not-allowed";
                     btnAdd.innerHTML = `⚠️ PRODUCTO AGOTADO`;
                 }
             }
@@ -8818,7 +8838,7 @@ Las conversiones a Pesos (COP) y Bolívares (Bs) se sincronizaron con la tasa de
             window._qvIndiceFotoActual = idx;
             const imgBox = document.getElementById('qv-prod-imagen-box');
             if (imgBox) {
-                imgBox.innerHTML = `<img src="${gal[idx]}" class="w-full h-full object-contain bg-white transition-all duration-200">`;
+                imgBox.innerHTML = `<img src="${gal[idx]}" onclick="window.abrirLightboxImagenQuickView()" title="Toca para ver en pantalla completa" class="w-full h-full object-contain bg-white transition-all duration-200 cursor-zoom-in">`;
             }
             gal.forEach((_, i) => {
                 const th = document.getElementById(`qv-thumb-${i}`);
@@ -9158,7 +9178,8 @@ $${(item.precioUSD * item.cant).toFixed(2)} USD
                 const costoUSD = Number(p.precioCosto) || 0;
                 const ventaUSD = Number(p.precioVenta || p.precioUSD) || 0;
                 const margenUSD = ventaUSD - costoUSD;
-                const disponible = (p.stock || 0) > 0;
+                const esServicio = !!p.esServicio;
+                const disponible = esServicio || (p.stock || 0) > 0;
                 const mOrig = (p.monedaOriginal || 'USD').toUpperCase();
                 const monShow = (modoMonInv === 'ORIGINAL') ? mOrig : modoMonInv;
 
@@ -9222,8 +9243,8 @@ $${(item.precioUSD * item.cant).toFixed(2)} USD
                                 </div>
                                 <p class="text-[10px] text-slate-500 truncate">${window.escapeHTML(p.desc || 'Sin descripción')}</p>
                             </div>
-                            <span class="${!disponible ? 'bg-red-50 text-red-700 border-red-200' : (p.stock <= 3 ? 'bg-amber-100 text-amber-900 border-amber-300 animate-pulse' : 'bg-emerald-50 text-emerald-700 border-emerald-200')} border px-2 py-1 rounded-lg text-[9.5px] font-black shrink-0 font-mono">
-                                ${!disponible ? 'Agotado' : (p.stock <= 3 ? `⚠️ Bajo (${p.unidad === 'KG' ? (Number(p.stock)||0).toFixed(2) + ' Kg' : p.stock + ' Und'})` : (p.unidad === 'KG' ? `${(Number(p.stock)||0).toFixed(p.stock % 1 === 0 ? 0 : 2)} Kg` : `${p.stock} Unidades`))}
+                            <span class="${esServicio ? 'bg-indigo-50 text-indigo-700 border-indigo-200' : (!disponible ? 'bg-red-50 text-red-700 border-red-200' : (p.stock <= 3 ? 'bg-amber-100 text-amber-900 border-amber-300 animate-pulse' : 'bg-emerald-50 text-emerald-700 border-emerald-200'))} border px-2 py-1 rounded-lg text-[9.5px] font-black shrink-0 font-mono">
+                                ${esServicio ? '🛠️ Servicio' : (!disponible ? 'Agotado' : (p.stock <= 3 ? `⚠️ Bajo (${p.unidad === 'KG' ? (Number(p.stock)||0).toFixed(2) + ' Kg' : p.stock + ' Und'})` : (p.unidad === 'KG' ? `${(Number(p.stock)||0).toFixed(p.stock % 1 === 0 ? 0 : 2)} Kg` : `${p.stock} Unidades`)))}
                             </span>
                         </div>
                         <div class="bg-slate-50 p-2.5 rounded-xl border border-slate-200 grid grid-cols-3 gap-1.5 text-center font-mono text-[10px]">
@@ -9246,12 +9267,20 @@ $${(item.precioUSD * item.cant).toFixed(2)} USD
                                 <span class="text-[8px] text-slate-400 font-bold block truncate">${margenRef2}</span>
                             </div>
                         </div>
-                        <div class="grid grid-cols-2 sm:grid-cols-4 gap-1.5 pt-1">
-                            <button onclick="window.sumarStockRapido('${p.id}')" class="bg-emerald-100 hover:bg-emerald-200 text-emerald-800 font-black py-2 rounded-xl text-[9.5px] font-mono">+ Stock</button>
-                            <button onclick="window.abrirModalFraccionarEmpaque('${p.id}')" class="bg-amber-100 hover:bg-amber-200 text-amber-900 font-black py-2 rounded-xl text-[9.5px] flex items-center justify-center gap-1" title="Desarmar caja/paquete a detallado"><i class="fa-solid fa-boxes-packing text-[9px]"></i> Desarmar</button>
+                        ${esServicio ? `
+                        <div class="grid grid-cols-2 gap-1.5 pt-1">
                             <button onclick="window.abrirSubmodalEdicion('${p.id}')" class="bg-slate-100 hover:bg-slate-200 text-slate-700 font-black py-2 rounded-xl text-[9.5px] flex items-center justify-center gap-1"><i class="fa-solid fa-pen text-[9px]"></i> Editar</button>
                             <button onclick="window.eliminarProductoInventario('${p.id}')" class="bg-red-100 hover:bg-red-200 text-red-700 font-black py-2 rounded-xl text-[9.5px] flex items-center justify-center gap-1"><i class="fa-solid fa-trash text-[9px]"></i> Eliminar</button>
                         </div>
+                        ` : `
+                        <div class="grid grid-cols-2 sm:grid-cols-3 gap-1.5 pt-1">
+                            <button onclick="window.sumarStockRapido('${p.id}')" class="bg-emerald-100 hover:bg-emerald-200 text-emerald-800 font-black py-2 px-1.5 rounded-xl text-[9px] font-mono whitespace-nowrap flex items-center justify-center gap-1" title="Cargar producto al inventario">+ Cargar Producto</button>
+                            <button onclick="window.abrirModalDescargarStock('${p.id}')" class="bg-orange-100 hover:bg-orange-200 text-orange-900 border border-orange-200 font-black py-2 px-1.5 rounded-xl text-[9px] font-mono whitespace-nowrap flex items-center justify-center gap-1" title="Descargar producto por ajuste, merma o conteo físico"><i class="fa-solid fa-arrow-trend-down text-[9px] shrink-0"></i> <span>- Descargar Producto</span></button>
+                            <button onclick="window.abrirModalFraccionarEmpaque('${p.id}')" class="bg-amber-100 hover:bg-amber-200 text-amber-900 font-black py-2 px-1.5 rounded-xl text-[9px] whitespace-nowrap flex items-center justify-center gap-1" title="Desarmar caja/paquete a detallado"><i class="fa-solid fa-boxes-packing text-[9px] shrink-0"></i> <span>Desarmar</span></button>
+                            <button onclick="window.abrirSubmodalEdicion('${p.id}')" class="bg-slate-100 hover:bg-slate-200 text-slate-700 font-black py-2 px-1.5 rounded-xl text-[9px] whitespace-nowrap flex items-center justify-center gap-1"><i class="fa-solid fa-pen text-[9px] shrink-0"></i> <span>Editar</span></button>
+                            <button onclick="window.eliminarProductoInventario('${p.id}')" class="col-span-2 sm:col-span-2 bg-red-100 hover:bg-red-200 text-red-700 font-black py-2 px-1.5 rounded-xl text-[9px] whitespace-nowrap flex items-center justify-center gap-1"><i class="fa-solid fa-trash text-[9px] shrink-0"></i> <span>Eliminar</span></button>
+                        </div>
+                        `}
                     </div>
                 `;
             }).join('');
@@ -9275,19 +9304,24 @@ $${(item.precioUSD * item.cant).toFixed(2)} USD
             msj += `📅 Fecha: ${new Date().toLocaleDateString()}\n`;
             msj += `🏢 Local: ${(window.clienteActivoSesion ? window.clienteActivoSesion.nombre : 'TUCOCEL C.A.').toUpperCase()}\n`;
             msj += `------------------------------------\n`;
-            window.dbInventario.forEach(p => {
+            const listaOrdenadaWA = [...window.dbInventario].sort((a, b) => (a.esServicio ? 1 : 0) - (b.esServicio ? 1 : 0));
+            listaOrdenadaWA.forEach(p => {
+                const esServ = !!p.esServicio;
                 const st = Math.max(0, Number(p.stock) || 0);
                 const cUSD = Number(p.precioCosto) || 0;
                 const vUSD = Number(p.precioVenta || p.precioUSD) || 0;
-                if (!p.esServicio) {
+                if (!esServ) {
                     capUSD += cUSD * st;
                     venUSD += vUSD * st;
                 }
                 const mOrig = (p.monedaOriginal || 'USD').toUpperCase();
                 const presC = window.obtenerPresentacionMultimoneda(cUSD, mOrig, p.precioCostoOriginal);
                 const presV = window.obtenerPresentacionMultimoneda(vUSD, mOrig, p.precioVentaOriginal);
-                msj += `• *${p.nombre}* (${st} ${p.unidad || 'und'})\n`;
-                msj += `  Costo: ${presC.principal} (${presC.secundario})\n`;
+                const tagExistencia = esServ ? '🛠️ Servicio' : `${st} ${p.unidad || 'und'}`;
+                msj += `• *${p.nombre}* (${tagExistencia})\n`;
+                if (!esServ && cUSD > 0) {
+                    msj += `  Costo: ${presC.principal} (${presC.secundario})\n`;
+                }
                 msj += `  Venta: ${presV.principal} (${presV.secundario})\n`;
             });
             msj += `------------------------------------\n`;
@@ -9306,29 +9340,40 @@ $${(item.precioUSD * item.cant).toFixed(2)} USD
             const nombreNegocio = window.escapeHTML((window.clienteActivoSesion ? window.clienteActivoSesion.nombre : 'TUCOCEL C.A.').toUpperCase());
             const rifNegocio = window.clienteActivoSesion && window.clienteActivoSesion.rif ? window.escapeHTML(window.clienteActivoSesion.rif) : '';
             const fechaHoy = new Date().toLocaleString();
-            let capUSD = 0, venUSD = 0, unidTot = 0;
+            let capUSD = 0, venUSD = 0, unidTot = 0, cantFisicos = 0, cantServicios = 0;
 
             window.dbInventario.forEach(p => {
-                if (p.esServicio) return;
+                if (p.esServicio) {
+                    cantServicios += 1;
+                    return;
+                }
+                cantFisicos += 1;
                 const st = Math.max(0, Number(p.stock) || 0);
                 capUSD += (Number(p.precioCosto) || 0) * st;
                 venUSD += (Number(p.precioVenta || p.precioUSD) || 0) * st;
                 unidTot += st;
             });
             const ganUSD = Math.max(0, venUSD - capUSD);
+            const listaOrdenadaPrint = [...window.dbInventario].sort((a, b) => (a.esServicio ? 1 : 0) - (b.esServicio ? 1 : 0));
 
             const printDirecto = document.getElementById('seccion-impresion-termica-directa');
             if (!printDirecto) return;
 
             if (formato === 'A4') {
-                const rowsHtml = window.dbInventario.map((p, i) => {
-                    const st = Number(p.stock) || 0;
+                const rowsHtml = listaOrdenadaPrint.map((p, i) => {
+                    const esServ = !!p.esServicio;
+                    const st = Math.max(0, Number(p.stock) || 0);
                     const cUSD = Number(p.precioCosto) || 0;
                     const vUSD = Number(p.precioVenta || p.precioUSD) || 0;
                     const mOrig = (p.monedaOriginal || 'USD').toUpperCase();
                     const pC = window.obtenerPresentacionMultimoneda(cUSD, mOrig, p.precioCostoOriginal);
                     const pV = window.obtenerPresentacionMultimoneda(vUSD, mOrig, p.precioVentaOriginal);
-                    const subC = window.obtenerPresentacionMultimoneda(cUSD * st, mOrig, p.precioCostoOriginal !== undefined ? p.precioCostoOriginal * st : null);
+                    const subC = esServ
+                        ? { principal: '<span style="color:#64748b; font-weight:700;">— (Servicio)</span>' }
+                        : window.obtenerPresentacionMultimoneda(cUSD * st, mOrig, p.precioCostoOriginal !== undefined ? p.precioCostoOriginal * st : null);
+                    const celdaStock = esServ
+                        ? `<span style="color:#4338ca; font-weight:900; font-size:8.5px;">SERVICIO</span>`
+                        : `${st} ${p.unidad || 'UND'}`;
                     return `
                         <tr style="border-bottom: 1px solid #cbd5e1;">
                             <td style="padding: 5px 4px; text-align: center;">${i + 1}</td>
@@ -9337,7 +9382,7 @@ $${(item.precioUSD * item.cant).toFixed(2)} USD
                                 ${p.codigo ? `<div style="font-size: 8.5px; color: #475569;">Cód: ${window.escapeHTML(p.codigo)}</div>` : ''}
                             </td>
                             <td style="padding: 5px 4px; font-size: 9px;">${window.escapeHTML((p.categoria || 'GENERAL').toUpperCase())}</td>
-                            <td style="padding: 5px 4px; text-align: center; font-weight: 800;">${st} ${p.unidad || 'UND'}</td>
+                            <td style="padding: 5px 4px; text-align: center; font-weight: 800;">${celdaStock}</td>
                             <td style="padding: 5px 4px; text-align: right;">
                                 <strong>${pC.principal}</strong>
                                 <div style="font-size: 8px; color: #475569;">${pC.secundario}</div>
@@ -9386,7 +9431,7 @@ $${(item.precioUSD * item.cant).toFixed(2)} USD
 
                         <div style="border: 2px solid #0f172a; border-radius: 8px; padding: 10px; background: #f8fafc; font-size: 10px;">
                             <div style="display: flex; justify-content: space-between; margin-bottom: 4px;">
-                                <span><strong>TOTAL PRODUCTOS:</strong> ${window.dbInventario.length} ítems (${unidTot} unidades)</span>
+                                <span><strong>EXISTENCIAS:</strong> ${cantFisicos} prod. (${unidTot} und.)${cantServicios > 0 ? ` • ${cantServicios} serv.` : ''}</span>
                                 <span><strong>GANANCIA PROYECTADA:</strong> +$${ganUSD.toFixed(2)} USD (${window.formatCOP(window.calcularPesosDesdeUSD(ganUSD))} COP)</span>
                             </div>
                             <div style="border-top: 1px dashed #94a3b8; padding-top: 6px; margin-top: 4px;">
@@ -9399,17 +9444,19 @@ $${(item.precioUSD * item.cant).toFixed(2)} USD
                 `;
             } else {
                 const es58 = (window.formatoTicketActualMM === '58mm');
-                const rowsTerm = window.dbInventario.map(p => {
-                    const st = Number(p.stock) || 0;
+                const rowsTerm = listaOrdenadaPrint.map(p => {
+                    const esServ = !!p.esServicio;
+                    const st = Math.max(0, Number(p.stock) || 0);
                     const cUSD = Number(p.precioCosto) || 0;
                     const vUSD = Number(p.precioVenta || p.precioUSD) || 0;
                     const mOrig = (p.monedaOriginal || 'USD').toUpperCase();
                     const pC = window.obtenerPresentacionMultimoneda(cUSD, mOrig, p.precioCostoOriginal);
                     const pV = window.obtenerPresentacionMultimoneda(vUSD, mOrig, p.precioVentaOriginal);
+                    const tagStockTerm = esServ ? 'SERVICIO' : `${st} ${p.unidad || 'und'}`;
                     return `
                         <div style="border-bottom: 1px dashed #000; padding: 3px 0;">
-                            <div style="font-weight: 900;">${window.escapeHTML(p.nombre)} (${st} ${p.unidad || 'und'})</div>
-                            <div>Costo: ${pC.principal} | Venta: ${pV.principal}</div>
+                            <div style="font-weight: 900;">${window.escapeHTML(p.nombre)} (${tagStockTerm})</div>
+                            <div>${!esServ && cUSD > 0 ? `Costo: ${pC.principal} | ` : ''}Venta: ${pV.principal}</div>
                             <div style="font-size: 8px;">Ref: ${pV.secundario}</div>
                         </div>
                     `;
@@ -14105,26 +14152,27 @@ ${alertasStock.join('\n')}`);
         </div>
     </div>
 
-    <!-- MODAL VISTA AMPLIADA DE PRODUCTO EN VITRINA WEB (QUICK VIEW) -->
-    <div id="modal-producto-vitrina-detalle" class="fixed inset-0 bg-slate-950/85 backdrop-blur-md z-[85] p-3 sm:p-4 flex items-center justify-center hidden no-print" onclick="if(event.target === this) window.cerrarDetalleProductoVitrina()">
-        <div class="bg-white border border-slate-200 w-full max-w-md rounded-3xl overflow-hidden shadow-2xl flex flex-col max-h-[92vh]">
-            <div class="bg-slate-900 px-4 py-3 text-white flex justify-between items-center shrink-0">
+    <!-- MODAL VISTA AMPLIADA DE PRODUCTO EN VITRINA WEB (QUICK VIEW COMPACTO SIN ZOOM ACCIDENTAL) -->
+    <div id="modal-producto-vitrina-detalle" style="touch-action: manipulation;" class="fixed inset-0 bg-slate-950/85 backdrop-blur-md z-[85] p-2.5 sm:p-4 flex items-center justify-center hidden no-print select-none" onclick="if(event.target === this) window.cerrarDetalleProductoVitrina()">
+        <div class="bg-white border border-slate-200 w-full max-w-md rounded-3xl overflow-hidden shadow-2xl flex flex-col max-h-[94dvh]">
+            <div class="bg-slate-900 px-4 py-2.5 text-white flex justify-between items-center shrink-0">
                 <span id="qv-prod-categoria" class="text-[10px] font-mono font-black uppercase tracking-wider text-blue-300 bg-blue-950/80 border border-blue-700/50 px-2.5 py-0.5 rounded-full">
                     GENERAL
                 </span>
-                <button type="button" onclick="window.cerrarDetalleProductoVitrina()" class="text-slate-400 hover:text-white p-1">
-                    <i class="fa-solid fa-xmark text-base"></i>
+                <button type="button" onclick="window.cerrarDetalleProductoVitrina()" class="text-slate-300 hover:text-white bg-slate-800 hover:bg-red-600 w-7 h-7 rounded-lg flex items-center justify-center">
+                    <i class="fa-solid fa-xmark text-sm"></i>
                 </button>
             </div>
 
-            <div class="p-4 sm:p-5 overflow-y-auto space-y-4 no-scrollbar flex-grow">
+            <div class="p-3 sm:p-4 overflow-y-auto space-y-2 no-scrollbar flex-grow">
                 <input type="hidden" id="qv-prod-id" value="">
 
-                <!-- Imagen Ampliada + Carrusel de Fotos (Altura estable sin saltos) -->
-                <div class="space-y-2">
-                    <div class="w-full h-72 sm:h-80 bg-white rounded-2xl overflow-hidden flex items-center justify-center text-slate-400 text-5xl relative border border-slate-200 shadow-2xs">
+                <!-- Imagen Ampliada Proporcionada + Carrusel de Fotos -->
+                <div class="space-y-1.5">
+                    <div class="w-full h-60 sm:h-72 bg-white rounded-2xl overflow-hidden flex items-center justify-center text-slate-400 text-5xl relative border border-slate-200 shadow-2xs">
                         <div id="qv-prod-imagen-box" class="w-full h-full flex items-center justify-center p-0.5"></div>
-                        <div id="qv-prod-badge-stock"></div>
+                        <div id="qv-prod-badge-stock" class="pointer-events-none"></div>
+                        <span class="pointer-events-none absolute bottom-1.5 left-2 bg-slate-900/70 text-white text-[8.5px] font-mono px-2 py-0.5 rounded-full backdrop-blur-xs"><i class="fa-solid fa-expand mr-1"></i>Toca para ampliar</span>
                         <button type="button" id="btn-qv-prev-foto" onclick="window.navegarCarruselQuickView(-1)" class="hidden absolute left-2 top-1/2 -translate-y-1/2 w-8 h-8 rounded-full bg-slate-900/80 text-white hover:bg-slate-900 flex items-center justify-center shadow-md">
                             <i class="fa-solid fa-chevron-left text-xs"></i>
                         </button>
@@ -14132,42 +14180,42 @@ ${alertasStock.join('\n')}`);
                             <i class="fa-solid fa-chevron-right text-xs"></i>
                         </button>
                     </div>
-                    <div id="qv-prod-miniaturas-box" class="hidden flex items-center justify-center gap-2 pt-0.5"></div>
+                    <div id="qv-prod-miniaturas-box" class="hidden flex items-center justify-center gap-2"></div>
                 </div>
 
-                <!-- Título completo y Descripción completa sin cortes -->
-                <div class="space-y-1.5">
-                    <h3 id="qv-prod-nombre" class="font-black text-slate-900 text-base sm:text-lg uppercase leading-snug break-words">
+                <!-- Título y Descripción compactos -->
+                <div class="space-y-1">
+                    <h3 id="qv-prod-nombre" class="font-black text-slate-900 text-sm sm:text-base uppercase leading-tight break-words">
                         NOMBRE DEL PRODUCTO
                     </h3>
-                    <p id="qv-prod-desc" class="text-xs sm:text-sm text-slate-600 leading-relaxed whitespace-pre-line break-words">
+                    <p id="qv-prod-desc" class="text-xs text-slate-600 leading-snug whitespace-pre-line break-words max-h-20 overflow-y-auto no-scrollbar">
                     </p>
                 </div>
 
                 <!-- Bloque de Precios Multimoneda -->
-                <div id="qv-prod-precios-box" class="bg-slate-50 p-3.5 rounded-2xl border border-slate-200 space-y-1 font-mono">
+                <div id="qv-prod-precios-box" class="bg-slate-50 p-2.5 rounded-2xl border border-slate-200 space-y-0.5 font-mono">
                 </div>
             </div>
 
-            <!-- Controles inferiores: Cantidad + Agregar al Carrito -->
-            <div id="qv-prod-footer-acciones" class="bg-slate-100 p-3.5 sm:p-4 border-t border-slate-200 shrink-0 space-y-2.5">
-                <div class="flex items-center justify-between gap-3">
+            <!-- Controles inferiores compactos: Cantidad + Botonera -->
+            <div id="qv-prod-footer-acciones" class="bg-slate-100 p-2.5 sm:p-3 border-t border-slate-200 shrink-0 space-y-2">
+                <div class="flex items-center justify-between gap-2">
                     <span class="text-[10px] font-black uppercase text-slate-600 font-mono">Cantidad a Pedir:</span>
                     <div class="inline-flex items-center bg-white border border-slate-300 rounded-xl overflow-hidden shadow-xs">
-                        <button type="button" onclick="window.cambiarCantidadQuickView(-1)" class="w-9 h-9 flex items-center justify-center text-slate-700 hover:bg-slate-100 font-black text-sm">−</button>
-                        <input type="number" step="any" min="0.1" id="qv-prod-cant" value="1" class="w-14 text-center font-mono font-black text-sm text-slate-900 border-x border-slate-200 py-1.5 outline-none">
-                        <button type="button" onclick="window.cambiarCantidadQuickView(1)" class="w-9 h-9 flex items-center justify-center text-slate-700 hover:bg-slate-100 font-black text-sm">+</button>
+                        <button type="button" onclick="window.cambiarCantidadQuickView(-1)" class="w-8 h-8 flex items-center justify-center text-slate-700 hover:bg-slate-100 font-black text-sm">−</button>
+                        <input type="number" step="any" min="0.1" id="qv-prod-cant" value="1" class="w-12 text-center font-mono font-black text-xs text-slate-900 border-x border-slate-200 py-1 outline-none">
+                        <button type="button" onclick="window.cambiarCantidadQuickView(1)" class="w-8 h-8 flex items-center justify-center text-slate-700 hover:bg-slate-100 font-black text-sm">+</button>
                     </div>
                 </div>
-                <div class="space-y-2">
-                    <button type="button" id="btn-qv-agregar-carrito" onclick="window.agregarDesdeQuickViewAlCarrito()" class="w-full btn-brand py-3.5 text-xs shadow-md flex items-center justify-center gap-2">
+                <div class="space-y-1.5">
+                    <button type="button" id="btn-qv-agregar-carrito" onclick="window.agregarDesdeQuickViewAlCarrito()" class="w-full btn-brand py-2.5 text-xs shadow-md flex items-center justify-center gap-2">
                         <i class="fa-solid fa-cart-plus text-sm"></i> <span>AGREGAR AL CARRITO</span>
                     </button>
                     <div class="grid grid-cols-2 gap-2">
-                        <button type="button" onclick="window.cerrarDetalleProductoVitrina()" class="bg-white hover:bg-slate-200 text-slate-700 border border-slate-300 py-2.5 rounded-xl font-black text-[10.5px] uppercase">
+                        <button type="button" onclick="window.cerrarDetalleProductoVitrina()" class="bg-white hover:bg-slate-200 text-slate-700 border border-slate-300 py-2 rounded-xl font-black text-[10px] uppercase">
                             Cerrar
                         </button>
-                        <button type="button" onclick="window.compartirProductoVitrinaWhatsApp(document.getElementById('qv-prod-id').value)" class="bg-emerald-600 hover:bg-emerald-500 text-white py-2.5 rounded-xl font-black text-[10.5px] uppercase shadow-sm flex items-center justify-center gap-1.5 active:scale-95 transition-all">
+                        <button type="button" onclick="window.compartirProductoVitrinaWhatsApp(document.getElementById('qv-prod-id').value)" class="bg-emerald-600 hover:bg-emerald-500 text-white py-2 rounded-xl font-black text-[10px] uppercase shadow-sm flex items-center justify-center gap-1.5 active:scale-95 transition-all">
                             <i class="fa-brands fa-whatsapp text-sm"></i> <span>Compartir</span>
                         </button>
                     </div>
@@ -14175,6 +14223,387 @@ ${alertasStock.join('\n')}`);
             </div>
         </div>
     </div>
+
+    <!-- MODAL LIGHTBOX PANTALLA COMPLETA PARA IMAGEN DE PRODUCTO EN VITRINA -->
+    <div id="modal-lightbox-imagen-vitrina" style="touch-action: manipulation;" class="fixed inset-0 bg-slate-950/95 backdrop-blur-md z-[290] p-3 flex flex-col items-center justify-center hidden no-print select-none" onclick="if(event.target === this) window.cerrarLightboxImagenQuickView()">
+        <div class="w-full max-w-2xl flex items-center justify-between text-white pb-2 px-1">
+            <span id="lbl-lightbox-titulo-prod" class="text-xs font-black uppercase tracking-wide truncate pr-2">Vista Ampliada</span>
+            <button type="button" onclick="window.cerrarLightboxImagenQuickView()" class="bg-white/15 hover:bg-red-600 text-white w-9 h-9 rounded-full flex items-center justify-center shrink-0 transition-all">
+                <i class="fa-solid fa-xmark text-base"></i>
+            </button>
+        </div>
+        <div class="relative w-full max-w-2xl flex-grow flex items-center justify-center overflow-hidden rounded-2xl bg-black/40 border border-white/10">
+            <img id="img-lightbox-vitrina-full" src="" alt="Vista ampliada" class="max-w-full max-h-[82dvh] object-contain">
+            <button type="button" id="btn-lb-prev-foto" onclick="window.navegarLightboxQuickView(-1)" class="hidden absolute left-2 top-1/2 -translate-y-1/2 w-10 h-10 rounded-full bg-white/20 hover:bg-white/35 text-white flex items-center justify-center shadow-lg">
+                <i class="fa-solid fa-chevron-left text-sm"></i>
+            </button>
+            <button type="button" id="btn-lb-next-foto" onclick="window.navegarLightboxQuickView(1)" class="hidden absolute right-2 top-1/2 -translate-y-1/2 w-10 h-10 rounded-full bg-white/20 hover:bg-white/35 text-white flex items-center justify-center shadow-lg">
+                <i class="fa-solid fa-chevron-right text-sm"></i>
+            </button>
+        </div>
+    </div>
+
+    <!-- MODAL DE DESCARGA / AJUSTE DE INVENTARIO CON ADVERTENCIA -->
+    <div id="modal-descargar-stock-inventario" class="fixed inset-0 bg-slate-950/85 backdrop-blur-md z-[140] p-3 sm:p-4 flex items-center justify-center hidden no-print" onclick="if(event.target === this) document.getElementById('modal-descargar-stock-inventario').classList.add('hidden')">
+        <div class="bg-white border border-slate-200 w-full max-w-md rounded-3xl overflow-hidden shadow-2xl flex flex-col max-h-[90vh] text-xs font-bold">
+            <div class="bg-gradient-to-r from-amber-600 via-orange-600 to-red-600 px-4 py-3.5 text-white flex justify-between items-center shrink-0">
+                <div class="flex items-center gap-2">
+                    <i class="fa-solid fa-triangle-exclamation text-amber-200 text-base animate-pulse"></i>
+                    <h3 class="font-black text-xs uppercase tracking-wider">Descarga / Ajuste de Inventario</h3>
+                </div>
+                <button type="button" onclick="document.getElementById('modal-descargar-stock-inventario').classList.add('hidden')" class="text-white/80 hover:text-white bg-black/20 w-7 h-7 rounded-lg flex items-center justify-center">
+                    <i class="fa-solid fa-xmark text-sm"></i>
+                </button>
+            </div>
+
+            <div class="p-4 sm:p-5 overflow-y-auto space-y-3.5 no-scrollbar">
+                <input type="hidden" id="desc-stock-prod-id" value="">
+
+                <!-- BANNER DE ADVERTENCIA CLARA -->
+                <div class="bg-amber-50 border-2 border-amber-300 rounded-2xl p-3 space-y-1 text-amber-950">
+                    <div class="font-black text-[11px] uppercase flex items-center gap-1.5 text-amber-800">
+                        <i class="fa-solid fa-circle-exclamation text-orange-600"></i>
+                        <span>⚠️ Estás a punto de hacer una descarga de producto</span>
+                    </div>
+                    <p class="text-[11px] font-medium text-amber-900 leading-snug">
+                        Esta operación descontará existencias físicas del inventario por concepto de ajuste, merma o daño sin registrar una venta en caja.
+                    </p>
+                </div>
+
+                <!-- FICHA DEL PRODUCTO Y STOCK ACTUAL -->
+                <div class="bg-slate-50 border border-slate-200 rounded-2xl p-3 flex items-center justify-between gap-2">
+                    <div class="min-w-0 flex-1">
+                        <span class="text-[9px] text-slate-400 uppercase font-mono block">Producto Seleccionado</span>
+                        <strong id="lbl-desc-stock-nombre" class="text-sm font-black text-slate-900 uppercase block truncate">PRODUCTO</strong>
+                    </div>
+                    <div class="text-right shrink-0 bg-white border border-slate-200 px-3 py-1.5 rounded-xl font-mono">
+                        <span class="text-[8.5px] text-slate-400 uppercase block">Existencia Actual</span>
+                        <strong id="lbl-desc-stock-actual" class="text-sm font-black text-blue-700">0 UND</strong>
+                    </div>
+                </div>
+
+                <div class="grid grid-cols-1 sm:grid-cols-2 gap-2.5">
+                    <div>
+                        <label class="text-[9.5px] text-slate-600 uppercase block mb-1 font-black">Cantidad a Descargar *</label>
+                        <input type="number" step="any" min="0.001" id="input-desc-stock-cantidad" oninput="window.recalcularPreviewDescargaStock()" placeholder="Ej: 4" class="input-clean font-mono text-base font-black text-red-600 border-red-300">
+                    </div>
+                    <div class="bg-slate-900 text-white rounded-2xl p-2.5 flex flex-col justify-center text-center font-mono">
+                        <span class="text-[8.5px] text-slate-400 uppercase block">Quedará en Inventario</span>
+                        <strong id="lbl-desc-stock-resultante" class="text-base font-black text-amber-400">0 UND</strong>
+                    </div>
+                </div>
+
+                <div>
+                    <label class="text-[9.5px] text-slate-600 uppercase block mb-1 font-black">Motivo de la Descarga (Opcional)</label>
+                    <input type="text" id="input-desc-stock-motivo" list="lista-motivos-descarga-inv" placeholder="Ej: Ajuste por conteo físico / Producto dañado..." class="input-clean">
+                    <datalist id="lista-motivos-descarga-inv">
+                        <option value="Ajuste por conteo físico">
+                        <option value="Producto dañado / vencido">
+                        <option value="Consumo interno del local">
+                        <option value="Extraviado / Merma">
+                    </datalist>
+                </div>
+            </div>
+
+            <div class="bg-slate-100 p-3.5 border-t border-slate-200 grid grid-cols-2 gap-2 shrink-0">
+                <button type="button" onclick="document.getElementById('modal-descargar-stock-inventario').classList.add('hidden')" class="bg-white hover:bg-slate-200 text-slate-700 border border-slate-300 py-3 rounded-xl uppercase text-xs font-black">
+                    Cancelar
+                </button>
+                <button type="button" onclick="window.confirmarDescargaStockInventario()" class="bg-gradient-to-r from-orange-600 to-red-600 hover:from-orange-500 hover:to-red-500 text-white py-3 rounded-xl uppercase text-xs font-black shadow-md flex items-center justify-center gap-1.5">
+                    <i class="fa-solid fa-check"></i> <span>Confirmar Descarga</span>
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // =========================================================================
+        // 1. BUSCADOR PREDICTIVO INTELIGENTE EN CARGA RÁPIDA DE INVENTARIO
+        // =========================================================================
+        window.filtrarSugerenciasProductosInventarioNuevo = function(texto) {
+            const box = document.getElementById('lista-sugerencias-inv-nuevo');
+            if (!box) return;
+            const q = (texto || '').toLowerCase().trim();
+            if (!q) {
+                box.classList.add('hidden');
+                return;
+            }
+            const coincidencias = (window.dbInventario || []).filter(p =>
+                (p.nombre && p.nombre.toLowerCase().includes(q)) ||
+                (p.codigo && p.codigo.toLowerCase().includes(q)) ||
+                (p.categoria && p.categoria.toLowerCase().includes(q))
+            ).slice(0, 8);
+
+            if (coincidencias.length === 0) {
+                box.classList.add('hidden');
+                return;
+            }
+
+            box.innerHTML = coincidencias.map(p => {
+                const esServ = !!p.esServicio;
+                const mOrig = (p.monedaOriginal || 'USD').toUpperCase();
+                const cUSD = Number(p.precioCosto) || 0;
+                const vUSD = Number(p.precioVenta || p.precioUSD) || 0;
+                const presV = window.obtenerPresentacionMultimoneda(vUSD, mOrig, p.precioVentaOriginal);
+                const stockInfo = esServ ? '🛠️ Servicio' : `Stock: ${p.stock || 0} ${p.unidad || 'UND'}`;
+                return `
+                    <button type="button" onclick="window.seleccionarProductoExistenteEnInventarioNuevo('${window.escapeHTML(p.id)}')" class="w-full text-left px-3 py-2 hover:bg-blue-50 transition-colors flex justify-between items-center gap-2 text-xs font-mono">
+                        <div class="min-w-0 flex-1">
+                            <strong class="text-slate-900 font-black uppercase block truncate">${window.escapeHTML(p.nombre)}</strong>
+                            <span class="text-[9.5px] text-slate-500 block truncate">${window.escapeHTML(p.categoria || 'GENERAL')} • ${stockInfo}</span>
+                        </div>
+                        <div class="text-right shrink-0">
+                            <span class="text-[9.5px] text-blue-600 font-black block">${presV.principal}</span>
+                            <span class="text-[8.5px] text-emerald-700 font-bold block">Seleccionar ↵</span>
+                        </div>
+                    </button>
+                `;
+            }).join('');
+            box.classList.remove('hidden');
+        };
+
+        window.seleccionarProductoExistenteEnInventarioNuevo = function(prodId) {
+            const box = document.getElementById('lista-sugerencias-inv-nuevo');
+            if (box) box.classList.add('hidden');
+            const prod = (window.dbInventario || []).find(p => p.id === prodId);
+            if (!prod) return;
+
+            if (typeof window.seleccionarTipoRegistroInventario === 'function') {
+                window.seleccionarTipoRegistroInventario(prod.esServicio ? 'SERVICIO' : 'PRODUCTO');
+            }
+
+            const editHid = document.getElementById('inv-edit-id');
+            if (editHid) editHid.value = prod.id;
+
+            const bannerEx = document.getElementById('banner-producto-existente-inv-nuevo');
+            const btnLimpiar = document.getElementById('btn-limpiar-seleccion-inv-nuevo');
+            if (bannerEx) bannerEx.classList.remove('hidden');
+            if (btnLimpiar) btnLimpiar.classList.remove('hidden');
+
+            const inpCod = document.getElementById('inv-input-codigo');
+            const inpNom = document.getElementById('inv-input-nombre');
+            const inpCat = document.getElementById('inv-input-categoria');
+            const selMon = document.getElementById('inv-input-moneda-base');
+            const inpCosto = document.getElementById('inv-input-costo');
+            const selMType = document.getElementById('inv-input-margen-tipo');
+            const inpMargen = document.getElementById('inv-input-margen');
+            const inpVenta = document.getElementById('inv-input-venta');
+            const selUni = document.getElementById('inv-input-unidad');
+            const inpStock = document.getElementById('inv-input-stock');
+            const inpDesc = document.getElementById('inv-input-desc');
+
+            const monOrig = (prod.monedaOriginal || 'USD').toUpperCase();
+            if (selMon) selMon.value = monOrig;
+            if (inpCod) inpCod.value = prod.codigo || '';
+            if (inpNom) inpNom.value = prod.nombre || '';
+            if (inpCat) inpCat.value = prod.categoria || 'GENERAL';
+            if (selUni) selUni.value = prod.unidad || 'UND';
+            if (inpDesc) inpDesc.value = prod.desc || '';
+            if (inpStock) inpStock.value = prod.esServicio ? 999999 : (prod.stock || 0);
+
+            let costoAct = Number(prod.precioCosto) || 0;
+            let ventaAct = Number(prod.precioVenta || prod.precioUSD) || 0;
+            if (monOrig === 'COP') {
+                costoAct = (prod.precioCostoOriginal !== undefined) ? Number(prod.precioCostoOriginal) : window.calcularPesosDesdeUSD(costoAct);
+                ventaAct = (prod.precioVentaOriginal !== undefined) ? Number(prod.precioVentaOriginal) : window.calcularPesosDesdeUSD(ventaAct);
+            } else if (monOrig === 'BS') {
+                costoAct = (prod.precioCostoOriginal !== undefined) ? Number(prod.precioCostoOriginal) : window.calcularBsDesdeUSD(costoAct);
+                ventaAct = (prod.precioVentaOriginal !== undefined) ? Number(prod.precioVentaOriginal) : window.calcularBsDesdeUSD(ventaAct);
+            }
+            const ganAct = Math.max(0, ventaAct - costoAct);
+            const fmtV = (v) => monOrig === 'COP' ? window.formatearMiles(Math.round(v)) : v.toFixed(2).replace('.', ',');
+
+            if (inpCosto) inpCosto.value = costoAct > 0 ? fmtV(costoAct) : '';
+            if (selMType) selMType.value = 'MONTO';
+            if (inpMargen) inpMargen.value = ganAct > 0 ? fmtV(ganAct) : '0';
+            if (inpVenta) inpVenta.value = ventaAct > 0 ? fmtV(ventaAct) : '';
+
+            const fotosExist = (Array.isArray(prod.fotos) && prod.fotos.length > 0) ? prod.fotos : (prod.foto ? [prod.foto] : []);
+            [1, 2, 3].forEach(slot => {
+                if (typeof window.limpiarSlotFoto === 'function') window.limpiarSlotFoto('INV', slot);
+                const fUrl = fotosExist[slot - 1] || '';
+                if (fUrl) {
+                    const hidId = slot === 1 ? 'inv-input-foto-base64' : `inv-input-foto-${slot}-base64`;
+                    const boxId = slot === 1 ? 'box-preview-foto' : `box-preview-foto-${slot}`;
+                    const elH = document.getElementById(hidId);
+                    const elB = document.getElementById(boxId);
+                    if (elH) elH.value = fUrl;
+                    if (elB) elB.innerHTML = `<img src="${fUrl}" class="w-full h-full object-cover">`;
+                }
+            });
+        };
+
+        window.autocompletarProductoPorCodigoEnInventarioNuevo = function(codigo) {
+            const c = (codigo || '').trim().toLowerCase();
+            if (!c) return;
+            const prod = (window.dbInventario || []).find(p => p.codigo && p.codigo.toLowerCase() === c);
+            if (prod) {
+                window.seleccionarProductoExistenteEnInventarioNuevo(prod.id);
+            }
+        };
+
+        window.limpiarFormularioCargaInventario = function() {
+            const editHid = document.getElementById('inv-edit-id');
+            if (editHid) editHid.value = '';
+            const bannerEx = document.getElementById('banner-producto-existente-inv-nuevo');
+            const btnLimpiar = document.getElementById('btn-limpiar-seleccion-inv-nuevo');
+            if (bannerEx) bannerEx.classList.add('hidden');
+            if (btnLimpiar) btnLimpiar.classList.add('hidden');
+            ['inv-input-codigo', 'inv-input-nombre', 'inv-input-categoria', 'inv-input-costo', 'inv-input-margen', 'inv-input-venta', 'inv-input-desc'].forEach(id => {
+                const el = document.getElementById(id);
+                if (el) el.value = '';
+            });
+            const inpStock = document.getElementById('inv-input-stock');
+            if (inpStock) inpStock.value = '1';
+            [1, 2, 3].forEach(s => { if (typeof window.limpiarSlotFoto === 'function') window.limpiarSlotFoto('INV', s); });
+        };
+
+        document.addEventListener('click', function(ev) {
+            const box = document.getElementById('lista-sugerencias-inv-nuevo');
+            const inp = document.getElementById('inv-input-nombre');
+            if (box && !box.contains(ev.target) && ev.target !== inp) {
+                box.classList.add('hidden');
+            }
+        });
+
+        // =========================================================================
+        // 2. DESCARGA / AJUSTE DE INVENTARIO CON ADVERTENCIA Y AUDITORÍA
+        // =========================================================================
+        window.abrirModalDescargarStock = function(prodId) {
+            const prod = (window.dbInventario || []).find(p => p.id === prodId);
+            if (!prod || prod.esServicio) return;
+
+            const stActual = Math.max(0, Number(prod.stock) || 0);
+            const uni = prod.unidad || 'UND';
+
+            document.getElementById('desc-stock-prod-id').value = prod.id;
+            document.getElementById('lbl-desc-stock-nombre').innerText = prod.nombre || 'PRODUCTO';
+            document.getElementById('lbl-desc-stock-actual').innerText = `${stActual} ${uni}`;
+            document.getElementById('input-desc-stock-cantidad').value = '';
+            document.getElementById('input-desc-stock-motivo').value = '';
+            document.getElementById('lbl-desc-stock-resultante').innerText = `${stActual} ${uni}`;
+
+            document.getElementById('modal-descargar-stock-inventario').classList.remove('hidden');
+            setTimeout(() => {
+                const inp = document.getElementById('input-desc-stock-cantidad');
+                if (inp) inp.focus();
+            }, 60);
+        };
+
+        window.recalcularPreviewDescargaStock = function() {
+            const id = document.getElementById('desc-stock-prod-id').value;
+            const prod = (window.dbInventario || []).find(p => p.id === id);
+            if (!prod) return;
+            const stActual = Math.max(0, Number(prod.stock) || 0);
+            const uni = prod.unidad || 'UND';
+            const cantDesc = Math.max(0, parseFloat(document.getElementById('input-desc-stock-cantidad').value) || 0);
+            const restante = Math.max(0, Number((stActual - cantDesc).toFixed(3)));
+            const lblRes = document.getElementById('lbl-desc-stock-resultante');
+            if (lblRes) {
+                lblRes.innerText = `${restante} ${uni}`;
+                lblRes.className = cantDesc > stActual ? 'text-base font-black text-red-400' : 'text-base font-black text-amber-400';
+            }
+        };
+
+        window.confirmarDescargaStockInventario = async function() {
+            const id = document.getElementById('desc-stock-prod-id').value;
+            const prod = (window.dbInventario || []).find(p => p.id === id);
+            if (!prod) return;
+
+            const stActual = Math.max(0, Number(prod.stock) || 0);
+            const uni = prod.unidad || 'UND';
+            const cantDesc = parseFloat(document.getElementById('input-desc-stock-cantidad').value) || 0;
+            const motivo = (document.getElementById('input-desc-stock-motivo').value || '').trim() || 'Ajuste de inventario';
+
+            if (cantDesc <= 0) {
+                alert("⚠️ Ingrese una cantidad válida mayor a 0 para descargar.");
+                return;
+            }
+            if (cantDesc > stActual) {
+                alert(`⚠️ No puede descargar ${cantDesc} ${uni} porque la existencia actual es de ${stActual} ${uni}.`);
+                return;
+            }
+
+            const nuevoStock = Math.max(0, Number((stActual - cantDesc).toFixed(3)));
+            prod.stock = nuevoStock;
+            prod.actualizadoMs = Date.now();
+
+            window.guardarInventarioEnStorage();
+            if (typeof window.sincronizarTenantConFirebase === 'function') {
+                window.sincronizarTenantConFirebase('inventario', prod);
+            }
+
+            // Registrar bitácora de descarga en la nube
+            if (window.dbNube && window.clienteActivoSesion) {
+                try {
+                    const slug = (window.clienteActivoSesion.slug || window.clienteActivoSesion.user || 'demo').toLowerCase().trim();
+                    const regId = 'desc_' + Date.now();
+                    await window.dbNube.collection('comercios_saas').doc(slug).collection('descargas_inventario').doc(regId).set({
+                        id: regId,
+                        productoId: prod.id,
+                        productoNombre: prod.nombre,
+                        cantidadDescargada: cantDesc,
+                        unidad: uni,
+                        stockAnterior: stActual,
+                        stockNuevo: nuevoStock,
+                        motivo: motivo,
+                        fechaMs: Date.now()
+                    }, { merge: true });
+                } catch (eDesc) {}
+            }
+
+            document.getElementById('modal-descargar-stock-inventario').classList.add('hidden');
+            if (typeof window.renderizarTablaModalInventario === 'function') window.renderizarTablaModalInventario();
+            if (typeof window.renderizarProductosVitrina === 'function') window.renderizarProductosVitrina();
+            if (typeof window.recalcularReportesGanancias === 'function') window.recalcularReportesGanancias();
+
+            alert(`✅ Descarga realizada con éxito.\n\nProducto: ${prod.nombre}\nDescargado: -${cantDesc} ${uni}\nExistencia actual: ${nuevoStock} ${uni}`);
+        };
+
+        // =========================================================================
+        // 3. LIGHTBOX A PANTALLA COMPLETA AL TOCAR LA IMAGEN DEL PRODUCTO EN VITRINA
+        // =========================================================================
+        window.abrirLightboxImagenQuickView = function() {
+            const gal = window._qvGaleriaActual || [];
+            const idx = window._qvIndiceFotoActual || 0;
+            if (!gal[idx]) return;
+            const modalLb = document.getElementById('modal-lightbox-imagen-vitrina');
+            const imgLb = document.getElementById('img-lightbox-vitrina-full');
+            const titLb = document.getElementById('lbl-lightbox-titulo-prod');
+            const nomQv = document.getElementById('qv-prod-nombre');
+            const btnPrev = document.getElementById('btn-lb-prev-foto');
+            const btnNext = document.getElementById('btn-lb-next-foto');
+
+            if (imgLb) imgLb.src = gal[idx];
+            if (titLb && nomQv) titLb.innerText = nomQv.innerText || 'Vista Ampliada';
+            if (btnPrev && btnNext) {
+                if (gal.length > 1) {
+                    btnPrev.classList.remove('hidden');
+                    btnNext.classList.remove('hidden');
+                } else {
+                    btnPrev.classList.add('hidden');
+                    btnNext.classList.add('hidden');
+                }
+            }
+            if (modalLb) modalLb.classList.remove('hidden');
+        };
+
+        window.cerrarLightboxImagenQuickView = function() {
+            const modalLb = document.getElementById('modal-lightbox-imagen-vitrina');
+            if (modalLb) modalLb.classList.add('hidden');
+        };
+
+        window.navegarLightboxQuickView = function(delta) {
+            const gal = window._qvGaleriaActual || [];
+            if (gal.length <= 1) return;
+            const nextIdx = ((window._qvIndiceFotoActual || 0) + delta + gal.length) % gal.length;
+            if (typeof window.seleccionarFotoCarruselQuickView === 'function') {
+                window.seleccionarFotoCarruselQuickView(nextIdx);
+            }
+            const imgLb = document.getElementById('img-lightbox-vitrina-full');
+            if (imgLb && gal[nextIdx]) imgLb.src = gal[nextIdx];
+        };
+    </script>
 
     <!-- MODAL SELECTOR DE MONEDA DE 1 TOQUE (POS Y COMPRAS) -->
     <div id="modal-selector-moneda-rapida" class="fixed inset-0 bg-slate-950/85 backdrop-blur-md z-[260] p-4 flex items-center justify-center hidden no-print">
