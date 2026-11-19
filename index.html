@@ -3048,9 +3048,10 @@
                     <i class="fa-solid fa-print text-sm"></i> Guardar e Imprimir
                 </button>
             </div>
-            <div id="box-acciones-nota-historial" class="bg-white p-3 border-t border-slate-300 flex gap-2 shrink-0 hidden">
-                <button onclick="window.cerrarPreviewNota()" class="bg-slate-200 hover:bg-slate-300 text-slate-800 font-black py-2.5 px-4 rounded-xl uppercase text-[10px] flex-grow">Cerrar</button>
-                <button onclick="window.imprimirNotaExistente()" class="bg-slate-800 hover:bg-slate-700 text-white font-black py-2.5 px-4 rounded-xl uppercase text-[10px] flex items-center justify-center gap-1"><i class="fa-solid fa-print"></i> Re-imprimir</button>
+            <div id="box-acciones-nota-historial" class="bg-white p-3 border-t border-slate-300 grid grid-cols-3 gap-2 shrink-0 hidden">
+                <button onclick="window.cerrarPreviewNota()" class="bg-slate-200 hover:bg-slate-300 text-slate-800 font-black py-2.5 px-3 rounded-xl uppercase text-[10px]">Cerrar</button>
+                <button onclick="window.imprimirNotaFormatoA4()" class="bg-amber-500 hover:bg-amber-400 text-slate-950 font-black py-2.5 px-3 rounded-xl uppercase text-[10px] flex items-center justify-center gap-1"><i class="fa-solid fa-file-lines"></i> Hoja A4</button>
+                <button onclick="window.imprimirNotaExistente()" class="bg-slate-800 hover:bg-slate-700 text-white font-black py-2.5 px-3 rounded-xl uppercase text-[10px] flex items-center justify-center gap-1"><i class="fa-solid fa-print"></i> Ticket</button>
             </div>
         </div>
     </div>
@@ -4692,16 +4693,25 @@ Saldo restante: $${nota.credito.saldoPendienteUSD.toFixed(2)} USD`);
                 `;
             }
 
+            let ahorroTotalUSD = 0;
             const itemsRows = nota.items.map(it => {
                 const unitMain = fmtTicketVal(it.precioUSD);
                 const subMain = fmtTicketVal(it.precioUSD * it.cant);
                 const nomSafe = window.escapeHTML(it.nombre);
+                const tieneReb = (it.precioBaseUSD && it.precioBaseUSD > (it.precioUSD + 0.0001));
+                if (tieneReb) {
+                    ahorroTotalUSD += (it.precioBaseUSD - it.precioUSD) * it.cant;
+                }
+                const notaRebHtml = tieneReb
+                    ? `<div style="font-size: 7.5px; font-weight: 700;">Precio normal: ${fmtTicketVal(it.precioBaseUSD)}</div>`
+                    : '';
                 if (es58) {
                     return `
                         <tr style="border-bottom: 1px dotted #000;">
                             <td style="padding: 2.5px 0; vertical-align: top;">
                                 <div style="font-weight: 900;">${nomSafe}</div>
                                 <div style="font-size: 8px;">${it.cant} x ${unitMain}</div>
+                                ${notaRebHtml}
                             </td>
                             <td style="padding: 2.5px 0; vertical-align: bottom; text-align: right; font-weight: 900; white-space: nowrap;">${subMain}</td>
                         </tr>
@@ -4712,6 +4722,7 @@ Saldo restante: $${nota.credito.saldoPendienteUSD.toFixed(2)} USD`);
                         <td style="padding: 3px 2px 3px 0; vertical-align: top;">
                             <strong>${it.cant}x</strong> ${nomSafe}<br>
                             <span style="font-size: 8.5px;">Unit: ${unitMain}</span>
+                            ${notaRebHtml}
                         </td>
                         <td style="text-align: right; padding: 3px 0; vertical-align: top; font-weight: 900; white-space: nowrap;">${subMain}</td>
                     </tr>
@@ -4788,6 +4799,7 @@ Saldo restante: $${nota.credito.saldoPendienteUSD.toFixed(2)} USD`);
                                 <p style="margin: 1px 0; font-weight: 700;">TOTAL Bs.: ${window.formatBS(totalBs)} Bs</p>
                             `;
                         })()}
+                        ${ahorroTotalUSD > 0.005 ? `<p style="margin: 2px 0 0 0; font-size: 8.5px; font-weight: 900;">AHORRO APLICADO: ${fmtTicketVal(ahorroTotalUSD)}</p>` : ''}
                         <p style="margin: 2px 0 0 0; font-size: 7.5px; font-weight: 700;">Ref: ${window.formatearMiles(tasaCopUsada)} COP/$ | Factor Bs: ${Number(factorBsUsado).toFixed(1)}</p>
                         ${vueltoHtml}
                         ${desgloseHtml}
@@ -4934,13 +4946,25 @@ Saldo restante: $${nota.credito.saldoPendienteUSD.toFixed(2)} USD`);
                 msj += `👤 Cliente: ${window.notaPendiente.cliente}\n`;
                 msj += `💳 Pago: ${window.notaPendiente.pago}\n`;
                 msj += `--------------------------\n`;
+                let ahorroWaUSD = 0;
                 window.notaPendiente.items.forEach(it => {
                     const pIt = window.obtenerPresentacionMultimoneda(it.precioUSD * it.cant, mWa);
-                    msj += `• ${it.cant}x ${it.nombre}: ${pIt.principal}\n`;
+                    const tieneReb = (it.precioBaseUSD && it.precioBaseUSD > (it.precioUSD + 0.0001));
+                    if (tieneReb) {
+                        ahorroWaUSD += (it.precioBaseUSD - it.precioUSD) * it.cant;
+                        const pNorm = window.obtenerPresentacionMultimoneda(it.precioBaseUSD, mWa);
+                        msj += `• ${it.cant}x ${it.nombre}: ${pIt.principal} _(Precio normal: ${pNorm.principal})_\n`;
+                    } else {
+                        msj += `• ${it.cant}x ${it.nombre}: ${pIt.principal}\n`;
+                    }
                 });
                 msj += `--------------------------\n`;
                 msj += `💰 *TOTAL: ${presWaTot.principal}*\n`;
                 msj += `(${presWaTot.secundario})\n`;
+                if (ahorroWaUSD > 0.005) {
+                    const pAhorroWa = window.obtenerPresentacionMultimoneda(ahorroWaUSD, mWa);
+                    msj += `🎁 *Ahorro aplicado:* ${pAhorroWa.principal}\n`;
+                }
                 if (window.notaPendiente.desgloseMixto) {
                     msj += `• USD: $${window.notaPendiente.desgloseMixto.abonoUSD.toFixed(2)}
 `;
@@ -7004,22 +7028,36 @@ Tu nueva clave de acceso es: ${nuevaClave}`);
             }
 
             container.innerHTML = window.carritoPOS.map((item, idx) => {
-                let displaySubtotal = `$${(item.precioUSD * item.cant).toFixed(2)} USD`;
-                if (window.monedaCargaPOS === 'COP') {
-                    displaySubtotal = `${window.formatearMiles(window.calcularPesosDesdeUSD(item.precioUSD * item.cant))} COP`;
-                } else if (window.monedaCargaPOS === 'BS') {
-                    displaySubtotal = `${window.formatBS(window.calcularBsDesdeUSD(item.precioUSD * item.cant))} Bs`;
+                if (item.precioBaseUSD === undefined || item.precioBaseUSD === null) {
+                    item.precioBaseUSD = Number(item.precioUSD) || 0;
                 }
+                const mon = window.monedaCargaPOS || 'USD';
+                const fmtUnit = (u) => {
+                    if (mon === 'COP') return `${window.formatearMiles(window.calcularPesosDesdeUSD(u))} COP`;
+                    if (mon === 'BS') return `${window.formatBS(window.calcularBsDesdeUSD(u))} Bs`;
+                    return `$${Number(u || 0).toFixed(2)}`;
+                };
+
+                const unitDisplay = fmtUnit(item.precioUSD);
+                const subDisplay = fmtUnit(item.precioUSD * item.cant);
+                const tieneRebaja = (item.precioBaseUSD > 0 && Math.abs(item.precioUSD - item.precioBaseUSD) > 0.0001);
+                const baseDisplay = fmtUnit(item.precioBaseUSD);
 
                 const cantLabel = item.unidad === 'KG' ? `${item.cant} Kg` : `${item.cant} Und`;
                 const stepChange = item.unidad === 'KG' ? 0.250 : 1;
                 return `
-                    <div class="bg-white p-2.5 rounded-xl border border-slate-200 flex justify-between items-center shadow-sm">
-                        <div class="min-w-0 flex-1">
-                            <h5 class="text-[11px] font-black uppercase text-slate-900 truncate">${item.nombre}</h5>
-                            <div class="text-[10px] font-mono text-blue-600 font-bold">
-                                ${cantLabel} × $${item.precioUSD.toFixed(2)} = ${displaySubtotal}
+                    <div class="bg-white p-2.5 rounded-xl border ${tieneRebaja ? 'border-amber-300 bg-amber-50/20' : 'border-slate-200'} flex justify-between items-center gap-2 shadow-sm">
+                        <div class="min-w-0 flex-1 space-y-0.5">
+                            <h5 class="text-[11px] font-black uppercase text-slate-900 truncate">${window.escapeHTML(item.nombre)}</h5>
+                            <div class="flex flex-wrap items-center gap-1 text-[10px] font-mono">
+                                <span class="text-slate-600 font-bold">${cantLabel} ×</span>
+                                <button type="button" onclick="window.abrirModalPrecioEspecialPOS(${idx})" class="inline-flex items-center gap-1 bg-blue-50 hover:bg-blue-100 text-blue-700 border border-blue-200 px-1.5 py-0.5 rounded-md font-black transition-colors" title="Tocar para ajustar precio unitario solo en esta nota">
+                                    <span>${unitDisplay}</span>
+                                    <i class="fa-solid fa-pen text-[8px] text-blue-500"></i>
+                                </button>
+                                <span class="text-slate-900 font-black">= ${subDisplay}</span>
                             </div>
+                            ${tieneRebaja ? `<div class="text-[9px] font-mono text-amber-800 font-bold">🏷️ Precio normal: ${baseDisplay}</div>` : ''}
                         </div>
                         <div class="flex items-center gap-1.5 shrink-0">
                             <button onclick="window.cambiarCantPOS(${idx}, -${stepChange})" class="w-7 h-7 bg-slate-200 hover:bg-slate-300 text-slate-800 rounded-lg font-black text-xs flex items-center justify-center">-</button>
@@ -9064,7 +9102,7 @@ $${(item.precioUSD * item.cant).toFixed(2)} USD
                                 <h3 class="font-black text-slate-900 text-[11px] sm:text-xs uppercase leading-snug break-words group-hover:text-blue-700 transition-colors">
                                     ${window.escapeHTML(p.nombre)} ${p.unidad === 'KG' ? '<span class="text-[9px] text-amber-600 bg-amber-50 px-1 py-0.5 rounded border border-amber-200">/ Kg</span>' : ''}
                                 </h3>
-                                ${descPublica ? `<p class="text-[9.5px] sm:text-[10.5px] text-slate-500 leading-snug break-words line-clamp-2">${window.escapeHTML(descPublica)}</p>` : ''}
+                                ${descPublica ? `<p class="text-[9.5px] sm:text-[10.5px] text-slate-600 leading-snug break-words whitespace-pre-line">${window.escapeHTML(descPublica)}</p>` : ''}
                             </div>
 
                             <!-- ZONA 3: PRECIOS Y STOCK DIVIDIDOS -->
@@ -12360,7 +12398,7 @@ _Un respaldo de TUCOCEL C.A. & @PublionlineMK_`;
         // -------------------------------------------------------------
         // INICIALIZACIÓN AUTOMÁTICA DEL SISTEMA Y ENRUTADOR DE URL
         // -------------------------------------------------------------
-        window.TCL_APP_BUILD_ID = 'v2026.11.19.1';
+        window.TCL_APP_BUILD_ID = 'v2026.11.19.2';
 
         window.hayTrabajoEnCursoSinGuardar = function() {
             if (Array.isArray(window.carritoPOS) && window.carritoPOS.length > 0) return true;
@@ -13150,19 +13188,29 @@ _Un respaldo de TUCOCEL C.A. & @PublionlineMK_`;
             const totalCOP = window.calcularPesosDesdeUSD(cot.totalUSD);
             const totalBs = window.calcularBsDesdeUSD(cot.totalUSD);
 
+            let ahorroCotUSD = 0;
             const itemsRows = (cot.items || []).map(it => {
                 const uMain = fmtCotVal(it.precioUSD);
                 const sMain = fmtCotVal(it.precioUSD * it.cant);
+                const tieneReb = (it.precioBaseUSD && it.precioBaseUSD > (it.precioUSD + 0.0001));
+                if (tieneReb) ahorroCotUSD += (it.precioBaseUSD - it.precioUSD) * it.cant;
+                const rebTxt = tieneReb ? `<div style="font-size: 7.5px; font-weight: 700;">Precio normal: ${fmtCotVal(it.precioBaseUSD)}</div>` : '';
                 return `
                     <tr style="border-bottom: 1px dotted #000;">
                         <td style="padding: 2.5px 0; vertical-align: top;">
                             <strong>${it.cant}x</strong> ${window.escapeHTML(it.nombre)}<br>
                             <span style="font-size: 8px;">Unit: ${uMain}</span>
+                            ${rebTxt}
                         </td>
                         <td style="text-align: right; padding: 2.5px 0; vertical-align: top; font-weight: 900; white-space: nowrap;">${sMain}</td>
                     </tr>
                 `;
             }).join('');
+
+            const diasVal = parseInt(cot.diasValidez || 0, 10);
+            const anticipoPct = parseFloat(cot.anticipoPct || 0);
+            const fechaVenceStr = diasVal > 0 ? window.formatearFechaCortaDDMMYYYY((cot.fechaMs || Date.now()) + diasVal * 86400000) : '';
+            const anticipoUSD = anticipoPct > 0 ? (cot.totalUSD * (anticipoPct / 100)) : 0;
 
             return `
                 <div style="width: 100%; font-family: 'Courier New', Courier, monospace; color: #000000; background: #ffffff; box-sizing: border-box;">
@@ -13176,6 +13224,7 @@ _Un respaldo de TUCOCEL C.A. & @PublionlineMK_`;
                     </div>
                     <div style="border-top: 1px dashed #000; border-bottom: 1px dashed #000; padding: 4px 0; margin-bottom: 6px; font-size: ${fBody}; line-height: 1.28;">
                         <p style="margin: 1px 0;"><strong>FECHA:</strong> ${fechaStr}</p>
+                        ${diasVal > 0 ? `<p style="margin: 1px 0;"><strong>VÁLIDO HASTA:</strong> ${fechaVenceStr} (${diasVal} días)</p>` : ''}
                         <p style="margin: 1px 0;"><strong>ASESOR:</strong> ${window.escapeHTML(cot.cajero || 'MOSTRADOR')}</p>
                         <p style="margin: 1px 0;"><strong>CLIENTE:</strong> ${window.escapeHTML(cot.cliente)}</p>
                         ${cot.cedula && cot.cedula !== 'J-00000000-0' ? `<p style="margin: 1px 0;"><strong>CI/RIF:</strong> ${window.escapeHTML(cot.cedula)}</p>` : ''}
@@ -13192,10 +13241,28 @@ _Un respaldo de TUCOCEL C.A. & @PublionlineMK_`;
                         </tbody>
                     </table>
                     <div style="text-align: right; font-size: ${fTotal}; margin-bottom: 6px; line-height: 1.3;">
-                        <p style="margin: 1px 0; font-weight: 900; font-size: 12px;">TOTAL USD: $${cot.totalUSD.toFixed(2)}</p>
-                        <p style="margin: 1px 0; font-weight: 700;">TOTAL COP: ${window.formatearMiles(totalCOP)} COP</p>
-                        <p style="margin: 1px 0; font-weight: 700;">TOTAL Bs.: ${window.formatBS(totalBs)} Bs</p>
+                        ${mCot === 'COP' ? `
+                            <p style="margin: 1px 0; font-weight: 900; font-size: 12px;">TOTAL COP: ${window.formatearMiles(totalCOP)} COP</p>
+                            <p style="margin: 1px 0; font-weight: 700;">TOTAL USD: $${cot.totalUSD.toFixed(2)} USD</p>
+                            <p style="margin: 1px 0; font-weight: 700;">TOTAL Bs.: ${window.formatBS(totalBs)} Bs</p>
+                        ` : (mCot === 'BS' ? `
+                            <p style="margin: 1px 0; font-weight: 900; font-size: 12px;">TOTAL Bs.: ${window.formatBS(totalBs)} Bs</p>
+                            <p style="margin: 1px 0; font-weight: 700;">TOTAL COP: ${window.formatearMiles(totalCOP)} COP</p>
+                            <p style="margin: 1px 0; font-weight: 700;">TOTAL USD: $${cot.totalUSD.toFixed(2)} USD</p>
+                        ` : `
+                            <p style="margin: 1px 0; font-weight: 900; font-size: 12px;">TOTAL USD: $${cot.totalUSD.toFixed(2)}</p>
+                            <p style="margin: 1px 0; font-weight: 700;">TOTAL COP: ${window.formatearMiles(totalCOP)} COP</p>
+                            <p style="margin: 1px 0; font-weight: 700;">TOTAL Bs.: ${window.formatBS(totalBs)} Bs</p>
+                        `)}
+                        ${ahorroCotUSD > 0.005 ? `<p style="margin: 2px 0 0 0; font-size: 8.5px; font-weight: 900;">AHORRO APLICADO: ${fmtCotVal(ahorroCotUSD)}</p>` : ''}
                     </div>
+                    ${(anticipoPct > 0 || diasVal > 0 || cot.notaAdicional) ? `
+                        <div style="border: 1px dashed #000; padding: 4px; margin-bottom: 5px; font-size: 8px; line-height: 1.3; text-align: left;">
+                            ${anticipoPct > 0 ? `<p style="margin: 1px 0; font-weight: 900;">ANTICIPO REQUERIDO (${anticipoPct}%): ${fmtCotVal(anticipoUSD)}</p>` : ''}
+                            ${diasVal > 0 ? `<p style="margin: 1px 0;">Válido por ${diasVal} días (hasta ${fechaVenceStr}). Pasado este plazo, los precios están sujetos a revisión.</p>` : ''}
+                            ${cot.notaAdicional ? `<p style="margin: 1px 0;"><strong>Nota:</strong> ${window.escapeHTML(cot.notaAdicional)}</p>` : ''}
+                        </div>
+                    ` : ''}
                     <div style="text-align: center; font-size: 8px; margin-top: 6px; border-top: 1px dashed #000; padding-top: 5px; line-height: 1.25;">
                         <p style="margin: 1px 0; font-weight: 900;">PRESUPUESTO SUJETO A DISPONIBILIDAD</p>
                         <p style="margin: 2px 0 0 0; font-weight: 900;">TCL Comercio Web • TUCOCEL C.A.</p>
@@ -13204,17 +13271,33 @@ _Un respaldo de TUCOCEL C.A. & @PublionlineMK_`;
             `;
         };
 
-        window.emitirCotizacionDesdePOS = async function() {
+        window.emitirCotizacionDesdePOS = function() {
             if (!window.carritoPOS || window.carritoPOS.length === 0) {
                 alert("⚠️ Agregue productos al carrito antes de generar una cotización.");
                 return;
             }
+            const inpVal = document.getElementById('cot-cond-dias-validez');
+            const inpAnt = document.getElementById('cot-cond-anticipo-pct');
+            const inpNot = document.getElementById('cot-cond-nota-extra');
+            if (inpVal && !inpVal.value) inpVal.value = '5';
+            if (inpAnt) inpAnt.value = '';
+            if (inpNot) inpNot.value = '';
+            window.recalcularPreviewCondicionesCotizacion();
+            document.getElementById('modal-condiciones-cotizacion').classList.remove('hidden');
+        };
+
+        window.confirmarEmisionCotizacionDesdePOS = async function() {
+            if (!window.carritoPOS || window.carritoPOS.length === 0) return;
             const cajero = (document.getElementById('pos-input-cajero').value || window.cajeroActual || 'CAJA').trim();
             const cedula = (document.getElementById('pos-input-cedula').value || '').trim() || 'J-00000000-0';
             const cliente = (document.getElementById('pos-input-cliente').value || 'CLIENTE GENERAL').trim();
             const telefono = (document.getElementById('pos-input-telefono').value || '').trim();
             const direccion = (document.getElementById('pos-input-direccion').value || '').trim();
             const totalUSD = window.carritoPOS.reduce((acc, p) => acc + (p.precioUSD * p.cant), 0);
+
+            const diasValidez = Math.max(0, parseInt((document.getElementById('cot-cond-dias-validez') || {}).value || '0', 10) || 0);
+            const anticipoPct = Math.max(0, Math.min(100, window.limpiarMontoManual((document.getElementById('cot-cond-anticipo-pct') || {}).value || '0')));
+            const notaAdicional = ((document.getElementById('cot-cond-nota-extra') || {}).value || '').trim();
 
             const gCot = localStorage.getItem(window.getTenantStorageKey('cotizaciones'));
             if (gCot && (!window.dbCotizaciones || window.dbCotizaciones.length === 0)) {
@@ -13231,6 +13314,9 @@ _Un respaldo de TUCOCEL C.A. & @PublionlineMK_`;
                 cliente,
                 telefono,
                 direccion,
+                diasValidez,
+                anticipoPct,
+                notaAdicional,
                 items: JSON.parse(JSON.stringify(window.carritoPOS)),
                 totalUSD,
                 fechaMs: Date.now()
@@ -13246,6 +13332,7 @@ _Un respaldo de TUCOCEL C.A. & @PublionlineMK_`;
                 } catch (e) {}
             }
 
+            document.getElementById('modal-condiciones-cotizacion').classList.add('hidden');
             window.abrirVistaPreviaCotizacion(nuevaCot.id);
         };
 
@@ -13270,16 +13357,19 @@ _Un respaldo de TUCOCEL C.A. & @PublionlineMK_`;
 
             if (acciones) {
                 acciones.innerHTML = `
-                    <button type="button" onclick="window.ejecutarImpresionTermicaVigilada(document.getElementById('cuerpo-modal-auditoria').innerHTML, 'COTIZACION')" class="bg-slate-800 hover:bg-slate-700 text-white px-3 py-2 rounded-xl text-[10px] font-black uppercase flex items-center gap-1">
-                        <i class="fa-solid fa-print"></i> Imprimir
+                    <button type="button" onclick="window.imprimirCotizacionFormatoA4('${cot.id}')" class="bg-amber-500 hover:bg-amber-400 text-slate-950 px-2.5 py-2 rounded-xl text-[10px] font-black uppercase flex items-center gap-1">
+                        <i class="fa-solid fa-file-lines"></i> Hoja A4
                     </button>
-                    <button type="button" onclick="window.enviarCotizacionWhatsApp('${cot.id}')" class="bg-emerald-600 hover:bg-emerald-500 text-white px-3 py-2 rounded-xl text-[10px] font-black uppercase flex items-center gap-1">
+                    <button type="button" onclick="window.ejecutarImpresionTermicaVigilada(document.getElementById('cuerpo-modal-auditoria').innerHTML, 'COTIZACION')" class="bg-slate-800 hover:bg-slate-700 text-white px-2.5 py-2 rounded-xl text-[10px] font-black uppercase flex items-center gap-1">
+                        <i class="fa-solid fa-print"></i> Ticket
+                    </button>
+                    <button type="button" onclick="window.enviarCotizacionWhatsApp('${cot.id}')" class="bg-emerald-600 hover:bg-emerald-500 text-white px-2.5 py-2 rounded-xl text-[10px] font-black uppercase flex items-center gap-1">
                         <i class="fa-brands fa-whatsapp"></i> WhatsApp
                     </button>
-                    <button type="button" onclick="window.cargarCotizacionEnPOS('${cot.id}')" class="bg-blue-600 hover:bg-blue-500 text-white px-3 py-2 rounded-xl text-[10px] font-black uppercase flex items-center gap-1">
-                        <i class="fa-solid fa-cash-register"></i> Facturar Ahora
+                    <button type="button" onclick="window.cargarCotizacionEnPOS('${cot.id}')" class="bg-blue-600 hover:bg-blue-500 text-white px-2.5 py-2 rounded-xl text-[10px] font-black uppercase flex items-center gap-1">
+                        <i class="fa-solid fa-cash-register"></i> Facturar
                     </button>
-                    <button type="button" onclick="document.getElementById('modal-detalle-auditoria').classList.add('hidden')" class="bg-slate-200 hover:bg-slate-300 text-slate-800 px-3 py-2 rounded-xl text-[10px] font-black uppercase">
+                    <button type="button" onclick="document.getElementById('modal-detalle-auditoria').classList.add('hidden')" class="bg-slate-200 hover:bg-slate-300 text-slate-800 px-2.5 py-2 rounded-xl text-[10px] font-black uppercase">
                         Cerrar
                     </button>
                 `;
@@ -13292,34 +13382,46 @@ _Un respaldo de TUCOCEL C.A. & @PublionlineMK_`;
             const cot = (window.dbCotizaciones || []).find(c => c.id === cotId);
             if (!cot) return;
             const nomComercio = (window.clienteActivoSesion && window.clienteActivoSesion.nombre ? window.clienteActivoSesion.nombre : 'TUCOCEL C.A.').toUpperCase();
-            const totalCOP = window.calcularPesosDesdeUSD(cot.totalUSD);
-            const totalBs = window.calcularBsDesdeUSD(cot.totalUSD);
+            const mCot = (cot.monedaOriginal || 'USD').toUpperCase();
+            const presTot = window.obtenerPresentacionMultimoneda(cot.totalUSD, mCot);
 
-            let msj = `📋 *COTIZACIÓN / PRESUPUESTO ${cot.numero}*
-`;
-            msj += `🏪 *${nomComercio}*
-`;
-            msj += `👤 *Cliente:* ${cot.cliente}
-`;
-            msj += `----------------------------------------
-`;
+            let msj = `📋 *COTIZACIÓN / PRESUPUESTO ${cot.numero}*\n`;
+            msj += `🏪 *${nomComercio}*\n`;
+            msj += `👤 *Cliente:* ${cot.cliente}\n`;
+            msj += `----------------------------------------\n`;
+            let ahorroCotWaUSD = 0;
             (cot.items || []).forEach(it => {
-                msj += `• ${it.cant}x ${it.nombre}: $${(it.precioUSD * it.cant).toFixed(2)} USD
-`;
+                const pSub = window.obtenerPresentacionMultimoneda(it.precioUSD * it.cant, mCot);
+                const tieneReb = (it.precioBaseUSD && it.precioBaseUSD > (it.precioUSD + 0.0001));
+                if (tieneReb) {
+                    ahorroCotWaUSD += (it.precioBaseUSD - it.precioUSD) * it.cant;
+                    const pNorm = window.obtenerPresentacionMultimoneda(it.precioBaseUSD, mCot);
+                    msj += `• ${it.cant}x ${it.nombre}: ${pSub.principal} _(Precio normal: ${pNorm.principal})_\n`;
+                } else {
+                    msj += `• ${it.cant}x ${it.nombre}: ${pSub.principal}\n`;
+                }
             });
-            msj += `----------------------------------------
-`;
-            msj += `💰 *TOTAL PRESUPUESTO:*
-`;
-            msj += `💵 USD: $${cot.totalUSD.toFixed(2)} USD
-`;
-            msj += `🇨🇴 COP: ${window.formatearMiles(totalCOP)} COP
-`;
-            msj += `🇻🇪 Bs.: ${window.formatBS(totalBs)} Bs
-
-`;
-            msj += `_Presupuesto informativo sujeto a disponibilidad de inventario._
-*Sistema TCL Comercio Web*`;
+            msj += `----------------------------------------\n`;
+            msj += `💰 *TOTAL PRESUPUESTO:* ${presTot.principal}\n`;
+            msj += `(${presTot.secundario})\n`;
+            if (ahorroCotWaUSD > 0.005) {
+                const pAh = window.obtenerPresentacionMultimoneda(ahorroCotWaUSD, mCot);
+                msj += `🎁 *Ahorro aplicado:* ${pAh.principal}\n`;
+            }
+            const diasVal = parseInt(cot.diasValidez || 0, 10);
+            const anticipoPct = parseFloat(cot.anticipoPct || 0);
+            if (anticipoPct > 0) {
+                const pAnt = window.obtenerPresentacionMultimoneda(cot.totalUSD * (anticipoPct / 100), mCot);
+                msj += `💳 *Anticipo requerido (${anticipoPct}%):* ${pAnt.principal}\n`;
+            }
+            if (diasVal > 0) {
+                const fechaVenceStr = window.formatearFechaCortaDDMMYYYY((cot.fechaMs || Date.now()) + diasVal * 86400000);
+                msj += `⏳ *Validez:* ${diasVal} días (hasta el ${fechaVenceStr}). Pasado este plazo, los precios están sujetos a revisión.\n`;
+            }
+            if (cot.notaAdicional) {
+                msj += `📝 *Nota:* ${cot.notaAdicional}\n`;
+            }
+            msj += `\n_Presupuesto informativo sujeto a disponibilidad de inventario._\n*Sistema TCL Comercio Web*`;
 
             const tel = (cot.telefono || '').replace(/[^0-9]/g, '');
             window.despacharWhatsApp(tel, msj);
@@ -13350,9 +13452,13 @@ _Un respaldo de TUCOCEL C.A. & @PublionlineMK_`;
                         if (cantFinal < it.cant) {
                             alertasStock.push(`• ${it.nombre}: ajustado a ${cantFinal} disponibles.`);
                         }
+                        const baseAct = prodInv.precioVenta || prodInv.precioUSD || it.precioUSD;
+                        const mantieneEspecial = (it.precioEspecial && it.precioUSD > 0);
                         itemsCargados.push({
                             ...it,
-                            precioUSD: prodInv.precioVenta || prodInv.precioUSD || it.precioUSD,
+                            precioBaseUSD: baseAct,
+                            precioUSD: mantieneEspecial ? it.precioUSD : baseAct,
+                            precioEspecial: mantieneEspecial,
                             cant: cantFinal,
                             max: prodInv.esServicio ? 9999 : (Number(prodInv.stock) || 9999)
                         });
@@ -14249,6 +14355,356 @@ ${alertasStock.join('\n')}`);
             </div>
         </div>
     </div>
+
+    <!-- MODAL PRECIO ESPECIAL POR PRODUCTO EN CAJA / PRESUPUESTO -->
+    <div id="modal-editar-precio-item-pos" class="fixed inset-0 bg-slate-950/85 backdrop-blur-md z-[135] p-3 sm:p-4 flex items-center justify-center hidden no-print" onclick="if(event.target === this) document.getElementById('modal-editar-precio-item-pos').classList.add('hidden')">
+        <div class="bg-white border border-slate-200 w-full max-w-sm rounded-3xl overflow-hidden shadow-2xl flex flex-col text-xs font-bold">
+            <div class="bg-slate-900 px-4 py-3.5 text-white flex justify-between items-center shrink-0">
+                <div class="flex items-center gap-2">
+                    <i class="fa-solid fa-tag text-amber-400 text-sm"></i>
+                    <h3 class="font-black text-xs uppercase tracking-wider">Ajustar Precio en Esta Nota</h3>
+                </div>
+                <button type="button" onclick="document.getElementById('modal-editar-precio-item-pos').classList.add('hidden')" class="text-slate-300 hover:text-white bg-slate-800 hover:bg-red-600 w-7 h-7 rounded-lg flex items-center justify-center">
+                    <i class="fa-solid fa-xmark text-sm"></i>
+                </button>
+            </div>
+
+            <div class="p-4 space-y-3">
+                <input type="hidden" id="edit-pos-item-idx" value="">
+                <div class="bg-blue-50 border border-blue-200 rounded-2xl p-2.5 text-[10.5px] text-blue-950 font-medium leading-snug">
+                    <i class="fa-solid fa-circle-info text-blue-600 mr-1"></i>
+                    Este ajuste aplica <strong>solo a esta venta o presupuesto</strong>. El precio base de tu inventario queda intacto.
+                </div>
+
+                <div class="bg-slate-50 border border-slate-200 rounded-2xl p-3 space-y-1">
+                    <span class="text-[9px] text-slate-400 uppercase font-mono block">Producto Seleccionado</span>
+                    <strong id="lbl-edit-pos-item-nombre" class="text-xs font-black text-slate-900 uppercase block break-words">PRODUCTO</strong>
+                    <div class="flex justify-between items-center pt-1 border-t border-slate-200/80 font-mono text-[10.5px]">
+                        <span class="text-slate-500">Precio normal:</span>
+                        <strong id="lbl-edit-pos-item-base" class="text-slate-800 font-black">0 COP</strong>
+                    </div>
+                </div>
+
+                <div>
+                    <label id="lbl-edit-pos-item-input-mon" class="text-[9.5px] text-slate-700 uppercase font-black block mb-1">Nuevo Precio Unitario (COP) *</label>
+                    <input type="text" inputmode="decimal" id="input-edit-pos-item-precio" oninput="window.autoFormatearSeparadoresInput(this, true); window.recalcularPreviewPrecioEspecialPOS();" placeholder="Ej: 3.800" class="input-clean font-mono text-lg font-black text-blue-700 border-2 border-blue-400 text-center">
+                </div>
+
+                <div id="box-preview-precio-especial-pos" class="bg-emerald-50 border border-emerald-200 rounded-2xl p-2.5 text-center font-mono space-y-0.5">
+                    <span class="text-[9px] text-emerald-700 uppercase font-bold block">Nuevo Subtotal del Artículo</span>
+                    <strong id="lbl-preview-subtotal-especial-pos" class="text-sm font-black text-emerald-900">0 COP</strong>
+                    <span id="lbl-preview-ahorro-especial-pos" class="text-[9.5px] text-amber-800 font-bold block"></span>
+                </div>
+            </div>
+
+            <div class="bg-slate-100 p-3 border-t border-slate-200 grid grid-cols-2 gap-2 shrink-0">
+                <button type="button" onclick="window.restaurarPrecioNormalItemPOS()" class="bg-white hover:bg-slate-200 text-slate-700 border border-slate-300 py-2.5 px-2 rounded-xl uppercase text-[10px] font-black">
+                    Restaurar Normal
+                </button>
+                <button type="button" onclick="window.aplicarPrecioEspecialItemPOS()" class="btn-brand py-2.5 px-2 text-[10px] shadow-md">
+                    Aplicar Precio
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <!-- MODAL CONDICIONES DEL PRESUPUESTO / COTIZACIÓN (100% MANUALES Y OPCIONALES) -->
+    <div id="modal-condiciones-cotizacion" class="fixed inset-0 bg-slate-950/85 backdrop-blur-md z-[135] p-3 sm:p-4 flex items-center justify-center hidden no-print" onclick="if(event.target === this) document.getElementById('modal-condiciones-cotizacion').classList.add('hidden')">
+        <div class="bg-white border border-slate-200 w-full max-w-md rounded-3xl overflow-hidden shadow-2xl flex flex-col max-h-[90vh] text-xs font-bold">
+            <div class="bg-slate-900 px-4 py-3.5 text-white flex justify-between items-center shrink-0">
+                <div class="flex items-center gap-2">
+                    <i class="fa-solid fa-file-invoice text-amber-400 text-sm"></i>
+                    <h3 class="font-black text-xs uppercase tracking-wider">Condiciones del Presupuesto</h3>
+                </div>
+                <button type="button" onclick="document.getElementById('modal-condiciones-cotizacion').classList.add('hidden')" class="text-slate-300 hover:text-white bg-slate-800 hover:bg-red-600 w-7 h-7 rounded-lg flex items-center justify-center">
+                    <i class="fa-solid fa-xmark text-sm"></i>
+                </button>
+            </div>
+
+            <div class="p-4 overflow-y-auto space-y-3.5 no-scrollbar">
+                <div class="grid grid-cols-1 sm:grid-cols-2 gap-3">
+                    <div>
+                        <label class="text-[9.5px] text-slate-700 uppercase font-black block mb-1">Días de Validez</label>
+                        <input type="number" min="0" step="1" id="cot-cond-dias-validez" value="5" oninput="window.recalcularPreviewCondicionesCotizacion()" placeholder="Ej: 5" class="input-clean font-mono text-sm font-black text-blue-700 text-center">
+                        <span class="text-[8.5px] text-slate-400 block mt-0.5 leading-tight">Pon 0 si no lleva vencimiento.</span>
+                    </div>
+                    <div>
+                        <label class="text-[9.5px] text-slate-700 uppercase font-black block mb-1">Anticipo Requerido (%)</label>
+                        <input type="number" min="0" max="100" step="any" id="cot-cond-anticipo-pct" value="" oninput="window.recalcularPreviewCondicionesCotizacion()" placeholder="Ej: 30, 50, 65..." class="input-clean font-mono text-sm font-black text-emerald-700 text-center">
+                        <span class="text-[8.5px] text-slate-400 block mt-0.5 leading-tight">Opcional: déjalo vacío si no aplica.</span>
+                    </div>
+                </div>
+
+                <div>
+                    <label class="text-[9.5px] text-slate-700 uppercase font-black block mb-1">Nota Adicional Corta (Opcional)</label>
+                    <input type="text" id="cot-cond-nota-extra" oninput="window.recalcularPreviewCondicionesCotizacion()" placeholder="Ej: Entrega en 3 días hábiles tras confirmar..." class="input-clean text-xs">
+                </div>
+
+                <div id="box-preview-condiciones-cot" class="bg-slate-50 border border-slate-200 rounded-2xl p-3 space-y-1 text-[10.5px] text-slate-700 font-medium leading-snug">
+                </div>
+            </div>
+
+            <div class="bg-slate-100 p-3.5 border-t border-slate-200 grid grid-cols-2 gap-2 shrink-0">
+                <button type="button" onclick="document.getElementById('modal-condiciones-cotizacion').classList.add('hidden')" class="bg-white hover:bg-slate-200 text-slate-700 border border-slate-300 py-3 rounded-xl uppercase text-xs font-black">
+                    Cancelar
+                </button>
+                <button type="button" onclick="window.confirmarEmisionCotizacionDesdePOS()" class="btn-brand py-3 text-xs shadow-md flex items-center justify-center gap-1.5">
+                    <i class="fa-solid fa-check"></i> <span>Generar Presupuesto</span>
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // =========================================================================
+        // EDICIÓN SILENCIOSA DE PRECIO UNITARIO EN CARRITO POS / COTIZACIÓN
+        // =========================================================================
+        window.abrirModalPrecioEspecialPOS = function(idx) {
+            const item = (window.carritoPOS || [])[idx];
+            if (!item) return;
+            if (item.precioBaseUSD === undefined || item.precioBaseUSD === null) {
+                item.precioBaseUSD = Number(item.precioUSD) || 0;
+            }
+            const mon = window.monedaCargaPOS || 'USD';
+            document.getElementById('edit-pos-item-idx').value = String(idx);
+            document.getElementById('lbl-edit-pos-item-nombre').innerText = item.nombre || 'PRODUCTO';
+
+            const fmtMon = (u) => {
+                if (mon === 'COP') return `${window.formatearMiles(window.calcularPesosDesdeUSD(u))} COP`;
+                if (mon === 'BS') return `${window.formatBS(window.calcularBsDesdeUSD(u))} Bs`;
+                return `$${Number(u || 0).toFixed(2)} USD`;
+            };
+
+            document.getElementById('lbl-edit-pos-item-base').innerText = fmtMon(item.precioBaseUSD);
+            document.getElementById('lbl-edit-pos-item-input-mon').innerText =
+                mon === 'COP' ? 'Nuevo Precio Unitario (COP) *' : (mon === 'BS' ? 'Nuevo Precio Unitario (Bs) *' : 'Nuevo Precio Unitario ($ USD) *');
+
+            const valActualMon = mon === 'COP'
+                ? window.formatearMiles(Math.round(window.calcularPesosDesdeUSD(item.precioUSD)))
+                : (mon === 'BS' ? window.calcularBsDesdeUSD(item.precioUSD).toFixed(2).replace('.', ',') : Number(item.precioUSD).toFixed(2).replace('.', ','));
+
+            const inp = document.getElementById('input-edit-pos-item-precio');
+            inp.value = valActualMon;
+            window.recalcularPreviewPrecioEspecialPOS();
+            document.getElementById('modal-editar-precio-item-pos').classList.remove('hidden');
+            setTimeout(() => { inp.focus(); inp.select(); }, 60);
+        };
+
+        window.recalcularPreviewPrecioEspecialPOS = function() {
+            const idx = parseInt(document.getElementById('edit-pos-item-idx').value, 10);
+            const item = (window.carritoPOS || [])[idx];
+            if (!item) return;
+            const mon = window.monedaCargaPOS || 'USD';
+            const valRaw = window.limpiarMontoManual(document.getElementById('input-edit-pos-item-precio').value);
+            let nuevoUSD = valRaw;
+            if (mon === 'COP') nuevoUSD = window.calcularUSDDesdeCOP(valRaw);
+            else if (mon === 'BS') nuevoUSD = window.calcularUSDDesdeBs(valRaw);
+
+            const fmtMon = (u) => {
+                if (mon === 'COP') return `${window.formatearMiles(window.calcularPesosDesdeUSD(u))} COP`;
+                if (mon === 'BS') return `${window.formatBS(window.calcularBsDesdeUSD(u))} Bs`;
+                return `$${Number(u || 0).toFixed(2)} USD`;
+            };
+
+            const subNuevo = nuevoUSD * item.cant;
+            document.getElementById('lbl-preview-subtotal-especial-pos').innerText = fmtMon(subNuevo);
+            const diffUSD = (item.precioBaseUSD - nuevoUSD) * item.cant;
+            const lblAh = document.getElementById('lbl-preview-ahorro-especial-pos');
+            if (diffUSD > 0.005) {
+                lblAh.innerText = `Rebaja total en este renglón: -${fmtMon(diffUSD)}`;
+            } else if (diffUSD < -0.005) {
+                lblAh.innerText = `Ajuste sobre precio base: +${fmtMon(Math.abs(diffUSD))}`;
+            } else {
+                lblAh.innerText = `Precio normal sin modificación`;
+            }
+        };
+
+        window.aplicarPrecioEspecialItemPOS = function() {
+            const idx = parseInt(document.getElementById('edit-pos-item-idx').value, 10);
+            const item = (window.carritoPOS || [])[idx];
+            if (!item) return;
+            const mon = window.monedaCargaPOS || 'USD';
+            const valRaw = window.limpiarMontoManual(document.getElementById('input-edit-pos-item-precio').value);
+            if (valRaw <= 0) {
+                alert("⚠️ Ingrese un precio unitario válido mayor a 0.");
+                return;
+            }
+            let nuevoUSD = valRaw;
+            if (mon === 'COP') nuevoUSD = window.calcularUSDDesdeCOP(valRaw);
+            else if (mon === 'BS') nuevoUSD = window.calcularUSDDesdeBs(valRaw);
+
+            item.precioUSD = nuevoUSD;
+            item.precioEspecial = Math.abs(nuevoUSD - (item.precioBaseUSD || nuevoUSD)) > 0.0001;
+            document.getElementById('modal-editar-precio-item-pos').classList.add('hidden');
+            window.renderizarCarritoPOS();
+        };
+
+        window.restaurarPrecioNormalItemPOS = function() {
+            const idx = parseInt(document.getElementById('edit-pos-item-idx').value, 10);
+            const item = (window.carritoPOS || [])[idx];
+            if (!item) return;
+            if (item.precioBaseUSD > 0) {
+                item.precioUSD = item.precioBaseUSD;
+            }
+            item.precioEspecial = false;
+            document.getElementById('modal-editar-precio-item-pos').classList.add('hidden');
+            window.renderizarCarritoPOS();
+        };
+
+        // =========================================================================
+        // PREVIEW CONDICIONES DE COTIZACIÓN + IMPRESIÓN HOJA A4 (NOTA & PRESUPUESTO)
+        // =========================================================================
+        window.recalcularPreviewCondicionesCotizacion = function() {
+            const box = document.getElementById('box-preview-condiciones-cot');
+            if (!box) return;
+            const dias = Math.max(0, parseInt((document.getElementById('cot-cond-dias-validez') || {}).value || '0', 10) || 0);
+            const antPct = Math.max(0, Math.min(100, window.limpiarMontoManual((document.getElementById('cot-cond-anticipo-pct') || {}).value || '0')));
+            const notaEx = ((document.getElementById('cot-cond-nota-extra') || {}).value || '').trim();
+            const totalUSD = (window.carritoPOS || []).reduce((acc, p) => acc + (p.precioUSD * p.cant), 0);
+            const mon = window.monedaCargaPOS || 'USD';
+            const presTot = window.obtenerPresentacionMultimoneda(totalUSD, mon);
+
+            let lines = [`<div><strong>Total del Presupuesto:</strong> ${presTot.principal} <span class="text-slate-500">(${presTot.secundario})</span></div>`];
+            if (antPct > 0) {
+                const presAnt = window.obtenerPresentacionMultimoneda(totalUSD * (antPct / 100), mon);
+                lines.push(`<div class="text-emerald-800"><strong>💳 Anticipo (${antPct}%):</strong> ${presAnt.principal}</div>`);
+            }
+            if (dias > 0) {
+                const fVence = window.formatearFechaCortaDDMMYYYY(Date.now() + dias * 86400000);
+                lines.push(`<div class="text-blue-900"><strong>⏳ Validez:</strong> ${dias} días (hasta el ${fVence}). Pasado este plazo, los precios están sujetos a revisión.</div>`);
+            }
+            if (notaEx) {
+                lines.push(`<div><strong>📝 Nota:</strong> ${window.escapeHTML(notaEx)}</div>`);
+            }
+            if (antPct <= 0 && dias <= 0 && !notaEx) {
+                lines.push(`<div class="text-slate-500 italic">Se emitirá el presupuesto estándar sin condiciones adicionales.</div>`);
+            }
+            box.innerHTML = lines.join('');
+        };
+
+        window.construirHTMLDocumentoA4 = function(docObj, esCotizacion = false) {
+            const nombreNegocio = window.escapeHTML((window.clienteActivoSesion ? window.clienteActivoSesion.nombre : 'TUCOCEL C.A.').toUpperCase());
+            const rifNegocio = window.clienteActivoSesion && window.clienteActivoSesion.rif ? window.escapeHTML(window.clienteActivoSesion.rif) : '';
+            const dirNegocio = window.clienteActivoSesion && window.clienteActivoSesion.direccion ? window.escapeHTML(window.clienteActivoSesion.direccion) : '';
+            const telNegocio = window.escapeHTML(window.clienteActivoSesion ? (window.clienteActivoSesion.wa || '0424-0000000') : '0424-7357549');
+
+            const d = new Date(docObj.fechaMs || Date.now());
+            const fechaStr = `${d.getDate().toString().padStart(2,'0')}/${(d.getMonth()+1).toString().padStart(2,'0')}/${d.getFullYear()} ${d.getHours().toString().padStart(2,'0')}:${d.getMinutes().toString().padStart(2,'0')}`;
+            const mon = (docObj.monedaOriginal || 'USD').toUpperCase();
+            const fmtVal = (u) => {
+                if (mon === 'COP') return `${window.formatearMiles(window.calcularPesosDesdeUSD(u))} COP`;
+                if (mon === 'BS') return `${window.formatBS(window.calcularBsDesdeUSD(u))} Bs`;
+                return `$${Number(u || 0).toFixed(2)} USD`;
+            };
+
+            let ahorroTotalUSD = 0;
+            const rowsHtml = (docObj.items || []).map((it, i) => {
+                const tieneReb = (it.precioBaseUSD && it.precioBaseUSD > (it.precioUSD + 0.0001));
+                if (tieneReb) ahorroTotalUSD += (it.precioBaseUSD - it.precioUSD) * it.cant;
+                return `
+                    <tr style="border-bottom: 1px solid #cbd5e1;">
+                        <td style="padding: 6px; text-align: center;">${i + 1}</td>
+                        <td style="padding: 6px;">
+                            <div style="font-weight: 800; text-transform: uppercase;">${window.escapeHTML(it.nombre)}</div>
+                            ${tieneReb ? `<div style="font-size: 9px; color: #b45309;">Precio normal: ${fmtVal(it.precioBaseUSD)}</div>` : ''}
+                        </td>
+                        <td style="padding: 6px; text-align: center; font-weight: 700;">${it.cant} ${it.unidad || 'UND'}</td>
+                        <td style="padding: 6px; text-align: right;">${fmtVal(it.precioUSD)}</td>
+                        <td style="padding: 6px; text-align: right; font-weight: 800;">${fmtVal(it.precioUSD * it.cant)}</td>
+                    </tr>
+                `;
+            }).join('');
+
+            const totalCOP = window.calcularPesosDesdeUSD(docObj.totalUSD);
+            const totalBs = window.calcularBsDesdeUSD(docObj.totalUSD);
+            const diasVal = parseInt(docObj.diasValidez || 0, 10);
+            const anticipoPct = parseFloat(docObj.anticipoPct || 0);
+            const fechaVenceStr = diasVal > 0 ? window.formatearFechaCortaDDMMYYYY((docObj.fechaMs || Date.now()) + diasVal * 86400000) : '';
+
+            return `
+                <div style="width: 100%; color: #0f172a; background: #fff; font-family: 'Plus Jakarta Sans', Arial, sans-serif;">
+                    <div style="display: flex; justify-content: space-between; align-items: flex-start; border-bottom: 2px solid #0f172a; padding-bottom: 10px; margin-bottom: 12px;">
+                        <div>
+                            <h1 style="font-size: 18px; font-weight: 900; margin: 0;">${nombreNegocio}</h1>
+                            ${rifNegocio ? `<p style="font-size: 10px; margin: 2px 0;">RIF: ${rifNegocio}</p>` : ''}
+                            ${dirNegocio ? `<p style="font-size: 10px; margin: 2px 0;">${dirNegocio}</p>` : ''}
+                            <p style="font-size: 10px; margin: 2px 0;">Tel / WhatsApp: ${telNegocio}</p>
+                        </div>
+                        <div style="text-align: right;">
+                            <div style="background: #0f172a; color: #fff; padding: 5px 12px; border-radius: 6px; font-size: 12px; font-weight: 900;">
+                                ${esCotizacion ? `COTIZACIÓN / PRESUPUESTO ${window.escapeHTML(docObj.numero)}` : `NOTA DE ENTREGA #${window.escapeHTML(docObj.correlativo || '')}`}
+                            </div>
+                            <p style="font-size: 10px; margin: 4px 0 0 0;"><strong>Fecha:</strong> ${fechaStr}</p>
+                            ${esCotizacion && diasVal > 0 ? `<p style="font-size: 10px; color: #1d4ed8; font-weight: 800; margin: 2px 0 0 0;">Válida hasta: ${fechaVenceStr} (${diasVal} días)</p>` : ''}
+                        </div>
+                    </div>
+
+                    <div style="background: #f8fafc; border: 1px solid #cbd5e1; border-radius: 8px; padding: 8px 12px; margin-bottom: 12px; font-size: 10.5px;">
+                        <p style="margin: 2px 0;"><strong>Cliente:</strong> ${window.escapeHTML(docObj.cliente)} &nbsp;|&nbsp; <strong>CI/RIF:</strong> ${window.escapeHTML(docObj.cedula || 'N/A')}</p>
+                        ${docObj.telefono && docObj.telefono !== 'N/A' ? `<p style="margin: 2px 0;"><strong>Teléfono:</strong> ${window.escapeHTML(docObj.telefono)}</p>` : ''}
+                        ${docObj.direccion && docObj.direccion !== 'N/A' ? `<p style="margin: 2px 0;"><strong>Dirección:</strong> ${window.escapeHTML(docObj.direccion)}</p>` : ''}
+                        <p style="margin: 2px 0;"><strong>Atendido por:</strong> ${window.escapeHTML(docObj.cajero || 'MOSTRADOR')}</p>
+                    </div>
+
+                    <table style="width: 100%; border-collapse: collapse; font-size: 10.5px; margin-bottom: 14px;">
+                        <thead>
+                            <tr style="background: #0f172a; color: #fff;">
+                                <th style="padding: 6px; text-align: center; width: 32px;">#</th>
+                                <th style="padding: 6px; text-align: left;">Descripción del Producto / Servicio</th>
+                                <th style="padding: 6px; text-align: center;">Cant.</th>
+                                <th style="padding: 6px; text-align: right;">Precio Unit.</th>
+                                <th style="padding: 6px; text-align: right;">Subtotal</th>
+                            </tr>
+                        </thead>
+                        <tbody>${rowsHtml}</tbody>
+                    </table>
+
+                    <div style="display: flex; justify-content: space-between; align-items: flex-start; gap: 16px;">
+                        <div style="flex: 1; font-size: 10px; color: #334155;">
+                            ${esCotizacion ? `
+                                <div style="border: 1px solid #cbd5e1; background: #f8fafc; padding: 8px 10px; border-radius: 8px; line-height: 1.4;">
+                                    <p style="margin: 0 0 3px 0; font-weight: 900; color: #0f172a;">CONDICIONES DEL PRESUPUESTO:</p>
+                                    ${anticipoPct > 0 ? `<p style="margin: 2px 0; font-weight: 800; color: #047857;">• Anticipo requerido para confirmar (${anticipoPct}%): ${fmtVal(docObj.totalUSD * (anticipoPct / 100))}</p>` : ''}
+                                    ${diasVal > 0 ? `<p style="margin: 2px 0;">• Presupuesto válido por ${diasVal} días (hasta el ${fechaVenceStr}). Pasado este plazo, los precios están sujetos a revisión.</p>` : ''}
+                                    ${docObj.notaAdicional ? `<p style="margin: 2px 0;">• <strong>Nota:</strong> ${window.escapeHTML(docObj.notaAdicional)}</p>` : ''}
+                                    <p style="margin: 2px 0;">• Precios y disponibilidad sujetos a confirmación al momento de formalizar el pedido.</p>
+                                </div>
+                            ` : `<p style="margin: 0;">Documento administrativo interno no fiscal.</p>`}
+                        </div>
+                        <div style="min-width: 220px; border: 1.5px solid #0f172a; border-radius: 8px; padding: 8px 12px; text-align: right; font-size: 11px;">
+                            ${ahorroTotalUSD > 0.005 ? `<p style="margin: 2px 0; color: #b45309; font-weight: 800;">Ahorro aplicado: ${fmtVal(ahorroTotalUSD)}</p>` : ''}
+                            <p style="margin: 2px 0; font-size: 13px; font-weight: 900;">TOTAL ${mon}: ${fmtVal(docObj.totalUSD)}</p>
+                            <p style="margin: 2px 0; font-size: 10px; color: #475569;">Ref. USD: $${docObj.totalUSD.toFixed(2)} | COP: ${window.formatearMiles(totalCOP)} | Bs: ${window.formatBS(totalBs)}</p>
+                        </div>
+                    </div>
+
+                    <div style="margin-top: 18px; padding-top: 8px; border-top: 1px dashed #94a3b8; text-align: center; font-size: 9px; color: #64748b;">
+                        Emitido con Sistema TCL Comercio Web • Respaldado por TUCOCEL C.A.
+                    </div>
+                </div>
+            `;
+        };
+
+        window.imprimirNotaFormatoA4 = function() {
+            const ctx = window.ultimoPreviewNotaContext;
+            if (!ctx || !ctx.nota) return;
+            const printDirecto = document.getElementById('seccion-impresion-termica-directa');
+            if (!printDirecto) return;
+            printDirecto.className = 'hidden formato-a4';
+            printDirecto.innerHTML = window.construirHTMLDocumentoA4(ctx.nota, false);
+            setTimeout(() => { window.print(); }, 180);
+        };
+
+        window.imprimirCotizacionFormatoA4 = function(cotId) {
+            const cot = (window.dbCotizaciones || []).find(c => c.id === cotId) || window._cotizacionActivaPreview;
+            if (!cot) return;
+            const printDirecto = document.getElementById('seccion-impresion-termica-directa');
+            if (!printDirecto) return;
+            printDirecto.className = 'hidden formato-a4';
+            printDirecto.innerHTML = window.construirHTMLDocumentoA4(cot, true);
+            setTimeout(() => { window.print(); }, 180);
+        };
+    </script>
 
     <!-- MODAL LIGHTBOX PANTALLA COMPLETA PARA IMAGEN DE PRODUCTO EN VITRINA -->
     <div id="modal-lightbox-imagen-vitrina" style="touch-action: manipulation;" class="fixed inset-0 bg-slate-950/95 backdrop-blur-md z-[290] p-3 flex flex-col items-center justify-center hidden no-print select-none" onclick="if(event.target === this) window.cerrarLightboxImagenQuickView()">
