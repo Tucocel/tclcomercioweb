@@ -3970,6 +3970,24 @@ Ingrese monto abonado ($ USD):`, saldoActual.toFixed(2))) || 0;
             if (typeof window.sincronizarTenantConFirebase === 'function') {
                 window.sincronizarTenantConFirebase('ventas', nota);
             }
+
+            if (!window.dbAbonos) window.dbAbonos = [];
+            const regAboNota = {
+                id: 'abo_' + Date.now() + '_' + Math.random().toString(36).substr(2, 4),
+                cliente: (nota.cliente || 'CLIENTE').toUpperCase(),
+                montoUSD: abonoNuevo,
+                monedaOriginal: 'USD',
+                montoOriginal: abonoNuevo,
+                esDigital: false,
+                metodoPago: `💵 Abono Nota #${nota.correlativo}`,
+                fechaMs: Date.now()
+            };
+            window.dbAbonos.unshift(regAboNota);
+            window.tclSafeSetItem(window.getTenantStorageKey('abonos'), JSON.stringify(window.dbAbonos));
+            if (typeof window.sincronizarTenantConFirebase === 'function') {
+                window.sincronizarTenantConFirebase('abonos', regAboNota);
+            }
+
             if (typeof window.actualizarKPIsPanelCliente === 'function') {
                 window.actualizarKPIsPanelCliente();
             }
@@ -3977,8 +3995,7 @@ Ingrese monto abonado ($ USD):`, saldoActual.toFixed(2))) || 0;
                 window.calcularCierrePeriodoGerencial();
             }
 
-            alert(`✅ Abono de $${abonoNuevo.toFixed(2)} USD registrado con éxito.
-Saldo restante: $${nota.credito.saldoPendienteUSD.toFixed(2)} USD`);
+            alert(`✅ Abono de $${abonoNuevo.toFixed(2)} USD registrado con éxito.\nSaldo restante: $${nota.credito.saldoPendienteUSD.toFixed(2)} USD`);
         };
 
         window.marcarDeudaSaldadaCompleta = function(id) {
@@ -3986,6 +4003,7 @@ Saldo restante: $${nota.credito.saldoPendienteUSD.toFixed(2)} USD`);
             if (!nota || !nota.credito) return;
 
             if (confirm(`¿Marcar la Nota #${nota.correlativo} del cliente "${nota.cliente}" como DEUDA TOTALMENTE SALDADA?`)) {
+                const saldoCobradoHoy = Number(nota.credito.saldoPendienteUSD) || 0;
                 nota.credito.abonoInicialUSD = nota.totalUSD;
                 nota.credito.saldoPendienteUSD = 0;
                 nota.credito.estadoCredito = 'PAGADO';
@@ -3995,13 +4013,33 @@ Saldo restante: $${nota.credito.saldoPendienteUSD.toFixed(2)} USD`);
                 if (typeof window.sincronizarTenantConFirebase === 'function') {
                     window.sincronizarTenantConFirebase('ventas', nota);
                 }
+
+                if (saldoCobradoHoy > 0.005) {
+                    if (!window.dbAbonos) window.dbAbonos = [];
+                    const regSaldada = {
+                        id: 'abo_' + Date.now() + '_' + Math.random().toString(36).substr(2, 4),
+                        cliente: (nota.cliente || 'CLIENTE').toUpperCase(),
+                        montoUSD: saldoCobradoHoy,
+                        monedaOriginal: (nota.monedaOriginal || 'USD').toUpperCase(),
+                        montoOriginal: (nota.monedaOriginal === 'COP') ? Math.round(window.calcularPesosDesdeUSD(saldoCobradoHoy)) : (nota.monedaOriginal === 'BS' ? Number(window.calcularBsDesdeUSD(saldoCobradoHoy).toFixed(2)) : saldoCobradoHoy),
+                        esDigital: false,
+                        metodoPago: `✅ Cancelación Total Nota #${nota.correlativo}`,
+                        fechaMs: Date.now()
+                    };
+                    window.dbAbonos.unshift(regSaldada);
+                    window.tclSafeSetItem(window.getTenantStorageKey('abonos'), JSON.stringify(window.dbAbonos));
+                    if (typeof window.sincronizarTenantConFirebase === 'function') {
+                        window.sincronizarTenantConFirebase('abonos', regSaldada);
+                    }
+                }
+
                 if (typeof window.actualizarKPIsPanelCliente === 'function') {
                     window.actualizarKPIsPanelCliente();
                 }
                 if (typeof window.calcularCierrePeriodoGerencial === 'function') {
                     window.calcularCierrePeriodoGerencial();
                 }
-                alert(`✨ ¡Deuda Saldada! La nota #${nota.correlativo} ha sido retirada de las cuentas pendientes.`);
+                alert(`✨ ¡Deuda Saldada! La nota #${nota.correlativo} ha sido retirada de las cuentas pendientes y sumada al Cierre del Día.`);
             }
         };
 
@@ -6227,8 +6265,9 @@ Tu nueva clave de acceso es: ${nuevaClave}`);
                 }
             });
 
+            const presAbonoPrompt = window.obtenerPresentacionMultimoneda(abonoUSD, monedaElegida, montoNum);
             const viaPagoRaw = (prompt(
-                `¿Cómo recibió el abono de ${presAbonoFinal.principal}?\n` +
+                `¿Cómo recibió el abono de ${presAbonoPrompt.principal} (${presAbonoPrompt.secundario})?\n` +
                 `Escriba 1 o 2:\n` +
                 `1 = Efectivo en Caja (Gaveta)\n` +
                 `2 = Transferencia / Nequi / Pago Móvil (Banco)`,
@@ -10165,15 +10204,14 @@ $${(item.precioUSD * item.cant).toFixed(2)} USD
                 </div>
 
                 <div style="margin: 6px 0; font-size: 9px; font-family: monospace; color: #000; line-height: 1.35;">
-                    <p style="margin: 1px 0;"><strong>1. TOTAL VENDIDO:</strong> $${datos.totalVentasUSD.toFixed(2)} USD</p>
-                    <p style="margin: 1px 0;">• Equiv. COP: ${window.formatearMiles(totalCOP)} COP</p>
-                    <p style="margin: 1px 0;">• Equiv. Bs: ${window.formatBS(totalBs)} Bs (Paridad ${window.tasasConfig.paridadBs})</p>
+                    <p style="margin: 1px 0;"><strong>1. TOTAL VENDIDO:</strong> $${datos.totalVentasUSD.toFixed(2)} USD | ${window.formatearMiles(totalCOP)} COP | ${window.formatBS(totalBs)} Bs</p>
+                    ${datos.totalAbonosDiaUSD > 0 ? `<p style="margin: 1px 0;"><strong>+ ABONOS/CANCELACIONES HOY:</strong> $${datos.totalAbonosDiaUSD.toFixed(2)} USD | ${window.formatearMiles(window.calcularPesosDesdeUSD(datos.totalAbonosDiaUSD))} COP | ${window.formatBS(window.calcularBsDesdeUSD(datos.totalAbonosDiaUSD))} Bs</p>` : ''}
                     <div style="border-top: 1px dashed #000; border-bottom: 1px dashed #000; padding: 3px 0; margin: 4px 0;">
-                        <p style="margin: 1px 0;"><strong>2. REPONER MERCANCÍA:</strong> $${(datos.costoReposicionUSD || 0).toFixed(2)} USD</p>
-                        <p style="margin: 1px 0;"><strong>3. GASTOS OPERATIVOS:</strong> -$${datos.totalGastosUSD.toFixed(2)} USD</p>
-                        <p style="margin: 2px 0 0 0; font-weight: 900; font-size: 10px;">4. GANANCIA LIBRE: $${(datos.gananciaLibreUSD || 0).toFixed(2)} USD</p>
+                        <p style="margin: 1px 0;"><strong>2. REPONER MERCANCÍA:</strong> $${(datos.costoReposicionUSD || 0).toFixed(2)} USD | ${window.formatearMiles(window.calcularPesosDesdeUSD(datos.costoReposicionUSD || 0))} COP | ${window.formatBS(window.calcularBsDesdeUSD(datos.costoReposicionUSD || 0))} Bs</p>
+                        <p style="margin: 1px 0;"><strong>3. GASTOS OPERATIVOS:</strong> -$${datos.totalGastosUSD.toFixed(2)} USD | ${window.formatearMiles(window.calcularPesosDesdeUSD(datos.totalGastosUSD))} COP | ${window.formatBS(window.calcularBsDesdeUSD(datos.totalGastosUSD))} Bs</p>
+                        <p style="margin: 2px 0 0 0; font-weight: 900; font-size: 9.5px;">4. GANANCIA LIBRE: $${(datos.gananciaLibreUSD || 0).toFixed(2)} USD | ${window.formatearMiles(window.calcularPesosDesdeUSD(datos.gananciaLibreUSD || 0))} COP | ${window.formatBS(window.calcularBsDesdeUSD(datos.gananciaLibreUSD || 0))} Bs</p>
                     </div>
-                    <p style="margin: 1px 0;"><strong>EFECTIVO EN GAVETA:</strong> $${(datos.efectivoEsperadoGaveta || 0).toFixed(2)} USD</p>
+                    <p style="margin: 1px 0;"><strong>EFECTIVO EN GAVETA:</strong> $${(datos.efectivoEsperadoGaveta || 0).toFixed(2)} USD | ${window.formatearMiles(window.calcularPesosDesdeUSD(datos.efectivoEsperadoGaveta || 0))} COP | ${window.formatBS(window.calcularBsDesdeUSD(datos.efectivoEsperadoGaveta || 0))} Bs</p>
                     ${datos.arqueoMonedas ? `
                         <div style="border-top: 1px dashed #000; padding-top: 3px; margin-top: 3px;">
                             <p style="margin: 1px 0; font-weight: 900;">RECAUDO POR MONEDA:</p>
@@ -10384,9 +10422,15 @@ window.abrirModalReporteZ = function() {
             });
 
             ventasDia.forEach(v => {
+                const mOrig = (v.monedaOriginal || '').toUpperCase();
                 const m = v.pago || 'Otro';
                 const mLow = m.toLowerCase();
-                metodos[m] = (metodos[m] || 0) + v.totalUSD;
+                const labelMetodo = (mOrig === 'COP' && !mLow.includes('cop') && !mLow.includes('pesos') && !mLow.includes('nequi') && !mLow.includes('bancolombia'))
+                    ? '🇨🇴 Cobrado en Pesos (COP)'
+                    : ((mOrig === 'BS' && !mLow.includes('bs') && !mLow.includes('bolívar') && !mLow.includes('pago móvil'))
+                        ? '🇻🇪 Cobrado en Bolívares (Bs)'
+                        : m);
+                metodos[labelMetodo] = (metodos[labelMetodo] || 0) + v.totalUSD;
 
                 if (v.desgloseMixto) {
                     const mUSD = Number(v.desgloseMixto.abonoUSD) || 0;
@@ -10397,14 +10441,16 @@ window.abrirModalReporteZ = function() {
                     arqueoMonedas.bs += mBS;
                     totalEfectivoUSD += mUSD;
                     totalDigitalUSD += Math.max(0, v.totalUSD - mUSD);
-                } else if (mLow.includes('nequi') || mLow.includes('bancolombia') || mLow.includes('pesos') || mLow.includes('cop')) {
+                } else if (mOrig === 'COP' || mLow.includes('nequi') || mLow.includes('bancolombia') || mLow.includes('pesos') || mLow.includes('cop')) {
                     const eqCop = (v.tasasMomento && v.tasasMomento.totalCOP !== undefined) ? v.tasasMomento.totalCOP : window.calcularPesosDesdeUSD(v.totalUSD);
                     arqueoMonedas.cop += eqCop;
-                    totalDigitalUSD += v.totalUSD;
-                } else if (mLow.includes('bs') || mLow.includes('bolívar') || mLow.includes('pago móvil')) {
+                    if (mLow.includes('nequi') || mLow.includes('bancolombia')) totalDigitalUSD += v.totalUSD;
+                    else totalEfectivoUSD += v.totalUSD;
+                } else if (mOrig === 'BS' || mLow.includes('bs') || mLow.includes('bolívar') || mLow.includes('pago móvil')) {
                     const eqBs = (v.tasasMomento && v.tasasMomento.totalBs !== undefined) ? v.tasasMomento.totalBs : window.calcularBsDesdeUSD(v.totalUSD);
                     arqueoMonedas.bs += eqBs;
-                    totalDigitalUSD += v.totalUSD;
+                    if (mLow.includes('transferencia') || mLow.includes('pago móvil')) totalDigitalUSD += v.totalUSD;
+                    else totalEfectivoUSD += v.totalUSD;
                 } else {
                     arqueoMonedas.usd += v.totalUSD;
                     if (mLow.includes('efectivo') || mLow.includes('dólares')) {
@@ -10426,6 +10472,13 @@ window.abrirModalReporteZ = function() {
             };
         };
 
+        window.formatearTrioMonedasHTML = function(usdVal, textoColorClass = 'text-slate-600') {
+            const u = Number(usdVal) || 0;
+            const cop = window.formatCOP(window.calcularPesosDesdeUSD(u));
+            const bs = window.formatBS(window.calcularBsDesdeUSD(u));
+            return `<span class="block text-[8.5px] ${textoColorClass} font-mono leading-tight">${cop} COP</span><span class="block text-[8.5px] ${textoColorClass} font-mono leading-tight">${bs} Bs</span>`;
+        };
+
         window.generarReporteZDia = function() {
             const datos = window.obtenerDatosCierreDia();
             const container = document.getElementById('contenido-reporte-z-body');
@@ -10433,23 +10486,28 @@ window.abrirModalReporteZ = function() {
 
             let metodosHtml = '';
             for (const [k, val] of Object.entries(datos.metodos)) {
-                metodosHtml += `<div class="flex justify-between py-1 border-b border-slate-200"><span>• ${k}:</span><span class="font-bold">$${val.toFixed(2)} USD</span></div>`;
+                const mCop = window.formatCOP(window.calcularPesosDesdeUSD(val));
+                const mBs = window.formatBS(window.calcularBsDesdeUSD(val));
+                metodosHtml += `
+                    <div class="flex flex-col sm:flex-row sm:justify-between sm:items-center py-1.5 border-b border-slate-200 gap-0.5">
+                        <span class="font-bold text-slate-800">• ${window.escapeHTML(k)}:</span>
+                        <span class="font-black text-slate-900 text-right">$${val.toFixed(2)} USD <span class="text-slate-500 font-bold">| ${mCop} COP | ${mBs} Bs</span></span>
+                    </div>`;
             }
 
-            const totalCOP = window.calcularPesosDesdeUSD(datos.totalVentasUSD);
-            const totalBs = window.calcularBsDesdeUSD(datos.totalVentasUSD);
-
-            let listaNotasHtml = datos.ventasDia.map(v => `
-                <div class="flex justify-between items-center bg-white p-2 rounded-xl border border-slate-200 text-[10.5px]">
-                    <div>
-                        <strong>#${v.correlativo}</strong> — ${v.cliente} (${v.cajero})
+            let listaNotasHtml = datos.ventasDia.map(v => {
+                const nCop = window.formatCOP((v.tasasMomento && v.tasasMomento.totalCOP !== undefined) ? v.tasasMomento.totalCOP : window.calcularPesosDesdeUSD(v.totalUSD));
+                const nBs = window.formatBS((v.tasasMomento && v.tasasMomento.totalBs !== undefined) ? v.tasasMomento.totalBs : window.calcularBsDesdeUSD(v.totalUSD));
+                return `
+                    <div class="flex justify-between items-center bg-white p-2 rounded-xl border border-slate-200 text-[10px] gap-2">
+                        <div class="min-w-0 flex-1">
+                            <strong>#${v.correlativo}</strong> — ${window.escapeHTML(v.cliente)} <span class="text-slate-400">(${window.escapeHTML(v.cajero)})</span>
+                            <div class="text-[9px] text-emerald-700 font-black mt-0.5">$${v.totalUSD.toFixed(2)} USD | ${nCop} COP | ${nBs} Bs</div>
+                        </div>
+                        <button onclick="window.abrirAuditoriaDetallada('VENTA', '${v.id}')" class="bg-blue-50 text-blue-600 hover:bg-blue-100 border border-blue-200 px-2.5 py-1 rounded-lg text-[9px] font-black uppercase shrink-0"><i class="fa-solid fa-eye"></i> Ver</button>
                     </div>
-                    <div class="flex items-center gap-2">
-                        <span class="text-emerald-600 font-bold">$${v.totalUSD.toFixed(2)}</span>
-                        <button onclick="window.abrirAuditoriaDetallada('VENTA', '${v.id}')" class="bg-blue-50 text-blue-600 hover:bg-blue-100 border border-blue-200 px-2 py-0.5 rounded-lg text-[9px] font-black uppercase"><i class="fa-solid fa-eye"></i> Ver</button>
-                    </div>
-                </div>
-            `).join('');
+                `;
+            }).join('');
 
             container.innerHTML = `
                 <div class="bg-slate-50 p-4 rounded-2xl border border-slate-200 space-y-3.5">
@@ -10459,64 +10517,80 @@ window.abrirModalReporteZ = function() {
                         <p class="text-[10px] font-bold text-blue-600">Fecha Evaluada: ${datos.targetDateStr}</p>
                     </div>
 
-                    <!-- BLOQUE 1: DISTRIBUCIÓN CLARA DE TU DINERO (REPOSICIÓN VS GANANCIA LIBRE) -->
+                    <!-- BLOQUE 1: DISTRIBUCIÓN CLARA EN LAS 3 MONEDAS (USD | COP | BS) -->
                     <div class="bg-white p-3.5 rounded-2xl border-2 border-emerald-300 shadow-xs space-y-2.5">
                         <div class="flex items-center justify-between border-b border-slate-100 pb-1.5">
                             <span class="text-[10px] font-black uppercase text-slate-800 tracking-wider flex items-center gap-1.5">
                                 <i class="fa-solid fa-piggy-bank text-emerald-600"></i> ¿Cómo se divide lo que vendiste hoy?
                             </span>
-                            <span class="text-[9px] text-slate-400 font-bold">Auto-calculado</span>
+                            <span class="text-[9px] text-slate-400 font-bold">USD • COP • Bs</span>
                         </div>
                         <div class="grid grid-cols-2 sm:grid-cols-4 gap-2 text-center font-mono">
-                            <div class="bg-slate-50 p-2 rounded-xl border border-slate-200">
+                            <div class="bg-slate-50 p-2 rounded-xl border border-slate-200 space-y-0.5">
                                 <span class="text-[8px] text-slate-500 block font-black uppercase">1. Total Vendido</span>
-                                <span class="text-xs sm:text-sm font-black text-slate-900">$${datos.totalVentasUSD.toFixed(2)}</span>
-                                <span class="text-[8px] text-slate-400 block">${window.formatCOP(totalCOP)} COP</span>
+                                <span class="text-xs sm:text-sm font-black text-slate-900 block">$${datos.totalVentasUSD.toFixed(2)} USD</span>
+                                ${window.formatearTrioMonedasHTML(datos.totalVentasUSD, 'text-slate-600')}
                             </div>
-                            <div class="bg-amber-50 p-2 rounded-xl border border-amber-300">
+                            <div class="bg-amber-50 p-2 rounded-xl border border-amber-300 space-y-0.5">
                                 <span class="text-[8px] text-amber-900 block font-black uppercase">2. Reponer Mercancía</span>
-                                <span class="text-xs sm:text-sm font-black text-amber-700">$${datos.costoReposicionUSD.toFixed(2)}</span>
-                                <span class="text-[8px] text-amber-800/80 block font-sans">Para volver a surtir</span>
+                                <span class="text-xs sm:text-sm font-black text-amber-700 block">$${datos.costoReposicionUSD.toFixed(2)} USD</span>
+                                ${window.formatearTrioMonedasHTML(datos.costoReposicionUSD, 'text-amber-800')}
                             </div>
-                            <div class="bg-rose-50 p-2 rounded-xl border border-rose-200">
+                            <div class="bg-rose-50 p-2 rounded-xl border border-rose-200 space-y-0.5">
                                 <span class="text-[8px] text-rose-800 block font-black uppercase">3. Gastos del Día</span>
-                                <span class="text-xs sm:text-sm font-black text-rose-600">-$${datos.totalGastosUSD.toFixed(2)}</span>
-                                <span class="text-[8px] text-rose-700/80 block font-sans">Salidas operativas</span>
+                                <span class="text-xs sm:text-sm font-black text-rose-600 block">-$${datos.totalGastosUSD.toFixed(2)} USD</span>
+                                ${window.formatearTrioMonedasHTML(datos.totalGastosUSD, 'text-rose-700')}
                             </div>
-                            <div class="bg-emerald-600 text-white p-2 rounded-xl shadow-sm">
+                            <div class="bg-emerald-600 text-white p-2 rounded-xl shadow-sm space-y-0.5">
                                 <span class="text-[8px] text-emerald-100 block font-black uppercase">4. Ganancia Libre</span>
-                                <span class="text-xs sm:text-sm font-black text-white">$${datos.gananciaLibreUSD.toFixed(2)}</span>
-                                <span class="text-[8px] text-emerald-100 block font-sans">Libre para ti</span>
+                                <span class="text-xs sm:text-sm font-black text-white block">$${datos.gananciaLibreUSD.toFixed(2)} USD</span>
+                                ${window.formatearTrioMonedasHTML(datos.gananciaLibreUSD, 'text-emerald-100')}
                             </div>
                         </div>
                         ${datos.totalAbonosDiaUSD > 0 ? `
                             <div class="bg-emerald-50 border border-emerald-300 rounded-xl px-2.5 py-2 text-[10px] text-emerald-950 font-sans space-y-1">
-                                <div class="flex items-center justify-between font-black">
-                                    <span><i class="fa-solid fa-hand-holding-dollar text-emerald-600 mr-1"></i> Abonos / Cobros de Fiados Hoy (${datos.abonosDia.length}):</span>
-                                    <strong class="font-mono text-emerald-700">+$${datos.totalAbonosDiaUSD.toFixed(2)} USD (${window.formatCOP(window.calcularPesosDesdeUSD(datos.totalAbonosDiaUSD))} COP)</strong>
+                                <div class="flex flex-wrap items-center justify-between gap-1 font-black">
+                                    <span><i class="fa-solid fa-hand-holding-dollar text-emerald-600 mr-1"></i> Abonos / Cancelaciones Cobradas Hoy (${datos.abonosDia.length}):</span>
+                                    <strong class="font-mono text-emerald-700">+$${datos.totalAbonosDiaUSD.toFixed(2)} USD | ${window.formatCOP(window.calcularPesosDesdeUSD(datos.totalAbonosDiaUSD))} COP | ${window.formatBS(window.calcularBsDesdeUSD(datos.totalAbonosDiaUSD))} Bs</strong>
                                 </div>
-                                <div class="text-[9px] text-emerald-800 font-mono space-y-0.5 pl-4">
+                                <div class="text-[9px] text-emerald-800 font-mono space-y-0.5 pl-3">
                                     ${datos.abonosDia.map(a => {
-                                        const pA = window.obtenerPresentacionMultimoneda(a.montoUSD, a.monedaOriginal || 'USD', a.montoOriginal);
-                                        return `<div>• ${window.escapeHTML(a.cliente)}: <strong>${pA.principal}</strong> (${window.escapeHTML(a.metodoPago)})</div>`;
+                                        const uA = Number(a.montoUSD) || 0;
+                                        return `<div>• ${window.escapeHTML(a.cliente)}: <strong>$${uA.toFixed(2)} USD | ${window.formatCOP(window.calcularPesosDesdeUSD(uA))} COP | ${window.formatBS(window.calcularBsDesdeUSD(uA))} Bs</strong> (${window.escapeHTML(a.metodoPago)})</div>`;
                                     }).join('')}
                                 </div>
                             </div>
                         ` : ''}
                         ${datos.totalComprasDiaUSD > 0 ? `
-                            <div class="bg-blue-50/80 border border-blue-200 rounded-xl px-2.5 py-1.5 text-[9.5px] text-blue-900 font-sans flex items-center justify-between">
-                                <span><i class="fa-solid fa-truck-ramp-box text-blue-600 mr-1"></i> Mercancía cargada hoy a inventario:</span>
-                                <strong class="font-mono">$${datos.totalComprasDiaUSD.toFixed(2)} USD (No se resta como gasto)</strong>
+                            <div class="bg-blue-50/80 border border-blue-200 rounded-xl px-2.5 py-1.5 text-[9.5px] text-blue-900 font-sans flex flex-wrap items-center justify-between gap-1">
+                                <span><i class="fa-solid fa-truck-ramp-box text-blue-600 mr-1"></i> Mercancía cargada hoy:</span>
+                                <strong class="font-mono">$${datos.totalComprasDiaUSD.toFixed(2)} USD | ${window.formatCOP(window.calcularPesosDesdeUSD(datos.totalComprasDiaUSD))} COP | ${window.formatBS(window.calcularBsDesdeUSD(datos.totalComprasDiaUSD))} Bs</strong>
                             </div>
                         ` : ''}
                     </div>
 
-                    <!-- BLOQUE 2: CUADRE FÍSICO DE GAVETA Y BANCOS -->
+                    <!-- BLOQUE 2: CUADRE FÍSICO DE GAVETA Y BANCOS EN 3 MONEDAS -->
                     <div class="grid grid-cols-2 sm:grid-cols-4 gap-2 text-center font-mono">
-                        <div class="bg-white p-2 rounded-xl border border-slate-200"><span class="text-[8.5px] text-slate-500 block font-black uppercase">Base Inicial</span><span class="text-xs font-black text-slate-800">$${(datos.baseCajaInicial || 0).toFixed(2)} USD</span></div>
-                        <div class="bg-white p-2 rounded-xl border border-slate-200"><span class="text-[8.5px] text-slate-500 block font-bold uppercase">Efectivo Ventas</span><span class="text-xs font-black text-emerald-600">$${(datos.totalEfectivoUSD || 0).toFixed(2)} USD</span></div>
-                        <div class="bg-white p-2 rounded-xl border border-slate-200"><span class="text-[8.5px] text-slate-500 block font-bold uppercase">Digital / Bancos</span><span class="text-xs font-black text-blue-600">$${(datos.totalDigitalUSD || 0).toFixed(2)} USD</span></div>
-                        <div class="bg-emerald-50 p-2 rounded-xl border border-emerald-300"><span class="text-[8.5px] text-emerald-800 block font-black uppercase">Efectivo en Gaveta</span><span class="text-xs font-black text-emerald-700">$${(datos.efectivoEsperadoGaveta || 0).toFixed(2)} USD</span></div>
+                        <div class="bg-white p-2 rounded-xl border border-slate-200 space-y-0.5">
+                            <span class="text-[8.5px] text-slate-500 block font-black uppercase">Base Inicial</span>
+                            <span class="text-xs font-black text-slate-800 block">$${(datos.baseCajaInicial || 0).toFixed(2)} USD</span>
+                            ${window.formatearTrioMonedasHTML(datos.baseCajaInicial || 0, 'text-slate-500')}
+                        </div>
+                        <div class="bg-white p-2 rounded-xl border border-slate-200 space-y-0.5">
+                            <span class="text-[8.5px] text-slate-500 block font-bold uppercase">Efectivo Ventas/Abonos</span>
+                            <span class="text-xs font-black text-emerald-600 block">$${(datos.totalEfectivoUSD || 0).toFixed(2)} USD</span>
+                            ${window.formatearTrioMonedasHTML(datos.totalEfectivoUSD || 0, 'text-emerald-700')}
+                        </div>
+                        <div class="bg-white p-2 rounded-xl border border-slate-200 space-y-0.5">
+                            <span class="text-[8.5px] text-slate-500 block font-bold uppercase">Digital / Bancos</span>
+                            <span class="text-xs font-black text-blue-600 block">$${(datos.totalDigitalUSD || 0).toFixed(2)} USD</span>
+                            ${window.formatearTrioMonedasHTML(datos.totalDigitalUSD || 0, 'text-blue-700')}
+                        </div>
+                        <div class="bg-emerald-50 p-2 rounded-xl border border-emerald-300 space-y-0.5">
+                            <span class="text-[8.5px] text-emerald-800 block font-black uppercase">Efectivo en Gaveta</span>
+                            <span class="text-xs font-black text-emerald-700 block">$${(datos.efectivoEsperadoGaveta || 0).toFixed(2)} USD</span>
+                            ${window.formatearTrioMonedasHTML(datos.efectivoEsperadoGaveta || 0, 'text-emerald-800')}
+                        </div>
                     </div>
 
                     <!-- BLOQUE 2B: ARQUEO DE RECAUDO POR MONEDA REAL (USD / COP / BS) -->
@@ -10525,34 +10599,29 @@ window.abrirModalReporteZ = function() {
                         <div class="grid grid-cols-3 gap-2 text-center">
                             <div class="bg-blue-50/70 p-2 rounded-xl border border-blue-200">
                                 <span class="text-[8px] text-blue-800 block font-black uppercase">💵 Dólares ($)</span>
-                                <strong class="text-xs font-black text-blue-700">$${((datos.arqueoMonedas && datos.arqueoMonedas.usd) || 0).toFixed(2)}</strong>
+                                <strong class="text-xs font-black text-blue-700">$${((datos.arqueoMonedas && datos.arqueoMonedas.usd) || 0).toFixed(2)} USD</strong>
                             </div>
                             <div class="bg-slate-50 p-2 rounded-xl border border-slate-200">
                                 <span class="text-[8px] text-slate-600 block font-black uppercase">🇨🇴 Pesos COP</span>
-                                <strong class="text-xs font-black text-slate-900">${window.formatearMiles((datos.arqueoMonedas && datos.arqueoMonedas.cop) || 0)}</strong>
+                                <strong class="text-xs font-black text-slate-900">${window.formatearMiles((datos.arqueoMonedas && datos.arqueoMonedas.cop) || 0)} COP</strong>
                             </div>
                             <div class="bg-emerald-50/70 p-2 rounded-xl border border-emerald-200">
                                 <span class="text-[8px] text-emerald-800 block font-black uppercase">🇻🇪 Bolívares</span>
-                                <strong class="text-xs font-black text-emerald-700">${window.formatBS((datos.arqueoMonedas && datos.arqueoMonedas.bs) || 0)}</strong>
+                                <strong class="text-xs font-black text-emerald-700">${window.formatBS((datos.arqueoMonedas && datos.arqueoMonedas.bs) || 0)} Bs</strong>
                             </div>
                         </div>
                     </div>
 
                     <div class="space-y-1 pt-1">
-                        <span class="text-[10px] font-black uppercase text-slate-500 tracking-wider block">Desglose por Formas de Pago:</span>
+                        <span class="text-[10px] font-black uppercase text-slate-500 tracking-wider block">Desglose por Formas de Pago (USD • COP • Bs):</span>
                         ${metodosHtml || '<p class="text-slate-400 text-center py-2">No hubo ventas registradas este día.</p>'}
                     </div>
 
                     <div class="space-y-2 pt-2 border-t border-slate-200">
                         <span class="text-[10px] font-black uppercase text-slate-500 tracking-wider block">Notas Emitidas en el Turno:</span>
-                        <div class="space-y-1.5 max-h-36 overflow-y-auto no-scrollbar">
+                        <div class="space-y-1.5 max-h-40 overflow-y-auto no-scrollbar">
                             ${listaNotasHtml || '<p class="text-slate-400 text-center text-[10px]">Sin movimientos de venta.</p>'}
                         </div>
-                    </div>
-
-                    <div class="space-y-1 pt-2 border-t border-slate-200 text-[10.5px]">
-                        <p><strong>• Equivalente Total Vendido en Pesos (COP):</strong> ${window.formatearMiles(totalCOP)} COP</p>
-                        <p><strong>• Equivalente Total Vendido en Bolívares (Bs):</strong> ${window.formatBS(totalBs)} Bs</p>
                     </div>
                 </div>
             `;
@@ -12393,7 +12462,7 @@ _Un respaldo de TUCOCEL C.A. & @PublionlineMK_`;
         // -------------------------------------------------------------
         // INICIALIZACIÓN AUTOMÁTICA DEL SISTEMA Y ENRUTADOR DE URL
         // -------------------------------------------------------------
-        window.TCL_APP_BUILD_ID = 'v2026.11.20.1';
+        window.TCL_APP_BUILD_ID = 'v2026.11.20.2';
 
         window.hayTrabajoEnCursoSinGuardar = function() {
             if (Array.isArray(window.carritoPOS) && window.carritoPOS.length > 0) return true;
@@ -13690,7 +13759,8 @@ ${alertasStock.join('\n')}`);
             const hoyISO = window.obtenerFechaLocalISO();
             const ventasHoy = (window.dbVentas || []).filter(v => v.estado !== 'ANULADA' && window.formatearFechaTimestampAISO(v.fechaMs) === hoyISO);
             const totHoyUSD = ventasHoy.reduce((acc, v) => acc + (v.totalUSD || 0), 0);
-            const totHoyBs = window.calcularBsDesdeUSD(totHoyUSD);
+            const totHoyCOP = window.formatCOP(window.calcularPesosDesdeUSD(totHoyUSD));
+            const totHoyBs = window.formatBS(window.calcularBsDesdeUSD(totHoyUSD));
 
             const totalPorCobrar = (window.dbVentas || []).reduce((acc, v) => {
                 if (v.estado === 'ANULADA') return acc;
@@ -13698,6 +13768,8 @@ ${alertasStock.join('\n')}`);
                 if (!esCred) return acc;
                 return acc + (v.credito ? (v.credito.saldoPendienteUSD || 0) : (v.totalUSD || 0));
             }, 0);
+            const cobCOP = window.formatCOP(window.calcularPesosDesdeUSD(totalPorCobrar));
+            const cobBs = window.formatBS(window.calcularBsDesdeUSD(totalPorCobrar));
 
             const elV = document.getElementById('kpi-panel-ventas-hoy');
             const elVBs = document.getElementById('kpi-panel-ventas-hoy-bs');
@@ -13705,9 +13777,11 @@ ${alertasStock.join('\n')}`);
             const elC = document.getElementById('kpi-panel-por-cobrar');
 
             if (elV) elV.innerText = `$${totHoyUSD.toFixed(2)}`;
-            if (elVBs) elVBs.innerText = `${window.formatBS(totHoyBs)} Bs`;
+            if (elVBs) elVBs.innerText = `${totHoyCOP} COP | ${totHoyBs} Bs`;
             if (elN) elN.innerText = ventasHoy.length;
-            if (elC) elC.innerText = `$${totalPorCobrar.toFixed(2)}`;
+            if (elC) {
+                elC.innerHTML = `$${totalPorCobrar.toFixed(2)}<span class="block text-[8px] text-slate-500 font-bold leading-tight mt-0.5">${cobCOP} COP | ${cobBs} Bs</span>`;
+            }
         };
 
         window.abrirEditorDescripcionAmpliada = function(targetInputId, titulo = 'Descripción del Producto') {
@@ -15352,10 +15426,10 @@ ${alertasStock.join('\n')}`);
                                 <strong class="text-xs text-slate-900 uppercase block mt-0.5">${window.escapeHTML(a.cliente)}</strong>
                                 <span class="text-[10.5px] text-slate-700 block">${iconTipo} <strong>${a.cantidad} ${a.unidad}</strong> × ${window.escapeHTML(a.productoNombre)}</span>
                             </div>
-                            <div class="text-right font-mono shrink-0">
-                                <span class="text-[9px] text-slate-500 block">Total: $${Number(a.totalUSD).toFixed(2)}</span>
-                                <span class="text-[9px] text-emerald-700 font-bold block">Abonado: $${Number(a.abonadoUSD).toFixed(2)}</span>
-                                <strong class="text-xs text-amber-800 block">Resta: $${Number(a.saldoUSD).toFixed(2)}</strong>
+                            <div class="text-right font-mono shrink-0 leading-tight space-y-0.5">
+                                <span class="text-[9px] text-slate-600 block">Total: <strong>$${Number(a.totalUSD).toFixed(2)}</strong> | ${window.formatearMiles(window.calcularPesosDesdeUSD(a.totalUSD))} COP | ${window.formatBS(window.calcularBsDesdeUSD(a.totalUSD))} Bs</span>
+                                <span class="text-[9px] text-emerald-700 font-bold block">Abonado: $${Number(a.abonadoUSD).toFixed(2)} | ${window.formatearMiles(window.calcularPesosDesdeUSD(a.abonadoUSD))} COP | ${window.formatBS(window.calcularBsDesdeUSD(a.abonadoUSD))} Bs</span>
+                                <strong class="text-[10px] text-amber-800 block">Resta: $${Number(a.saldoUSD).toFixed(2)} | ${window.formatearMiles(window.calcularPesosDesdeUSD(a.saldoUSD))} COP | ${window.formatBS(window.calcularBsDesdeUSD(a.saldoUSD))} Bs</strong>
                             </div>
                         </div>
                         <div class="flex flex-wrap gap-1.5 pt-1 border-t border-slate-200/80">
@@ -15402,6 +15476,23 @@ ${alertasStock.join('\n')}`);
             apt.saldoUSD = Math.max(0, Number((Number(apt.totalUSD) - apt.abonadoUSD).toFixed(2)));
             if (!Array.isArray(apt.historialAbonos)) apt.historialAbonos = [];
             apt.historialAbonos.push({ fechaMs: Date.now(), moneda: mon, montoOriginal: raw, montoUSD: Number(montoUSD.toFixed(2)) });
+
+            if (!window.dbAbonos) window.dbAbonos = [];
+            const regAboApt = {
+                id: 'abo_' + Date.now() + '_' + Math.random().toString(36).substr(2, 4),
+                cliente: (apt.cliente || 'CLIENTE').toUpperCase(),
+                montoUSD: Number(montoUSD.toFixed(2)),
+                monedaOriginal: mon,
+                montoOriginal: raw,
+                esDigital: false,
+                metodoPago: `🔖 Abono Apartado ${apt.numero}`,
+                fechaMs: Date.now()
+            };
+            window.dbAbonos.unshift(regAboApt);
+            window.tclSafeSetItem(window.getTenantStorageKey('abonos'), JSON.stringify(window.dbAbonos));
+            if (typeof window.sincronizarTenantConFirebase === 'function') {
+                window.sincronizarTenantConFirebase('abonos', regAboApt);
+            }
 
             window.guardarApartadosLocal();
             if (window.dbNube && window.clienteActivoSesion) {
@@ -15558,11 +15649,10 @@ ${alertasStock.join('\n')}`);
                         ${apt.cedula && apt.cedula !== 'N/A' ? `<p style="margin: 1px 0;"><strong>CI/RIF:</strong> ${window.escapeHTML(apt.cedula)}</p>` : ''}
                         <p style="margin: 1px 0;"><strong>PRODUCTO:</strong> ${apt.cantidad} ${apt.unidad} × ${window.escapeHTML(apt.productoNombre)}</p>
                     </div>
-                    <div style="font-size: 9.5px; line-height: 1.35; margin-bottom: 6px;">
-                        <div style="display: flex; justify-content: space-between;"><span>TOTAL APARTADO:</span><strong>$${Number(apt.totalUSD).toFixed(2)} USD</strong></div>
-                        <div style="display: flex; justify-content: space-between;"><span>TOTAL ABONADO:</span><strong>$${Number(apt.abonadoUSD).toFixed(2)} USD</strong></div>
-                        <div style="display: flex; justify-content: space-between; border-top: 1px solid #000; padding-top: 2px; margin-top: 2px;"><span>SALDO PENDIENTE:</span><strong>$${Number(apt.saldoUSD).toFixed(2)} USD</strong></div>
-                        <p style="margin: 2px 0 0 0; font-size: 8.5px; text-align: right;">Ref. Resta: ${window.formatearMiles(window.calcularPesosDesdeUSD(apt.saldoUSD))} COP | ${window.formatBS(window.calcularBsDesdeUSD(apt.saldoUSD))} Bs</p>
+                    <div style="font-size: 9px; line-height: 1.35; margin-bottom: 6px;">
+                        <div style="margin-bottom: 2px;"><strong>TOTAL:</strong> $${Number(apt.totalUSD).toFixed(2)} USD | ${window.formatearMiles(window.calcularPesosDesdeUSD(apt.totalUSD))} COP | ${window.formatBS(window.calcularBsDesdeUSD(apt.totalUSD))} Bs</div>
+                        <div style="margin-bottom: 2px;"><strong>ABONADO:</strong> $${Number(apt.abonadoUSD).toFixed(2)} USD | ${window.formatearMiles(window.calcularPesosDesdeUSD(apt.abonadoUSD))} COP | ${window.formatBS(window.calcularBsDesdeUSD(apt.abonadoUSD))} Bs</div>
+                        <div style="border-top: 1px solid #000; padding-top: 2px; margin-top: 2px;"><strong>RESTA:</strong> $${Number(apt.saldoUSD).toFixed(2)} USD | ${window.formatearMiles(window.calcularPesosDesdeUSD(apt.saldoUSD))} COP | ${window.formatBS(window.calcularBsDesdeUSD(apt.saldoUSD))} Bs</div>
                     </div>
                     <div style="text-align: center; font-size: 8px; border-top: 1px dashed #000; padding-top: 4px; line-height: 1.25;">
                         <p style="margin: 0;">Apartado válido por ${apt.diasPlazo} días hasta el ${venceStr}.</p>
