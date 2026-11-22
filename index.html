@@ -4516,9 +4516,7 @@ Ingrese monto abonado ($ USD):`, saldoActual.toFixed(2))) || 0;
                 return;
             }
 
-            if (!confirm("🔓 ¿Deseas editar manualmente el Precio de Venta?
-
-Al escribir el nuevo precio, el sistema recalculará automáticamente tu Ganancia.")) {
+            if (!confirm("🔓 ¿Deseas editar manualmente el Precio de Venta?\n\nAl escribir el nuevo precio, el sistema recalculará automáticamente tu Ganancia.")) {
                 return;
             }
 
@@ -6671,8 +6669,7 @@ Tu nueva clave de acceso es: ${nuevaClave}`);
                 `✅ ¡Pago de ${presAbonoFinal.principal} registrado con éxito!
 
 ` +
-                `${detalleAplicado.join('
-')}
+                `${detalleAplicado.join('\n')}
 
 ` +
                 `Nuevo Saldo Pendiente: ${nuevoSaldoConsolidado <= 0.009 ? 'SALDADO (0)' : presRestanteFinal.principal}
@@ -6701,8 +6698,7 @@ Tu nueva clave de acceso es: ${nuevaClave}`);
 `;
                 msj += `━━━━━━━━━━━━━━━━━━━━━━
 `;
-                msj += `${detalleAplicado.join('
-')}
+                msj += `${detalleAplicado.join('\n')}
 `;
                 msj += `━━━━━━━━━━━━━━━━━━━━━━
 `;
@@ -13304,7 +13300,7 @@ _Un respaldo de TUCOCEL C.A. & @PublionlineMK_`;
         // -------------------------------------------------------------
         // INICIALIZACIÓN AUTOMÁTICA DEL SISTEMA Y ENRUTADOR DE URL
         // -------------------------------------------------------------
-        window.TCL_APP_BUILD_ID = 'v2026.11.22.2';
+        window.TCL_APP_BUILD_ID = 'v2026.11.22.3';
 
         window.hayTrabajoEnCursoSinGuardar = function() {
             if (Array.isArray(window.carritoPOS) && window.carritoPOS.length > 0) return true;
