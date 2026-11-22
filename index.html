@@ -627,6 +627,48 @@
         </div>
     </div>
 
+    <!-- MODAL FLOTANTE EXCLUSIVO MÁSTER: CONFIRMACIÓN DE LIMPIEZA / REINICIO DE COMERCIO -->
+    <div id="modal-reinicio-comercio-master" class="fixed inset-0 bg-slate-950/85 backdrop-blur-md z-[140] p-3 sm:p-4 flex items-center justify-center hidden no-print">
+        <div class="bg-white border-2 border-slate-200 w-full max-w-md rounded-3xl overflow-hidden shadow-2xl flex flex-col">
+            <div id="header-modal-reinicio-master" class="bg-amber-600 px-5 py-3.5 text-white flex justify-between items-center shrink-0">
+                <h3 id="titulo-modal-reinicio-master" class="font-black text-xs uppercase tracking-wider flex items-center gap-2">
+                    <i class="fa-solid fa-broom"></i> Confirmar Limpieza
+                </h3>
+                <button type="button" onclick="window.cerrarModalReinicioComercioMaster()" class="text-white/80 hover:text-white p-1">
+                    <i class="fa-solid fa-xmark text-base"></i>
+                </button>
+            </div>
+            <div class="p-5 space-y-3.5 text-xs font-bold text-slate-800">
+                <input type="hidden" id="reinicio-comercio-id" value="">
+                <input type="hidden" id="reinicio-comercio-modo" value="">
+
+                <div class="bg-slate-50 border border-slate-200 rounded-2xl p-3 text-center">
+                    <span class="text-[9.5px] uppercase font-mono text-slate-500 block">Comercio Seleccionado:</span>
+                    <strong id="lbl-reinicio-comercio-nombre" class="text-sm font-black text-slate-900 uppercase block mt-0.5">COMERCIO</strong>
+                    <span id="lbl-reinicio-comercio-slug" class="text-[10px] font-mono text-blue-600 font-bold">/slug</span>
+                </div>
+
+                <div id="box-explicacion-reinicio-master" class="rounded-2xl p-3.5 border text-[11px] leading-relaxed font-medium space-y-2">
+                    <!-- Explicación dinámica clara -->
+                </div>
+
+                <div class="bg-slate-50 border border-slate-200 rounded-2xl p-3 space-y-1.5">
+                    <label class="text-[10px] text-slate-700 uppercase font-black block">🔒 Para confirmar, escribe la palabra <span class="text-red-600 font-mono">SI</span>:</label>
+                    <input type="text" id="input-confirmacion-reinicio-master" placeholder="Escribe SI aquí..." class="input-clean font-mono text-center uppercase text-sm font-black tracking-widest">
+                </div>
+
+                <div class="grid grid-cols-2 gap-2 pt-1">
+                    <button type="button" onclick="window.cerrarModalReinicioComercioMaster()" class="bg-slate-100 hover:bg-slate-200 text-slate-700 py-3 rounded-xl uppercase text-xs font-black">
+                        Cancelar
+                    </button>
+                    <button type="button" id="btn-ejecutar-reinicio-master" onclick="window.ejecutarReinicioComercioMaster()" class="bg-amber-600 hover:bg-amber-500 text-white py-3 rounded-xl uppercase text-xs font-black shadow-md transition-all active:scale-95">
+                        Confirmar Acción
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+
     <div id="modal-tarifas-saas" class="fixed inset-0 bg-slate-950/80 backdrop-blur-md z-50 p-3 sm:p-4 flex items-center justify-center hidden no-print">
         <div class="bg-white border border-slate-200 w-full max-w-sm rounded-3xl overflow-hidden shadow-2xl flex flex-col">
             <div class="bg-[#0f172a] px-4 py-3 text-white flex justify-between items-center shrink-0">
@@ -2155,6 +2197,97 @@
         </div>
     </div>
 
+    <!-- MODAL VISUAL DE COBRO / ABONO ESTILO TARJETA DE CRÉDITO (OTRO MONTO VS MONTO TOTAL) -->
+    <div id="modal-cobro-abono-credito" class="fixed inset-0 bg-slate-950/85 backdrop-blur-md z-[145] p-2 sm:p-4 flex items-center justify-center hidden no-print">
+        <div class="bg-white border border-slate-200 w-full max-w-md rounded-3xl overflow-hidden shadow-2xl flex flex-col max-h-[94vh]">
+            <div class="bg-emerald-700 px-4 py-3.5 text-white flex justify-between items-center shrink-0">
+                <h3 class="font-black text-xs uppercase tracking-wider flex items-center gap-2">
+                    <i class="fa-solid fa-hand-holding-dollar text-amber-300 text-sm"></i> Registrar Abono / Pago de Deuda
+                </h3>
+                <button type="button" onclick="window.cerrarModalCobroAbonoCredito()" class="text-white/80 hover:text-white p-1">
+                    <i class="fa-solid fa-xmark text-base"></i>
+                </button>
+            </div>
+
+            <div class="p-4 overflow-y-auto space-y-3.5 text-xs font-bold text-slate-800 no-scrollbar">
+                <input type="hidden" id="abono-modal-clave-cliente" value="">
+                <input type="hidden" id="abono-modal-deuda-usd" value="0">
+                <input type="hidden" id="abono-modal-moneda-cliente" value="USD">
+
+                <!-- Cliente y Deuda Actual -->
+                <div class="bg-amber-50 border border-amber-300 rounded-2xl p-3 text-center space-y-0.5 font-mono">
+                    <span class="text-[9.5px] uppercase text-amber-800 font-black block">Cliente con Saldo Pendiente:</span>
+                    <strong id="lbl-abono-modal-cliente" class="text-sm font-black text-slate-900 uppercase block">CLIENTE</strong>
+                    <div class="pt-1 border-t border-amber-200/80 mt-1">
+                        <span class="text-[9px] text-amber-800 uppercase block font-bold">Deuda Actual Total:</span>
+                        <strong id="lbl-abono-modal-deuda-principal" class="text-base font-black text-amber-900 block">$0.00 USD</strong>
+                        <span id="lbl-abono-modal-deuda-sec" class="text-[9.5px] text-amber-800/90 font-bold block">0 COP | 0,00 Bs</span>
+                    </div>
+                </div>
+
+                <!-- 1. Moneda del Abono -->
+                <div class="space-y-1">
+                    <span class="text-[9.5px] text-slate-600 uppercase font-mono font-black block">1. ¿En qué moneda está pagando el cliente?</span>
+                    <div class="grid grid-cols-3 gap-1.5">
+                        <button type="button" id="btn-abono-mod-COP" onclick="window.seleccionarMonedaModalAbono('COP')" class="py-2 rounded-xl border border-slate-300 bg-white text-slate-700 font-black text-[11px]">🇨🇴 COP</button>
+                        <button type="button" id="btn-abono-mod-USD" onclick="window.seleccionarMonedaModalAbono('USD')" class="py-2 rounded-xl border border-blue-600 bg-blue-600 text-white font-black text-[11px] shadow-sm">💵 USD</button>
+                        <button type="button" id="btn-abono-mod-BS" onclick="window.seleccionarMonedaModalAbono('BS')" class="py-2 rounded-xl border border-slate-300 bg-white text-slate-700 font-black text-[11px]">🇻🇪 Bs</button>
+                    </div>
+                </div>
+
+                <!-- 2. Modo de Pago estilo Tarjeta de Crédito -->
+                <div class="space-y-1">
+                    <span class="text-[9.5px] text-slate-600 uppercase font-mono font-black block">2. ¿Cuánto va a pagar?</span>
+                    <div class="grid grid-cols-2 gap-2">
+                        <button type="button" id="btn-abono-modo-PARCIAL" onclick="window.seleccionarModoModalAbono('PARCIAL')" class="py-2.5 px-2 rounded-xl border-2 border-blue-600 bg-blue-600 text-white font-black text-[10.5px] uppercase flex flex-col items-center justify-center gap-0.5 shadow-sm transition-all">
+                            <span>✏️ Otro Monto</span>
+                            <span class="text-[8.5px] font-medium opacity-90 normal-case">Escribir abono parcial</span>
+                        </button>
+                        <button type="button" id="btn-abono-modo-TOTAL" onclick="window.seleccionarModoModalAbono('TOTAL')" class="py-2.5 px-2 rounded-xl border-2 border-slate-300 bg-white text-slate-700 font-black text-[10.5px] uppercase flex flex-col items-center justify-center gap-0.5 transition-all">
+                            <span>✅ Monto Total</span>
+                            <span class="text-[8.5px] font-medium opacity-80 normal-case">Liquidar toda la deuda</span>
+                        </button>
+                    </div>
+                </div>
+
+                <!-- 3. Campo de Monto -->
+                <div class="space-y-1">
+                    <label id="lbl-abono-modal-input-titulo" class="text-[9.5px] text-slate-600 uppercase font-mono font-black block">Monto que entrega el cliente (COP):</label>
+                    <input type="text" inputmode="decimal" id="input-abono-modal-monto" oninput="window.autoFormatearSeparadoresInput(this, true); window.actualizarPreviewModalAbono();" placeholder="Escribe aquí el monto recibido..." class="input-clean font-mono text-center text-lg font-black text-emerald-700 border-2 border-emerald-400 bg-emerald-50/30 py-2.5">
+                </div>
+
+                <!-- 4. Forma de Pago -->
+                <div class="space-y-1">
+                    <span class="text-[9.5px] text-slate-600 uppercase font-mono font-black block">3. ¿Cómo entró el dinero?</span>
+                    <div class="grid grid-cols-2 gap-2">
+                        <button type="button" id="btn-abono-via-EFECTIVO" onclick="window.seleccionarViaModalAbono('EFECTIVO')" class="py-2 px-2 rounded-xl border-2 border-emerald-600 bg-emerald-600 text-white font-black text-[10px] uppercase flex items-center justify-center gap-1 shadow-sm">
+                            <i class="fa-solid fa-money-bill-wave"></i> <span>Efectivo (Gaveta)</span>
+                        </button>
+                        <button type="button" id="btn-abono-via-DIGITAL" onclick="window.seleccionarViaModalAbono('DIGITAL')" class="py-2 px-2 rounded-xl border-2 border-slate-300 bg-white text-slate-700 font-black text-[10px] uppercase flex items-center justify-center gap-1">
+                            <i class="fa-solid fa-mobile-screen"></i> <span>Transf / Nequi / PM</span>
+                        </button>
+                    </div>
+                </div>
+
+                <!-- Resumen en Vivo -->
+                <div id="box-abono-modal-preview" class="bg-slate-900 text-white rounded-2xl p-3 font-mono text-center space-y-1">
+                    <span class="text-[9px] text-slate-400 uppercase font-bold block">Saldo Restante después de este pago:</span>
+                    <strong id="lbl-abono-modal-restante" class="text-sm font-black text-amber-400 block">$0.00 USD</strong>
+                    <span id="lbl-abono-modal-restante-sec" class="text-[9px] text-slate-300 block">0 COP | 0,00 Bs</span>
+                </div>
+            </div>
+
+            <div class="bg-slate-100 px-4 py-3 border-t border-slate-200 grid grid-cols-2 gap-2 shrink-0">
+                <button type="button" onclick="window.cerrarModalCobroAbonoCredito()" class="bg-white hover:bg-slate-200 text-slate-700 border border-slate-300 py-3 rounded-xl uppercase text-xs font-black">
+                    Cancelar
+                </button>
+                <button type="button" onclick="window.confirmarCobroAbonoModal()" class="bg-emerald-600 hover:bg-emerald-500 text-white py-3 rounded-xl uppercase text-xs font-black shadow-md active:scale-95 transition-all">
+                    💾 Registrar Pago
+                </button>
+            </div>
+        </div>
+    </div>
+
     <!-- MODAL HISTORIAL / BÓVEDA DE CIERRES DIARIOS (AUDITORÍA HISTÓRICA) -->
     <div id="modal-historial-cierres-diarios" class="fixed inset-0 bg-slate-900/80 backdrop-blur-md z-50 p-1 sm:p-3 flex items-center justify-center hidden no-print">
         <div class="bg-white border border-slate-200 w-full max-w-4xl rounded-2xl sm:rounded-3xl overflow-hidden shadow-2xl flex flex-col max-h-[95vh]">
@@ -2427,9 +2560,9 @@
                         <div class="sm:col-span-3">
                             <div class="flex justify-between items-center mb-0.5">
                                 <label id="lbl-compra-venta-moneda" class="text-[9px] text-slate-500 uppercase">P. Venta ($ USD) *</label>
-                                <span class="text-[8px] font-mono font-black text-blue-700 bg-blue-100 px-1.5 rounded"><i class="fa-solid fa-lock text-[7px]"></i> Auto</span>
+                                <button type="button" id="badge-lock-venta-COMPRA" onclick="window.toggleEdicionManualPrecioVenta('COMPRA')" class="text-[8px] font-mono font-black text-blue-700 bg-blue-100 hover:bg-blue-200 px-1.5 py-0.5 rounded transition-colors cursor-pointer" title="Tocar para desbloquear y editar manualmente"><i class="fa-solid fa-lock text-[7px]"></i> Auto</button>
                             </div>
-                            <input type="text" readonly id="prov-prod-venta" placeholder="0,00" class="input-clean font-mono text-blue-700 font-black bg-blue-50/70 border-blue-300 cursor-not-allowed">
+                            <input type="text" inputmode="decimal" readonly id="prov-prod-venta" onclick="if(this.readOnly) window.toggleEdicionManualPrecioVenta('COMPRA')" oninput="window.autoFormatearSeparadoresInput(this, true); window.recalcularMargenDesdeVenta('COMPRA');" placeholder="0,00" class="input-clean font-mono text-blue-700 font-black bg-blue-50/70 border-blue-300 cursor-pointer">
                         </div>
                         <div class="sm:col-span-3">
                             <button type="button" onclick="window.agregarItemAlCarritoCompra()" class="btn-brand w-full py-2.5 text-xs shadow flex items-center justify-center gap-1">
@@ -2714,9 +2847,9 @@
                     <div class="flex flex-col justify-end">
                         <div class="flex justify-between items-center gap-1 mb-1">
                             <label class="text-[9px] text-slate-500 uppercase whitespace-nowrap">P. Venta *</label>
-                            <span class="text-[8px] font-mono font-black text-blue-700 bg-blue-100 px-1.5 py-0.5 rounded shrink-0"><i class="fa-solid fa-lock text-[7px]"></i> Auto</span>
+                            <button type="button" id="badge-lock-venta-INV_NUEVO" onclick="window.toggleEdicionManualPrecioVenta('INV_NUEVO')" class="text-[8px] font-mono font-black text-blue-700 bg-blue-100 hover:bg-blue-200 px-1.5 py-0.5 rounded shrink-0 transition-colors cursor-pointer" title="Tocar para desbloquear y editar manualmente"><i class="fa-solid fa-lock text-[7px]"></i> Auto</button>
                         </div>
-                        <input type="text" readonly id="inv-input-venta" placeholder="0,00" class="input-clean font-mono text-blue-700 font-black bg-blue-50/70 border-blue-300 cursor-not-allowed">
+                        <input type="text" inputmode="decimal" readonly id="inv-input-venta" onclick="if(this.readOnly) window.toggleEdicionManualPrecioVenta('INV_NUEVO')" oninput="window.autoFormatearSeparadoresInput(this, true); window.recalcularMargenDesdeVenta('INV_NUEVO');" placeholder="0,00" class="input-clean font-mono text-blue-700 font-black bg-blue-50/70 border-blue-300 cursor-pointer">
                     </div>
                     <div id="box-inv-unidad-wrap" class="flex flex-col justify-end">
                         <label class="text-[9px] text-slate-500 uppercase block mb-1 whitespace-nowrap">Unidad</label>
@@ -2889,9 +3022,9 @@
                 <div class="flex flex-col justify-end">
                     <div class="flex justify-between items-center gap-1 mb-1">
                         <label id="lbl-sub-venta-mon" class="text-[9px] text-slate-500 uppercase whitespace-nowrap">P. Venta</label>
-                        <span class="text-[8px] font-mono font-black text-blue-700 bg-blue-100 px-1.5 py-0.5 rounded shrink-0"><i class="fa-solid fa-lock text-[7px]"></i> Auto</span>
+                        <button type="button" id="badge-lock-venta-SUBMODAL" onclick="window.toggleEdicionManualPrecioVenta('SUBMODAL')" class="text-[8px] font-mono font-black text-blue-700 bg-blue-100 hover:bg-blue-200 px-1.5 py-0.5 rounded shrink-0 transition-colors cursor-pointer" title="Tocar para desbloquear y editar manualmente"><i class="fa-solid fa-lock text-[7px]"></i> Auto</button>
                     </div>
-                    <input type="text" readonly id="sub-input-venta" class="input-clean font-mono text-blue-700 font-black bg-blue-50/70 border-blue-300 cursor-not-allowed">
+                    <input type="text" inputmode="decimal" readonly id="sub-input-venta" onclick="if(this.readOnly) window.toggleEdicionManualPrecioVenta('SUBMODAL')" oninput="window.autoFormatearSeparadoresInput(this, true); window.recalcularMargenDesdeVenta('SUBMODAL');" class="input-clean font-mono text-blue-700 font-black bg-blue-50/70 border-blue-300 cursor-pointer">
                 </div>
                 <div id="box-sub-stock-wrap" class="flex flex-col justify-end">
                     <label class="text-[9px] text-slate-500 uppercase block mb-1 whitespace-nowrap">Stock</label>
@@ -4325,6 +4458,104 @@ Ingrese monto abonado ($ USD):`, saldoActual.toFixed(2))) || 0;
                 elVenta.value = window.formatearMiles(Math.round(ventaCalc));
             } else {
                 elVenta.value = ventaCalc.toFixed(2).replace('.', ',');
+            }
+
+            // Mantener candado en modo Auto al editar Costo o Ganancia
+            if (typeof window.bloquearEdicionManualPrecioVenta === 'function') {
+                window.bloquearEdicionManualPrecioVenta(contexto);
+            }
+        };
+
+        window.obtenerConfigContextoPrecio = function(contexto) {
+            if (contexto === 'COMPRA') {
+                return {
+                    idCosto: 'prov-prod-costo', idMargen: 'prov-prod-margen', idTipo: 'prov-prod-margen-tipo',
+                    idVenta: 'prov-prod-venta', idBadge: 'badge-lock-venta-COMPRA',
+                    moneda: window.monedaCargaCompra || 'USD'
+                };
+            } else if (contexto === 'INV_NUEVO') {
+                return {
+                    idCosto: 'inv-input-costo', idMargen: 'inv-input-margen', idTipo: 'inv-input-margen-tipo',
+                    idVenta: 'inv-input-venta', idBadge: 'badge-lock-venta-INV_NUEVO',
+                    moneda: (document.getElementById('inv-input-moneda-base') || {}).value || 'USD'
+                };
+            } else if (contexto === 'SUBMODAL') {
+                return {
+                    idCosto: 'sub-input-costo', idMargen: 'sub-input-margen', idTipo: 'sub-input-margen-tipo',
+                    idVenta: 'sub-input-venta', idBadge: 'badge-lock-venta-SUBMODAL',
+                    moneda: (document.getElementById('sub-input-moneda-base') || {}).value || 'USD'
+                };
+            }
+            return null;
+        };
+
+        window.bloquearEdicionManualPrecioVenta = function(contexto) {
+            const cfg = window.obtenerConfigContextoPrecio(contexto);
+            if (!cfg) return;
+            const elVenta = document.getElementById(cfg.idVenta);
+            const elBadge = document.getElementById(cfg.idBadge);
+            if (elVenta) {
+                elVenta.readOnly = true;
+                elVenta.className = "input-clean font-mono text-blue-700 font-black bg-blue-50/70 border-blue-300 cursor-pointer";
+            }
+            if (elBadge) {
+                elBadge.className = "text-[8px] font-mono font-black text-blue-700 bg-blue-100 hover:bg-blue-200 px-1.5 py-0.5 rounded shrink-0 transition-colors cursor-pointer";
+                elBadge.innerHTML = '<i class="fa-solid fa-lock text-[7px]"></i> Auto';
+            }
+        };
+
+        window.toggleEdicionManualPrecioVenta = function(contexto) {
+            const cfg = window.obtenerConfigContextoPrecio(contexto);
+            if (!cfg) return;
+            const elVenta = document.getElementById(cfg.idVenta);
+            const elBadge = document.getElementById(cfg.idBadge);
+            if (!elVenta) return;
+
+            if (!elVenta.readOnly) {
+                window.bloquearEdicionManualPrecioVenta(contexto);
+                return;
+            }
+
+            if (!confirm("🔓 ¿Deseas editar manualmente el Precio de Venta?
+
+Al escribir el nuevo precio, el sistema recalculará automáticamente tu Ganancia.")) {
+                return;
+            }
+
+            elVenta.readOnly = false;
+            elVenta.className = "input-clean font-mono text-amber-800 font-black bg-amber-50 border-2 border-amber-400";
+            if (elBadge) {
+                elBadge.className = "text-[8px] font-mono font-black text-amber-950 bg-amber-300 hover:bg-amber-400 px-1.5 py-0.5 rounded shrink-0 transition-colors cursor-pointer";
+                elBadge.innerHTML = '<i class="fa-solid fa-lock-open text-[7px]"></i> Manual';
+            }
+            setTimeout(() => { elVenta.focus(); elVenta.select(); }, 40);
+        };
+
+        window.recalcularMargenDesdeVenta = function(contexto) {
+            const cfg = window.obtenerConfigContextoPrecio(contexto);
+            if (!cfg) return;
+            const elCosto = document.getElementById(cfg.idCosto);
+            const elMargen = document.getElementById(cfg.idMargen);
+            const elTipo = document.getElementById(cfg.idTipo);
+            const elVenta = document.getElementById(cfg.idVenta);
+            if (!elCosto || !elMargen || !elVenta || elVenta.readOnly) return;
+
+            const costo = window.limpiarMontoManual(elCosto.value) || 0;
+            const venta = window.limpiarMontoManual(elVenta.value) || 0;
+            const tipo = elTipo ? elTipo.value : 'PCT';
+
+            let nuevoMargen = 0;
+            if (tipo === 'PCT') {
+                nuevoMargen = costo > 0 ? (((venta - costo) / costo) * 100) : 0;
+                if (nuevoMargen < 0) nuevoMargen = 0;
+                elMargen.value = Number(nuevoMargen.toFixed(2)).toString().replace('.', ',');
+            } else {
+                nuevoMargen = Math.max(0, venta - costo);
+                if (cfg.moneda === 'COP') {
+                    elMargen.value = window.formatearMiles(Math.round(nuevoMargen));
+                } else {
+                    elMargen.value = nuevoMargen.toFixed(2).replace('.', ',');
+                }
             }
         };
 
@@ -6160,6 +6391,17 @@ Tu nueva clave de acceso es: ${nuevaClave}`);
             boxAlerta.classList.remove('hidden');
         };
 
+        window.estadoModalAbonoCredito = {
+            claveCliente: '',
+            nombreCliente: '',
+            telefonoCliente: '',
+            monedaCliente: 'USD',
+            deudaTotalUSD: 0,
+            monedaPago: 'USD',
+            modo: 'PARCIAL',
+            via: 'EFECTIVO'
+        };
+
         window.registrarAbonoGlobalClienteCascada = function(claveCliente) {
             const notasCliente = (window.dbVentas || []).filter(v => {
                 if (v.estado === 'ANULADA') return false;
@@ -6167,7 +6409,7 @@ Tu nueva clave de acceso es: ${nuevaClave}`);
                 if (!esCred) return false;
                 const saldo = v.credito ? (Number(v.credito.saldoPendienteUSD) || 0) : (Number(v.totalUSD) || 0);
                 return saldo > 0.009 && window.obtenerClaveClienteCredito(v) === claveCliente;
-            }).sort((a, b) => (a.fechaMs || 0) - (b.fechaMs || 0)); // Más antigua primero (Cascada)
+            }).sort((a, b) => (a.fechaMs || 0) - (b.fechaMs || 0));
 
             if (notasCliente.length === 0) return;
 
@@ -6175,60 +6417,208 @@ Tu nueva clave de acceso es: ${nuevaClave}`);
             const telefonoCliente = notasCliente[0].telefono || '';
             const monedaCliente = window.detectarMonedaDominanteNotas(notasCliente);
             const deudaTotalUSD = notasCliente.reduce((acc, v) => acc + (v.credito ? (Number(v.credito.saldoPendienteUSD) || 0) : (Number(v.totalUSD) || 0)), 0);
-            const deudaTotalCOP = window.calcularPesosDesdeUSD(deudaTotalUSD);
-            const deudaTotalBS = window.calcularBsDesdeUSD(deudaTotalUSD);
             const presDeuda = window.obtenerPresentacionMultimoneda(deudaTotalUSD, monedaCliente);
 
-            const monedaElegida = (prompt(
-                `💰 ABONO EN CUENTA CORRIENTE — ${nombreCliente.toUpperCase()}\n` +
-                `Deuda Total Consolidada: ${presDeuda.principal} (${presDeuda.secundario})\n\n` +
-                `Escriba la moneda en que abona el cliente:\n` +
-                `• COP (Pesos)\n` +
-                `• USD (Dólares)\n` +
-                `• BS (Bolívares)`,
-                monedaCliente
-            ) || '').trim().toUpperCase();
+            window.estadoModalAbonoCredito = {
+                claveCliente,
+                nombreCliente,
+                telefonoCliente,
+                monedaCliente,
+                deudaTotalUSD,
+                monedaPago: monedaCliente,
+                modo: 'PARCIAL',
+                via: 'EFECTIVO'
+            };
 
-            if (!['USD', 'COP', 'BS'].includes(monedaElegida)) return;
+            document.getElementById('abono-modal-clave-cliente').value = claveCliente;
+            document.getElementById('abono-modal-deuda-usd').value = deudaTotalUSD.toFixed(4);
+            document.getElementById('abono-modal-moneda-cliente').value = monedaCliente;
+            document.getElementById('lbl-abono-modal-cliente').innerText = nombreCliente.toUpperCase();
+            document.getElementById('lbl-abono-modal-deuda-principal').innerText = presDeuda.principal;
+            document.getElementById('lbl-abono-modal-deuda-sec').innerText = presDeuda.secundario;
 
-            const sugerido = monedaElegida === 'COP' ? Math.round(deudaTotalCOP).toString() : (monedaElegida === 'BS' ? deudaTotalBS.toFixed(2) : deudaTotalUSD.toFixed(2));
-            const montoRaw = prompt(`Ingrese el monto abonado en ${monedaElegida}:`, sugerido);
-            if (montoRaw === null) return;
+            window.seleccionarMonedaModalAbono(monedaCliente);
+            window.seleccionarModoModalAbono('PARCIAL');
+            window.seleccionarViaModalAbono('EFECTIVO');
 
-            const montoNum = window.limpiarMontoManual(montoRaw);
-            if (montoNum <= 0) return;
+            document.getElementById('modal-cobro-abono-credito').classList.remove('hidden');
+            setTimeout(() => {
+                const inp = document.getElementById('input-abono-modal-monto');
+                if (inp) inp.focus();
+            }, 60);
+        };
+
+        window.cerrarModalCobroAbonoCredito = function() {
+            const m = document.getElementById('modal-cobro-abono-credito');
+            if (m) m.classList.add('hidden');
+        };
+
+        window.seleccionarMonedaModalAbono = function(mon) {
+            const m = (mon || 'USD').toUpperCase();
+            window.estadoModalAbonoCredito.monedaPago = m;
+
+            ['COP', 'USD', 'BS'].forEach(cod => {
+                const btn = document.getElementById(`btn-abono-mod-${cod}`);
+                if (!btn) return;
+                if (cod === m) {
+                    const clr = cod === 'COP' ? 'border-slate-900 bg-slate-900 text-white' : (cod === 'BS' ? 'border-emerald-600 bg-emerald-600 text-white' : 'border-blue-600 bg-blue-600 text-white');
+                    btn.className = `py-2 rounded-xl border ${clr} font-black text-[11px] shadow-sm`;
+                } else {
+                    btn.className = 'py-2 rounded-xl border border-slate-300 bg-white text-slate-700 font-black text-[11px]';
+                }
+            });
+
+            const lblTit = document.getElementById('lbl-abono-modal-input-titulo');
+            if (lblTit) {
+                lblTit.innerText = m === 'COP' ? 'Monto que entrega el cliente (Pesos COP):' : (m === 'BS' ? 'Monto que entrega el cliente (Bolívares Bs):' : 'Monto que entrega el cliente (Dólares $ USD):');
+            }
+
+            if (window.estadoModalAbonoCredito.modo === 'TOTAL') {
+                window.rellenarMontoTotalModalAbono();
+            }
+            window.actualizarPreviewModalAbono();
+        };
+
+        window.rellenarMontoTotalModalAbono = function() {
+            const st = window.estadoModalAbonoCredito;
+            const inp = document.getElementById('input-abono-modal-monto');
+            if (!inp) return;
+            if (st.monedaPago === 'COP') {
+                inp.value = window.formatearMiles(Math.round(window.calcularPesosDesdeUSD(st.deudaTotalUSD)));
+            } else if (st.monedaPago === 'BS') {
+                inp.value = window.calcularBsDesdeUSD(st.deudaTotalUSD).toFixed(2).replace('.', ',');
+            } else {
+                inp.value = st.deudaTotalUSD.toFixed(2).replace('.', ',');
+            }
+        };
+
+        window.seleccionarModoModalAbono = function(modo) {
+            window.estadoModalAbonoCredito.modo = modo;
+            const btnPar = document.getElementById('btn-abono-modo-PARCIAL');
+            const btnTot = document.getElementById('btn-abono-modo-TOTAL');
+            const inp = document.getElementById('input-abono-modal-monto');
+
+            if (modo === 'TOTAL') {
+                if (btnTot) btnTot.className = 'py-2.5 px-2 rounded-xl border-2 border-emerald-600 bg-emerald-600 text-white font-black text-[10.5px] uppercase flex flex-col items-center justify-center gap-0.5 shadow-sm transition-all';
+                if (btnPar) btnPar.className = 'py-2.5 px-2 rounded-xl border-2 border-slate-300 bg-white text-slate-700 font-black text-[10.5px] uppercase flex flex-col items-center justify-center gap-0.5 transition-all';
+                window.rellenarMontoTotalModalAbono();
+                if (inp) inp.readOnly = true;
+            } else {
+                if (btnPar) btnPar.className = 'py-2.5 px-2 rounded-xl border-2 border-blue-600 bg-blue-600 text-white font-black text-[10.5px] uppercase flex flex-col items-center justify-center gap-0.5 shadow-sm transition-all';
+                if (btnTot) btnTot.className = 'py-2.5 px-2 rounded-xl border-2 border-slate-300 bg-white text-slate-700 font-black text-[10.5px] uppercase flex flex-col items-center justify-center gap-0.5 transition-all';
+                if (inp) {
+                    inp.readOnly = false;
+                    inp.value = '';
+                    setTimeout(() => inp.focus(), 40);
+                }
+            }
+            window.actualizarPreviewModalAbono();
+        };
+
+        window.seleccionarViaModalAbono = function(via) {
+            window.estadoModalAbonoCredito.via = via;
+            const btnEf = document.getElementById('btn-abono-via-EFECTIVO');
+            const btnDig = document.getElementById('btn-abono-via-DIGITAL');
+            if (via === 'DIGITAL') {
+                if (btnDig) btnDig.className = 'py-2 px-2 rounded-xl border-2 border-blue-600 bg-blue-600 text-white font-black text-[10px] uppercase flex items-center justify-center gap-1 shadow-sm';
+                if (btnEf) btnEf.className = 'py-2 px-2 rounded-xl border-2 border-slate-300 bg-white text-slate-700 font-black text-[10px] uppercase flex items-center justify-center gap-1';
+            } else {
+                if (btnEf) btnEf.className = 'py-2 px-2 rounded-xl border-2 border-emerald-600 bg-emerald-600 text-white font-black text-[10px] uppercase flex items-center justify-center gap-1 shadow-sm';
+                if (btnDig) btnDig.className = 'py-2 px-2 rounded-xl border-2 border-slate-300 bg-white text-slate-700 font-black text-[10px] uppercase flex items-center justify-center gap-1';
+            }
+        };
+
+        window.actualizarPreviewModalAbono = function() {
+            const st = window.estadoModalAbonoCredito;
+            const inp = document.getElementById('input-abono-modal-monto');
+            const montoNum = window.limpiarMontoManual(inp ? inp.value : 0);
 
             let abonoUSD = montoNum;
-            if (monedaElegida === 'COP') abonoUSD = window.calcularUSDDesdeCOP(montoNum);
-            else if (monedaElegida === 'BS') abonoUSD = window.calcularUSDDesdeBs(montoNum);
+            if (st.monedaPago === 'COP') abonoUSD = window.calcularUSDDesdeCOP(montoNum);
+            else if (st.monedaPago === 'BS') abonoUSD = window.calcularUSDDesdeBs(montoNum);
 
-            if (abonoUSD > deudaTotalUSD + 0.05) {
-                const presAbonoExceso = window.obtenerPresentacionMultimoneda(abonoUSD, monedaElegida, montoNum);
-                alert(`⚠️ El abono (${presAbonoExceso.principal}) supera la deuda total del cliente (${presDeuda.principal}).`);
+            const restanteUSD = (st.modo === 'TOTAL') ? 0 : Math.max(0, st.deudaTotalUSD - abonoUSD);
+            const presRest = window.obtenerPresentacionMultimoneda(restanteUSD, st.monedaCliente);
+            const lblRest = document.getElementById('lbl-abono-modal-restante');
+            const lblRestSec = document.getElementById('lbl-abono-modal-restante-sec');
+
+            if (lblRest) {
+                if (restanteUSD <= 0.009 && montoNum > 0) {
+                    lblRest.className = 'text-sm font-black text-emerald-400 block';
+                    lblRest.innerText = '✓ CUENTA TOTALMENTE SALDADA ($0.00)';
+                } else {
+                    lblRest.className = 'text-sm font-black text-amber-400 block';
+                    lblRest.innerText = presRest.principal;
+                }
+            }
+            if (lblRestSec) {
+                lblRestSec.innerText = (restanteUSD <= 0.009 && montoNum > 0) ? 'La deuda quedará en cero' : presRest.secundario;
+            }
+        };
+
+        window.confirmarCobroAbonoModal = function() {
+            const st = window.estadoModalAbonoCredito;
+            const inp = document.getElementById('input-abono-modal-monto');
+            const montoNum = window.limpiarMontoManual(inp ? inp.value : 0);
+
+            if (montoNum <= 0) {
+                alert('⚠️ Por favor escribe el monto exacto que abonó el cliente, o toca "Monto Total" para liquidar toda la deuda.');
+                if (inp) inp.focus();
+                return;
+            }
+
+            let abonoUSD = (st.modo === 'TOTAL') ? st.deudaTotalUSD : montoNum;
+            if (st.modo !== 'TOTAL') {
+                if (st.monedaPago === 'COP') abonoUSD = window.calcularUSDDesdeCOP(montoNum);
+                else if (st.monedaPago === 'BS') abonoUSD = window.calcularUSDDesdeBs(montoNum);
+            }
+
+            if (abonoUSD > st.deudaTotalUSD + 0.05) {
+                const presDeuda = window.obtenerPresentacionMultimoneda(st.deudaTotalUSD, st.monedaPago);
+                alert(`⚠️ El monto ingresado supera la deuda total (${presDeuda.principal}). Si el cliente paga completo, usa el botón "Monto Total".`);
+                return;
+            }
+
+            const notasCliente = (window.dbVentas || []).filter(v => {
+                if (v.estado === 'ANULADA') return false;
+                const esCred = v.condicionVenta === 'CREDITO' || (v.credito && v.credito.esCredito);
+                if (!esCred) return false;
+                const saldo = v.credito ? (Number(v.credito.saldoPendienteUSD) || 0) : (Number(v.totalUSD) || 0);
+                return saldo > 0.009 && window.obtenerClaveClienteCredito(v) === st.claveCliente;
+            }).sort((a, b) => (a.fechaMs || 0) - (b.fechaMs || 0));
+
+            if (notasCliente.length === 0) {
+                window.cerrarModalCobroAbonoCredito();
                 return;
             }
 
             let remanenteUSD = abonoUSD;
+            let costoProporcionalAbonoUSD = 0;
             const detalleAplicado = [];
 
             notasCliente.forEach(nota => {
                 if (remanenteUSD <= 0.001) return;
                 if (!nota.credito) {
-                    nota.credito = { esCredito: true, diasCredito: 15, abonoInicialUSD: 0, saldoPendienteUSD: nota.totalUSD, estadoCredito: 'PENDIENTE' };
+                    nota.credito = { esCredito: true, diasCredito: 15, abonoInicialOriginalUSD: 0, abonoInicialUSD: 0, saldoPendienteUSD: nota.totalUSD, estadoCredito: 'PENDIENTE' };
                 }
                 const saldoNota = Number(nota.credito.saldoPendienteUSD) || 0;
-                const aplicado = Math.min(saldoNota, remanenteUSD);
+                const aplicado = (st.modo === 'TOTAL') ? saldoNota : Math.min(saldoNota, remanenteUSD);
+
+                // Calcular costo de reposición proporcional al monto cobrado hoy en esta nota
+                const costoNotaTotal = window.calcularCostoReposicionVentas([nota]);
+                const ratioNota = (nota.totalUSD > 0) ? (aplicado / nota.totalUSD) : 0;
+                costoProporcionalAbonoUSD += (costoNotaTotal * ratioNota);
 
                 nota.credito.abonoInicialUSD = (Number(nota.credito.abonoInicialUSD) || 0) + aplicado;
                 nota.credito.saldoPendienteUSD = Math.max(0, parseFloat((saldoNota - aplicado).toFixed(2)));
-                if (nota.credito.saldoPendienteUSD <= 0.009) {
+                if (nota.credito.saldoPendienteUSD <= 0.009 || st.modo === 'TOTAL') {
                     nota.credito.saldoPendienteUSD = 0;
                     nota.credito.estadoCredito = 'PAGADO';
                 }
                 nota.actualizadoMs = Date.now();
                 remanenteUSD = Math.max(0, remanenteUSD - aplicado);
 
-                const mNota = (nota.monedaOriginal || monedaCliente || 'USD').toUpperCase();
+                const mNota = (nota.monedaOriginal || st.monedaCliente || 'USD').toUpperCase();
                 const presAplicado = window.obtenerPresentacionMultimoneda(aplicado, mNota);
                 const presResta = window.obtenerPresentacionMultimoneda(nota.credito.saldoPendienteUSD, mNota);
 
@@ -6239,28 +6629,23 @@ Tu nueva clave de acceso es: ${nuevaClave}`);
                 }
             });
 
-            const presAbonoPrompt = window.obtenerPresentacionMultimoneda(abonoUSD, monedaElegida, montoNum);
-            const viaPagoRaw = (prompt(
-                `¿Cómo recibió el abono de ${presAbonoPrompt.principal} (${presAbonoPrompt.secundario})?\n` +
-                `Escriba 1 o 2:\n` +
-                `1 = Efectivo en Caja (Gaveta)\n` +
-                `2 = Transferencia / Nequi / Pago Móvil (Banco)`,
-                '1'
-            ) || '1').trim();
-            const esDigitalAbono = (viaPagoRaw === '2');
+            const esDigitalAbono = (st.via === 'DIGITAL');
+            const mP = st.monedaPago;
             const descMetodoAbono = esDigitalAbono
-                ? (monedaElegida === 'COP' ? '🇨🇴 Nequi / Bancolombia (Abono)' : (monedaElegida === 'BS' ? '🇻🇪 Pago Móvil / Transf. Bs (Abono)' : '💻 Digital / USDT (Abono)'))
-                : (monedaElegida === 'COP' ? '🇨🇴 Efectivo Pesos COP (Abono)' : (monedaElegida === 'BS' ? '🇻🇪 Efectivo Bolívares Bs (Abono)' : '💵 Efectivo Dólares $ (Abono)'));
+                ? (mP === 'COP' ? '🇨🇴 Nequi / Bancolombia (Abono)' : (mP === 'BS' ? '🇻🇪 Pago Móvil / Transf. Bs (Abono)' : '💻 Digital / USDT (Abono)'))
+                : (mP === 'COP' ? '🇨🇴 Efectivo Pesos COP (Abono)' : (mP === 'BS' ? '🇻🇪 Efectivo Bolívares Bs (Abono)' : '💵 Efectivo Dólares $ (Abono)'));
 
             if (!window.dbAbonos) window.dbAbonos = [];
             const nuevoRegistroAbono = {
                 id: 'abo_' + Date.now() + '_' + Math.random().toString(36).substr(2, 4),
-                cliente: nombreCliente.toUpperCase(),
-                claveCliente,
+                cliente: st.nombreCliente.toUpperCase(),
+                claveCliente: st.claveCliente,
                 montoUSD: abonoUSD,
-                monedaOriginal: monedaElegida,
+                costoProporcionalUSD: costoProporcionalAbonoUSD,
+                monedaOriginal: mP,
                 montoOriginal: montoNum,
                 esDigital: esDigitalAbono,
+                esLiquidacionTotal: (st.modo === 'TOTAL'),
                 metodoPago: descMetodoAbono,
                 detalleNotas: detalleAplicado,
                 fechaMs: Date.now()
@@ -6272,37 +6657,67 @@ Tu nueva clave de acceso es: ${nuevaClave}`);
             }
 
             window.guardarVentasEnStorage();
+            window.cerrarModalCobroAbonoCredito();
             if (typeof window.actualizarKPIsPanelCliente === 'function') window.actualizarKPIsPanelCliente();
             if (typeof window.calcularCierrePeriodoGerencial === 'function') window.calcularCierrePeriodoGerencial();
+            if (typeof window.generarReporteZDia === 'function') window.generarReporteZDia();
             window.renderizarListaFiadosYAbonos();
 
-            const nuevoSaldoConsolidado = Math.max(0, deudaTotalUSD - abonoUSD);
-            const presAbonoFinal = window.obtenerPresentacionMultimoneda(abonoUSD, monedaElegida, montoNum);
-            const presRestanteFinal = window.obtenerPresentacionMultimoneda(nuevoSaldoConsolidado, monedaCliente);
+            const nuevoSaldoConsolidado = (st.modo === 'TOTAL') ? 0 : Math.max(0, st.deudaTotalUSD - abonoUSD);
+            const presAbonoFinal = window.obtenerPresentacionMultimoneda(abonoUSD, mP, montoNum);
+            const presRestanteFinal = window.obtenerPresentacionMultimoneda(nuevoSaldoConsolidado, st.monedaCliente);
 
             const enviarWA = confirm(
-                `✅ ¡Abono Global de ${presAbonoFinal.principal} aplicado en cascada!\n\n` +
-                `${detalleAplicado.join('\n')}\n\n` +
-                `Nuevo Saldo Pendiente del Cliente: ${presRestanteFinal.principal}\n\n` +
-                `¿Desea enviar el recibo de abono al cliente por WhatsApp?`
+                `✅ ¡Pago de ${presAbonoFinal.principal} registrado con éxito!
+
+` +
+                `${detalleAplicado.join('
+')}
+
+` +
+                `Nuevo Saldo Pendiente: ${nuevoSaldoConsolidado <= 0.009 ? 'SALDADO (0)' : presRestanteFinal.principal}
+
+` +
+                `¿Deseas enviar el comprobante al cliente por WhatsApp?`
             );
 
             if (enviarWA) {
                 const nomComercio = (window.clienteActivoSesion && window.clienteActivoSesion.nombre ? window.clienteActivoSesion.nombre : 'TUCOCEL C.A.').toUpperCase();
-                let msj = `🧾 *COMPROBANTE DE ABONO A CUENTA* ✅\n`;
-                msj += `🏪 *${nomComercio}*\n`;
-                msj += `👤 *Cliente:* ${nombreCliente.toUpperCase()}\n`;
-                msj += `📅 *Fecha:* ${new Date().toLocaleDateString()}\n`;
-                msj += `----------------------------------------\n`;
-                msj += `💵 *Abono Recibido:* ${presAbonoFinal.principal} (${presAbonoFinal.secundario})\n`;
-                msj += `${detalleAplicado.join('\n')}\n`;
-                msj += `----------------------------------------\n`;
-                msj += `📌 *SALDO RESTANTE TOTAL:* ${presRestanteFinal.principal}\n`;
-                msj += `(${presRestanteFinal.secundario})\n\n`;
-                msj += `_Sistema TCL Comercio Web — TUCOCEL C.A._`;
+                let msj = `🧾 *COMPROBANTE DE ABONO A CUENTA* ✅
+`;
+                msj += `🏪 *${nomComercio}*
+`;
+                msj += `👤 *Cliente:* ${st.nombreCliente.toUpperCase()}
+`;
+                msj += `📅 *Fecha:* ${new Date().toLocaleDateString()}
+`;
+                msj += `━━━━━━━━━━━━━━━━━━━━━━
+`;
+                msj += `💵 *Monto Pagado:* ${presAbonoFinal.principal}
+`;
+                msj += `   _(${presAbonoFinal.secundario})_
+`;
+                msj += `💳 *Forma:* ${descMetodoAbono}
+`;
+                msj += `━━━━━━━━━━━━━━━━━━━━━━
+`;
+                msj += `${detalleAplicado.join('
+')}
+`;
+                msj += `━━━━━━━━━━━━━━━━━━━━━━
+`;
+                msj += nuevoSaldoConsolidado <= 0.009
+                    ? `✨ *ESTADO: DEUDA TOTALMENTE SALDADA*
 
-                const telClean = (telefonoCliente || '').replace(/[^0-9]/g, '');
-                window.despacharWhatsApp(telClean, msj);
+`
+                    : `⏳ *Saldo Pendiente:* ${presRestanteFinal.principal}
+   _(${presRestanteFinal.secundario})_
+
+`;
+                msj += `¡Gracias por su pago!
+*TCL Comercio Web — TUCOCEL C.A.*`;
+                const telLimpio = (st.telefonoCliente && st.telefonoCliente !== 'N/A') ? st.telefonoCliente.replace(/[^0-9]/g, '') : '';
+                window.despacharWhatsApp(telLimpio, msj);
             }
         };
 
@@ -9745,9 +10160,192 @@ $${(item.precioUSD * item.cant).toFixed(2)} USD
                             <button onclick="window.eliminarClienteDefinitivoPermanente('${c.id}')" class="bg-red-600 hover:bg-red-500 text-white font-black text-[10px] py-2 rounded-xl flex items-center justify-center gap-1 shadow-md transition-all active:scale-95"><i class="fa-solid fa-trash-can"></i> Borrar</button>
                         `}
                     </div>
+                    ${c.estatus === 'ACTIVO' ? `
+                        <div class="grid grid-cols-2 gap-1.5 pt-1.5 border-t border-dashed border-slate-200">
+                            <button type="button" onclick="window.abrirModalReinicioComercioMaster('${c.id}', 'MOVIMIENTOS')" class="bg-amber-50 hover:bg-amber-100 text-amber-900 border border-amber-300 font-black text-[9.5px] py-2 px-2 rounded-xl uppercase flex items-center justify-center gap-1 whitespace-nowrap transition-all active:scale-95" title="Borra ventas, compras, gastos y cierres conservando el inventario">
+                                <i class="fa-solid fa-broom text-amber-600"></i> <span>Limpiar Movimientos</span>
+                            </button>
+                            <button type="button" onclick="window.abrirModalReinicioComercioMaster('${c.id}', 'TODO')" class="bg-rose-50 hover:bg-rose-100 text-rose-800 border border-rose-300 font-black text-[9.5px] py-2 px-2 rounded-xl uppercase flex items-center justify-center gap-1 whitespace-nowrap transition-all active:scale-95" title="Reinicia movimientos e inventario conservando la cuenta del cliente">
+                                <i class="fa-solid fa-rotate-left text-rose-600"></i> <span>Reiniciar Todo</span>
+                            </button>
+                        </div>
+                    ` : ''}
                 </div>
             `;
-            }).join('');;
+            }).join('');
+        };
+
+        window.abrirModalReinicioComercioMaster = function(clienteId, modo) {
+            if (!window.esMasterLogueado) return;
+            const cliente = (window.dbClientesSaaS || []).find(c => c.id === clienteId);
+            if (!cliente) return;
+
+            const esTodo = (modo === 'TODO');
+            document.getElementById('reinicio-comercio-id').value = cliente.id;
+            document.getElementById('reinicio-comercio-modo').value = esTodo ? 'TODO' : 'MOVIMIENTOS';
+            document.getElementById('lbl-reinicio-comercio-nombre').innerText = (cliente.nombre || '').toUpperCase();
+            document.getElementById('lbl-reinicio-comercio-slug').innerText = '/' + (cliente.slug || cliente.user || '');
+            document.getElementById('input-confirmacion-reinicio-master').value = '';
+
+            const headerEl = document.getElementById('header-modal-reinicio-master');
+            const tituloEl = document.getElementById('titulo-modal-reinicio-master');
+            const boxExp = document.getElementById('box-explicacion-reinicio-master');
+            const btnEje = document.getElementById('btn-ejecutar-reinicio-master');
+
+            if (esTodo) {
+                if (headerEl) headerEl.className = "bg-rose-700 px-5 py-3.5 text-white flex justify-between items-center shrink-0";
+                if (tituloEl) tituloEl.innerHTML = '<i class="fa-solid fa-triangle-exclamation text-amber-300"></i> Reiniciar Comercio desde Cero';
+                if (boxExp) {
+                    boxExp.className = "rounded-2xl p-3.5 border border-rose-300 bg-rose-50 text-rose-950 text-[11px] leading-relaxed font-medium space-y-2";
+                    boxExp.innerHTML = `
+                        <p class="font-black text-rose-800">🚨 Estás a punto de REINICIAR POR COMPLETO este comercio.</p>
+                        <p><strong>❌ Se borrarán:</strong> Todas sus ventas/notas, compras a proveedores, gastos, fiados, abonos, apartados, cotizaciones, cierres diarios <strong>Y TAMBIÉN todo su inventario</strong>. El correlativo volverá a <strong>#00001</strong>.</p>
+                        <p class="text-emerald-800 bg-emerald-50 border border-emerald-200 rounded-xl p-2"><strong>✅ NO se borrarán los datos del cliente:</strong> su nombre, RIF, teléfono, dirección, usuario, contraseña, contrato ni sus días de licencia quedan 100% intactos.</p>
+                    `;
+                }
+                if (btnEje) {
+                    btnEje.className = "bg-rose-600 hover:bg-rose-500 text-white py-3 rounded-xl uppercase text-xs font-black shadow-md transition-all active:scale-95";
+                    btnEje.innerText = "Sí, Reiniciar Todo";
+                }
+            } else {
+                if (headerEl) headerEl.className = "bg-amber-600 px-5 py-3.5 text-white flex justify-between items-center shrink-0";
+                if (tituloEl) tituloEl.innerHTML = '<i class="fa-solid fa-broom"></i> Limpiar Movimientos (Conservar Inventario)';
+                if (boxExp) {
+                    boxExp.className = "rounded-2xl p-3.5 border border-amber-300 bg-amber-50 text-amber-950 text-[11px] leading-relaxed font-medium space-y-2";
+                    boxExp.innerHTML = `
+                        <p class="font-black text-amber-900">⚠️ Estás a punto de limpiar únicamente los movimientos de prueba.</p>
+                        <p><strong>❌ Se borrarán:</strong> Sus ventas/notas de entrega, compras a proveedores, gastos, fiados, abonos, apartados, cotizaciones y cierres diarios. La próxima nota arrancará en <strong>#00001</strong>.</p>
+                        <p class="text-emerald-800 bg-emerald-50 border border-emerald-200 rounded-xl p-2"><strong>✅ Se conservará 100% intacto:</strong> Todo su <strong>inventario</strong> (productos, precios, costos, fotos y stock) y todos los datos de su cuenta y licencia.</p>
+                    `;
+                }
+                if (btnEje) {
+                    btnEje.className = "bg-amber-600 hover:bg-amber-500 text-white py-3 rounded-xl uppercase text-xs font-black shadow-md transition-all active:scale-95";
+                    btnEje.innerText = "Sí, Limpiar Movimientos";
+                }
+            }
+
+            document.getElementById('modal-reinicio-comercio-master').classList.remove('hidden');
+            setTimeout(() => {
+                const inp = document.getElementById('input-confirmacion-reinicio-master');
+                if (inp) inp.focus();
+            }, 60);
+        };
+
+        window.cerrarModalReinicioComercioMaster = function() {
+            const mod = document.getElementById('modal-reinicio-comercio-master');
+            if (mod) mod.classList.add('hidden');
+        };
+
+        window.borrarSubcoleccionCompletaFirestore = async function(colRef) {
+            if (!window.dbNube || !colRef) return 0;
+            let totalEliminados = 0;
+            const snap = await colRef.get();
+            if (snap.empty) return 0;
+            const docs = snap.docs;
+            const CHUNK = 400;
+            for (let i = 0; i < docs.length; i += CHUNK) {
+                const batch = window.dbNube.batch();
+                docs.slice(i, i + CHUNK).forEach(d => batch.delete(d.ref));
+                await batch.commit();
+                totalEliminados += Math.min(CHUNK, docs.length - i);
+            }
+            return totalEliminados;
+        };
+
+        window.ejecutarReinicioComercioMaster = async function() {
+            if (!window.esMasterLogueado) return;
+            const clienteId = document.getElementById('reinicio-comercio-id').value;
+            const modo = document.getElementById('reinicio-comercio-modo').value;
+            const confirmTxt = (document.getElementById('input-confirmacion-reinicio-master').value || '').trim().toUpperCase();
+
+            if (confirmTxt !== 'SI' && confirmTxt !== 'SÍ') {
+                alert('⚠️ Para continuar, debes escribir exactamente la palabra SI en el recuadro de confirmación.');
+                return;
+            }
+
+            const cliente = (window.dbClientesSaaS || []).find(c => c.id === clienteId);
+            if (!cliente) return;
+
+            const slug = (cliente.slug || cliente.user || '').toLowerCase().trim();
+            if (!slug) return;
+
+            const btn = document.getElementById('btn-ejecutar-reinicio-master');
+            const textoOrig = btn ? btn.innerText : '';
+            if (btn) { btn.disabled = true; btn.innerText = 'Procesando...'; }
+
+            const esTodo = (modo === 'TODO');
+            const subcolsMovimientos = ['ventas', 'proveedores', 'gastos', 'abonos', 'apartados', 'cotizaciones', 'cierres', 'movimientos_inventario'];
+            const subcolsBorrar = esTodo ? [...subcolsMovimientos, 'inventario'] : subcolsMovimientos;
+
+            try {
+                // 1. Limpieza en la nube (Firebase Firestore) SIN tocar el documento principal del comercio
+                if (window.dbNube) {
+                    const tenantRef = window.dbNube.collection('comercios_saas').doc(slug);
+                    for (const sub of subcolsBorrar) {
+                        await window.borrarSubcoleccionCompletaFirestore(tenantRef.collection(sub));
+                    }
+                    // Reiniciar correlativo de notas para empezar en #00001
+                    await tenantRef.collection('data').doc('control_correlativos').set({
+                        ultimoCorrelativo: 0,
+                        actualizadoMs: Date.now()
+                    }, { merge: true });
+
+                    // Si conservamos inventario, liberar cualquier contador stockApartado de apartados borrados
+                    if (!esTodo) {
+                        const invSnap = await tenantRef.collection('inventario').get();
+                        const conApartado = invSnap.docs.filter(d => (Number((d.data() || {}).stockApartado) || 0) > 0);
+                        for (let i = 0; i < conApartado.length; i += 400) {
+                            const batch = window.dbNube.batch();
+                            conApartado.slice(i, i + 400).forEach(d => batch.set(d.ref, { stockApartado: 0 }, { merge: true }));
+                            await batch.commit();
+                        }
+                    }
+                }
+
+                // 2. Limpieza de almacenamiento local (localStorage) de este comercio específico
+                const entidadesLocal = esTodo
+                    ? ['ventas', 'proveedores', 'gastos', 'abonos', 'apartados', 'cotizaciones', 'cierres', 'movimientos_inv', 'inventario']
+                    : ['ventas', 'proveedores', 'gastos', 'abonos', 'apartados', 'cotizaciones', 'cierres', 'movimientos_inv'];
+
+                entidadesLocal.forEach(ent => {
+                    localStorage.removeItem(`tcl_tenant_${slug}_${ent}_2026`);
+                });
+                // Limpiar bases de caja diaria guardadas para este comercio
+                Object.keys(localStorage).forEach(k => {
+                    if (k.startsWith(`tcl_tenant_${slug}_base_caja_inicial_`)) {
+                        localStorage.removeItem(k);
+                    }
+                });
+
+                // Si conservamos inventario local, limpiar también stockApartado en caché local
+                if (!esTodo) {
+                    const keyInv = `tcl_tenant_${slug}_inventario_2026`;
+                    const rawInv = localStorage.getItem(keyInv);
+                    if (rawInv) {
+                        try {
+                            const arrInv = JSON.parse(rawInv).map(p => ({ ...p, stockApartado: 0 }));
+                            window.tclSafeSetItem(keyInv, JSON.stringify(arrInv));
+                        } catch (eInv) {}
+                    }
+                }
+
+                window.cerrarModalReinicioComercioMaster();
+                alert(
+                    esTodo
+                        ? `✅ ¡Reinicio Total completado para "${cliente.nombre}"!
+
+Se borraron todos sus movimientos e inventario. Sus datos de cuenta, usuario, clave y licencia siguen 100% intactos.`
+                        : `✅ ¡Movimientos limpiados en "${cliente.nombre}"!
+
+Se borraron ventas, compras, gastos, fiados, abonos, apartados, cotizaciones y cierres (próxima nota #00001).
+📦 Todo su inventario y datos de cuenta se conservaron intactos.`
+                );
+            } catch (err) {
+                console.error("Error al reiniciar comercio:", err);
+                alert("⚠️ Ocurrió un inconveniente al limpiar en la nube. Verifique su conexión e intente nuevamente.");
+            } finally {
+                if (btn) { btn.disabled = false; btn.innerText = textoOrig; }
+            }
         };
 
         window.editarClienteDirectoDesdeModal = function(id) {
@@ -10292,10 +10890,9 @@ $${(item.precioUSD * item.cant).toFixed(2)} USD
                     const f3 = (u, s = '') => window.formatearLineaTrioMonedas(u, mDom, null, s);
                     return `
                 <div style="margin: 6px 0; font-size: 9px; font-family: monospace; color: #000; line-height: 1.35;">
-                    <p style="margin: 1px 0;"><strong>1. TOTAL FACTURADO HOY:</strong> ${f3(datos.totalVentasUSD)}</p>
-                    ${datos.totalSaldoFiadoHoyUSD > 0 ? `<p style="margin: 1px 0;"><strong>⏳ FIADO HOY (POR COBRAR):</strong> ${f3(datos.totalSaldoFiadoHoyUSD)}</p>` : ''}
-                    ${datos.totalAbonosDiaUSD > 0 ? `<p style="margin: 1px 0;"><strong>+ ABONOS/CANCELACIONES HOY:</strong> ${f3(datos.totalAbonosDiaUSD, '+')}</p>` : ''}
-                    <p style="margin: 1px 0;"><strong>💵 RECAUDO REAL EN CAJA:</strong> ${f3(datos.recaudoRealHoyUSD || 0)}</p>
+                    <p style="margin: 1px 0;"><strong>1. TOTAL COBRADO HOY:</strong> ${f3(datos.recaudoRealHoyUSD || 0)}</p>
+                    ${datos.totalAbonosDiaUSD > 0 ? `<p style="margin: 1px 0;"><strong>• INCLUYE ABONOS HOY (${datos.abonosDia.length}):</strong> ${f3(datos.totalAbonosDiaUSD)}</p>` : ''}
+                    ${datos.totalSaldoFiadoHoyUSD > 0 ? `<p style="margin: 1px 0;"><strong>⏳ FIADO AÚN POR COBRAR:</strong> ${f3(datos.totalSaldoFiadoHoyUSD)}</p>` : ''}
                     <div style="border-top: 1px dashed #000; border-bottom: 1px dashed #000; padding: 3px 0; margin: 4px 0;">
                         <p style="margin: 1px 0;"><strong>2. REPONER MERCANCÍA:</strong> ${f3(datos.costoReposicionUSD || 0)}</p>
                         <p style="margin: 1px 0;"><strong>3. GASTOS OPERATIVOS:</strong> ${f3(datos.totalGastosUSD, '-')}</p>
@@ -10366,7 +10963,10 @@ $${(item.precioUSD * item.cant).toFixed(2)} USD
             const registro = {
                 id: 'cie_' + Date.now(),
                 fechaStr: datos.targetDateStr,
-                totalVentasUSD: datos.totalVentasUSD,
+                totalVentasUSD: datos.recaudoRealHoyUSD || 0,
+                totalFacturadoBrutoUSD: datos.totalVentasUSD || 0,
+                totalAbonosDiaUSD: datos.totalAbonosDiaUSD || 0,
+                totalSaldoFiadoHoyUSD: datos.totalSaldoFiadoHoyUSD || 0,
                 costoReposicionUSD: datos.costoReposicionUSD || 0,
                 totalGastosUSD: datos.totalGastosUSD,
                 gananciaLibreUSD: datos.gananciaLibreUSD || 0,
@@ -10398,15 +10998,14 @@ $${(item.precioUSD * item.cant).toFixed(2)} USD
                 msj += `------------------------------------\n`;
                 const monDomWA = window.detectarMonedaDominanteOperaciones(datos.ventasDia, datos.abonosDia);
                 const fmt3WA = (u) => window.formatearLineaTrioMonedas(u || 0, monDomWA);
-                msj += `💰 *RESUMEN DEL DÍA (3 MONEDAS):*\n`;
-                msj += `• *Total Facturado:* ${fmt3WA(datos.totalVentasUSD)}\n`;
-                if (datos.totalSaldoFiadoHoyUSD > 0) {
-                    msj += `• ⏳ *Fiado Hoy (No entra en caja):* ${fmt3WA(datos.totalSaldoFiadoHoyUSD)}\n`;
-                }
+                msj += `💰 *RESUMEN DEL DÍA (DINERO REAL):*\n`;
+                msj += `• 💵 *1. Total Cobrado Hoy:* ${fmt3WA(datos.recaudoRealHoyUSD || 0)}\n`;
                 if (datos.totalAbonosDiaUSD > 0) {
-                    msj += `• ✅ *Abonos / Cancelaciones Hoy:* +${fmt3WA(datos.totalAbonosDiaUSD)}\n`;
+                    msj += `• ✅ *Incluye Abonos Hoy (${datos.abonosDia.length}):* ${fmt3WA(datos.totalAbonosDiaUSD)}\n`;
                 }
-                msj += `• 💵 *Recaudo Real Cobrado Hoy:* ${fmt3WA(datos.recaudoRealHoyUSD || 0)}\n`;
+                if (datos.totalSaldoFiadoHoyUSD > 0) {
+                    msj += `• ⏳ *Fiados Aún por Cobrar (No entra en caja):* ${fmt3WA(datos.totalSaldoFiadoHoyUSD)}\n`;
+                }
                 msj += `• 📦 *Reponer Mercancía:* ${fmt3WA(datos.costoReposicionUSD || 0)}\n`;
                 msj += `• 📉 *Gastos del Día:* -${fmt3WA(datos.totalGastosUSD)}\n`;
                 msj += `• 💎 *GANANCIA LIBRE:* ${fmt3WA(datos.gananciaLibreUSD || 0)}\n`;
@@ -10438,7 +11037,9 @@ $${(item.precioUSD * item.cant).toFixed(2)} USD
             }
 
             document.getElementById('modal-detalle-auditoria').classList.add('hidden');
-            alert(`🔒 Cierre Diario de Caja para ${datos.targetDateStr} completado y guardado exitosamente.`);
+            if (typeof window.generarReporteZDia === 'function') window.generarReporteZDia();
+            if (typeof window.actualizarKPIsPanelCliente === 'function') window.actualizarKPIsPanelCliente();
+            alert(`🔒 ¡Cierre Diario de Caja archivado en Bóveda Cierres!\n\nLa pantalla del Cierre del Día quedó en CERO (0) lista para nuevas operaciones.`);
         };
 window.abrirModalReporteZ = function() {
             const hoyStr = window.obtenerFechaLocalISO();
@@ -10469,38 +11070,41 @@ window.abrirModalReporteZ = function() {
             if (!fechaVal) return null;
 
             const targetDateStr = fechaVal;
-            const ventasDia = window.dbVentas.filter(v => {
+
+            // Al hacer el Cierre del Día, la pantalla queda en CERO para nuevos movimientos
+            const cierresDelDia = (window.dbCierres || []).filter(cie => cie.fechaStr === fechaVal);
+            const ultimoCierreDiaMs = cierresDelDia.reduce((maxTs, cie) => Math.max(maxTs, Number(cie.timestamp || cie.fechaMs) || 0), 0);
+
+            const ventasDia = (window.dbVentas || []).filter(v => {
                 const vDateStr = window.formatearFechaTimestampAISO(v.fechaMs);
-                return vDateStr === fechaVal && v.estado !== 'ANULADA';
+                return vDateStr === fechaVal && v.estado !== 'ANULADA' && (Number(v.fechaMs) || 0) > ultimoCierreDiaMs;
             });
 
-            // Filtrar solo gastos operativos reales (excluyendo compras de mercancía para surtir inventario)
-            const gastosDia = window.dbGastos.filter(g => {
+            // Filtrar solo gastos operativos reales posteriores al último cierre
+            const gastosDia = (window.dbGastos || []).filter(g => {
                 const gDateStr = window.formatearFechaTimestampAISO(g.fechaMs);
                 const esCompraAuto = (g.tipo === 'MERCANCIA' && (g.desc || '').startsWith('Compra a '));
-                return gDateStr === fechaVal && !esCompraAuto;
+                return gDateStr === fechaVal && !esCompraAuto && (Number(g.fechaMs) || 0) > ultimoCierreDiaMs;
             });
 
             const comprasDia = (window.dbProveedores || []).filter(c => {
                 const cDateStr = window.formatearFechaTimestampAISO(c.fechaMs);
-                return cDateStr === fechaVal;
+                return cDateStr === fechaVal && (Number(c.fechaMs) || 0) > ultimoCierreDiaMs;
             });
 
             const abonosDia = (window.dbAbonos || []).filter(a => {
                 const aDateStr = window.formatearFechaTimestampAISO(a.fechaMs);
-                return aDateStr === fechaVal;
+                return aDateStr === fechaVal && (Number(a.fechaMs) || 0) > ultimoCierreDiaMs;
             });
 
-            const totalVentasUSD = ventasDia.reduce((acc, v) => acc + v.totalUSD, 0);
+            const totalVentasUSD = ventasDia.reduce((acc, v) => acc + (Number(v.totalUSD) || 0), 0);
             const totalAbonosDiaUSD = abonosDia.reduce((acc, a) => acc + (Number(a.montoUSD) || 0), 0);
-            const totalGastosUSD = gastosDia.reduce((acc, g) => acc + g.montoUSD, 0);
+            const totalGastosUSD = gastosDia.reduce((acc, g) => acc + (Number(g.montoUSD) || 0), 0);
             const totalComprasDiaUSD = comprasDia.reduce((acc, c) => acc + (c.totalUSD || c.totalInversionUSD || 0), 0);
-            const costoReposicionUSD = window.calcularCostoReposicionVentas(ventasDia);
-            const gananciaLibreUSD = totalVentasUSD - costoReposicionUSD - totalGastosUSD;
 
-            // Recuperar base inicial de efectivo guardada para esta fecha
+            // Recuperar base inicial de efectivo guardada para esta fecha (si ya se cerró el día, arranca en 0)
             const _slugBase = (window.clienteActivoSesion && (window.clienteActivoSesion.slug || window.clienteActivoSesion.user)) ? (window.clienteActivoSesion.slug || window.clienteActivoSesion.user).toLowerCase().trim() : 'demo';
-            const baseCajaInicial = parseFloat(localStorage.getItem(`tcl_tenant_${_slugBase}_base_caja_inicial_${fechaVal}`)) || 0;
+            const baseCajaInicial = (ultimoCierreDiaMs > 0) ? 0 : (parseFloat(localStorage.getItem(`tcl_tenant_${_slugBase}_base_caja_inicial_${fechaVal}`)) || 0);
 
             const metodos = {};
             let totalEfectivoUSD = 0;
@@ -10508,14 +11112,26 @@ window.abrirModalReporteZ = function() {
             let totalVentasContadoUSD = 0;
             let totalVentasCreditoUSD = 0;
             let totalSaldoFiadoHoyUSD = 0;
+            let costoReposicionCobradoUSD = 0;
             let arqueoMonedas = { usd: 0, cop: 0, bs: 0 };
 
-            // 1. Sumar abonos y cancelaciones cobradas hoy (de fiados o apartados) una sola vez
+            // 1. Sumar abonos y cancelaciones cobradas hoy (una sola vez) + su costo proporcional
             abonosDia.forEach(a => {
                 const mAbo = a.metodoPago || '💰 Abono de Fiado';
                 const uAbo = Number(a.montoUSD) || 0;
                 const mOrigAbo = (a.monedaOriginal || 'USD').toUpperCase();
                 metodos[mAbo] = (metodos[mAbo] || 0) + uAbo;
+
+                if (a.costoProporcionalUSD !== undefined && a.costoProporcionalUSD !== null) {
+                    costoReposicionCobradoUSD += (Number(a.costoProporcionalUSD) || 0);
+                } else {
+                    const notasCli = (window.dbVentas || []).filter(v => v.estado !== 'ANULADA' && (v.cliente || '').toUpperCase() === (a.cliente || '').toUpperCase() && (v.condicionVenta === 'CREDITO' || (v.credito && v.credito.esCredito)));
+                    const totCliUSD = notasCli.reduce((s, v) => s + (Number(v.totalUSD) || 0), 0);
+                    const costCliUSD = window.calcularCostoReposicionVentas(notasCli);
+                    if (totCliUSD > 0) {
+                        costoReposicionCobradoUSD += uAbo * (costCliUSD / totCliUSD);
+                    }
+                }
 
                 if (mOrigAbo === 'COP') {
                     arqueoMonedas.cop += (a.montoOriginal !== undefined ? Number(a.montoOriginal) : window.calcularPesosDesdeUSD(uAbo));
@@ -10535,11 +11151,11 @@ window.abrirModalReporteZ = function() {
                 const m = v.pago || 'Otro';
                 const mLow = m.toLowerCase();
                 const esCredito = (v.condicionVenta === 'CREDITO' || (v.credito && v.credito.esCredito));
+                const costoEstaVenta = window.calcularCostoReposicionVentas([v]);
 
                 let montoCobradoRealHoy = Number(v.totalUSD) || 0;
 
                 if (v.origenApartado && v.montoCobradoEnCierreUSD !== undefined) {
-                    // Cierre de apartado: solo entra a caja el saldo final pagado hoy (abonos previos ya entraron en su fecha)
                     montoCobradoRealHoy = Number(v.montoCobradoEnCierreUSD) || 0;
                     totalVentasContadoUSD += montoCobradoRealHoy;
                 } else if (esCredito) {
@@ -10548,14 +11164,15 @@ window.abrirModalReporteZ = function() {
                     if (v.credito && v.credito.abonoInicialOriginalUSD !== undefined) {
                         abonoIniHoy = Number(v.credito.abonoInicialOriginalUSD) || 0;
                     } else if (v.credito) {
-                        // Resguardo para notas a crédito antiguas: descontar abonos ya registrados en dbAbonos para no duplicar
                         const abonosNotaEnDB = (window.dbAbonos || [])
                             .filter(a => (a.cliente || '').toUpperCase() === (v.cliente || '').toUpperCase() && (a.fechaMs || 0) >= (v.fechaMs || 0))
                             .reduce((s, a) => s + (Number(a.montoUSD) || 0), 0);
                         abonoIniHoy = Math.max(0, (Number(v.credito.abonoInicialUSD) || 0) - abonosNotaEnDB);
                     }
                     montoCobradoRealHoy = Math.min(Number(v.totalUSD) || 0, Math.max(0, abonoIniHoy));
-                    totalSaldoFiadoHoyUSD += Math.max(0, (Number(v.totalUSD) || 0) - montoCobradoRealHoy);
+                    // Solo contar como fiado pendiente lo que TODAVÍA falta por pagar hoy
+                    const saldoAunPendiente = v.credito ? (Number(v.credito.saldoPendienteUSD) || 0) : Math.max(0, (Number(v.totalUSD) || 0) - montoCobradoRealHoy);
+                    totalSaldoFiadoHoyUSD += Math.max(0, saldoAunPendiente);
                 } else {
                     totalVentasContadoUSD += Number(v.totalUSD) || 0;
                 }
@@ -10563,6 +11180,8 @@ window.abrirModalReporteZ = function() {
                 if (montoCobradoRealHoy <= 0.004) return;
 
                 const ratioCobro = (v.totalUSD > 0) ? (montoCobradoRealHoy / v.totalUSD) : 1;
+                costoReposicionCobradoUSD += (costoEstaVenta * ratioCobro);
+
                 const labelBase = (mOrig === 'COP' && !mLow.includes('cop') && !mLow.includes('pesos') && !mLow.includes('nequi') && !mLow.includes('bancolombia'))
                     ? '🇨🇴 Cobrado en Pesos (COP)'
                     : ((mOrig === 'BS' && !mLow.includes('bs') && !mLow.includes('bolívar') && !mLow.includes('pago móvil'))
@@ -10601,11 +11220,14 @@ window.abrirModalReporteZ = function() {
             });
 
             const recaudoRealHoyUSD = totalEfectivoUSD + totalDigitalUSD;
+            const costoReposicionUSD = costoReposicionCobradoUSD;
+            const gananciaLibreUSD = recaudoRealHoyUSD - costoReposicionUSD - totalGastosUSD;
             const flujoCajaNeto = recaudoRealHoyUSD - totalGastosUSD;
             const efectivoEsperadoGaveta = baseCajaInicial + totalEfectivoUSD - totalGastosUSD;
 
             return { 
-                fechaVal, targetDateStr, ventasDia, abonosDia, gastosDia, comprasDia,
+                fechaVal, targetDateStr, ultimoCierreDiaMs, cantCierresPreviosHoy: cierresDelDia.length,
+                ventasDia, abonosDia, gastosDia, comprasDia,
                 totalVentasUSD, totalVentasContadoUSD, totalVentasCreditoUSD, totalSaldoFiadoHoyUSD,
                 totalAbonosDiaUSD, recaudoRealHoyUSD, totalGastosUSD, totalComprasDiaUSD,
                 costoReposicionUSD, gananciaLibreUSD, flujoCajaNeto, 
@@ -10670,6 +11292,7 @@ window.abrirModalReporteZ = function() {
 
             const monDomDia = window.detectarMonedaDominanteOperaciones(datos.ventasDia, datos.abonosDia);
             const ordenHeader = monDomDia === 'COP' ? 'COP • USD • Bs' : (monDomDia === 'BS' ? 'Bs • COP • USD' : 'USD • COP • Bs');
+            const sinMovimientosNuevos = (datos.ventasDia.length === 0 && datos.abonosDia.length === 0 && datos.gastosDia.length === 0);
 
             let metodosHtml = '';
             for (const [k, val] of Object.entries(datos.metodos)) {
@@ -10686,11 +11309,14 @@ window.abrirModalReporteZ = function() {
                 const mNota = (v.monedaOriginal || window.detectarMonedaPorTexto(v.pago || '')).toUpperCase();
                 const presNota = window.obtenerPresentacionMultimoneda(v.totalUSD, mNota, v.totalOriginal, v.tasasMomento || null);
                 const esCredV = (v.condicionVenta === 'CREDITO' || (v.credito && v.credito.esCredito));
+                const estaPagadaCred = esCredV && v.credito && ((Number(v.credito.saldoPendienteUSD) || 0) <= 0.009 || v.credito.estadoCredito === 'PAGADO');
                 const badgeTipo = esCredV
-                    ? `<span class="inline-flex items-center whitespace-nowrap bg-amber-100 text-amber-900 border border-amber-300 px-2 py-0.5 rounded-md text-[8.5px] font-black">CRÉDITO / FIADO</span>`
+                    ? (estaPagadaCred
+                        ? `<span class="inline-flex items-center whitespace-nowrap bg-emerald-100 text-emerald-800 border border-emerald-300 px-2 py-0.5 rounded-md text-[8.5px] font-black">CRÉDITO PAGADO</span>`
+                        : `<span class="inline-flex items-center whitespace-nowrap bg-amber-100 text-amber-900 border border-amber-300 px-2 py-0.5 rounded-md text-[8.5px] font-black">CRÉDITO / FIADO</span>`)
                     : `<span class="inline-flex items-center whitespace-nowrap bg-emerald-100 text-emerald-800 border border-emerald-200 px-2 py-0.5 rounded-md text-[8.5px] font-black">CONTADO</span>`;
                 return `
-                    <div class="flex justify-between items-center bg-white p-2.5 rounded-xl border ${esCredV ? 'border-amber-300' : 'border-slate-200'} text-[10.5px] gap-2">
+                    <div class="flex justify-between items-center bg-white p-2.5 rounded-xl border ${(esCredV && !estaPagadaCred) ? 'border-amber-300' : 'border-slate-200'} text-[10.5px] gap-2">
                         <div class="min-w-0 flex-1 space-y-1">
                             <div class="flex items-center gap-1.5 flex-wrap leading-tight">
                                 <strong class="whitespace-nowrap">#${v.correlativo}</strong>
@@ -10698,7 +11324,7 @@ window.abrirModalReporteZ = function() {
                                 ${badgeTipo}
                                 <span class="text-slate-400 text-[9.5px]">(${window.escapeHTML(v.cajero)})</span>
                             </div>
-                            <div class="text-[9.5px] ${esCredV ? 'text-amber-800' : 'text-emerald-700'} font-black">${presNota.principal} <span class="text-slate-500 font-bold">| ${presNota.secundario}</span></div>
+                            <div class="text-[9.5px] ${(esCredV && !estaPagadaCred) ? 'text-amber-800' : 'text-emerald-700'} font-black">${presNota.principal} <span class="text-slate-500 font-bold">| ${presNota.secundario}</span></div>
                         </div>
                         <button onclick="window.abrirAuditoriaDetallada('VENTA', '${v.id}')" class="inline-flex items-center gap-1 whitespace-nowrap bg-blue-50 text-blue-700 hover:bg-blue-100 border border-blue-200 px-2.5 py-1.5 rounded-lg text-[9.5px] font-black uppercase shrink-0"><i class="fa-solid fa-eye"></i> Ver</button>
                     </div>
@@ -10708,6 +11334,18 @@ window.abrirModalReporteZ = function() {
             const cantNotasDia = datos.ventasDia.length;
             const lblNotasDia = `Notas del Día (${cantNotasDia} ${cantNotasDia === 1 ? 'NOTA' : 'NOTAS'}):`;
 
+            const bannerCierreRealizado = (datos.ultimoCierreDiaMs > 0 && sinMovimientosNuevos) ? `
+                <div class="bg-emerald-50 border-2 border-emerald-400 rounded-2xl p-3 text-center space-y-1 font-sans">
+                    <div class="text-emerald-800 font-black text-xs uppercase flex items-center justify-center gap-1.5">
+                        <i class="fa-solid fa-circle-check text-emerald-600 text-sm"></i>
+                        <span>Cierre del Día Archivado — Caja en CERO (0)</span>
+                    </div>
+                    <p class="text-[10.5px] text-emerald-900/90 font-medium">
+                        Ya archivaste ${datos.cantCierresPreviosHoy} cierre(s) de esta fecha en <strong>Bóveda Cierres</strong>. La pantalla está limpia en cero esperando nuevas ventas o abonos.
+                    </p>
+                </div>
+            ` : '';
+
             container.innerHTML = `
                 <div class="bg-slate-50 p-2 sm:p-3.5 rounded-2xl border border-slate-200 space-y-3">
                     <div class="text-center border-b border-slate-200 pb-2">
@@ -10716,18 +11354,20 @@ window.abrirModalReporteZ = function() {
                         <p class="text-[10px] font-bold text-blue-600">Fecha Evaluada: ${datos.targetDateStr}</p>
                     </div>
 
-                    <!-- BLOQUE 1: DISTRIBUCIÓN CLARA EN LAS 3 MONEDAS (MONEDA ACTIVA PRIMERO) -->
+                    ${bannerCierreRealizado}
+
+                    <!-- BLOQUE 1: CUENTA ÚNICA SOBRE EL DINERO REAL COBRADO HOY (SIN DUPLICAR FIADOS) -->
                     <div class="bg-white p-2.5 sm:p-3.5 rounded-2xl border-2 border-emerald-300 shadow-xs space-y-2.5">
                         <div class="flex items-center justify-between border-b border-slate-100 pb-1.5">
                             <span class="text-[10px] font-black uppercase text-slate-800 tracking-wider flex items-center gap-1.5">
-                                <i class="fa-solid fa-piggy-bank text-emerald-600"></i> ¿Cómo se divide lo que vendiste hoy?
+                                <i class="fa-solid fa-piggy-bank text-emerald-600"></i> Dinero Real Cobrado Hoy
                             </span>
                             <span class="text-[9px] text-slate-400 font-bold">${ordenHeader}</span>
                         </div>
                         <div class="grid grid-cols-2 sm:grid-cols-4 gap-2 text-center font-mono">
                             <div class="bg-slate-50 p-2 rounded-xl border border-slate-200 space-y-0.5">
-                                <span class="text-[8px] text-slate-500 block font-black uppercase">1. Total Vendido</span>
-                                ${window.formatearCardTrioMonedas(datos.totalVentasUSD, monDomDia, 'text-xs sm:text-sm font-black text-slate-900', 'text-slate-600')}
+                                <span class="text-[8px] text-slate-500 block font-black uppercase">1. Total Cobrado Hoy</span>
+                                ${window.formatearCardTrioMonedas(datos.recaudoRealHoyUSD, monDomDia, 'text-xs sm:text-sm font-black text-slate-900', 'text-slate-600')}
                             </div>
                             <div class="bg-amber-50 p-2 rounded-xl border border-amber-300 space-y-0.5">
                                 <span class="text-[8px] text-amber-900 block font-black uppercase">2. Reponer Mercancía</span>
@@ -10742,17 +11382,12 @@ window.abrirModalReporteZ = function() {
                                 ${window.formatearCardTrioMonedas(datos.gananciaLibreUSD, monDomDia, 'text-xs sm:text-sm font-black text-white', 'text-emerald-100')}
                             </div>
                         </div>
-                        ${datos.totalSaldoFiadoHoyUSD > 0 ? `
-                            <div class="bg-amber-50 border border-amber-300 rounded-xl px-2.5 py-2 text-[10px] text-amber-950 font-sans flex flex-wrap items-center justify-between gap-1">
-                                <span class="font-black"><i class="fa-solid fa-clock text-amber-600 mr-1"></i> Ventas a Crédito / Fiado Hoy (No entra en gaveta):</span>
-                                <strong class="font-mono text-amber-800">${window.formatearLineaTrioMonedas(datos.totalSaldoFiadoHoyUSD, monDomDia)}</strong>
-                            </div>
-                        ` : ''}
+
                         ${datos.totalAbonosDiaUSD > 0 ? `
                             <div class="bg-emerald-50 border border-emerald-300 rounded-xl px-2.5 py-2 text-[10px] text-emerald-950 font-sans space-y-1">
                                 <div class="flex flex-wrap items-center justify-between gap-1 font-black">
-                                    <span><i class="fa-solid fa-hand-holding-dollar text-emerald-600 mr-1"></i> Abonos / Cancelaciones Cobradas Hoy (${datos.abonosDia.length}):</span>
-                                    <strong class="font-mono text-emerald-700">${window.formatearLineaTrioMonedas(datos.totalAbonosDiaUSD, monDomDia, null, '+')}</strong>
+                                    <span><i class="fa-solid fa-hand-holding-dollar text-emerald-600 mr-1"></i> Detalle de Abonos / Cancelaciones de Hoy (${datos.abonosDia.length}):</span>
+                                    <strong class="font-mono text-emerald-700">${window.formatearLineaTrioMonedas(datos.totalAbonosDiaUSD, monDomDia)}</strong>
                                 </div>
                                 <div class="text-[9px] text-emerald-800 font-mono space-y-0.5 pl-3">
                                     ${datos.abonosDia.map(a => {
@@ -10763,6 +11398,14 @@ window.abrirModalReporteZ = function() {
                                 </div>
                             </div>
                         ` : ''}
+
+                        ${datos.totalSaldoFiadoHoyUSD > 0 ? `
+                            <div class="bg-amber-50 border border-amber-300 rounded-xl px-2.5 py-2 text-[10px] text-amber-950 font-sans flex flex-wrap items-center justify-between gap-1">
+                                <span class="font-black"><i class="fa-solid fa-clock text-amber-600 mr-1"></i> Fiados de Hoy Aún por Cobrar (No entra en gaveta):</span>
+                                <strong class="font-mono text-amber-800">${window.formatearLineaTrioMonedas(datos.totalSaldoFiadoHoyUSD, monDomDia)}</strong>
+                            </div>
+                        ` : ''}
+
                         ${datos.totalComprasDiaUSD > 0 ? `
                             <div class="bg-blue-50/80 border border-blue-200 rounded-xl px-2.5 py-1.5 text-[9.5px] text-blue-900 font-sans flex flex-wrap items-center justify-between gap-1">
                                 <span><i class="fa-solid fa-truck-ramp-box text-blue-600 mr-1"></i> Mercancía cargada hoy:</span>
@@ -10771,14 +11414,14 @@ window.abrirModalReporteZ = function() {
                         ` : ''}
                     </div>
 
-                    <!-- BLOQUE 2: CUADRE FÍSICO DE GAVETA Y BANCOS EN 3 MONEDAS -->
+                    <!-- BLOQUE 2: CUADRE FÍSICO DE GAVETA Y RECAUDO POR MONEDA -->
                     <div class="grid grid-cols-2 sm:grid-cols-4 gap-2 text-center font-mono">
                         <div class="bg-white p-2 rounded-xl border border-slate-200 space-y-0.5">
                             <span class="text-[8.5px] text-slate-500 block font-black uppercase">Base Inicial</span>
                             ${window.formatearCardTrioMonedas(datos.baseCajaInicial || 0, monDomDia, 'text-xs font-black text-slate-800', 'text-slate-500')}
                         </div>
                         <div class="bg-white p-2 rounded-xl border border-slate-200 space-y-0.5">
-                            <span class="text-[8.5px] text-slate-500 block font-bold uppercase">Efectivo Ventas/Abonos</span>
+                            <span class="text-[8.5px] text-slate-500 block font-bold uppercase">Efectivo Cobrado</span>
                             ${window.formatearCardTrioMonedas(datos.totalEfectivoUSD || 0, monDomDia, 'text-xs font-black text-emerald-600', 'text-emerald-700')}
                         </div>
                         <div class="bg-white p-2 rounded-xl border border-slate-200 space-y-0.5">
@@ -10812,13 +11455,13 @@ window.abrirModalReporteZ = function() {
 
                     <div class="space-y-1 pt-1">
                         <span class="text-[10px] font-black uppercase text-slate-500 tracking-wider block">Desglose por Formas de Pago (${ordenHeader}):</span>
-                        ${metodosHtml || '<p class="text-slate-400 text-center py-2">No hubo ventas registradas este día.</p>'}
+                        ${metodosHtml || '<p class="text-slate-400 text-center py-2">Sin ingresos pendientes por cerrar.</p>'}
                     </div>
 
                     <div class="space-y-2 pt-2 border-t border-slate-200">
                         <span class="text-[10px] font-black uppercase text-slate-500 tracking-wider block">${lblNotasDia}</span>
                         <div class="space-y-2">
-                            ${listaNotasHtml || '<p class="text-slate-400 text-center text-[10px]">Sin movimientos de venta.</p>'}
+                            ${listaNotasHtml || '<p class="text-slate-400 text-center text-[10px]">Sin notas pendientes por cerrar.</p>'}
                         </div>
                     </div>
                 </div>
@@ -12661,7 +13304,7 @@ _Un respaldo de TUCOCEL C.A. & @PublionlineMK_`;
         // -------------------------------------------------------------
         // INICIALIZACIÓN AUTOMÁTICA DEL SISTEMA Y ENRUTADOR DE URL
         // -------------------------------------------------------------
-        window.TCL_APP_BUILD_ID = 'v2026.11.21.3';
+        window.TCL_APP_BUILD_ID = 'v2026.11.22.2';
 
         window.hayTrabajoEnCursoSinGuardar = function() {
             if (Array.isArray(window.carritoPOS) && window.carritoPOS.length > 0) return true;
