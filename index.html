@@ -836,6 +836,22 @@
                 </div>
             </div>
 
+            <!-- BARRA DISCRETA DE AVISO DE COBROS VENCIDOS / POR VENCER (SOLO APARECE SI HAY ALERTAS) -->
+            <button type="button" id="banner-alerta-morosos-panel" onclick="window.abrirModalFiadosYAbonos()" class="hidden w-full bg-rose-50 hover:bg-rose-100 border-2 border-rose-300 rounded-2xl px-3.5 py-2.5 flex items-center justify-between gap-2 shadow-xs active:scale-[0.99] transition-all text-left">
+                <div class="flex items-center gap-2.5 min-w-0 flex-1">
+                    <div id="icon-alerta-morosos-panel" class="w-8 h-8 rounded-xl bg-rose-600 text-white flex items-center justify-center text-xs shrink-0 shadow-xs">
+                        <i class="fa-solid fa-bell"></i>
+                    </div>
+                    <div class="min-w-0 flex-1">
+                        <span id="lbl-alerta-morosos-titulo" class="text-[11px] font-black text-rose-900 uppercase block leading-tight truncate">Cobros pendientes</span>
+                        <span id="lbl-alerta-morosos-sub" class="text-[9.5px] font-bold text-rose-700 block leading-tight truncate">Toca aquí para ver y notificar por WhatsApp</span>
+                    </div>
+                </div>
+                <span class="bg-rose-600 text-white text-[9.5px] font-black uppercase px-2.5 py-1.5 rounded-xl shrink-0 flex items-center gap-1">
+                    <span>Cobrar</span> <i class="fa-solid fa-chevron-right text-[9px]"></i>
+                </span>
+            </button>
+
             <!-- 3. BOTÓN PRINCIPAL HERO: FACTURAR / NUEVA VENTA -->
             <button onclick="window.abrirModuloPOS()" class="w-full bg-gradient-to-r from-emerald-600 via-emerald-500 to-teal-600 hover:from-emerald-500 hover:to-teal-500 text-white p-4 sm:p-5 rounded-3xl flex items-center justify-between shadow-lg shadow-emerald-600/25 active:scale-[0.98] transition-all text-left group">
                 <div class="flex items-center gap-3.5 min-w-0">
@@ -3871,11 +3887,13 @@
                                 window.carritoPOS[idx].cant += 1;
                             }
                         } else {
+                            const pfPist = window.obtenerPreciosFijosProducto(prod);
                             window.carritoPOS.push({
                                 id: prod.id,
                                 nombre: prod.nombre,
-                                costoUSD: (Number(prod.precioCosto) || 0),
-                                precioUSD: (prod.precioVenta || prod.precioUSD || 0),
+                                costoUSD: window.obtenerCostoFijoProductoUSD(prod),
+                                precioUSD: pfPist.usd,
+                                precioBaseUSD: pfPist.usd,
                                 cant: 1,
                                 unidad: prod.unidad || 'UND',
                                 max: prod.stock || 9999
@@ -6717,6 +6735,157 @@ Tu nueva clave de acceso es: ${nuevaClave}`);
             }
         };
 
+        window.evaluarVencimientoNotaCredito = function(nota) {
+            const diasPlazo = Math.max(1, parseInt((nota && nota.credito && nota.credito.diasCredito) || 15, 10) || 15);
+            const baseMs = Number(nota && nota.fechaMs) || Date.now();
+            const dInicio = new Date(baseMs);
+            dInicio.setHours(0, 0, 0, 0);
+            const dLimite = new Date(dInicio.getTime() + (diasPlazo * 86400000));
+            const dHoy = new Date();
+            dHoy.setHours(0, 0, 0, 0);
+
+            const diffDias = Math.round((dLimite.getTime() - dHoy.getTime()) / 86400000);
+            const fechaLimiteStr = `${String(dLimite.getDate()).padStart(2, '0')}/${String(dLimite.getMonth() + 1).padStart(2, '0')}/${dLimite.getFullYear()}`;
+
+            let estado = 'AL_DIA';
+            let etiqueta = `Faltan ${diffDias} días`;
+            if (diffDias < 0) {
+                estado = 'VENCIDO';
+                const dAtraso = Math.abs(diffDias);
+                etiqueta = `Vencido hace ${dAtraso} ${dAtraso === 1 ? 'día' : 'días'}`;
+            } else if (diffDias === 0) {
+                estado = 'POR_VENCER';
+                etiqueta = 'Vence HOY';
+            } else if (diffDias === 1) {
+                estado = 'POR_VENCER';
+                etiqueta = 'Vence MAÑANA';
+            }
+
+            return { diasPlazo, diffDias, fechaLimiteStr, estado, etiqueta };
+        };
+
+        window.obtenerResumenMorososActivos = function() {
+            const todasCredito = (window.dbVentas || []).filter(v => {
+                if (v.estado === 'ANULADA') return false;
+                if (!(v.condicionVenta === 'CREDITO' || (v.credito && v.credito.esCredito))) return false;
+                const saldo = v.credito ? (Number(v.credito.saldoPendienteUSD) || 0) : (Number(v.totalUSD) || 0);
+                return saldo > 0.009;
+            });
+
+            const porCliente = {};
+            todasCredito.forEach(v => {
+                const clave = window.obtenerClaveClienteCredito(v);
+                const ev = window.evaluarVencimientoNotaCredito(v);
+                if (!porCliente[clave]) {
+                    porCliente[clave] = { clave, minDiffDias: ev.diffDias, estado: ev.estado };
+                } else if (ev.diffDias < porCliente[clave].minDiffDias) {
+                    porCliente[clave].minDiffDias = ev.diffDias;
+                    porCliente[clave].estado = ev.estado;
+                }
+            });
+
+            let vencidos = 0;
+            let porVencer = 0;
+            Object.values(porCliente).forEach(c => {
+                if (c.estado === 'VENCIDO') vencidos++;
+                else if (c.estado === 'POR_VENCER') porVencer++;
+            });
+            return { vencidos, porVencer, totalAlertas: vencidos + porVencer };
+        };
+
+        window.editarTelefonoClienteCredito = function(claveCliente) {
+            const notasCliente = (window.dbVentas || []).filter(v => {
+                if (v.estado === 'ANULADA') return false;
+                const esCred = v.condicionVenta === 'CREDITO' || (v.credito && v.credito.esCredito);
+                return esCred && window.obtenerClaveClienteCredito(v) === claveCliente;
+            });
+            if (notasCliente.length === 0) return;
+
+            const nombreCli = (notasCliente[0].cliente || 'CLIENTE').toUpperCase();
+            const notaConTel = notasCliente.find(n => n.telefono && n.telefono !== 'N/A');
+            const telActual = notaConTel ? notaConTel.telefono : '';
+
+            const nuevoTel = prompt(
+                `📱 WHATSAPP DEL CLIENTE — ${nombreCli}\n\n` +
+                `Escribe el número de WhatsApp (Ej: 0424-1234567 o 3001234567):`,
+                telActual
+            );
+            if (nuevoTel === null) return;
+
+            const telLimpio = nuevoTel.trim();
+            notasCliente.forEach(n => {
+                n.telefono = telLimpio || 'N/A';
+                n.actualizadoMs = Date.now();
+                if (typeof window.sincronizarTenantConFirebase === 'function') {
+                    window.sincronizarTenantConFirebase('ventas', n);
+                }
+            });
+
+            window.guardarVentasEnStorage();
+            window.renderizarListaFiadosYAbonos();
+        };
+
+        window.notificarCobroClienteCreditoWA = function(claveCliente) {
+            const notasPend = (window.dbVentas || []).filter(v => {
+                if (v.estado === 'ANULADA') return false;
+                const esCred = v.condicionVenta === 'CREDITO' || (v.credito && v.credito.esCredito);
+                if (!esCred) return false;
+                const saldo = v.credito ? (Number(v.credito.saldoPendienteUSD) || 0) : (Number(v.totalUSD) || 0);
+                return saldo > 0.009 && window.obtenerClaveClienteCredito(v) === claveCliente;
+            }).sort((a, b) => (a.fechaMs || 0) - (b.fechaMs || 0));
+
+            if (notasPend.length === 0) return;
+
+            const nombreCli = (notasPend[0].cliente || 'CLIENTE').toUpperCase();
+            const notaConTel = notasPend.find(n => n.telefono && n.telefono !== 'N/A');
+            let telCliente = notaConTel ? String(notaConTel.telefono).trim() : '';
+
+            if (!telCliente) {
+                const telIngresado = prompt(
+                    `📱 ${nombreCli} aún no tiene WhatsApp registrado.\n\n` +
+                    `Escribe su número para guardarlo y enviarle el recordatorio directo (o deja vacío para elegir el contacto en WhatsApp):`,
+                    ''
+                );
+                if (telIngresado === null) return;
+                if (telIngresado.trim()) {
+                    telCliente = telIngresado.trim();
+                    notasPend.forEach(n => {
+                        n.telefono = telCliente;
+                        n.actualizadoMs = Date.now();
+                        if (typeof window.sincronizarTenantConFirebase === 'function') {
+                            window.sincronizarTenantConFirebase('ventas', n);
+                        }
+                    });
+                    window.guardarVentasEnStorage();
+                    window.renderizarListaFiadosYAbonos();
+                }
+            }
+
+            const deudaTotalUSD = notasPend.reduce((acc, v) => acc + (v.credito ? (Number(v.credito.saldoPendienteUSD) || 0) : (Number(v.totalUSD) || 0)), 0);
+            const monedaGrupo = window.detectarMonedaDominanteNotas(notasPend);
+            const presDeuda = window.obtenerPresentacionMultimoneda(deudaTotalUSD, monedaGrupo);
+            const evalUrgente = window.evaluarVencimientoNotaCredito(notasPend[0]);
+            const listaNotasStr = notasPend.map(n => `#${n.correlativo}`).join(', ');
+            const nomComercio = (window.clienteActivoSesion && window.clienteActivoSesion.nombre ? window.clienteActivoSesion.nombre : 'NUESTRO COMERCIO').toUpperCase();
+
+            let msj = `Estimado(a) *${nombreCli}*, le saludamos cordialmente de *${nomComercio}*. 🤝\n\n`;
+            if (evalUrgente.estado === 'VENCIDO') {
+                msj += `Le recordamos de manera respetuosa que su cuenta a crédito presenta un saldo pendiente con fecha límite *${evalUrgente.fechaLimiteStr}* (${evalUrgente.etiqueta}):\n\n`;
+            } else if (evalUrgente.estado === 'POR_VENCER') {
+                msj += `Le enviamos un cordial recordatorio de que su cuenta a crédito tiene fecha límite *${evalUrgente.fechaLimiteStr}* (${evalUrgente.etiqueta}):\n\n`;
+            } else {
+                msj += `Le compartimos el estado actualizado de su cuenta a crédito (fecha límite *${evalUrgente.fechaLimiteStr}*):\n\n`;
+            }
+
+            msj += `💰 *Saldo Pendiente:* ${presDeuda.principal}\n`;
+            msj += `   _(${presDeuda.secundario})_\n`;
+            msj += `📄 *Nota(s):* ${listaNotasStr}\n\n`;
+            msj += `Le invitamos amablemente a pasar por nuestro local o escribirnos por este medio para coordinar su pago o abono. ¡Agradecemos mucho su confianza y puntualidad! 🙏\n\n`;
+            msj += `*${nomComercio}*`;
+
+            window.despacharWhatsApp(telCliente, msj);
+        };
+
         window.renderizarListaFiadosYAbonos = function() {
             const container = document.getElementById('contenedor-lista-fiados');
             const lblTot = document.getElementById('lbl-total-cartera-pendiente');
@@ -6735,7 +6904,6 @@ Tu nueva clave de acceso es: ${nuevaClave}`);
                 return saldo > 0.009;
             });
 
-            // Calcular total pendiente global en la moneda dominante de la cartera
             const totalPendiente = notasActivas.reduce((acc, v) => {
                 const saldo = v.credito ? (Number(v.credito.saldoPendienteUSD) || 0) : (Number(v.totalUSD) || 0);
                 return acc + saldo;
@@ -6756,10 +6924,13 @@ Tu nueva clave de acceso es: ${nuevaClave}`);
                         clave,
                         cliente: (v.cliente || 'CLIENTE').toUpperCase(),
                         cedula: v.cedula || '',
-                        telefono: v.telefono || '',
+                        telefono: (v.telefono && v.telefono !== 'N/A') ? v.telefono : '',
                         notas: [],
                         deudaTotalUSD: 0,
-                        totalHistoricoUSD: 0
+                        totalHistoricoUSD: 0,
+                        urgenciaPrioridad: 3, // 0=VENCIDO, 1=POR_VENCER, 2=AL_DIA, 3=SALDADA
+                        minDiffDias: 9999,
+                        evalUrgente: null
                     };
                 }
                 const saldo = v.credito ? (Number(v.credito.saldoPendienteUSD) || 0) : (Number(v.totalUSD) || 0);
@@ -6769,14 +6940,30 @@ Tu nueva clave de acceso es: ${nuevaClave}`);
                 if (!grupos[clave].telefono && v.telefono && v.telefono !== 'N/A') {
                     grupos[clave].telefono = v.telefono;
                 }
+                if (saldo > 0.009) {
+                    const ev = window.evaluarVencimientoNotaCredito(v);
+                    if (ev.diffDias < grupos[clave].minDiffDias) {
+                        grupos[clave].minDiffDias = ev.diffDias;
+                        grupos[clave].evalUrgente = ev;
+                        grupos[clave].urgenciaPrioridad = ev.estado === 'VENCIDO' ? 0 : (ev.estado === 'POR_VENCER' ? 1 : 2);
+                    }
+                }
             });
 
             const listaCuentas = Object.values(grupos).filter(g => {
                 if (!busq) return true;
                 return g.cliente.toLowerCase().includes(busq) ||
                        g.cedula.toLowerCase().includes(busq) ||
+                       (g.telefono && g.telefono.toLowerCase().includes(busq)) ||
                        g.notas.some(n => (n.correlativo && n.correlativo.includes(busq)));
-            }).sort((a, b) => b.deudaTotalUSD - a.deudaTotalUSD);
+            }).sort((a, b) => {
+                const aSald = a.deudaTotalUSD <= 0.009 ? 1 : 0;
+                const bSald = b.deudaTotalUSD <= 0.009 ? 1 : 0;
+                if (aSald !== bSald) return aSald - bSald;
+                if (a.urgenciaPrioridad !== b.urgenciaPrioridad) return a.urgenciaPrioridad - b.urgenciaPrioridad;
+                if (a.minDiffDias !== b.minDiffDias) return a.minDiffDias - b.minDiffDias;
+                return b.deudaTotalUSD - a.deudaTotalUSD;
+            });
 
             if (listaCuentas.length === 0) {
                 container.innerHTML = `
@@ -6796,6 +6983,33 @@ Tu nueva clave de acceso es: ${nuevaClave}`);
                 const monedaGrupo = window.detectarMonedaDominanteNotas(notasPendCliente.length > 0 ? notasPendCliente : notasOrdenadas);
                 const presGrupo = window.obtenerPresentacionMultimoneda(g.deudaTotalUSD, monedaGrupo);
 
+                const evG = g.evalUrgente;
+                const esVencido = !saldada && evG && evG.estado === 'VENCIDO';
+                const esPorVencer = !saldada && evG && evG.estado === 'POR_VENCER';
+
+                const cardBorderClass = saldada
+                    ? 'border-emerald-200 bg-emerald-50/15'
+                    : (esVencido ? 'border-rose-400 bg-rose-50/25' : (esPorVencer ? 'border-amber-400 bg-amber-50/30' : 'border-slate-300 bg-white'));
+
+                const badgeEstadoHtml = saldada
+                    ? `<span class="bg-emerald-100 text-emerald-800 border border-emerald-300 text-[8.5px] font-black px-1.5 py-0.5 rounded">✓ AL DÍA</span>`
+                    : (esVencido
+                        ? `<span class="bg-rose-600 text-white text-[8.5px] font-black px-2 py-0.5 rounded shadow-2xs">🔴 ${evG.etiqueta.toUpperCase()}</span>`
+                        : (esPorVencer
+                            ? `<span class="bg-amber-500 text-slate-950 text-[8.5px] font-black px-2 py-0.5 rounded shadow-2xs">🟡 ${evG.etiqueta.toUpperCase()}</span>`
+                            : `<span class="bg-emerald-100 text-emerald-800 border border-emerald-300 text-[8.5px] font-black px-1.5 py-0.5 rounded">🟢 ${evG ? evG.etiqueta : 'VIGENTE'}</span>`));
+
+                const telSeguro = (g.telefono && g.telefono !== 'N/A') ? window.escapeHTML(g.telefono) : '';
+                const telHtml = `
+                    <div class="flex items-center gap-1.5 text-[9.5px] text-slate-600 pt-0.5">
+                        <i class="fa-brands fa-whatsapp ${telSeguro ? 'text-emerald-600' : 'text-slate-400'}"></i>
+                        <span class="${telSeguro ? 'font-bold text-slate-700' : 'italic text-slate-400'}">${telSeguro || 'Sin WhatsApp registrado'}</span>
+                        <button type="button" onclick="window.editarTelefonoClienteCredito('${g.clave}')" class="text-slate-400 hover:text-blue-600 px-1 py-0.5 rounded transition-colors" title="${telSeguro ? 'Editar WhatsApp del cliente' : 'Agregar WhatsApp del cliente'}">
+                            <i class="fa-solid fa-pen text-[9px]"></i>
+                        </button>
+                    </div>
+                `;
+
                 const detalleNotasHtml = notasOrdenadas.map(c => {
                     const estaPagado = (c.credito ? (Number(c.credito.saldoPendienteUSD) || 0) : c.totalUSD) <= 0.009;
                     const saldoN = c.credito ? (Number(c.credito.saldoPendienteUSD) || 0) : c.totalUSD;
@@ -6803,14 +7017,17 @@ Tu nueva clave de acceso es: ${nuevaClave}`);
                     const presNotaSaldo = window.obtenerPresentacionMultimoneda(saldoN, mNota, null, c.tasasMomento || null);
                     const d = new Date(c.fechaMs);
                     const fechaStr = `${d.getDate().toString().padStart(2,'0')}/${(d.getMonth()+1).toString().padStart(2,'0')}/${d.getFullYear()}`;
+                    const evNota = !estaPagado ? window.evaluarVencimientoNotaCredito(c) : null;
+                    const limiteTag = evNota ? `<span class="ml-1 text-[9px] ${evNota.estado === 'VENCIDO' ? 'text-rose-600 font-black' : (evNota.estado === 'POR_VENCER' ? 'text-amber-700 font-black' : 'text-slate-500')}">• Límite: ${evNota.fechaLimiteStr}</span>` : '';
                     return `
-                        <div class="flex items-center justify-between gap-2 bg-white/90 px-2.5 py-1.5 rounded-xl border ${estaPagado ? 'border-emerald-200/70 opacity-75' : 'border-amber-200'} text-[10px]">
+                        <div class="flex items-center justify-between gap-2 bg-white/90 px-2.5 py-1.5 rounded-xl border ${estaPagado ? 'border-emerald-200/70 opacity-75' : (evNota && evNota.estado === 'VENCIDO' ? 'border-rose-300' : 'border-amber-200')} text-[10px]">
                             <div class="min-w-0 flex-1">
                                 <span class="font-black text-slate-900">#${c.correlativo}</span>
                                 <span class="text-slate-500 ml-1">${fechaStr}</span>
                                 <span class="ml-1 font-bold ${estaPagado ? 'text-emerald-700' : 'text-red-600'}">
                                     ${estaPagado ? '• ✓ Saldada' : `• Resta: ${presNotaSaldo.principal}`}
                                 </span>
+                                ${limiteTag}
                             </div>
                             <button type="button" onclick="window.abrirNotaDesdeHistorialDirecto('${c.id}')" class="text-blue-600 hover:text-blue-800 font-black uppercase text-[9px] shrink-0">
                                 <i class="fa-solid fa-eye"></i> Ver
@@ -6820,24 +7037,28 @@ Tu nueva clave de acceso es: ${nuevaClave}`);
                 }).join('');
 
                 return `
-                    <div class="bg-white p-3.5 rounded-2xl border-2 ${saldada ? 'border-emerald-200 bg-emerald-50/15' : 'border-amber-300 bg-amber-50/20'} text-[11px] font-mono shadow-sm space-y-2.5">
+                    <div class="bg-white p-3.5 rounded-2xl border-2 ${cardBorderClass} text-[11px] font-mono shadow-sm space-y-2.5">
                         <div class="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-2">
                             <div class="space-y-0.5 min-w-0 flex-1">
-                                <div class="flex items-center gap-2 flex-wrap">
+                                <div class="flex items-center gap-1.5 flex-wrap">
                                     <span class="text-slate-900 font-black text-xs uppercase">${window.escapeHTML(g.cliente)}</span>
                                     ${g.cedula && g.cedula !== 'J-00000000-0' ? `<span class="text-[9px] bg-slate-100 text-slate-600 px-1.5 py-0.5 rounded border border-slate-200">${window.escapeHTML(g.cedula)}</span>` : ''}
-                                    <span class="${saldada ? 'bg-emerald-100 text-emerald-800 border border-emerald-300' : 'bg-amber-100 text-amber-900 border border-amber-300'} text-[8.5px] font-black px-1.5 py-0.5 rounded">
-                                        ${saldada ? '✓ AL DÍA' : `⏳ ${g.notas.length} NOTA${g.notas.length > 1 ? 'S' : ''}`}
-                                    </span>
+                                    ${badgeEstadoHtml}
                                 </div>
-                                <div class="text-[10.5px] ${saldada ? 'text-emerald-700' : 'text-red-600'} font-black">
+                                ${telHtml}
+                                <div class="text-[10.5px] ${saldada ? 'text-emerald-700' : 'text-red-600'} font-black pt-0.5">
                                     Deuda Consolidada: ${presGrupo.principal} <span class="text-slate-500 font-bold text-[9.5px]">(${presGrupo.secundario})</span>
                                 </div>
                             </div>
                             ${!saldada ? `
-                                <button type="button" onclick="window.registrarAbonoGlobalClienteCascada('${g.clave}')" class="bg-emerald-600 hover:bg-emerald-500 text-white px-3 py-2 rounded-xl text-[10px] font-black uppercase flex items-center gap-1.5 shadow-sm shrink-0 active:scale-95 transition-all">
-                                    <i class="fa-solid fa-hand-holding-dollar"></i> <span>Abonar Cuenta</span>
-                                </button>
+                                <div class="flex items-center gap-1.5 shrink-0 w-full sm:w-auto">
+                                    <button type="button" onclick="window.notificarCobroClienteCreditoWA('${g.clave}')" class="flex-1 sm:flex-initial ${esVencido ? 'bg-rose-600 hover:bg-rose-500 text-white' : 'bg-white hover:bg-emerald-50 text-emerald-700 border border-emerald-400'} px-2.5 py-2 rounded-xl text-[9.5px] font-black uppercase flex items-center justify-center gap-1 shadow-xs active:scale-95 transition-all" title="Enviar recordatorio profesional de cobro por WhatsApp">
+                                        <i class="fa-brands fa-whatsapp text-xs"></i> <span>Notificar Cobro</span>
+                                    </button>
+                                    <button type="button" onclick="window.registrarAbonoGlobalClienteCascada('${g.clave}')" class="flex-1 sm:flex-initial bg-emerald-600 hover:bg-emerald-500 text-white px-3 py-2 rounded-xl text-[9.5px] font-black uppercase flex items-center justify-center gap-1 shadow-sm active:scale-95 transition-all">
+                                        <i class="fa-solid fa-hand-holding-dollar"></i> <span>Abonar</span>
+                                    </button>
+                                </div>
                             ` : ''}
                         </div>
                         <div class="space-y-1 pt-1 border-t border-slate-200/70">
@@ -7045,7 +7266,8 @@ Tu nueva clave de acceso es: ${nuevaClave}`);
 
         window.solicitarCantidadPOS = function(id, nombre, stock, unidad = 'UND') {
             const prod = window.dbInventario.find(p => p.id === id);
-            const precioUSD = prod ? (prod.precioVenta || prod.precioUSD || 0) : 0;
+            const pfSol = prod ? window.obtenerPreciosFijosProducto(prod) : { usd: 0, cop: 0, bs: 0 };
+            const precioUSD = pfSol.usd;
             const u = prod ? (prod.unidad || unidad || 'UND') : unidad;
             const nombreSeguro = (prod && prod.nombre) ? prod.nombre : (nombre || 'PRODUCTO');
 
@@ -7116,11 +7338,13 @@ Tu nueva clave de acceso es: ${nuevaClave}`);
             if (idx !== -1) {
                 window.carritoPOS[idx].cant += cant;
             } else {
+                const pfPush = window.obtenerPreciosFijosProducto(prod);
                 window.carritoPOS.push({ 
                     id: prod.id, 
                     nombre: prod.nombre, 
-                    costoUSD: (Number(prod.precioCosto) || 0),
-                    precioUSD: (prod.precioVenta || prod.precioUSD || 0), 
+                    costoUSD: window.obtenerCostoFijoProductoUSD(prod),
+                    precioUSD: pfPush.usd, 
+                    precioBaseUSD: pfPush.usd,
                     cant: cant, 
                     unidad: prod.unidad || 'UND',
                     max: prod.stock || 9999 
@@ -9203,7 +9427,7 @@ Las conversiones a Pesos (COP) y Bolívares (Bs) se sincronizaron con la tasa de
         window.agregarAlCarritoPorId = function(prodId, cantAgregar = 1) {
             const p = (window.dbInventario || []).find(item => item.id === prodId);
             if (!p) return;
-            const precioUSD = p.precioVenta || p.precioUSD || 0;
+            const precioUSD = window.obtenerPreciosFijosProducto(p).usd;
             window.agregarAlCarrito(p.nombre, precioUSD, cantAgregar);
         };
 
@@ -9234,6 +9458,18 @@ Las conversiones a Pesos (COP) y Bolívares (Bs) se sincronizaron con la tasa de
         };
 
         // HELPER: CALCULA PRECIOS RESPETANDO LA MONEDA ORIGINAL EN QUE SE CARGÓ EL PRODUCTO
+        window.obtenerCostoFijoProductoUSD = function(p) {
+            if (!p) return 0;
+            const mOrig = (p.monedaOriginal || 'USD').toUpperCase();
+            if (mOrig === 'COP' && p.precioCostoOriginal !== undefined && Number(p.precioCostoOriginal) > 0) {
+                return window.calcularUSDDesdeCOP(Number(p.precioCostoOriginal));
+            }
+            if (mOrig === 'BS' && p.precioCostoOriginal !== undefined && Number(p.precioCostoOriginal) > 0) {
+                return window.calcularUSDDesdeBs(Number(p.precioCostoOriginal));
+            }
+            return Number(p.precioCosto) || 0;
+        };
+
         window.obtenerPreciosFijosProducto = function(p) {
             const mOrig = ((p && p.monedaOriginal) || 'USD').toUpperCase();
             let usd = Number(p && (p.precioVenta || p.precioUSD)) || 0;
@@ -11731,11 +11967,13 @@ window.abrirModalReporteZ = function() {
                         }
                         cantidadActual = window.carritoPOS[idxEnCarrito].cant;
                     } else {
+                        const pfCam = window.obtenerPreciosFijosProducto(prod);
                         window.carritoPOS.push({
                             id: prod.id,
                             nombre: prod.nombre,
-                            costoUSD: (Number(prod.precioCosto) || 0),
-                            precioUSD: (prod.precioVenta || prod.precioUSD || 0),
+                            costoUSD: window.obtenerCostoFijoProductoUSD(prod),
+                            precioUSD: pfCam.usd,
+                            precioBaseUSD: pfCam.usd,
                             cant: 1,
                             unidad: prod.unidad || 'UND',
                             max: prod.stock || 9999
@@ -13300,7 +13538,7 @@ _Un respaldo de TUCOCEL C.A. & @PublionlineMK_`;
         // -------------------------------------------------------------
         // INICIALIZACIÓN AUTOMÁTICA DEL SISTEMA Y ENRUTADOR DE URL
         // -------------------------------------------------------------
-        window.TCL_APP_BUILD_ID = 'v2026.11.22.3';
+        window.TCL_APP_BUILD_ID = 'v2026.11.23.2';
 
         window.hayTrabajoEnCursoSinGuardar = function() {
             if (Array.isArray(window.carritoPOS) && window.carritoPOS.length > 0) return true;
@@ -14625,6 +14863,45 @@ ${alertasStock.join('\n')}`);
             if (elN) elN.innerText = ventasHoy.length;
             if (elC) {
                 elC.innerHTML = `${presCob.principal}<span class="block text-[8px] text-slate-500 font-bold leading-tight mt-0.5">${presCob.secundario}</span>`;
+            }
+
+            // Actualizar barra discreta de notificación de cobros vencidos / por vencer
+            const bannerMor = document.getElementById('banner-alerta-morosos-panel');
+            if (bannerMor && typeof window.obtenerResumenMorososActivos === 'function') {
+                const resMor = window.obtenerResumenMorososActivos();
+                if (resMor.totalAlertas > 0) {
+                    const partes = [];
+                    if (resMor.vencidos > 0) partes.push(`${resMor.vencidos} vencido${resMor.vencidos > 1 ? 's' : ''}`);
+                    if (resMor.porVencer > 0) partes.push(`${resMor.porVencer} por vencer`);
+                    const lblTit = document.getElementById('lbl-alerta-morosos-titulo');
+                    const lblSub = document.getElementById('lbl-alerta-morosos-sub');
+                    const icoBox = document.getElementById('icon-alerta-morosos-panel');
+                    const hayVenc = resMor.vencidos > 0;
+
+                    bannerMor.className = hayVenc
+                        ? 'w-full bg-rose-50 hover:bg-rose-100 border-2 border-rose-300 rounded-2xl px-3.5 py-2.5 flex items-center justify-between gap-2 shadow-xs active:scale-[0.99] transition-all text-left'
+                        : 'w-full bg-amber-50 hover:bg-amber-100 border-2 border-amber-300 rounded-2xl px-3.5 py-2.5 flex items-center justify-between gap-2 shadow-xs active:scale-[0.99] transition-all text-left';
+                    if (icoBox) {
+                        icoBox.className = hayVenc
+                            ? 'w-8 h-8 rounded-xl bg-rose-600 text-white flex items-center justify-center text-xs shrink-0 shadow-xs'
+                            : 'w-8 h-8 rounded-xl bg-amber-500 text-slate-950 flex items-center justify-center text-xs shrink-0 shadow-xs';
+                    }
+                    if (lblTit) {
+                        lblTit.className = hayVenc
+                            ? 'text-[11px] font-black text-rose-900 uppercase block leading-tight truncate'
+                            : 'text-[11px] font-black text-amber-950 uppercase block leading-tight truncate';
+                        lblTit.innerText = `🔔 Cobros de Fiados: ${partes.join(' • ')}`;
+                    }
+                    if (lblSub) {
+                        lblSub.className = hayVenc
+                            ? 'text-[9.5px] font-bold text-rose-700 block leading-tight truncate'
+                            : 'text-[9.5px] font-bold text-amber-800 block leading-tight truncate';
+                        lblSub.innerText = 'Toca aquí para ver y enviar recordatorio por WhatsApp';
+                    }
+                    bannerMor.classList.remove('hidden');
+                } else {
+                    bannerMor.classList.add('hidden');
+                }
             }
         };
 
@@ -16010,7 +16287,7 @@ ${alertasStock.join('\n')}`);
             const prod = (window.dbInventario || []).find(p => p.id === prodId);
             if (!prod) return null;
             const cant = Math.max(0, parseFloat(document.getElementById('apt-input-cantidad')?.value) || 0);
-            const baseUSD = Number(prod.precioVenta || prod.precioUSD) || 0;
+            const baseUSD = window.obtenerPreciosFijosProducto(prod).usd;
             const acordadoUSD = (window._aptPrecioUnitAcordadoUSD !== null && window._aptPrecioUnitAcordadoUSD > 0)
                 ? window._aptPrecioUnitAcordadoUSD
                 : baseUSD;
