@@ -1102,15 +1102,7 @@
                     </button>
                 </div>
 
-                <!-- SELECTOR DE MONEDA DE CARGA (PÍLDORA MULTIMONEDA) -->
-                <div class="bg-slate-50 p-2 rounded-xl border border-slate-200 space-y-1">
-                    <span class="text-[9.5px] text-slate-700 uppercase font-mono font-black block">1. ¿EN QUÉ MONEDA VAS A FACTURAR?</span>
-                    <div class="grid grid-cols-3 gap-1.5 font-bold text-[10px]">
-                        <button type="button" onclick="window.seleccionarMonedaCargaPOS('USD')" id="btn-m-usd" class="py-2 rounded-lg border border-blue-600 bg-blue-600 text-white text-center font-black shadow-sm">💵 USD</button>
-                        <button type="button" onclick="window.seleccionarMonedaCargaPOS('COP')" id="btn-m-cop" class="py-2 rounded-lg border border-slate-300 bg-white text-slate-700 text-center">🇨🇴 COP</button>
-                        <button type="button" onclick="window.seleccionarMonedaCargaPOS('BS')" id="btn-m-bs" class="py-2 rounded-lg border border-slate-300 bg-white text-slate-700 text-center">🇻🇪 BS</button>
-                    </div>
-                </div>
+
 
                 <div class="grid grid-cols-2 gap-2 pt-1 font-bold text-xs">
                     <button onclick="window.cambiarModoPOS('INVENTARIO')" id="btn-tab-pos-inv" class="bg-blue-600 text-white py-2.5 rounded-xl uppercase flex items-center justify-center gap-2 shadow-sm font-black">
@@ -1684,6 +1676,61 @@
                             Usa la cámara de tu teléfono o una pistola lectora USB para escanear artículos. Emite comprobantes limpios en impresoras térmicas portátiles Bluetooth de 58mm o de mostrador de 80mm, o envíalos con 1 toque directo al WhatsApp del cliente.
                         </p>
                     </div>
+                </div>
+
+                <!-- BENEFICIO 6: PRESUPUESTOS Y COTIZACIONES SIN DESCONTAR INVENTARIO -->
+                <div class="glass-panel border border-sky-500/35 rounded-3xl p-5 space-y-2 shadow-inner hover:border-sky-400 transition-all">
+                    <span class="bg-sky-500/10 text-sky-400 border border-sky-500/20 text-[9px] font-black uppercase px-2.5 py-1 rounded-lg inline-block">
+                        <i class="fa-solid fa-file-invoice-dollar"></i> COTIZACIONES RÁPIDAS
+                    </span>
+                    <h4 class="font-black text-sm text-white uppercase tracking-tight">PRESUPUESTOS Y COTIZACIONES (SIN TOCAR INVENTARIO)</h4>
+                    <p class="text-slate-400 text-xs leading-relaxed text-justify">
+                        Cotiza productos y servicios con precios ajustables por cliente, cálculo automático del porcentaje de anticipo, fecha de vencimiento de oferta, envío por WhatsApp o impresión y conversión directa a factura POS en 1 toque.
+                    </p>
+                </div>
+
+                <!-- BENEFICIO 7: APARTADOS Y RESERVAS MULTI-ÍTEM -->
+                <div class="glass-panel border border-teal-500/35 rounded-3xl p-5 space-y-2 shadow-inner hover:border-teal-400 transition-all">
+                    <span class="bg-teal-500/10 text-teal-400 border border-teal-500/20 text-[9px] font-black uppercase px-2.5 py-1 rounded-lg inline-block">
+                        <i class="fa-solid fa-bookmark"></i> RESERVAS CON ABONOS
+                    </span>
+                    <h4 class="font-black text-sm text-white uppercase tracking-tight">APARTADOS Y RESERVAS MULTI-ÍTEM CON ABONOS</h4>
+                    <p class="text-slate-400 text-xs leading-relaxed text-justify">
+                        Reserva uno o varios artículos del estante o servicios con abonos parciales en USD, COP o Bs, control de plazos y emisión automática de Nota de Entrega al cerrar y entregar el pedido.
+                    </p>
+                </div>
+
+                <!-- BENEFICIO 8: ALERTAS DE FIADOS Y COBRANZA POR WHATSAPP -->
+                <div class="glass-panel border border-rose-500/35 rounded-3xl p-5 space-y-2 shadow-inner hover:border-rose-400 transition-all">
+                    <span class="bg-rose-500/10 text-rose-400 border border-rose-500/20 text-[9px] font-black uppercase px-2.5 py-1 rounded-lg inline-block">
+                        <i class="fa-solid fa-bell"></i> COBRANZA INTELIGENTE
+                    </span>
+                    <h4 class="font-black text-sm text-white uppercase tracking-tight">ALERTAS DE CRÉDITOS VENCIDOS Y ENVÍO POR WHATSAPP</h4>
+                    <p class="text-slate-400 text-xs leading-relaxed text-justify">
+                        Identifica al instante clientes con créditos vencidos o por vencer, registra abonos parciales o liquidaciones totales y envía recordatorios detallados por WhatsApp con un solo toque.
+                    </p>
+                </div>
+
+                <!-- BENEFICIO 9: VITRINA CON VISITAS, MONEDAS Y MODO MANTENIMIENTO -->
+                <div class="glass-panel border border-indigo-500/35 rounded-3xl p-5 space-y-2 shadow-inner hover:border-indigo-400 transition-all">
+                    <span class="bg-indigo-500/10 text-indigo-400 border border-indigo-500/20 text-[9px] font-black uppercase px-2.5 py-1 rounded-lg inline-block">
+                        <i class="fa-solid fa-chart-line"></i> CONTROL DE VITRINA
+                    </span>
+                    <h4 class="font-black text-sm text-white uppercase tracking-tight">CONTADOR DE VISITAS, MONEDAS VISIBLES Y SWITCH ON/OFF</h4>
+                    <p class="text-slate-400 text-xs leading-relaxed text-justify">
+                        Consulta las visitas diarias y acumuladas de tu tienda web, elige qué monedas mostrar al público ($ USD, COP o Bs) y prende o apaga el catálogo en segundos cuando actualices inventario.
+                    </p>
+                </div>
+
+                <!-- BENEFICIO 10: APERTURA DE CAJA, REPORTE Z Y CIERRE MENSUAL -->
+                <div class="glass-panel border border-emerald-500/35 rounded-3xl p-5 space-y-2 shadow-inner hover:border-emerald-400 transition-all">
+                    <span class="bg-emerald-500/10 text-emerald-400 border border-emerald-500/20 text-[9px] font-black uppercase px-2.5 py-1 rounded-lg inline-block">
+                        <i class="fa-solid fa-cash-register"></i> AUDITORÍA Y CIERRES
+                    </span>
+                    <h4 class="font-black text-sm text-white uppercase tracking-tight">APERTURA DE CAJA, REPORTE Z DIARIO Y CIERRE MENSUAL</h4>
+                    <p class="text-slate-400 text-xs leading-relaxed text-justify">
+                        Fija tasas del día y fondo inicial de gaveta al abrir turno, audita egresos y compras, guarda el historial de cierres diarios y revisa balances por rango de fechas o cierre de mes.
+                    </p>
                 </div>
             </section>
 
@@ -2469,15 +2516,7 @@
                     </div>
                 </div>
 
-                <!-- 2. PÍLDORA MULTIMONEDA DE CARGA -->
-                <div class="bg-slate-50 p-2 rounded-xl border border-slate-200 flex justify-between items-center gap-2">
-                    <span class="text-[9px] text-slate-500 uppercase font-mono font-bold">Moneda de Factura de Compra:</span>
-                    <div class="flex gap-1">
-                        <button type="button" onclick="window.seleccionarMonedaCargaCompra('USD')" id="btn-compra-usd" class="px-3 py-1.5 rounded-lg border border-blue-600 bg-blue-600 text-white font-black text-[10px]">💵 USD</button>
-                        <button type="button" onclick="window.seleccionarMonedaCargaCompra('COP')" id="btn-compra-cop" class="px-3 py-1.5 rounded-lg border border-slate-300 bg-white text-slate-700 font-bold text-[10px]">🇨🇴 COP</button>
-                        <button type="button" onclick="window.seleccionarMonedaCargaCompra('BS')" id="btn-compra-bs" class="px-3 py-1.5 rounded-lg border border-slate-300 bg-white text-slate-700 font-bold text-[10px]">🇻🇪 BS</button>
-                    </div>
-                </div>
+
 
                 <!-- 3. FORMULARIO PARA AGREGAR PRODUCTOS AL CARRITO DE COMPRA -->
                 <div class="bg-slate-50 p-3 rounded-2xl border border-slate-200 space-y-2.5">
@@ -6364,6 +6403,9 @@ Tu nueva clave de acceso es: ${nuevaClave}`);
             if (inp) inp.value = '';
             window.renderizarListaFiadosYAbonos();
             document.getElementById('modal-fiados-abonos').classList.remove('hidden');
+            if (typeof window.abrirSelectorMonedaRapidaUnToque === 'function') {
+                window.abrirSelectorMonedaRapidaUnToque('FIADO');
+            }
         };
 
         window.obtenerClaveClienteCredito = function(venta) {
@@ -7820,10 +7862,13 @@ Tu nueva clave de acceso es: ${nuevaClave}`);
                 const pSub = window.obtenerPresentacionMultimoneda(it.precioUSD * it.cant, mRe, null, tasasNota);
                 const tieneReb = (it.precioBaseUSD && it.precioBaseUSD > (it.precioUSD + 0.0001));
                 if (tieneReb) ahorroUSD += (it.precioBaseUSD - it.precioUSD) * it.cant;
+                const uniNota = (!it.unidad || it.unidad === 'SRV') ? 'Und' : it.unidad;
                 msj += `
-▪ *${it.nombre}*
+▪️ *${it.nombre}*
 `;
-                msj += `   Cant: ${it.cant} ${it.unidad || 'UND'} × ${pUnit.principal} = *${pSub.principal}*
+                msj += `   ${it.cant} ${uniNota} × ${pUnit.principal}
+`;
+                msj += `   Subtotal: *${pSub.principal}*
 `;
                 if (tieneReb) {
                     const pNorm = window.obtenerPresentacionMultimoneda(it.precioBaseUSD, mRe, null, tasasNota);
@@ -7890,9 +7935,11 @@ Tu nueva clave de acceso es: ${nuevaClave}`);
 
             msj += `━━━━━━━━━━━━━━━━━━━━━━
 `;
-            msj += `¡Gracias por su preferencia!
-_Comprobante de control interno._
-*TCL Comercio Web — TUCOCEL C.A.*`;
+            msj += `🚀 *TCL Sistema Master*
+`;
+            msj += `Desarrollado por *TUCOCEL C.A.* • RIF: J-31378837-6
+`;
+            msj += `Agencia de Publicidad *@PublionlineMK*`;
             return msj;
         };
 
@@ -8653,6 +8700,14 @@ Las conversiones a Pesos (COP) y Bolívares (Bs) se sincronizaron con la tasa de
                       `• 💵 *POS Mostrador Multimoneda:* Cobro rápido con tasa de frontera en caliente ($ USD, Pesos COP, Bs).
 ` +
                       `• 🖨️ *Impresión térmica universal (58mm/80mm)* y comprobantes digitales directos.
+` +
+                      `• 📋 *Presupuestos y Cotizaciones:* Cotiza con anticipo y validez sin tocar inventario, y conviértelos a factura POS en 1 toque.
+` +
+                      `• 🔖 *Apartados y Reservas:* Control de reservas multi-ítem con abonos multimoneda y emisión de nota al entregar.
+` +
+                      `• 🔔 *Fiados y Cobranza:* Alertas de vencimientos, registro de abonos y envío por WhatsApp.
+` +
+                      `• 📊 *Apertura, Reporte Z y Cierres:* Control de tasa del día, fondo de gaveta, gastos, compras y balance mensual.
 
 ` +
                       `👉 *Revisa la propuesta interactiva completa aquí:*
@@ -8667,7 +8722,13 @@ Las conversiones a Pesos (COP) y Bolívares (Bs) se sincronizaron con la tasa de
                       `_TCL Comercio Web es un software privado para la administración interna de inventario, almacén y notas de entrega. No es un sistema de facturación fiscal ni pretende suplantar las funciones ni obligaciones fiscales del país (SENIAT)._
 
 ` +
-                      `🏢 *TCL Comercio Web es un sistema respaldado por TUCOCEL C.A. (RIF J-31378837-6) y diseñado por @PublionlineMK, agencia de publicidad de TUCOCEL C.A.*`;
+                      `━━━━━━━━━━━━━━━━━━━━━━
+` +
+                      `🚀 *TCL Sistema Master*
+` +
+                      `Desarrollado por *TUCOCEL C.A.* • RIF: J-31378837-6
+` +
+                      `Agencia de Publicidad *@PublionlineMK*`;
 
             window.despacharWhatsApp('', msj);
         };
@@ -13660,7 +13721,7 @@ _Un respaldo de TUCOCEL C.A. & @PublionlineMK_`;
         // -------------------------------------------------------------
         // INICIALIZACIÓN AUTOMÁTICA DEL SISTEMA Y ENRUTADOR DE URL
         // -------------------------------------------------------------
-        window.TCL_APP_BUILD_ID = 'v2026.11.26.4';
+        window.TCL_APP_BUILD_ID = 'v2026.11.26.5';
 
         window.hayTrabajoEnCursoSinGuardar = function() {
             if (Array.isArray(window.carritoPOS) && window.carritoPOS.length > 0) return true;
@@ -14328,14 +14389,16 @@ _Un respaldo de TUCOCEL C.A. & @PublionlineMK_`;
             const refBs = document.getElementById('lbl-modal-rapido-ref-bs');
 
             if (titulo) {
-                titulo.innerText = (contexto === 'COMPRA')
-                    ? '¿En qué moneda viene la factura de compra?'
-                    : '¿En qué moneda vas a facturar?';
+                if (contexto === 'COMPRA') titulo.innerText = '¿En qué moneda viene la factura de compra?';
+                else if (contexto === 'PRESUPUESTO') titulo.innerText = '¿En qué moneda vas a cotizar?';
+                else if (contexto === 'FIADO') titulo.innerText = '¿En qué moneda vas a gestionar el fiado?';
+                else titulo.innerText = '¿En qué moneda vas a facturar?';
             }
             if (sub) {
-                sub.innerText = (contexto === 'COMPRA')
-                    ? 'Toca la moneda para registrar los costos al instante'
-                    : 'Toca la moneda para configurar los precios en caja';
+                if (contexto === 'COMPRA') sub.innerText = 'Toca la moneda para registrar los costos al instante';
+                else if (contexto === 'PRESUPUESTO') sub.innerText = 'Toca la moneda para fijar los precios del presupuesto';
+                else if (contexto === 'FIADO') sub.innerText = 'Toca la moneda para consultar y abonar saldos';
+                else sub.innerText = 'Toca la moneda para configurar los precios en caja';
             }
             if (refCop) refCop.innerText = `Tasa activa: ${window.formatCOP(window.tasasConfig.cop || 3600)} COP/$`;
             if (refBs) refBs.innerText = `Factor paridad: ${Number(window.tasasConfig.paridadBs || 3.3).toFixed(1)}`;
@@ -14348,6 +14411,10 @@ _Un respaldo de TUCOCEL C.A. & @PublionlineMK_`;
             if (window._contextoSelectorMonedaRapida === 'COMPRA') {
                 if (typeof window.seleccionarMonedaCargaCompra === 'function') {
                     window.seleccionarMonedaCargaCompra(moneda);
+                }
+            } else if (window._contextoSelectorMonedaRapida === 'PRESUPUESTO') {
+                if (typeof window.seleccionarMonedaPresupuesto === 'function') {
+                    window.seleccionarMonedaPresupuesto(moneda);
                 }
             } else {
                 if (typeof window.seleccionarMonedaCargaPOS === 'function') {
@@ -17541,7 +17608,9 @@ ${alertasStock.join('\n')}`);
                 const uniLbl = (!it.unidad || it.unidad === 'SRV') ? 'Und' : it.unidad;
                 msj += `▪️ *${it.nombre}*
 `;
-                msj += `   ${it.cantidad} ${uniLbl} × ${window.formatearValorEnMonedaExacta(uEx, mApt)} = *${window.formatearValorEnMonedaExacta(subEx, mApt)}*
+                msj += `   ${it.cantidad} ${uniLbl} × ${window.formatearValorEnMonedaExacta(uEx, mApt)}
+`;
+                msj += `   Subtotal: *${window.formatearValorEnMonedaExacta(subEx, mApt)}*
 `;
                 if (Math.abs(uEx - bEx) > 0.005) {
                     msj += `   _(Precio normal: ${window.formatearValorEnMonedaExacta(bEx, mApt)} • Precio acordado: ${window.formatearValorEnMonedaExacta(uEx, mApt)})_
@@ -17566,7 +17635,11 @@ ${alertasStock.join('\n')}`);
 `;
             msj += `━━━━━━━━━━━━━━━━━━━━━━
 `;
-            msj += `*Sistema TCL Comercio Web*`;
+            msj += `🚀 *TCL Sistema Master*
+`;
+            msj += `Desarrollado por *TUCOCEL C.A.* • RIF: J-31378837-6
+`;
+            msj += `Agencia de Publicidad *@PublionlineMK*`;
 
             const tel = (apt.telefono && apt.telefono !== 'N/A') ? String(apt.telefono).replace(/[^0-9]/g, '') : '';
             window.despacharWhatsApp(tel, msj);
@@ -18359,16 +18432,7 @@ ${alertasStock.join('\n')}`);
 
             <!-- PESTAÑA 1: NUEVO PRESUPUESTO -->
             <div id="sec-presupuesto-nuevo" class="p-3.5 sm:p-4 overflow-y-auto space-y-3 text-xs font-bold text-slate-800 no-scrollbar flex-grow">
-                <!-- 1. Moneda principal del presupuesto + opción Bs -->
-                <div class="bg-sky-50 border border-sky-200 rounded-2xl p-2.5 space-y-2">
-                    <span class="text-[9.5px] text-sky-900 uppercase font-mono font-black block">1. ¿En qué moneda vas a cotizar este presupuesto?</span>
-                    <div class="grid grid-cols-3 gap-1.5">
-                        <button type="button" id="btn-pres-mon-COP" onclick="window.seleccionarMonedaPresupuesto('COP')" class="py-2 rounded-xl border border-slate-300 bg-white text-slate-700 font-black text-[11px]">🇨🇴 COP</button>
-                        <button type="button" id="btn-pres-mon-USD" onclick="window.seleccionarMonedaPresupuesto('USD')" class="py-2 rounded-xl border border-blue-600 bg-blue-600 text-white font-black text-[11px] shadow-sm">💵 USD</button>
-                        <button type="button" id="btn-pres-mon-BS" onclick="window.seleccionarMonedaPresupuesto('BS')" class="py-2 rounded-xl border border-slate-300 bg-white text-slate-700 font-black text-[11px]">🇻🇪 Bs</button>
-                    </div>
 
-                </div>
 
                 <!-- 2. Datos del Cliente -->
                 <div class="grid grid-cols-1 sm:grid-cols-2 gap-2">
@@ -18512,6 +18576,9 @@ ${alertasStock.join('\n')}`);
             window.renderizarListaPresupuestosModulo();
             window.cambiarTabPresupuestos(tabInicial);
             document.getElementById('modal-presupuestos-comercio').classList.remove('hidden');
+            if (tabInicial === 'NUEVO' && typeof window.abrirSelectorMonedaRapidaUnToque === 'function') {
+                window.abrirSelectorMonedaRapidaUnToque('PRESUPUESTO');
+            }
         };
 
         window.cambiarTabPresupuestos = function(tab) {
@@ -18996,7 +19063,9 @@ ${alertasStock.join('\n')}`);
                 const uniLbl = (!it.unidad || it.unidad === 'SRV') ? 'Und' : it.unidad;
                 msj += `▪️ *${it.nombre}*
 `;
-                msj += `   ${it.cant} ${uniLbl} × ${window.formatearValorEnMonedaExacta(uEx, mCot)} = *${window.formatearValorEnMonedaExacta(subEx, mCot)}*
+                msj += `   ${it.cant} ${uniLbl} × ${window.formatearValorEnMonedaExacta(uEx, mCot)}
+`;
+                msj += `   Subtotal: *${window.formatearValorEnMonedaExacta(subEx, mCot)}*
 `;
                 if (Math.abs(uEx - bEx) > 0.005) {
                     msj += `   _(Precio normal: ${window.formatearValorEnMonedaExacta(bEx, mCot)} • Precio acordado: ${window.formatearValorEnMonedaExacta(uEx, mCot)})_
@@ -19037,8 +19106,11 @@ ${alertasStock.join('\n')}`);
             }
             msj += `━━━━━━━━━━━━━━━━━━━━━━
 `;
-            msj += `_Documento informativo (no descuenta mercancía)._
-*Sistema TCL Comercio Web*`;
+            msj += `🚀 *TCL Sistema Master*
+`;
+            msj += `Desarrollado por *TUCOCEL C.A.* • RIF: J-31378837-6
+`;
+            msj += `Agencia de Publicidad *@PublionlineMK*`;
 
             const tel = (cot.telefono && cot.telefono !== 'N/A') ? String(cot.telefono).replace(/[^0-9]/g, '') : '';
             window.despacharWhatsApp(tel, msj);
