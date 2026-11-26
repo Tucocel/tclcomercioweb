@@ -965,17 +965,31 @@
                     </button>
 
                     <!-- 7. APARTADOS Y RESERVAS DE PRODUCTOS -->
-                    <button onclick="window.abrirModalApartados()" class="col-span-2 bg-white hover:bg-teal-50/70 border-2 border-teal-300 hover:border-teal-500 p-3.5 rounded-3xl flex items-center justify-between gap-3 shadow-sm active:scale-95 transition-all text-left group">
-                        <div class="flex items-center gap-3 min-w-0">
+                    <button onclick="window.abrirModalApartados()" class="bg-white hover:bg-teal-50/70 border-2 border-teal-300 hover:border-teal-500 p-3.5 rounded-3xl flex flex-col justify-between shadow-sm active:scale-95 transition-all text-left space-y-2.5 group">
+                        <div class="flex items-center justify-between w-full">
                             <div class="w-10 h-10 rounded-2xl bg-teal-100 text-teal-700 flex items-center justify-center text-lg shrink-0 group-hover:scale-110 transition-transform">
                                 <i class="fa-solid fa-bookmark"></i>
                             </div>
-                            <div class="min-w-0">
-                                <h3 class="text-xs sm:text-sm font-black text-slate-900 uppercase leading-tight">Apartados & Abonos</h3>
-                                <p class="text-[10px] text-slate-500 font-medium leading-tight mt-0.5">Productos físicos o servicios con precio ajustable y abonos USD, COP o Bs</p>
-                            </div>
+                            <span class="bg-teal-50 text-teal-800 border border-teal-200 text-[9px] font-mono font-black px-2 py-0.5 rounded-lg"><span id="badge-cnt-apartados-activos">0</span> activos</span>
                         </div>
-                        <span class="bg-teal-50 text-teal-800 border border-teal-200 text-[9px] font-mono font-black px-2.5 py-1 rounded-xl shrink-0"><span id="badge-cnt-apartados-activos">0</span> activos</span>
+                        <div>
+                            <h3 class="text-xs sm:text-sm font-black text-slate-900 uppercase leading-tight">Apartados & Abonos</h3>
+                            <p class="text-[10px] text-slate-500 font-medium leading-tight mt-0.5">Reservas multi-ítem con abonos USD, COP o Bs</p>
+                        </div>
+                    </button>
+
+                    <!-- 8. PRESUPUESTOS / COTIZACIONES INDEPENDIENTE -->
+                    <button onclick="window.abrirModalPresupuestosModulo()" class="bg-white hover:bg-sky-50/70 border-2 border-sky-300 hover:border-sky-500 p-3.5 rounded-3xl flex flex-col justify-between shadow-sm active:scale-95 transition-all text-left space-y-2.5 group">
+                        <div class="flex items-center justify-between w-full">
+                            <div class="w-10 h-10 rounded-2xl bg-sky-100 text-sky-700 flex items-center justify-center text-lg shrink-0 group-hover:scale-110 transition-transform">
+                                <i class="fa-solid fa-file-invoice-dollar"></i>
+                            </div>
+                            <span class="bg-sky-50 text-sky-800 border border-sky-200 text-[9px] font-mono font-black px-2 py-0.5 rounded-lg"><span id="badge-cnt-cotizaciones">0</span> guardados</span>
+                        </div>
+                        <div>
+                            <h3 class="text-xs sm:text-sm font-black text-slate-900 uppercase leading-tight">Presupuestos</h3>
+                            <p class="text-[10px] text-slate-500 font-medium leading-tight mt-0.5">Cotizar con validez, anticipo y envío por WhatsApp</p>
+                        </div>
                     </button>
                 </div>
             </div>
@@ -1061,9 +1075,6 @@
                 </div>
             </div>
             <div class="flex items-center gap-1.5">
-                <button type="button" onclick="window.abrirModalCotizacionesGuardadas()" class="bg-slate-900/90 hover:bg-slate-800 text-amber-300 border border-amber-400/40 font-black px-3 py-2 rounded-xl text-[10.5px] uppercase flex items-center gap-1.5 shadow-sm active:scale-95 transition-all">
-                    <i class="fa-solid fa-file-invoice"></i> <span>Cotizaciones (<span id="badge-cnt-cotizaciones">0</span>)</span>
-                </button>
                 <button onclick="window.cerrarModuloPOS()" class="bg-emerald-700 hover:bg-emerald-800 text-white font-bold px-3 py-2 rounded-xl text-xs uppercase flex items-center gap-1">
                     <i class="fa-solid fa-arrow-left"></i> <span class="hidden sm:inline">Volver al Panel</span><span class="sm:hidden">Salir</span>
                 </button>
@@ -1356,16 +1367,10 @@
                             </div>
                         </div>                    </div>
 
-                    <div class="grid grid-cols-1 sm:grid-cols-12 gap-2.5 pt-1">
-                        <button type="button" onclick="window.procesarCierrePOS()" class="sm:col-span-7 bg-emerald-600 hover:bg-emerald-500 text-white font-black py-4 px-4 rounded-2xl uppercase text-xs tracking-wider shadow-lg active:scale-95 transition-all flex items-center justify-center gap-2">
+                    <div class="pt-1">
+                        <button type="button" onclick="window.procesarCierrePOS()" class="w-full bg-emerald-600 hover:bg-emerald-500 text-white font-black py-4 px-4 rounded-2xl uppercase text-xs tracking-wider shadow-lg active:scale-95 transition-all flex items-center justify-center gap-2">
                             <i class="fa-solid fa-check-double text-lg shrink-0"></i>
                             <span>PROCESAR Y GENERAR NOTA DE ENTREGA</span>
-                        </button>
-                        <button type="button" onclick="window.emitirCotizacionDesdePOS()" class="sm:col-span-5 bg-slate-900 hover:bg-slate-800 text-amber-300 border border-amber-400/40 font-black py-3 px-3 rounded-2xl shadow-md active:scale-95 transition-all flex flex-col items-center justify-center gap-0.5 text-center">
-                            <span class="uppercase text-[10.5px] tracking-wider flex items-center justify-center gap-1.5">
-                                <i class="fa-solid fa-file-invoice text-xs"></i> <span>SOLO PRESUPUESTO / COTIZAR</span>
-                            </span>
-                            <span class="text-[8.5px] font-mono font-bold text-slate-300 normal-case">No es venta • No descuenta mercancía</span>
                         </button>
                     </div>
                 </div>
@@ -3501,6 +3506,15 @@
         window.formatearFechaTimestampAISO = function(ts) {
             if (!ts) return '';
             return window.obtenerFechaLocalISO(new Date(ts));
+        };
+
+        window.formatearFechaCortaDDMMYYYY = function(ts) {
+            const d = ts ? new Date(ts) : new Date();
+            if (isNaN(d.getTime())) return '--/--/----';
+            const dd = String(d.getDate()).padStart(2, '0');
+            const mm = String(d.getMonth() + 1).padStart(2, '0');
+            const yyyy = d.getFullYear();
+            return `${dd}/${mm}/${yyyy}`;
         };
 
         window.tclSafeSetItem = function(key, value) {
@@ -13613,7 +13627,7 @@ _Un respaldo de TUCOCEL C.A. & @PublionlineMK_`;
         // -------------------------------------------------------------
         // INICIALIZACIÓN AUTOMÁTICA DEL SISTEMA Y ENRUTADOR DE URL
         // -------------------------------------------------------------
-        window.TCL_APP_BUILD_ID = 'v2026.11.25.1';
+        window.TCL_APP_BUILD_ID = 'v2026.11.25.4';
 
         window.hayTrabajoEnCursoSinGuardar = function() {
             if (Array.isArray(window.carritoPOS) && window.carritoPOS.length > 0) return true;
@@ -15767,16 +15781,14 @@ ${alertasStock.join('\n')}`);
                 </div>
 
                 <div class="bg-slate-50 border border-slate-200 rounded-2xl p-3 space-y-2.5">
-                    <!-- BLOQUE A: SELECCIÓN DESDE INVENTARIO (PRODUCTOS Y SERVICIOS) -->
-                    <div id="box-apt-desde-inventario" class="grid grid-cols-1 sm:grid-cols-12 gap-2 items-end">
-                        <div class="sm:col-span-8">
-                            <label class="text-[9.5px] text-slate-700 uppercase block mb-1 font-black">Producto o Servicio a Apartar *</label>
-                            <select id="apt-select-producto" onchange="window.alCambiarProductoApartado()" class="input-clean font-bold text-xs"></select>
+                    <!-- BLOQUE A: DESDE INVENTARIO (ESTILO POS: PÍLDORAS + BUSCADOR + TARJETAS + ADD) -->
+                    <div id="box-apt-desde-inventario" class="space-y-2">
+                        <div id="contenedor-pildoras-apt" class="flex items-center gap-1.5 overflow-x-auto no-scrollbar py-0.5 text-xs"></div>
+                        <div class="relative">
+                            <i class="fa-solid fa-magnifying-glass absolute left-3.5 top-3 text-slate-400 text-xs"></i>
+                            <input type="text" id="apt-busqueda-input" onkeyup="window.renderizarInventarioApartado()" placeholder="Buscar producto o servicio para apartar..." class="input-clean pl-9 py-2.5 bg-white font-mono text-xs border-slate-300">
                         </div>
-                        <div class="sm:col-span-4">
-                            <label class="text-[9.5px] text-slate-700 uppercase block mb-1 font-black">Cantidad *</label>
-                            <input type="number" step="any" min="0.1" id="apt-input-cantidad" value="1" oninput="window.recalcularPreviewNuevoApartado()" class="input-clean font-mono font-black text-center text-blue-700">
-                        </div>
+                        <div id="apt-grid-inventario" class="grid grid-cols-1 sm:grid-cols-2 gap-2 max-h-52 overflow-y-auto no-scrollbar p-0.5"></div>
                     </div>
 
                     <!-- BLOQUE B: SERVICIO MANUAL AL VUELO -->
@@ -15805,25 +15817,10 @@ ${alertasStock.join('\n')}`);
                                 <input type="text" inputmode="decimal" id="apt-input-servicio-precio" oninput="window.autoFormatearSeparadoresInput(this, true); window.recalcularPreviewNuevoApartado();" placeholder="0,00" class="input-clean font-mono font-black text-indigo-700 text-center">
                             </div>
                         </div>
-                    </div>
-
-                    <!-- CÁPSULA DE PRECIO UNITARIO ACORDADO CON LÁPIZ (✏️) PARA AJUSTE RÁPIDO SIN TOCAR INVENTARIO -->
-                    <div id="box-apt-precio-lapiz" class="bg-white border border-blue-200 rounded-xl p-2.5 flex items-center justify-between gap-2">
-                        <div class="min-w-0">
-                            <span class="text-[9px] text-slate-500 uppercase font-mono block">Precio Unitario Acordado (Solo este apartado)</span>
-                            <div class="flex items-center gap-1.5 flex-wrap">
-                                <strong id="lbl-apt-precio-acordado" class="text-xs font-mono font-black text-blue-700">$0.00 USD</strong>
-                                <span id="lbl-apt-precio-normal-ref" class="hidden text-[9.5px] font-mono text-amber-800 font-bold"></span>
-                            </div>
-                        </div>
-                        <button type="button" onclick="window.abrirAjustePrecioLapizApartado()" class="bg-blue-50 hover:bg-blue-100 text-blue-700 border border-blue-300 px-3 py-1.5 rounded-xl text-[10px] font-black uppercase flex items-center gap-1 shrink-0 transition-all" title="Ajustar precio unitario solo en este apartado">
-                            <i class="fa-solid fa-pen text-[9px]"></i> <span>Ajustar Precio</span>
+                        <button type="button" onclick="window.agregarItemAlCarritoApartado()" class="w-full bg-indigo-600 hover:bg-indigo-500 text-white py-2.5 px-3 rounded-xl text-[10.5px] font-black uppercase shadow-sm flex items-center justify-center gap-1.5 active:scale-95 transition-all">
+                            <i class="fa-solid fa-plus-circle"></i> <span>+ Agregar Servicio a la Lista</span>
                         </button>
                     </div>
-
-                    <button type="button" onclick="window.agregarItemAlCarritoApartado()" class="w-full bg-blue-600 hover:bg-blue-500 text-white py-2.5 px-3 rounded-xl text-[10.5px] font-black uppercase shadow-sm flex items-center justify-center gap-1.5 active:scale-95 transition-all">
-                        <i class="fa-solid fa-plus-circle"></i> <span>+ Agregar a la Lista del Apartado</span>
-                    </button>
 
                     <!-- LISTA MULTI-ÍTEM DEL APARTADO EN CURSO -->
                     <div class="space-y-1.5 pt-1">
@@ -16466,20 +16463,197 @@ ${alertasStock.join('\n')}`);
             }
         };
 
-        window.poblarSelectorProductosApartado = function() {
-            const sel = document.getElementById('apt-select-producto');
-            if (!sel) return;
-            const disponibles = (window.dbInventario || []).filter(p => p.esServicio || (Number(p.stock) || 0) > 0);
-            if (disponibles.length === 0) {
-                sel.innerHTML = `<option value="">No hay productos o servicios registrados</option>`;
+        window.categoriaActivaApartado = '';
+
+        window.renderizarBarraCategoriasApartado = function() {
+            const box = document.getElementById('contenedor-pildoras-apt');
+            if (!box) return;
+            const cats = (typeof window.obtenerCategoriasUnicasInventario === 'function') ? window.obtenerCategoriasUnicasInventario() : [];
+            const act = (window.categoriaActivaApartado || '').toUpperCase();
+            let h = `<button type="button" onclick="window.seleccionarCategoriaApartado('TODOS')" class="${act === 'TODOS' ? 'bg-teal-600 text-white shadow-sm' : 'bg-white text-slate-700 border border-slate-300'} px-3 py-1.5 rounded-xl font-black text-[10px] uppercase shrink-0 transition-all">📦 TODOS LOS PRODUCTOS</button>`;
+            cats.forEach(c => {
+                const sel = act === c;
+                h += `<button type="button" onclick="window.seleccionarCategoriaApartado('${window.escapeHTML(c)}')" class="${sel ? 'bg-teal-600 text-white shadow-sm' : 'bg-white text-slate-700 border border-slate-300'} px-3 py-1.5 rounded-xl font-black text-[10px] uppercase shrink-0 transition-all">📂 ${window.escapeHTML(c)}</button>`;
+            });
+            box.innerHTML = h;
+        };
+
+        window.seleccionarCategoriaApartado = function(cat) {
+            const c = (cat || '').toUpperCase();
+            if (c && window.categoriaActivaApartado === c) {
+                window.categoriaActivaApartado = '';
             } else {
-                sel.innerHTML = disponibles.map(p => {
-                    const vUSD = Number(p.precioVenta || p.precioUSD) || 0;
-                    const vCOP = window.formatearMiles(window.calcularPesosDesdeUSD(vUSD));
-                    const tagTipo = p.esServicio ? '🛠️ SERVICIO' : `Disp: ${p.stock} ${p.unidad || 'UND'}`;
-                    return `<option value="${window.escapeHTML(p.id)}">${window.escapeHTML(p.nombre)} (${tagTipo} • $${vUSD.toFixed(2)} / ${vCOP} COP)</option>`;
-                }).join('');
+                window.categoriaActivaApartado = c;
             }
+            window.renderizarBarraCategoriasApartado();
+            window.renderizarInventarioApartado();
+        };
+
+        window.renderizarInventarioApartado = function() {
+            const grid = document.getElementById('apt-grid-inventario');
+            if (!grid) return;
+            const q = (document.getElementById('apt-busqueda-input')?.value || '').toLowerCase().trim();
+            const catAct = (window.categoriaActivaApartado || '').toUpperCase();
+
+            if (!q && !catAct) {
+                grid.innerHTML = `<div class="col-span-1 sm:col-span-2 py-4 px-3 bg-white border border-dashed border-slate-200 rounded-2xl text-center space-y-0.5">
+                    <p class="text-[10px] text-slate-700 font-black uppercase">Escriba arriba para buscar en inventario</p>
+                    <p class="text-[9.5px] text-slate-400 font-normal">O toque una categoría (o "TODOS LOS PRODUCTOS") para desplegar y ocultar.</p>
+                </div>`;
+                return;
+            }
+
+            const disponibles = (window.dbInventario || []).filter(p => {
+                if (!p.esServicio && (Number(p.stock) || 0) <= 0) return false;
+                if (catAct && catAct !== 'TODOS' && ((p.categoria || 'GENERAL').toUpperCase() !== catAct)) return false;
+                if (!q) return true;
+                return (p.nombre && p.nombre.toLowerCase().includes(q)) ||
+                       (p.codigo && p.codigo.toLowerCase().includes(q)) ||
+                       (p.desc && p.desc.toLowerCase().includes(q));
+            }).sort((a, b) => (a.nombre || '').localeCompare(b.nombre || ''));
+
+            if (disponibles.length === 0) {
+                grid.innerHTML = `<div class="col-span-1 sm:col-span-2 text-center text-slate-400 py-5 text-[10.5px] font-bold">No hay productos disponibles. Puedes agregar un "Servicio Manual".</div>`;
+                return;
+            }
+
+            grid.innerHTML = disponibles.map(p => {
+                const pf = window.obtenerPreciosFijosProducto(p);
+                const mOrig = (p.monedaOriginal || 'USD').toUpperCase();
+                let pDisp = `$${pf.usd.toFixed(2)} USD`;
+                if (mOrig === 'COP') pDisp = `${window.formatearMiles(pf.cop)} COP`;
+                else if (mOrig === 'BS') pDisp = `${window.formatBS(pf.bs)} Bs`;
+
+                const esSrv = !!p.esServicio;
+                const badge = esSrv
+                    ? `<span class="bg-indigo-100 text-indigo-800 border border-indigo-200 text-[8.5px] font-black px-1.5 py-0.5 rounded uppercase">🛠️ Servicio</span>`
+                    : `<span class="text-slate-500 font-bold font-mono text-[9px]">Disp: ${p.stock} ${p.unidad === 'KG' ? 'Kg' : 'Und'}</span>`;
+
+                return `
+                    <div class="bg-white border border-slate-200 hover:border-teal-400 rounded-2xl p-2.5 flex justify-between items-center gap-2 shadow-2xs transition-all">
+                        <div class="min-w-0 flex-1 space-y-0.5">
+                            <h4 class="text-[11px] font-black uppercase text-slate-900 leading-snug break-words">${window.escapeHTML(p.nombre)}</h4>
+                            <div class="flex items-center gap-1.5 flex-wrap">
+                                ${badge}
+                                <span class="text-teal-700 font-black font-mono text-[10px]">${pDisp}</span>
+                            </div>
+                        </div>
+                        <button type="button" onclick="window.agregarProductoInvAApartado('${window.escapeHTML(p.id)}')" class="bg-emerald-600 hover:bg-emerald-500 text-white px-3 py-1.5 rounded-xl font-black text-[10.5px] shadow-xs shrink-0 active:scale-95 transition-all">+ Add</button>
+                    </div>
+                `;
+            }).join('');
+        };
+
+        window.agregarProductoInvAApartado = function(prodId) {
+            const prod = (window.dbInventario || []).find(p => p.id === prodId);
+            if (!prod) return;
+            if (!Array.isArray(window.carritoNuevoApartado)) window.carritoNuevoApartado = [];
+
+            const esSrv = !!prod.esServicio;
+            const stockDisp = esSrv ? 999999 : (Number(prod.stock) || 0);
+            const yaEnLista = window.carritoNuevoApartado
+                .filter(x => x.productoId === prod.id)
+                .reduce((s, x) => s + (Number(x.cantidad) || 0), 0);
+
+            if (!esSrv && yaEnLista + 1 > stockDisp) {
+                alert(`⚠️ Stock insuficiente. Disponible para apartar: ${Math.max(0, stockDisp - yaEnLista)} ${prod.unidad || 'UND'}.`);
+                return;
+            }
+
+            const idx = window.carritoNuevoApartado.findIndex(x => x.productoId === prod.id);
+            if (idx !== -1) {
+                window.carritoNuevoApartado[idx].cantidad = Number((Number(window.carritoNuevoApartado[idx].cantidad) + 1).toFixed(3));
+            } else {
+                const pf = window.obtenerPreciosFijosProducto(prod);
+                const monItem = (prod.monedaOriginal || 'USD').toUpperCase();
+                window.carritoNuevoApartado.push({
+                    esServicio: esSrv,
+                    esManual: false,
+                    productoId: prod.id,
+                    nombre: prod.nombre,
+                    unidad: esSrv ? 'SRV' : (prod.unidad || 'UND'),
+                    cantidad: 1,
+                    precioBaseUSD: pf.usd,
+                    precioUnitUSD: pf.usd,
+                    monedaOriginal: monItem
+                });
+                if (window.carritoNuevoApartado.length === 1) {
+                    const selMonAb = document.getElementById('apt-select-moneda-abono');
+                    if (selMonAb) selMonAb.value = monItem;
+                }
+            }
+            window.renderizarCarritoNuevoApartado();
+            window.recalcularPreviewNuevoApartado();
+        };
+
+        window.cambiarCantItemApartado = function(idx, delta) {
+            const it = (window.carritoNuevoApartado || [])[idx];
+            if (!it) return;
+            const nueva = Number((Number(it.cantidad) + delta).toFixed(3));
+            if (nueva <= 0) {
+                window.quitarItemCarritoApartado(idx);
+                return;
+            }
+            if (!it.esServicio && it.productoId) {
+                const prod = (window.dbInventario || []).find(p => p.id === it.productoId);
+                const stockDisp = prod ? (Number(prod.stock) || 0) : 999999;
+                if (nueva > stockDisp) {
+                    alert(`⚠️ Máximo disponible en inventario: ${stockDisp} ${it.unidad}.`);
+                    return;
+                }
+            }
+            it.cantidad = nueva;
+            window.renderizarCarritoNuevoApartado();
+            window.recalcularPreviewNuevoApartado();
+        };
+
+        window.editarCantDirectaApartado = function(idx) {
+            const it = (window.carritoNuevoApartado || [])[idx];
+            if (!it) return;
+            const resp = prompt(`Cantidad a apartar para "${it.nombre}" (${it.unidad}):`, String(it.cantidad));
+            if (resp === null) return;
+            const val = parseFloat(resp.replace(',', '.'));
+            if (!isNaN(val) && val > 0) {
+                if (!it.esServicio && it.productoId) {
+                    const prod = (window.dbInventario || []).find(p => p.id === it.productoId);
+                    const stockDisp = prod ? (Number(prod.stock) || 0) : 999999;
+                    if (val > stockDisp) {
+                        alert(`⚠️ Máximo disponible en inventario: ${stockDisp} ${it.unidad}.`);
+                        return;
+                    }
+                }
+                it.cantidad = Number(val.toFixed(3));
+                window.renderizarCarritoNuevoApartado();
+                window.recalcularPreviewNuevoApartado();
+            }
+        };
+
+        window.editarPrecioItemApartado = function(idx) {
+            const it = (window.carritoNuevoApartado || [])[idx];
+            if (!it) return;
+            const m = (it.monedaOriginal || 'USD').toUpperCase();
+            const actualVal = m === 'COP'
+                ? window.formatearMiles(Math.round(window.calcularPesosDesdeUSD(it.precioUnitUSD)))
+                : (m === 'BS' ? window.calcularBsDesdeUSD(it.precioUnitUSD).toFixed(2).replace('.', ',') : it.precioUnitUSD.toFixed(2).replace('.', ','));
+            const resp = prompt(`✏️ Ajustar precio unitario SOLO en este apartado (${m})\n${it.nombre}:`, actualVal);
+            if (resp === null) return;
+            const num = window.limpiarMontoManual(resp);
+            if (num > 0) {
+                let nUSD = num;
+                if (m === 'COP') nUSD = window.calcularUSDDesdeCOP(num);
+                else if (m === 'BS') nUSD = window.calcularUSDDesdeBs(num);
+                it.precioUnitUSD = nUSD;
+                window.renderizarCarritoNuevoApartado();
+                window.recalcularPreviewNuevoApartado();
+            }
+        };
+
+        window.poblarSelectorProductosApartado = function() {
+            window.categoriaActivaApartado = '';
+            const inpAptBusq = document.getElementById('apt-busqueda-input');
+            if (inpAptBusq) inpAptBusq.value = '';
+            window.renderizarBarraCategoriasApartado();
+            window.renderizarInventarioApartado();
             document.getElementById('apt-input-responsable').value = (document.getElementById('pos-input-cajero')?.value || window.cajeroActual || '').trim();
             window.recalcularPreviewNuevoApartado();
         };
@@ -16534,12 +16708,24 @@ ${alertasStock.join('\n')}`);
                 const pSub = window.obtenerPresentacionMultimoneda(it.precioUnitUSD * it.cantidad, mIt);
                 const iconT = it.esServicio ? '🛠️' : '📦';
                 return `
-                    <div class="bg-white border border-teal-200 rounded-xl px-2.5 py-2 flex items-start justify-between gap-2 font-mono text-[10px]">
-                        <div class="min-w-0 flex-1 space-y-0.5">
-                            <div class="font-black text-slate-900 uppercase leading-snug break-words">${iconT} ${window.escapeHTML(it.nombre)}</div>
-                            <div class="text-slate-600">${it.cantidad} ${window.escapeHTML(it.unidad)} × <strong>${pUnit.principal}</strong> = <strong class="text-teal-700">${pSub.principal}</strong></div>
+                    <div class="bg-white border border-teal-200 rounded-xl px-2.5 py-2 space-y-1.5 font-mono text-[10px]">
+                        <div class="flex items-start justify-between gap-2">
+                            <div class="min-w-0 flex-1">
+                                <div class="font-black text-slate-900 uppercase leading-snug break-words">${iconT} ${window.escapeHTML(it.nombre)}</div>
+                                <div class="text-slate-600 mt-0.5">${it.cantidad} ${window.escapeHTML(it.unidad)} × <strong>${pUnit.principal}</strong> = <strong class="text-teal-700">${pSub.principal}</strong></div>
+                            </div>
+                            <button type="button" onclick="window.quitarItemCarritoApartado(${idx})" class="bg-red-50 hover:bg-red-100 text-red-600 px-2 py-1 rounded-lg text-[10px] font-black shrink-0" title="Quitar ítem">✕</button>
                         </div>
-                        <button type="button" onclick="window.quitarItemCarritoApartado(${idx})" class="bg-red-50 hover:bg-red-100 text-red-600 px-2 py-1 rounded-lg text-[10px] font-black shrink-0" title="Quitar ítem">✕</button>
+                        <div class="flex items-center justify-between gap-1.5 pt-1 border-t border-slate-100">
+                            <div class="flex items-center gap-1">
+                                <button type="button" onclick="window.cambiarCantItemApartado(${idx}, -1)" class="w-6 h-6 bg-slate-100 hover:bg-slate-200 text-slate-800 rounded-lg font-black">−</button>
+                                <button type="button" onclick="window.editarCantDirectaApartado(${idx})" class="px-2 h-6 bg-teal-50 border border-teal-200 text-teal-900 rounded-lg font-black" title="Tocar para escribir cantidad exacta">${it.cantidad}</button>
+                                <button type="button" onclick="window.cambiarCantItemApartado(${idx}, 1)" class="w-6 h-6 bg-slate-100 hover:bg-slate-200 text-slate-800 rounded-lg font-black">+</button>
+                            </div>
+                            <button type="button" onclick="window.editarPrecioItemApartado(${idx})" class="bg-blue-50 hover:bg-blue-100 text-blue-700 border border-blue-200 px-2 py-1 rounded-lg text-[9px] font-black uppercase flex items-center gap-1">
+                                <i class="fa-solid fa-pen text-[8px]"></i> <span>Ajustar Precio</span>
+                            </button>
+                        </div>
                     </div>
                 `;
             }).join('');
@@ -17963,6 +18149,698 @@ ${alertasStock.join('\n')}`);
             </div>
         </div>
     </div>
+
+    <!-- MÓDULO INDEPENDIENTE: PRESUPUESTOS / COTIZACIONES (NO DESCUENTA INVENTARIO) -->
+    <div id="modal-presupuestos-comercio" class="fixed inset-0 bg-slate-950/85 backdrop-blur-md z-[135] p-1.5 sm:p-4 flex items-center justify-center hidden no-print" onclick="if(event.target === this) document.getElementById('modal-presupuestos-comercio').classList.add('hidden')">
+        <div class="bg-white border border-slate-200 w-full max-w-2xl rounded-3xl overflow-hidden shadow-2xl flex flex-col max-h-[94vh]">
+            <div class="bg-slate-900 px-4 py-3.5 text-white flex justify-between items-center shrink-0">
+                <div class="flex items-center gap-2">
+                    <i class="fa-solid fa-file-invoice-dollar text-sky-400 text-base"></i>
+                    <div>
+                        <h3 class="font-black text-xs sm:text-sm uppercase tracking-wider leading-tight">Presupuestos & Cotizaciones</h3>
+                        <p class="text-[9px] font-mono text-slate-400">No es venta • No descuenta mercancía del inventario</p>
+                    </div>
+                </div>
+                <button type="button" onclick="document.getElementById('modal-presupuestos-comercio').classList.add('hidden')" class="text-slate-300 hover:text-white bg-slate-800 hover:bg-red-600 w-8 h-8 rounded-xl flex items-center justify-center transition-colors">
+                    <i class="fa-solid fa-xmark text-sm"></i>
+                </button>
+            </div>
+
+            <!-- PESTAÑAS -->
+            <div class="bg-slate-100 p-2 border-b border-slate-200 grid grid-cols-2 gap-2 shrink-0">
+                <button type="button" id="btn-tab-pres-nuevo" onclick="window.cambiarTabPresupuestos('NUEVO')" class="bg-sky-600 text-white py-2.5 rounded-2xl text-[10.5px] font-black uppercase shadow-xs flex items-center justify-center gap-1.5">
+                    <i class="fa-solid fa-plus-circle"></i> <span>+ Nuevo Presupuesto</span>
+                </button>
+                <button type="button" id="btn-tab-pres-lista" onclick="window.cambiarTabPresupuestos('LISTA')" class="bg-white text-slate-700 border border-slate-300 py-2.5 rounded-2xl text-[10.5px] font-black uppercase flex items-center justify-center gap-1.5">
+                    <i class="fa-solid fa-folder-open"></i> <span>Guardados (<span id="badge-tab-pres-guardados">0</span>)</span>
+                </button>
+            </div>
+
+            <!-- PESTAÑA 1: NUEVO PRESUPUESTO -->
+            <div id="sec-presupuesto-nuevo" class="p-3.5 sm:p-4 overflow-y-auto space-y-3 text-xs font-bold text-slate-800 no-scrollbar flex-grow">
+                <!-- 1. Moneda principal del presupuesto -->
+                <div class="bg-sky-50 border border-sky-200 rounded-2xl p-2.5 space-y-1.5">
+                    <span class="text-[9.5px] text-sky-900 uppercase font-mono font-black block">1. ¿En qué moneda vas a cotizar este presupuesto?</span>
+                    <div class="grid grid-cols-3 gap-1.5">
+                        <button type="button" id="btn-pres-mon-COP" onclick="window.seleccionarMonedaPresupuesto('COP')" class="py-2 rounded-xl border border-slate-300 bg-white text-slate-700 font-black text-[11px]">🇨🇴 COP</button>
+                        <button type="button" id="btn-pres-mon-USD" onclick="window.seleccionarMonedaPresupuesto('USD')" class="py-2 rounded-xl border border-blue-600 bg-blue-600 text-white font-black text-[11px] shadow-sm">💵 USD</button>
+                        <button type="button" id="btn-pres-mon-BS" onclick="window.seleccionarMonedaPresupuesto('BS')" class="py-2 rounded-xl border border-slate-300 bg-white text-slate-700 font-black text-[11px]">🇻🇪 Bs</button>
+                    </div>
+                </div>
+
+                <!-- 2. Datos del Cliente -->
+                <div class="grid grid-cols-1 sm:grid-cols-2 gap-2">
+                    <div>
+                        <label class="text-[9.5px] text-slate-600 uppercase block mb-0.5 font-black">Nombre del Cliente *</label>
+                        <input type="text" id="pres-input-cliente" placeholder="Ej: María González / Empresa..." class="input-clean uppercase">
+                    </div>
+                    <div>
+                        <label class="text-[9.5px] text-slate-600 uppercase block mb-0.5 font-black">WhatsApp del Cliente</label>
+                        <input type="tel" id="pres-input-telefono" placeholder="Ej: 0424-0000000" class="input-clean font-mono">
+                        <span class="text-[8.5px] text-emerald-700 font-bold block mt-0.5">📲 Se enviará directo a este WhatsApp</span>
+                    </div>
+                    <div>
+                        <label class="text-[9.5px] text-slate-600 uppercase block mb-0.5 font-black">Cédula / RIF (Opcional)</label>
+                        <input type="text" id="pres-input-cedula" placeholder="Ej: V-12345678" class="input-clean font-mono">
+                    </div>
+                    <div>
+                        <label class="text-[9.5px] text-slate-600 uppercase block mb-0.5 font-black">Dirección / Referencia (Opc.)</label>
+                        <input type="text" id="pres-input-direccion" placeholder="Ej: Av. Bolívar..." class="input-clean">
+                    </div>
+                </div>
+
+                <!-- 3. Agregar Productos / Servicios al Presupuesto -->
+                <div class="bg-slate-50 border border-slate-200 rounded-2xl p-3 space-y-2.5">
+                    <div class="grid grid-cols-2 gap-1.5">
+                        <button type="button" id="btn-pres-modo-inv" onclick="window.seleccionarModoItemPresupuesto('INVENTARIO')" class="bg-blue-600 text-white py-2 px-2 rounded-xl text-[10px] font-black uppercase shadow-xs">
+                            📦 Desde Inventario
+                        </button>
+                        <button type="button" id="btn-pres-modo-man" onclick="window.seleccionarModoItemPresupuesto('MANUAL')" class="bg-white text-slate-700 border border-slate-300 py-2 px-2 rounded-xl text-[10px] font-black uppercase">
+                            ✏️ Ítem / Servicio Manual
+                        </button>
+                    </div>
+
+                    <!-- BLOQUE A: DESDE INVENTARIO (ESTILO POS: PÍLDORAS + BUSCADOR + TARJETAS + ADD) -->
+                    <div id="box-pres-item-inv" class="space-y-2">
+                        <div id="contenedor-pildoras-pres" class="flex items-center gap-1.5 overflow-x-auto no-scrollbar py-0.5 text-xs"></div>
+                        <div class="relative">
+                            <i class="fa-solid fa-magnifying-glass absolute left-3.5 top-3 text-slate-400 text-xs"></i>
+                            <input type="text" id="pres-busqueda-input" onkeyup="window.renderizarInventarioPresupuesto()" placeholder="Buscar producto o servicio por nombre..." class="input-clean pl-9 py-2.5 bg-white font-mono text-xs border-slate-300">
+                        </div>
+                        <div id="pres-grid-inventario" class="grid grid-cols-1 sm:grid-cols-2 gap-2 max-h-52 overflow-y-auto no-scrollbar p-0.5"></div>
+                    </div>
+
+                    <!-- BLOQUE B: ÍTEM MANUAL / SERVICIO -->
+                    <div id="box-pres-item-man" class="hidden space-y-2">
+                        <div>
+                            <label class="text-[9px] text-indigo-800 uppercase block mb-0.5 font-black">Descripción del Producto o Servicio *</label>
+                            <input type="text" id="pres-input-man-nombre" placeholder="Ej: 100 Almanaques Serie E / Mantenimiento..." class="input-clean uppercase">
+                        </div>
+                        <div class="grid grid-cols-3 gap-2">
+                            <div>
+                                <label class="text-[9px] text-indigo-800 uppercase block mb-0.5 font-black">Unidad</label>
+                                <select id="pres-input-man-unidad" class="input-clean font-bold text-xs">
+                                    <option value="UND">UND</option>
+                                    <option value="SRV">SRV</option>
+                                    <option value="KG">KG</option>
+                                </select>
+                            </div>
+                            <div>
+                                <label class="text-[9px] text-indigo-800 uppercase block mb-0.5 font-black">Cantidad *</label>
+                                <input type="number" step="any" min="0.1" id="pres-input-man-cant" value="1" class="input-clean font-mono font-black text-center text-indigo-700">
+                            </div>
+                            <div>
+                                <label id="lbl-pres-precio-man" class="text-[9px] text-indigo-800 uppercase block mb-0.5 font-black">P. Unitario *</label>
+                                <input type="text" inputmode="decimal" id="pres-input-man-precio" oninput="window.autoFormatearSeparadoresInput(this, true)" placeholder="0,00" class="input-clean font-mono font-black text-center text-indigo-700">
+                            </div>
+                        </div>
+                        <button type="button" onclick="window.agregarItemAPresupuesto()" class="w-full bg-indigo-600 hover:bg-indigo-500 text-white py-2.5 rounded-xl text-[10.5px] font-black uppercase shadow-sm flex items-center justify-center gap-1.5 active:scale-95 transition-all">
+                            <i class="fa-solid fa-plus-circle"></i> <span>+ Agregar Ítem Manual al Presupuesto</span>
+                        </button>
+                    </div>
+
+                    <!-- LISTA DE ÍTEMS EN EL PRESUPUESTO -->
+                    <div class="space-y-1.5 pt-1">
+                        <span class="text-[9.5px] font-mono font-black uppercase text-slate-700 block">📋 Ítems Cotizados (<span id="badge-cnt-items-pres">0</span>):</span>
+                        <div id="contenedor-items-presupuesto" class="space-y-1.5 max-h-40 overflow-y-auto no-scrollbar">
+                            <div class="text-[10px] text-slate-400 italic text-center py-2 bg-white rounded-xl border border-dashed border-slate-200">Agrega productos o servicios arriba.</div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- 4. Condiciones Comerciales: Validez en Días y Anticipo (%) -->
+                <div class="bg-amber-50/70 border border-amber-200 rounded-2xl p-3 space-y-2.5">
+                    <span class="text-[9.5px] text-amber-900 uppercase font-mono font-black block">⏱️ Condiciones de Validez y Anticipo</span>
+                    <div class="grid grid-cols-2 gap-2">
+                        <div>
+                            <label class="text-[9px] text-slate-700 uppercase block mb-0.5 font-black">Validez del Precio (Días) *</label>
+                            <input type="number" min="1" step="1" id="pres-input-validez-dias" value="5" oninput="window.recalcularPreviewPresupuesto()" placeholder="Ej: 3, 5, 7..." class="input-clean font-mono font-black text-center text-amber-900">
+                        </div>
+                        <div>
+                            <label class="text-[9px] text-slate-700 uppercase block mb-0.5 font-black">Anticipo / Abono (%)</label>
+                            <input type="number" min="0" max="100" step="1" id="pres-input-anticipo-pct" value="50" oninput="window.recalcularPreviewPresupuesto()" placeholder="Ej: 50, 65, 0..." class="input-clean font-mono font-black text-center text-emerald-700">
+                        </div>
+                    </div>
+                    <div>
+                        <label class="text-[9px] text-slate-700 uppercase block mb-0.5 font-black">Nota / Observación Adicional (Opcional)</label>
+                        <input type="text" id="pres-input-nota" placeholder="Ej: Tiempo de entrega 5 días hábiles tras confirmar el anticipo..." class="input-clean text-xs">
+                    </div>
+
+                    <div id="box-preview-resumen-presupuesto" class="bg-white border border-amber-300 rounded-xl p-2.5 font-mono text-[10.5px] space-y-1"></div>
+                </div>
+
+                <!-- 5. 3 VÍAS DIRECTAS AL FINALIZAR -->
+                <div class="space-y-1.5 pb-1">
+                    <span class="text-[9px] text-slate-500 uppercase font-mono font-black block text-center">Elige cómo finalizar (las 3 opciones guardan el presupuesto):</span>
+                    <div class="grid grid-cols-1 sm:grid-cols-3 gap-2">
+                        <button type="button" onclick="window.guardarNuevoPresupuesto('WHATSAPP')" class="bg-emerald-600 hover:bg-emerald-500 text-white py-3 px-2.5 rounded-2xl uppercase text-[10px] font-black shadow-md flex items-center justify-center gap-1.5 active:scale-95 transition-all">
+                            <i class="fa-brands fa-whatsapp text-sm"></i> <span>Guardar y WhatsApp</span>
+                        </button>
+                        <button type="button" onclick="window.guardarNuevoPresupuesto('IMPRIMIR')" class="bg-slate-900 hover:bg-slate-800 text-amber-300 py-3 px-2.5 rounded-2xl uppercase text-[10px] font-black shadow-md flex items-center justify-center gap-1.5 active:scale-95 transition-all">
+                            <i class="fa-solid fa-print text-xs"></i> <span>Guardar e Imprimir</span>
+                        </button>
+                        <button type="button" onclick="window.guardarNuevoPresupuesto('SOLO_GUARDAR')" class="bg-sky-600 hover:bg-sky-500 text-white py-3 px-2.5 rounded-2xl uppercase text-[10px] font-black shadow-md flex items-center justify-center gap-1.5 active:scale-95 transition-all">
+                            <i class="fa-solid fa-floppy-disk text-xs"></i> <span>Solo Guardar</span>
+                        </button>
+                    </div>
+                </div>
+            </div>
+
+            <!-- PESTAÑA 2: PRESUPUESTOS GUARDADOS -->
+            <div id="sec-presupuesto-lista" class="hidden p-3.5 sm:p-4 overflow-y-auto space-y-2.5 no-scrollbar flex-grow bg-slate-50">
+                <div class="relative">
+                    <i class="fa-solid fa-magnifying-glass absolute left-3.5 top-3 text-slate-400 text-xs"></i>
+                    <input type="text" id="busqueda-presupuestos-input" onkeyup="window.renderizarListaPresupuestosModulo()" placeholder="Buscar presupuesto por cliente o número..." class="input-clean pl-9 bg-white font-mono text-xs">
+                </div>
+                <div id="contenedor-lista-presupuestos-modulo" class="space-y-2.5 font-mono text-xs"></div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        window._presMonedaActual = 'COP';
+        window._presModoItem = 'INVENTARIO';
+        window.carritoPresupuestoNuevo = [];
+
+        window.abrirModalPresupuestosModulo = function(tabInicial = 'NUEVO') {
+            window.poblarSelectorInventarioPresupuesto();
+            window.seleccionarMonedaPresupuesto(window.monedaCargaPOS || 'COP');
+            window.seleccionarModoItemPresupuesto('INVENTARIO');
+            window.renderizarCarritoPresupuesto();
+            window.recalcularPreviewPresupuesto();
+            window.renderizarListaPresupuestosModulo();
+            window.cambiarTabPresupuestos(tabInicial);
+            document.getElementById('modal-presupuestos-comercio').classList.remove('hidden');
+        };
+
+        window.cambiarTabPresupuestos = function(tab) {
+            const secN = document.getElementById('sec-presupuesto-nuevo');
+            const secL = document.getElementById('sec-presupuesto-lista');
+            const btnN = document.getElementById('btn-tab-pres-nuevo');
+            const btnL = document.getElementById('btn-tab-pres-lista');
+            if (tab === 'LISTA') {
+                if (secN) secN.classList.add('hidden');
+                if (secL) secL.classList.remove('hidden');
+                if (btnL) btnL.className = 'bg-sky-600 text-white py-2.5 rounded-2xl text-[10.5px] font-black uppercase shadow-xs flex items-center justify-center gap-1.5';
+                if (btnN) btnN.className = 'bg-white text-slate-700 border border-slate-300 py-2.5 rounded-2xl text-[10.5px] font-black uppercase flex items-center justify-center gap-1.5';
+                window.renderizarListaPresupuestosModulo();
+            } else {
+                if (secL) secL.classList.add('hidden');
+                if (secN) secN.classList.remove('hidden');
+                if (btnN) btnN.className = 'bg-sky-600 text-white py-2.5 rounded-2xl text-[10.5px] font-black uppercase shadow-xs flex items-center justify-center gap-1.5';
+                if (btnL) btnL.className = 'bg-white text-slate-700 border border-slate-300 py-2.5 rounded-2xl text-[10.5px] font-black uppercase flex items-center justify-center gap-1.5';
+            }
+        };
+
+        window.seleccionarMonedaPresupuesto = function(mon) {
+            const m = (mon || 'USD').toUpperCase();
+            window._presMonedaActual = m;
+            ['COP', 'USD', 'BS'].forEach(cod => {
+                const b = document.getElementById(`btn-pres-mon-${cod}`);
+                if (!b) return;
+                if (cod === m) {
+                    const cls = cod === 'COP' ? 'border-slate-900 bg-slate-900 text-white' : (cod === 'BS' ? 'border-emerald-600 bg-emerald-600 text-white' : 'border-blue-600 bg-blue-600 text-white');
+                    b.className = `py-2 rounded-xl border ${cls} font-black text-[11px] shadow-sm`;
+                } else {
+                    b.className = 'py-2 rounded-xl border border-slate-300 bg-white text-slate-700 font-black text-[11px]';
+                }
+            });
+            const lblInv = document.getElementById('lbl-pres-precio-inv');
+            const lblMan = document.getElementById('lbl-pres-precio-man');
+            if (lblInv) lblInv.innerText = `Precio Unitario (${m})`;
+            if (lblMan) lblMan.innerText = `P. Unitario (${m}) *`;
+            window.alCambiarProductoPresupuesto();
+            window.renderizarCarritoPresupuesto();
+            window.recalcularPreviewPresupuesto();
+        };
+
+        window.seleccionarModoItemPresupuesto = function(modo) {
+            window._presModoItem = (modo === 'MANUAL') ? 'MANUAL' : 'INVENTARIO';
+            const bInv = document.getElementById('btn-pres-modo-inv');
+            const bMan = document.getElementById('btn-pres-modo-man');
+            const boxInv = document.getElementById('box-pres-item-inv');
+            const boxMan = document.getElementById('box-pres-item-man');
+            if (window._presModoItem === 'MANUAL') {
+                if (bMan) bMan.className = 'bg-indigo-600 text-white py-2 px-2 rounded-xl text-[10px] font-black uppercase shadow-xs';
+                if (bInv) bInv.className = 'bg-white text-slate-700 border border-slate-300 py-2 px-2 rounded-xl text-[10px] font-black uppercase';
+                if (boxInv) boxInv.classList.add('hidden');
+                if (boxMan) boxMan.classList.remove('hidden');
+            } else {
+                if (bInv) bInv.className = 'bg-blue-600 text-white py-2 px-2 rounded-xl text-[10px] font-black uppercase shadow-xs';
+                if (bMan) bMan.className = 'bg-white text-slate-700 border border-slate-300 py-2 px-2 rounded-xl text-[10px] font-black uppercase';
+                if (boxMan) boxMan.classList.add('hidden');
+                if (boxInv) boxInv.classList.remove('hidden');
+            }
+        };
+
+        window.categoriaActivaPresupuesto = '';
+
+        window.renderizarBarraCategoriasPresupuesto = function() {
+            const box = document.getElementById('contenedor-pildoras-pres');
+            if (!box) return;
+            const cats = (typeof window.obtenerCategoriasUnicasInventario === 'function') ? window.obtenerCategoriasUnicasInventario() : [];
+            const act = (window.categoriaActivaPresupuesto || '').toUpperCase();
+            let h = `<button type="button" onclick="window.seleccionarCategoriaPresupuesto('TODOS')" class="${act === 'TODOS' ? 'bg-blue-600 text-white shadow-sm' : 'bg-white text-slate-700 border border-slate-300'} px-3 py-1.5 rounded-xl font-black text-[10px] uppercase shrink-0 transition-all">📦 TODOS LOS PRODUCTOS</button>`;
+            cats.forEach(c => {
+                const sel = act === c;
+                h += `<button type="button" onclick="window.seleccionarCategoriaPresupuesto('${window.escapeHTML(c)}')" class="${sel ? 'bg-blue-600 text-white shadow-sm' : 'bg-white text-slate-700 border border-slate-300'} px-3 py-1.5 rounded-xl font-black text-[10px] uppercase shrink-0 transition-all">📂 ${window.escapeHTML(c)}</button>`;
+            });
+            box.innerHTML = h;
+        };
+
+        window.seleccionarCategoriaPresupuesto = function(cat) {
+            const c = (cat || '').toUpperCase();
+            if (c && window.categoriaActivaPresupuesto === c) {
+                window.categoriaActivaPresupuesto = '';
+            } else {
+                window.categoriaActivaPresupuesto = c;
+            }
+            window.renderizarBarraCategoriasPresupuesto();
+            window.renderizarInventarioPresupuesto();
+        };
+
+        window.renderizarInventarioPresupuesto = function() {
+            const grid = document.getElementById('pres-grid-inventario');
+            if (!grid) return;
+            const q = (document.getElementById('pres-busqueda-input')?.value || '').toLowerCase().trim();
+            const catAct = (window.categoriaActivaPresupuesto || '').toUpperCase();
+            const m = window._presMonedaActual || 'USD';
+
+            if (!q && !catAct) {
+                grid.innerHTML = `<div class="col-span-1 sm:col-span-2 py-4 px-3 bg-white border border-dashed border-slate-200 rounded-2xl text-center space-y-0.5">
+                    <p class="text-[10px] text-slate-700 font-black uppercase">Escriba arriba para buscar en inventario</p>
+                    <p class="text-[9.5px] text-slate-400 font-normal">O toque una categoría (o "TODOS LOS PRODUCTOS") para desplegar y ocultar.</p>
+                </div>`;
+                return;
+            }
+
+            const filtrados = (window.dbInventario || []).filter(p => {
+                if (catAct && catAct !== 'TODOS' && ((p.categoria || 'GENERAL').toUpperCase() !== catAct)) return false;
+                if (!q) return true;
+                return (p.nombre && p.nombre.toLowerCase().includes(q)) ||
+                       (p.codigo && p.codigo.toLowerCase().includes(q)) ||
+                       (p.desc && p.desc.toLowerCase().includes(q));
+            }).sort((a, b) => (a.nombre || '').localeCompare(b.nombre || ''));
+
+            if (filtrados.length === 0) {
+                grid.innerHTML = `<div class="col-span-1 sm:col-span-2 text-center text-slate-400 py-5 text-[10.5px] font-bold">No se encontraron productos. Puedes agregar uno con "Ítem / Servicio Manual".</div>`;
+                return;
+            }
+
+            grid.innerHTML = filtrados.map(p => {
+                const pf = window.obtenerPreciosFijosProducto(p);
+                let pDisp = `$${pf.usd.toFixed(2)} USD`;
+                if (m === 'COP') pDisp = `${window.formatearMiles(pf.cop)} COP`;
+                else if (m === 'BS') pDisp = `${window.formatBS(pf.bs)} Bs`;
+
+                const esSrv = !!p.esServicio;
+                const badge = esSrv
+                    ? `<span class="bg-indigo-100 text-indigo-800 border border-indigo-200 text-[8.5px] font-black px-1.5 py-0.5 rounded uppercase">🛠️ Servicio</span>`
+                    : `<span class="text-slate-500 font-bold font-mono text-[9px]">Stock: ${p.stock || 0} ${p.unidad === 'KG' ? 'Kg' : 'Und'}</span>`;
+
+                return `
+                    <div class="bg-white border border-slate-200 hover:border-sky-400 rounded-2xl p-2.5 flex justify-between items-center gap-2 shadow-2xs transition-all">
+                        <div class="min-w-0 flex-1 space-y-0.5">
+                            <h4 class="text-[11px] font-black uppercase text-slate-900 leading-snug break-words">${window.escapeHTML(p.nombre)}</h4>
+                            <div class="flex items-center gap-1.5 flex-wrap">
+                                ${badge}
+                                <span class="text-blue-600 font-black font-mono text-[10px]">${pDisp}</span>
+                            </div>
+                        </div>
+                        <button type="button" onclick="window.agregarProductoInvAPresupuesto('${window.escapeHTML(p.id)}')" class="bg-emerald-600 hover:bg-emerald-500 text-white px-3 py-1.5 rounded-xl font-black text-[10.5px] shadow-xs shrink-0 active:scale-95 transition-all">+ Add</button>
+                    </div>
+                `;
+            }).join('');
+        };
+
+        window.poblarSelectorInventarioPresupuesto = function() {
+            window.categoriaActivaPresupuesto = '';
+            const inpPresBusq = document.getElementById('pres-busqueda-input');
+            if (inpPresBusq) inpPresBusq.value = '';
+            window.renderizarBarraCategoriasPresupuesto();
+            window.renderizarInventarioPresupuesto();
+        };
+
+        window.alCambiarProductoPresupuesto = function() {
+            window.renderizarInventarioPresupuesto();
+        };
+
+        window.agregarProductoInvAPresupuesto = function(prodId) {
+            const prod = (window.dbInventario || []).find(p => p.id === prodId);
+            if (!prod) return;
+            if (!Array.isArray(window.carritoPresupuestoNuevo)) window.carritoPresupuestoNuevo = [];
+
+            const idx = window.carritoPresupuestoNuevo.findIndex(it => it.id === prod.id);
+            if (idx !== -1) {
+                window.carritoPresupuestoNuevo[idx].cant = Number((Number(window.carritoPresupuestoNuevo[idx].cant) + 1).toFixed(3));
+            } else {
+                const pfBase = window.obtenerPreciosFijosProducto(prod);
+                window.carritoPresupuestoNuevo.push({
+                    id: prod.id,
+                    nombre: prod.nombre,
+                    unidad: prod.esServicio ? 'SRV' : (prod.unidad || 'UND'),
+                    cant: 1,
+                    precioUSD: pfBase.usd,
+                    precioBaseUSD: pfBase.usd,
+                    costoUSD: window.obtenerCostoFijoProductoUSD(prod)
+                });
+            }
+            window.renderizarCarritoPresupuesto();
+            window.recalcularPreviewPresupuesto();
+        };
+
+        window.agregarItemAPresupuesto = function() {
+            const m = window._presMonedaActual || 'USD';
+            if (!Array.isArray(window.carritoPresupuestoNuevo)) window.carritoPresupuestoNuevo = [];
+
+            const nom = (document.getElementById('pres-input-man-nombre')?.value || '').trim().toUpperCase();
+            const uni = document.getElementById('pres-input-man-unidad')?.value || 'UND';
+            const cant = parseFloat(document.getElementById('pres-input-man-cant')?.value || '0') || 0;
+            const pRaw = window.limpiarMontoManual(document.getElementById('pres-input-man-precio')?.value || 0);
+            if (!nom || cant <= 0 || pRaw <= 0) {
+                alert('⚠️ Escribe el nombre, cantidad y precio unitario del ítem manual.');
+                return;
+            }
+            let pUSD = pRaw;
+            if (m === 'COP') pUSD = window.calcularUSDDesdeCOP(pRaw);
+            else if (m === 'BS') pUSD = window.calcularUSDDesdeBs(pRaw);
+
+            window.carritoPresupuestoNuevo.push({
+                id: 'libre_' + Date.now() + '_' + Math.random().toString(36).substr(2, 3),
+                nombre: nom,
+                unidad: uni,
+                cant: cant,
+                precioUSD: pUSD,
+                precioBaseUSD: pUSD,
+                costoUSD: 0
+            });
+            document.getElementById('pres-input-man-nombre').value = '';
+            document.getElementById('pres-input-man-precio').value = '';
+            document.getElementById('pres-input-man-cant').value = '1';
+
+            window.renderizarCarritoPresupuesto();
+            window.recalcularPreviewPresupuesto();
+        };
+
+        window.cambiarCantItemPresupuesto = function(idx, delta) {
+            const it = (window.carritoPresupuestoNuevo || [])[idx];
+            if (!it) return;
+            const nueva = Number((Number(it.cant) + delta).toFixed(3));
+            if (nueva <= 0) {
+                window.quitarItemPresupuesto(idx);
+                return;
+            }
+            it.cant = nueva;
+            window.renderizarCarritoPresupuesto();
+            window.recalcularPreviewPresupuesto();
+        };
+
+        window.editarCantDirectaPresupuesto = function(idx) {
+            const it = (window.carritoPresupuestoNuevo || [])[idx];
+            if (!it) return;
+            const resp = prompt(`Cantidad para "${it.nombre}" (${it.unidad}):`, String(it.cant));
+            if (resp === null) return;
+            const val = parseFloat(resp.replace(',', '.'));
+            if (!isNaN(val) && val > 0) {
+                it.cant = Number(val.toFixed(3));
+                window.renderizarCarritoPresupuesto();
+                window.recalcularPreviewPresupuesto();
+            }
+        };
+
+        window.editarPrecioItemPresupuesto = function(idx) {
+            const it = (window.carritoPresupuestoNuevo || [])[idx];
+            if (!it) return;
+            const m = window._presMonedaActual || 'USD';
+            const actualVal = m === 'COP'
+                ? window.formatearMiles(Math.round(window.calcularPesosDesdeUSD(it.precioUSD)))
+                : (m === 'BS' ? window.calcularBsDesdeUSD(it.precioUSD).toFixed(2).replace('.', ',') : it.precioUSD.toFixed(2).replace('.', ','));
+            const resp = prompt(`✏️ Ajustar precio unitario SOLO en este presupuesto (${m})\n${it.nombre}:`, actualVal);
+            if (resp === null) return;
+            const num = window.limpiarMontoManual(resp);
+            if (num > 0) {
+                let nUSD = num;
+                if (m === 'COP') nUSD = window.calcularUSDDesdeCOP(num);
+                else if (m === 'BS') nUSD = window.calcularUSDDesdeBs(num);
+                it.precioUSD = nUSD;
+                window.renderizarCarritoPresupuesto();
+                window.recalcularPreviewPresupuesto();
+            }
+        };
+
+        window.quitarItemPresupuesto = function(idx) {
+            if (!Array.isArray(window.carritoPresupuestoNuevo)) return;
+            window.carritoPresupuestoNuevo.splice(idx, 1);
+            window.renderizarCarritoPresupuesto();
+            window.recalcularPreviewPresupuesto();
+        };
+
+        window.renderizarCarritoPresupuesto = function() {
+            const box = document.getElementById('contenedor-items-presupuesto');
+            const badge = document.getElementById('badge-cnt-items-pres');
+            if (badge) badge.innerText = (window.carritoPresupuestoNuevo || []).length;
+            if (!box) return;
+
+            if (!window.carritoPresupuestoNuevo || window.carritoPresupuestoNuevo.length === 0) {
+                box.innerHTML = `<div class="text-[10px] text-slate-400 italic text-center py-2 bg-white rounded-xl border border-dashed border-slate-200">Toca "+ Add" en cualquier producto arriba para cotizar.</div>`;
+                return;
+            }
+            const m = window._presMonedaActual || 'USD';
+            box.innerHTML = window.carritoPresupuestoNuevo.map((it, idx) => {
+                const pU = window.obtenerPresentacionMultimoneda(it.precioUSD, m);
+                const pS = window.obtenerPresentacionMultimoneda(it.precioUSD * it.cant, m);
+                return `
+                    <div class="bg-white border border-sky-200 rounded-xl px-2.5 py-2 space-y-1.5 font-mono text-[10px]">
+                        <div class="flex items-start justify-between gap-2">
+                            <div class="min-w-0 flex-1">
+                                <div class="font-black text-slate-900 uppercase leading-snug break-words">${window.escapeHTML(it.nombre)}</div>
+                                <div class="text-slate-600 mt-0.5">${it.cant} ${window.escapeHTML(it.unidad)} × <strong>${pU.principal}</strong> = <strong class="text-sky-700">${pS.principal}</strong></div>
+                            </div>
+                            <button type="button" onclick="window.quitarItemPresupuesto(${idx})" class="bg-red-50 hover:bg-red-100 text-red-600 px-2 py-1 rounded-lg text-[10px] font-black shrink-0" title="Quitar">✕</button>
+                        </div>
+                        <div class="flex items-center justify-between gap-1.5 pt-1 border-t border-slate-100">
+                            <div class="flex items-center gap-1">
+                                <button type="button" onclick="window.cambiarCantItemPresupuesto(${idx}, -1)" class="w-6 h-6 bg-slate-100 hover:bg-slate-200 text-slate-800 rounded-lg font-black">−</button>
+                                <button type="button" onclick="window.editarCantDirectaPresupuesto(${idx})" class="px-2 h-6 bg-sky-50 border border-sky-200 text-sky-900 rounded-lg font-black" title="Tocar para escribir cantidad exacta">${it.cant}</button>
+                                <button type="button" onclick="window.cambiarCantItemPresupuesto(${idx}, 1)" class="w-6 h-6 bg-slate-100 hover:bg-slate-200 text-slate-800 rounded-lg font-black">+</button>
+                            </div>
+                            <button type="button" onclick="window.editarPrecioItemPresupuesto(${idx})" class="bg-blue-50 hover:bg-blue-100 text-blue-700 border border-blue-200 px-2 py-1 rounded-lg text-[9px] font-black uppercase flex items-center gap-1">
+                                <i class="fa-solid fa-pen text-[8px]"></i> <span>Ajustar Precio</span>
+                            </button>
+                        </div>
+                    </div>
+                `;
+            }).join('');
+        };
+
+        window.recalcularPreviewPresupuesto = function() {
+            const box = document.getElementById('box-preview-resumen-presupuesto');
+            if (!box) return;
+            const m = window._presMonedaActual || 'USD';
+            const totalUSD = (window.carritoPresupuestoNuevo || []).reduce((acc, it) => acc + (Number(it.precioUSD) * Number(it.cant)), 0);
+            const diasVal = Math.max(1, parseInt(document.getElementById('pres-input-validez-dias')?.value || '5', 10) || 5);
+            const antPct = Math.max(0, Math.min(100, parseFloat(document.getElementById('pres-input-anticipo-pct')?.value || '0') || 0));
+
+            if (totalUSD <= 0) {
+                box.innerHTML = `<span class="text-slate-400">Agrega al menos un ítem para calcular el total del presupuesto.</span>`;
+                return;
+            }
+            const presTot = window.obtenerPresentacionMultimoneda(totalUSD, m);
+            const antUSD = totalUSD * (antPct / 100);
+            const presAnt = window.obtenerPresentacionMultimoneda(antUSD, m);
+            const venceStr = window.formatearFechaCortaDDMMYYYY(Date.now() + (diasVal * 86400000));
+
+            box.innerHTML = `
+                <div><strong>Total Presupuesto:</strong> <span class="text-slate-950 font-black">${presTot.principal}</span> <span class="text-slate-500 text-[9px]">(${presTot.secundario})</span></div>
+                ${antPct > 0 ? `<div class="text-emerald-700"><strong>Anticipo (${antPct}%):</strong> <span class="font-black">${presAnt.principal}</span> <span class="text-emerald-600/80 text-[9px]">(${presAnt.secundario})</span></div>` : ''}
+                <div class="text-amber-800 text-[9.5px]"><strong>Validez:</strong> ${diasVal} días (hasta el ${venceStr}). Luego de esa fecha debe consultar nuevamente el precio.</div>
+            `;
+        };
+
+        window.guardarNuevoPresupuesto = async function(viaSalida = 'SOLO_GUARDAR') {
+            if (!window.carritoPresupuestoNuevo || window.carritoPresupuestoNuevo.length === 0) {
+                alert('⚠️ Agregue al menos un producto o servicio al presupuesto.');
+                return;
+            }
+            const cliente = (document.getElementById('pres-input-cliente')?.value || '').trim().toUpperCase() || 'CLIENTE GENERAL';
+            const telefono = (document.getElementById('pres-input-telefono')?.value || '').trim();
+            const cedula = (document.getElementById('pres-input-cedula')?.value || '').trim() || 'J-00000000-0';
+            const direccion = (document.getElementById('pres-input-direccion')?.value || '').trim();
+            const diasValidez = Math.max(1, parseInt(document.getElementById('pres-input-validez-dias')?.value || '5', 10) || 5);
+            const anticipoPct = Math.max(0, Math.min(100, parseFloat(document.getElementById('pres-input-anticipo-pct')?.value || '0') || 0));
+            const notaExtra = (document.getElementById('pres-input-nota')?.value || '').trim();
+
+            const totalUSD = Number(window.carritoPresupuestoNuevo.reduce((acc, it) => acc + (Number(it.precioUSD) * Number(it.cant)), 0).toFixed(2));
+            const mPres = window._presMonedaActual || 'USD';
+            const ahora = Date.now();
+            const numCot = 'PRES-' + ((window.dbCotizaciones || []).length + 1).toString().padStart(4, '0');
+            const cajero = (document.getElementById('pos-input-cajero')?.value || window.cajeroActual || 'ADMIN').trim().toUpperCase();
+
+            const nuevaCot = {
+                id: 'cot_' + ahora + '_' + Math.random().toString(36).substr(2, 4),
+                numero: numCot,
+                cajero,
+                cedula,
+                cliente,
+                telefono,
+                direccion,
+                monedaOriginal: mPres,
+                diasValidez,
+                anticipoPct,
+                notaExtra,
+                items: JSON.parse(JSON.stringify(window.carritoPresupuestoNuevo)),
+                totalUSD,
+                fechaMs: ahora
+            };
+
+            if (!Array.isArray(window.dbCotizaciones)) window.dbCotizaciones = [];
+            window.dbCotizaciones.unshift(nuevaCot);
+            window.tclSafeSetItem(window.getTenantStorageKey('cotizaciones'), JSON.stringify(window.dbCotizaciones));
+
+            if (window.dbNube && window.clienteActivoSesion) {
+                try {
+                    const slug = (window.clienteActivoSesion.slug || window.clienteActivoSesion.user || 'demo').toLowerCase().trim();
+                    await window.dbNube.collection('comercios_saas').doc(slug).collection('cotizaciones').doc(nuevaCot.id).set(nuevaCot, { merge: true });
+                } catch (e) {}
+            }
+
+            const bCot = document.getElementById('badge-cnt-cotizaciones');
+            if (bCot) bCot.innerText = window.dbCotizaciones.length;
+
+            // Limpiar formulario
+            ['pres-input-cliente', 'pres-input-telefono', 'pres-input-cedula', 'pres-input-direccion', 'pres-input-nota'].forEach(id => {
+                const el = document.getElementById(id); if (el) el.value = '';
+            });
+            window.carritoPresupuestoNuevo = [];
+            window.renderizarCarritoPresupuesto();
+            window.recalcularPreviewPresupuesto();
+            window.cambiarTabPresupuestos('LISTA');
+
+            if (viaSalida === 'WHATSAPP') {
+                window.enviarPresupuestoWhatsApp(nuevaCot.id);
+            } else if (viaSalida === 'IMPRIMIR') {
+                if (typeof window.abrirVistaPreviaCotizacion === 'function') {
+                    window.abrirVistaPreviaCotizacion(nuevaCot.id);
+                    setTimeout(() => { window.imprimirAuditoriaActual(); }, 260);
+                }
+            } else {
+                alert(`✅ ¡Presupuesto ${numCot} guardado con éxito! (No descontó inventario).`);
+            }
+        };
+
+        window.enviarPresupuestoWhatsApp = function(cotId) {
+            const cot = (window.dbCotizaciones || []).find(c => c.id === cotId);
+            if (!cot) return;
+            const nomComercio = (window.clienteActivoSesion && window.clienteActivoSesion.nombre ? window.clienteActivoSesion.nombre : 'TUCOCEL C.A.').toUpperCase();
+            const mCot = (cot.monedaOriginal || 'USD').toUpperCase();
+            const presTot = window.obtenerPresentacionMultimoneda(cot.totalUSD, mCot);
+
+            let msj = `📋 *PRESUPUESTO / COTIZACIÓN ${cot.numero}*\n`;
+            msj += `🏪 *${nomComercio}*\n`;
+            msj += `👤 *Cliente:* ${cot.cliente}\n`;
+            msj += `━━━━━━━━━━━━━━━━━━━━━━\n`;
+            (cot.items || []).forEach((it, idx) => {
+                const pU = window.obtenerPresentacionMultimoneda(it.precioUSD, mCot);
+                const pSub = window.obtenerPresentacionMultimoneda(it.precioUSD * it.cant, mCot);
+                msj += `${idx + 1}. *${it.nombre}*\n`;
+                msj += `   ${it.cant} ${it.unidad || 'UND'} × ${pU.principal} = *${pSub.principal}*\n`;
+            });
+            msj += `━━━━━━━━━━━━━━━━━━━━━━\n`;
+            msj += `💰 *TOTAL PRESUPUESTO:* ${presTot.principal}\n`;
+            msj += `   _(${presTot.secundario})_\n`;
+
+            const antPct = parseFloat(cot.anticipoPct || 0);
+            if (antPct > 0) {
+                const pAnt = window.obtenerPresentacionMultimoneda(cot.totalUSD * (antPct / 100), mCot);
+                msj += `💳 *Anticipo requerido (${antPct}%):* ${pAnt.principal}\n`;
+                msj += `   _(${pAnt.secundario})_\n`;
+            }
+
+            const diasVal = parseInt(cot.diasValidez || 0, 10);
+            if (diasVal > 0) {
+                const fechaVenceStr = window.formatearFechaCortaDDMMYYYY((cot.fechaMs || Date.now()) + (diasVal * 86400000));
+                msj += `⏳ *Validez:* Este presupuesto tiene validez de *${diasVal} días* (hasta el ${fechaVenceStr}). Después de esa fecha debe consultar nuevamente el precio.\n`;
+            }
+            if (cot.notaExtra) {
+                msj += `📝 *Nota:* ${cot.notaExtra}\n`;
+            }
+            msj += `━━━━━━━━━━━━━━━━━━━━━━\n`;
+            msj += `_Documento informativo (no descuenta mercancía)._\n*Sistema TCL Comercio Web*`;
+
+            const tel = (cot.telefono && cot.telefono !== 'N/A') ? String(cot.telefono).replace(/[^0-9]/g, '') : '';
+            window.despacharWhatsApp(tel, msj);
+        };
+
+        window.eliminarPresupuestoGuardado = async function(cotId) {
+            if (!confirm('¿Eliminar este presupuesto del historial?')) return;
+            window.dbCotizaciones = (window.dbCotizaciones || []).filter(c => c.id !== cotId);
+            window.tclSafeSetItem(window.getTenantStorageKey('cotizaciones'), JSON.stringify(window.dbCotizaciones));
+            if (window.dbNube && window.clienteActivoSesion) {
+                try {
+                    const slug = (window.clienteActivoSesion.slug || window.clienteActivoSesion.user || 'demo').toLowerCase().trim();
+                    await window.dbNube.collection('comercios_saas').doc(slug).collection('cotizaciones').doc(cotId).delete();
+                } catch (e) {}
+            }
+            const bCot = document.getElementById('badge-cnt-cotizaciones');
+            if (bCot) bCot.innerText = window.dbCotizaciones.length;
+            window.renderizarListaPresupuestosModulo();
+        };
+
+        window.renderizarListaPresupuestosModulo = function() {
+            const box = document.getElementById('contenedor-lista-presupuestos-modulo');
+            const bTab = document.getElementById('badge-tab-pres-guardados');
+            const listaAll = window.dbCotizaciones || [];
+            if (bTab) bTab.innerText = listaAll.length;
+            if (!box) return;
+
+            const q = (document.getElementById('busqueda-presupuestos-input')?.value || '').toLowerCase().trim();
+            const lista = listaAll.filter(c =>
+                !q ||
+                (c.cliente && c.cliente.toLowerCase().includes(q)) ||
+                (c.numero && c.numero.toLowerCase().includes(q))
+            );
+
+            if (lista.length === 0) {
+                box.innerHTML = `<div class="text-center text-slate-400 py-8 uppercase text-xs">No hay presupuestos guardados aún.</div>`;
+                return;
+            }
+
+            box.innerHTML = lista.map(c => {
+                const mCot = (c.monedaOriginal || 'USD').toUpperCase();
+                const presTot = window.obtenerPresentacionMultimoneda(c.totalUSD, mCot);
+                const fechaStr = window.formatearFechaCortaDDMMYYYY(c.fechaMs);
+                const diasVal = parseInt(c.diasValidez || 0, 10);
+                const antPct = parseFloat(c.anticipoPct || 0);
+                return `
+                    <div class="bg-white border border-sky-200 rounded-2xl p-3 space-y-2 shadow-xs">
+                        <div class="flex flex-col sm:flex-row justify-between items-start gap-2">
+                            <div class="min-w-0 flex-1 space-y-0.5">
+                                <div class="flex items-center gap-1.5 flex-wrap">
+                                    <span class="bg-sky-100 text-sky-900 font-black px-2 py-0.5 rounded text-[9px]">${window.escapeHTML(c.numero)}</span>
+                                    <span class="text-[9px] text-slate-500">${fechaStr}</span>
+                                    ${diasVal > 0 ? `<span class="bg-amber-100 text-amber-900 px-1.5 py-0.5 rounded text-[8.5px] font-black">⏳ ${diasVal}d validez</span>` : ''}
+                                    ${antPct > 0 ? `<span class="bg-emerald-100 text-emerald-800 px-1.5 py-0.5 rounded text-[8.5px] font-black">💳 ${antPct}% anticipo</span>` : ''}
+                                </div>
+                                <strong class="text-xs text-slate-900 uppercase block break-words">${window.escapeHTML(c.cliente)}</strong>
+                                ${c.telefono && c.telefono !== 'N/A' ? `<span class="text-[9.5px] text-emerald-700 block"><i class="fa-brands fa-whatsapp"></i> ${window.escapeHTML(c.telefono)}</span>` : ''}
+                                <span class="text-[9.5px] text-slate-500 block">${(c.items || []).length} ítem(s) cotizados</span>
+                            </div>
+                            <div class="text-left sm:text-right shrink-0">
+                                <strong class="text-xs text-sky-700 font-black block">${presTot.principal}</strong>
+                                <span class="text-[8.5px] text-slate-500 block">${presTot.secundario}</span>
+                            </div>
+                        </div>
+                        <div class="flex flex-wrap gap-1.5 pt-1 border-t border-slate-100">
+                            <button type="button" onclick="window.enviarPresupuestoWhatsApp('${window.escapeHTML(c.id)}')" class="bg-emerald-600 hover:bg-emerald-500 text-white px-2.5 py-1.5 rounded-xl text-[9.5px] font-black uppercase flex items-center gap-1"><i class="fa-brands fa-whatsapp"></i> WhatsApp</button>
+                            <button type="button" onclick="window.abrirVistaPreviaCotizacion('${window.escapeHTML(c.id)}')" class="bg-slate-900 text-white px-2.5 py-1.5 rounded-xl text-[9.5px] font-black uppercase">Ver / Imprimir</button>
+                            <button type="button" onclick="document.getElementById('modal-presupuestos-comercio').classList.add('hidden'); window.cargarCotizacionEnPOS('${window.escapeHTML(c.id)}');" class="bg-blue-600 hover:bg-blue-500 text-white px-2.5 py-1.5 rounded-xl text-[9.5px] font-black uppercase">Facturar (POS)</button>
+                            <button type="button" onclick="window.eliminarPresupuestoGuardado('${window.escapeHTML(c.id)}')" class="bg-red-50 hover:bg-red-100 text-red-600 px-2.5 py-1.5 rounded-xl text-[9.5px] font-black uppercase">Eliminar</button>
+                        </div>
+                    </div>
+                `;
+            }).join('');
+        };
+    </script>
 </body>
 </html>
 
