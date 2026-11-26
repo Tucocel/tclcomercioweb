@@ -2741,7 +2741,7 @@
     </div>
 
     <!-- MODAL DETALLE DE COMPROBANTE GENERAL ESTANDARIZADO EN HOJA BLANCA / TICKET TÉRMICO -->
-    <div id="modal-detalle-auditoria" class="fixed inset-0 bg-slate-950/90 backdrop-blur-md z-[120] p-2 sm:p-4 flex items-center justify-center hidden no-print">
+    <div id="modal-detalle-auditoria" class="fixed inset-0 bg-slate-950/90 backdrop-blur-md z-[165] p-2 sm:p-4 flex items-center justify-center hidden no-print">
         <div class="bg-slate-100 border border-slate-300 w-full max-w-md rounded-2xl overflow-hidden shadow-2xl flex flex-col max-h-[95vh]">
             <div class="bg-slate-900 px-4 py-3 text-white flex justify-between items-center shrink-0">
                 <h3 id="lbl-auditoria-titulo" class="font-black text-xs uppercase tracking-wider flex items-center gap-2">
@@ -13627,7 +13627,7 @@ _Un respaldo de TUCOCEL C.A. & @PublionlineMK_`;
         // -------------------------------------------------------------
         // INICIALIZACIÓN AUTOMÁTICA DEL SISTEMA Y ENRUTADOR DE URL
         // -------------------------------------------------------------
-        window.TCL_APP_BUILD_ID = 'v2026.11.25.4';
+        window.TCL_APP_BUILD_ID = 'v2026.11.26.2';
 
         window.hayTrabajoEnCursoSinGuardar = function() {
             if (Array.isArray(window.carritoPOS) && window.carritoPOS.length > 0) return true;
@@ -14408,59 +14408,65 @@ _Un respaldo de TUCOCEL C.A. & @PublionlineMK_`;
             const nroDoc = window.escapeHTML(window.clienteActivoSesion ? (window.clienteActivoSesion.wa || '0424-0000000') : '0424-7357549');
 
             const mCot = (cot.monedaOriginal || 'USD').toUpperCase();
-            const fmtCotVal = (u) => {
-                if (mCot === 'COP') return `${window.formatearMiles(window.calcularPesosDesdeUSD(u))} COP`;
-                if (mCot === 'BS') return `${window.formatBS(window.calcularBsDesdeUSD(u))} Bs`;
-                return `$${Number(u || 0).toFixed(2)}`;
-            };
-            const totalCOP = window.calcularPesosDesdeUSD(cot.totalUSD);
-            const totalBs = window.calcularBsDesdeUSD(cot.totalUSD);
+            const incBs = !!cot.incluirBs || (mCot === 'BS');
 
-            let ahorroCotUSD = 0;
             const itemsRows = (cot.items || []).map(it => {
-                const uMain = fmtCotVal(it.precioUSD);
-                const sMain = fmtCotVal(it.precioUSD * it.cant);
-                const tieneReb = (it.precioBaseUSD && it.precioBaseUSD > (it.precioUSD + 0.0001));
-                if (tieneReb) ahorroCotUSD += (it.precioBaseUSD - it.precioUSD) * it.cant;
-                const rebTxt = tieneReb ? `<div style="font-size: 7.5px; font-weight: 700;">Precio normal: ${fmtCotVal(it.precioBaseUSD)}</div>` : '';
+                const uEx = window.obtenerMontoExactoItemEnMoneda(it, mCot);
+                const bEx = window.obtenerMontoBaseExactoItemEnMoneda(it, mCot);
+                const sEx = uEx * (Number(it.cant) || 1);
+                const uniLbl = (!it.unidad || it.unidad === 'SRV') ? 'Und' : it.unidad;
+                const rebTxt = Math.abs(uEx - bEx) > 0.005
+                    ? `<div style="font-size: 7.5px; font-weight: 700;">Precio normal: ${window.formatearValorEnMonedaExacta(bEx, mCot)} • Acordado: ${window.formatearValorEnMonedaExacta(uEx, mCot)}</div>`
+                    : '';
                 return `
                     <tr style="border-bottom: 1px dotted #000;">
                         <td style="padding: 2.5px 0; vertical-align: top;">
-                            <strong>${it.cant}x</strong> ${window.escapeHTML(it.nombre)}<br>
-                            <span style="font-size: 8px;">Unit: ${uMain}</span>
+                            <strong>${it.cant} ${window.escapeHTML(uniLbl)}</strong> × ${window.escapeHTML(it.nombre)}<br>
+                            <span style="font-size: 8px;">Unit: ${window.formatearValorEnMonedaExacta(uEx, mCot)}</span>
                             ${rebTxt}
                         </td>
-                        <td style="text-align: right; padding: 2.5px 0; vertical-align: top; font-weight: 900; white-space: nowrap;">${sMain}</td>
+                        <td style="text-align: right; padding: 2.5px 0; vertical-align: top; font-weight: 900; white-space: nowrap;">${window.formatearValorEnMonedaExacta(sEx, mCot)}</td>
                     </tr>
                 `;
             }).join('');
+
+            const sumaItemsOrig = (cot.items || []).reduce((acc, it) => acc + (window.obtenerMontoExactoItemEnMoneda(it, mCot) * (Number(it.cant) || 1)), 0);
+            const totalOrigExact = (cot.totalOriginal !== undefined && cot.totalOriginal !== null && Number(cot.totalOriginal) > 0)
+                ? Number(cot.totalOriginal)
+                : (sumaItemsOrig > 0 ? sumaItemsOrig : (mCot === 'COP' ? Math.round(window.calcularPesosDesdeUSD(cot.totalUSD)) : (mCot === 'BS' ? Number(window.calcularBsDesdeUSD(cot.totalUSD).toFixed(2)) : Number(cot.totalUSD || 0))));
+            const presTot = window.formatearDocMultimonedaOpcionalBs(cot.totalUSD, mCot, incBs, totalOrigExact);
 
             const diasVal = parseInt(cot.diasValidez || 0, 10);
             const anticipoPct = parseFloat(cot.anticipoPct || 0);
             const fechaVenceStr = diasVal > 0 ? window.formatearFechaCortaDDMMYYYY((cot.fechaMs || Date.now()) + diasVal * 86400000) : '';
             const anticipoUSD = anticipoPct > 0 ? (cot.totalUSD * (anticipoPct / 100)) : 0;
+            const anticipoOrigExact = anticipoPct > 0
+                ? (mCot === 'COP' ? Math.round(totalOrigExact * (anticipoPct / 100)) : Number((totalOrigExact * (anticipoPct / 100)).toFixed(2)))
+                : 0;
+            const presAnt = anticipoPct > 0 ? window.formatearDocMultimonedaOpcionalBs(anticipoUSD, mCot, incBs, anticipoOrigExact) : null;
 
             return `
                 <div style="width: 100%; font-family: 'Courier New', Courier, monospace; color: #000000; background: #ffffff; box-sizing: border-box;">
                     <div style="text-align: center; margin-bottom: 6px;">
                         <h2 style="font-size: ${fTitle}; font-weight: 900; margin: 0; line-height: 1.15;">${nombreNegocio}</h2>
                         <p style="font-size: ${fSub}; font-weight: 700; margin: 1px 0;">Tel/WA: ${nroDoc}</p>
-                        <div style="border: 1.5px solid #000; color: #000; font-size: ${fTotal}; font-weight: 900; margin: 5px 0 3px 0; padding: 3px 4px; letter-spacing: 0.5px;">
-                            COTIZACIÓN #${window.escapeHTML(cot.numero)}
+                        <div style="border: 1.5px solid #000; color: #000; font-size: ${fTotal}; font-weight: 900; margin: 5px 0 3px 0; padding: 3px 4px;">
+                            PRESUPUESTO / COTIZACIÓN #${window.escapeHTML(cot.numero)}
                         </div>
-                        <p style="font-size: 8px; font-weight: 700; margin: 0;">PRESUPUESTO INFORMATIVO (NO DESCUENTA STOCK)</p>
+                        <p style="font-size: 8px; font-weight: 700; margin: 0;">DOCUMENTO INFORMATIVO • NO DESCUENTA STOCK</p>
                     </div>
+
                     <div style="border-top: 1px dashed #000; border-bottom: 1px dashed #000; padding: 4px 0; margin-bottom: 6px; font-size: ${fBody}; line-height: 1.28;">
                         <p style="margin: 1px 0;"><strong>FECHA:</strong> ${fechaStr}</p>
-                        ${diasVal > 0 ? `<p style="margin: 1px 0;"><strong>VÁLIDO HASTA:</strong> ${fechaVenceStr} (${diasVal} días)</p>` : ''}
-                        <p style="margin: 1px 0;"><strong>ASESOR:</strong> ${window.escapeHTML(cot.cajero || 'MOSTRADOR')}</p>
                         <p style="margin: 1px 0;"><strong>CLIENTE:</strong> ${window.escapeHTML(cot.cliente)}</p>
-                        ${cot.cedula && cot.cedula !== 'J-00000000-0' ? `<p style="margin: 1px 0;"><strong>CI/RIF:</strong> ${window.escapeHTML(cot.cedula)}</p>` : ''}
+                        ${cot.cedula && cot.cedula !== 'J-00000000-0' && cot.cedula !== 'N/A' ? `<p style="margin: 1px 0;"><strong>CI/RIF:</strong> ${window.escapeHTML(cot.cedula)}</p>` : ''}
+                        ${cot.telefono && cot.telefono !== 'N/A' ? `<p style="margin: 1px 0;"><strong>TELÉFONO:</strong> ${window.escapeHTML(cot.telefono)}</p>` : ''}
                     </div>
+
                     <table style="width: 100%; margin-bottom: 6px; font-size: ${fBody}; border-collapse: collapse; color: #000;">
                         <thead>
                             <tr style="border-bottom: 1.5px solid #000;">
-                                <th style="text-align: left; padding: ${padBox}; font-weight: 900;">ARTÍCULO</th>
+                                <th style="text-align: left; padding: ${padBox}; font-weight: 900;">ARTÍCULO / DETALLE</th>
                                 <th style="text-align: right; padding: ${padBox}; font-weight: 900;">TOTAL</th>
                             </tr>
                         </thead>
@@ -14468,31 +14474,16 @@ _Un respaldo de TUCOCEL C.A. & @PublionlineMK_`;
                             ${itemsRows}
                         </tbody>
                     </table>
+
                     <div style="text-align: right; font-size: ${fTotal}; margin-bottom: 6px; line-height: 1.3;">
-                        ${mCot === 'COP' ? `
-                            <p style="margin: 1px 0; font-weight: 900; font-size: 12px;">TOTAL COP: ${window.formatearMiles(totalCOP)} COP</p>
-                            <p style="margin: 1px 0; font-weight: 700;">TOTAL USD: $${cot.totalUSD.toFixed(2)} USD</p>
-                            <p style="margin: 1px 0; font-weight: 700;">TOTAL Bs.: ${window.formatBS(totalBs)} Bs</p>
-                        ` : (mCot === 'BS' ? `
-                            <p style="margin: 1px 0; font-weight: 900; font-size: 12px;">TOTAL Bs.: ${window.formatBS(totalBs)} Bs</p>
-                            <p style="margin: 1px 0; font-weight: 700;">TOTAL COP: ${window.formatearMiles(totalCOP)} COP</p>
-                            <p style="margin: 1px 0; font-weight: 700;">TOTAL USD: $${cot.totalUSD.toFixed(2)} USD</p>
-                        ` : `
-                            <p style="margin: 1px 0; font-weight: 900; font-size: 12px;">TOTAL USD: $${cot.totalUSD.toFixed(2)}</p>
-                            <p style="margin: 1px 0; font-weight: 700;">TOTAL COP: ${window.formatearMiles(totalCOP)} COP</p>
-                            <p style="margin: 1px 0; font-weight: 700;">TOTAL Bs.: ${window.formatBS(totalBs)} Bs</p>
-                        `)}
-                        ${ahorroCotUSD > 0.005 ? `<p style="margin: 2px 0 0 0; font-size: 8.5px; font-weight: 900;">AHORRO APLICADO: ${fmtCotVal(ahorroCotUSD)}</p>` : ''}
+                        <p style="margin: 1px 0; font-weight: 900;">TOTAL PRESUPUESTO: ${presTot.principal}</p>
+                        <p style="margin: 1px 0; font-size: 8.5px; font-weight: 700;">(${presTot.secundario})</p>
+                        ${presAnt ? `<p style="margin: 3px 0 0 0; font-weight: 900;">ANTICIPO (${anticipoPct}%): ${presAnt.principal}</p><p style="margin: 1px 0; font-size: 8.5px;">(${presAnt.secundario})</p>` : ''}
                     </div>
-                    ${(anticipoPct > 0 || diasVal > 0 || cot.notaAdicional) ? `
-                        <div style="border: 1px dashed #000; padding: 4px; margin-bottom: 5px; font-size: 8px; line-height: 1.3; text-align: left;">
-                            ${anticipoPct > 0 ? `<p style="margin: 1px 0; font-weight: 900;">ANTICIPO REQUERIDO (${anticipoPct}%): ${fmtCotVal(anticipoUSD)}</p>` : ''}
-                            ${diasVal > 0 ? `<p style="margin: 1px 0;">Válido por ${diasVal} días (hasta ${fechaVenceStr}). Pasado este plazo, los precios están sujetos a revisión.</p>` : ''}
-                            ${cot.notaAdicional ? `<p style="margin: 1px 0;"><strong>Nota:</strong> ${window.escapeHTML(cot.notaAdicional)}</p>` : ''}
-                        </div>
-                    ` : ''}
-                    <div style="text-align: center; font-size: 8px; margin-top: 6px; border-top: 1px dashed #000; padding-top: 5px; line-height: 1.25;">
-                        <p style="margin: 1px 0; font-weight: 900;">PRESUPUESTO SUJETO A DISPONIBILIDAD</p>
+
+                    <div style="text-align: center; font-size: 8px; border-top: 1px dashed #000; padding-top: 5px; line-height: 1.3;">
+                        ${diasVal > 0 ? `<p style="margin: 0 0 3px 0; font-weight: 900;">Validez: ${diasVal} días (hasta el ${fechaVenceStr}). Después de esa fecha debe consultar nuevamente el precio.</p>` : ''}
+                        ${cot.notaExtra || cot.notaAdicional ? `<p style="margin: 0 0 3px 0;">Nota: ${window.escapeHTML(cot.notaExtra || cot.notaAdicional)}</p>` : ''}
                         <p style="margin: 2px 0 0 0; font-weight: 900;">TCL Comercio Web • TUCOCEL C.A.</p>
                     </div>
                 </div>
@@ -15836,7 +15827,7 @@ ${alertasStock.join('\n')}`);
                     <div class="grid grid-cols-1 sm:grid-cols-2 gap-2.5 pt-1 border-t border-slate-200">
                         <div>
                             <label class="text-[9.5px] text-slate-700 uppercase block mb-1 font-black">Moneda del Abono Inicial</label>
-                            <select id="apt-select-moneda-abono" onchange="window.recalcularPreviewNuevoApartado()" class="input-clean font-bold text-xs">
+                            <select id="apt-select-moneda-abono" onchange="window.alCambiarMonedaAbonoApartado()" class="input-clean font-bold text-xs">
                                 <option value="USD">💵 Dólares ($ USD)</option>
                                 <option value="COP">🇨🇴 Pesos (COP)</option>
                                 <option value="BS">🇻🇪 Bolívares (Bs)</option>
@@ -15847,6 +15838,10 @@ ${alertasStock.join('\n')}`);
                             <input type="text" inputmode="decimal" id="apt-input-abono" value="0" oninput="window.autoFormatearSeparadoresInput(this, true); window.recalcularPreviewNuevoApartado();" placeholder="0,00" class="input-clean font-mono font-black text-emerald-700 text-center">
                         </div>
                     </div>
+                    <label class="flex items-center justify-between gap-2 bg-white border border-slate-200 rounded-xl px-3 py-2 cursor-pointer select-none">
+                        <span class="text-[10px] font-black text-slate-700 uppercase">🇻🇪 Mostrar equivalencia en Bolívares (Bs)</span>
+                        <input type="checkbox" id="apt-chk-incluir-bs" checked onchange="window.recalcularPreviewNuevoApartado()" class="w-4 h-4 accent-teal-600 rounded">
+                    </label>
 
                     <div id="box-preview-nuevo-apartado" class="bg-white border border-teal-200 rounded-xl p-2.5 font-mono text-[10.5px] space-y-1"></div>
                 </div>
@@ -16580,6 +16575,8 @@ ${alertasStock.join('\n')}`);
                 if (window.carritoNuevoApartado.length === 1) {
                     const selMonAb = document.getElementById('apt-select-moneda-abono');
                     if (selMonAb) selMonAb.value = monItem;
+                    const chkBs = document.getElementById('apt-chk-incluir-bs');
+                    if (chkBs && monItem === 'BS') chkBs.checked = true;
                 }
             }
             window.renderizarCarritoNuevoApartado();
@@ -16643,6 +16640,8 @@ ${alertasStock.join('\n')}`);
                 if (m === 'COP') nUSD = window.calcularUSDDesdeCOP(num);
                 else if (m === 'BS') nUSD = window.calcularUSDDesdeBs(num);
                 it.precioUnitUSD = nUSD;
+                it.precioUnitOrig = num;
+                it.monedaOriginal = m;
                 window.renderizarCarritoNuevoApartado();
                 window.recalcularPreviewNuevoApartado();
             }
@@ -16800,42 +16799,90 @@ ${alertasStock.join('\n')}`);
             window.recalcularPreviewNuevoApartado();
         };
 
+        window.alCambiarMonedaAbonoApartado = function() {
+            const monAb = (document.getElementById('apt-select-moneda-abono')?.value || 'USD').toUpperCase();
+            const chkBs = document.getElementById('apt-chk-incluir-bs');
+            if (chkBs && monAb === 'BS') chkBs.checked = true;
+            window.recalcularPreviewNuevoApartado();
+        };
+
+        window.obtenerMontoExactoItemEnMoneda = function(it, moneda) {
+            const m = (moneda || 'USD').toUpperCase();
+            if (it && it.monedaOriginal === m && it.precioUnitOrig !== undefined && it.precioUnitOrig !== null && Number(it.precioUnitOrig) > 0) {
+                return Number(it.precioUnitOrig);
+            }
+            const u = Number(it && it.precioUnitUSD) || 0;
+            if (m === 'COP') return Math.round(window.calcularPesosDesdeUSD(u));
+            if (m === 'BS') return Number(window.calcularBsDesdeUSD(u).toFixed(2));
+            return Number(u.toFixed(2));
+        };
+
+        window.obtenerMontoBaseExactoItemEnMoneda = function(it, moneda) {
+            const m = (moneda || 'USD').toUpperCase();
+            if (it && it.monedaOriginal === m && it.precioBaseOrig !== undefined && it.precioBaseOrig !== null && Number(it.precioBaseOrig) > 0) {
+                return Number(it.precioBaseOrig);
+            }
+            const u = Number((it && (it.precioBaseUSD || it.precioUnitUSD)) || 0);
+            if (m === 'COP') return Math.round(window.calcularPesosDesdeUSD(u));
+            if (m === 'BS') return Number(window.calcularBsDesdeUSD(u).toFixed(2));
+            return Number(u.toFixed(2));
+        };
+
+        window.formatearValorEnMonedaExacta = function(val, moneda) {
+            const m = (moneda || 'USD').toUpperCase();
+            const v = Number(val) || 0;
+            if (m === 'COP') return `${window.formatearMiles(Math.round(v))} COP`;
+            if (m === 'BS') return `${window.formatBS(v)} Bs`;
+            return `$${v.toFixed(2)} USD`;
+        };
+
+        window.formatearDocMultimonedaOpcionalBs = function(usdVal, monedaOrig, incluirBs = false, exactOrigVal = null) {
+            const m = (monedaOrig || 'USD').toUpperCase();
+            const u = Number(usdVal) || 0;
+            const mostrarBs = !!incluirBs || (m === 'BS');
+
+            let copVal = (m === 'COP' && exactOrigVal !== null && exactOrigVal !== undefined) ? Math.round(Number(exactOrigVal)) : Math.round(window.calcularPesosDesdeUSD(u));
+            let bsVal = (m === 'BS' && exactOrigVal !== null && exactOrigVal !== undefined) ? Number(exactOrigVal) : window.calcularBsDesdeUSD(u);
+            let usdShow = (m === 'USD' && exactOrigVal !== null && exactOrigVal !== undefined) ? Number(exactOrigVal) : u;
+
+            if (m === 'COP') {
+                const sec = mostrarBs ? `$${usdShow.toFixed(2)} USD | ${window.formatBS(bsVal)} Bs` : `$${usdShow.toFixed(2)} USD`;
+                return { principal: `${window.formatearMiles(copVal)} COP`, secundario: sec, exacto: copVal };
+            } else if (m === 'BS') {
+                return {
+                    principal: `${window.formatBS(bsVal)} Bs`,
+                    secundario: `${window.formatearMiles(copVal)} COP | $${usdShow.toFixed(2)} USD`,
+                    exacto: bsVal
+                };
+            }
+            const sec = mostrarBs ? `${window.formatearMiles(copVal)} COP | ${window.formatBS(bsVal)} Bs` : `${window.formatearMiles(copVal)} COP`;
+            return { principal: `$${usdShow.toFixed(2)} USD`, secundario: sec, exacto: usdShow };
+        };
+
         window.recalcularPreviewNuevoApartado = function() {
             const box = document.getElementById('box-preview-nuevo-apartado');
-            const lblAcord = document.getElementById('lbl-apt-precio-acordado');
-            const lblRef = document.getElementById('lbl-apt-precio-normal-ref');
             if (!box) return;
 
             const info = window.obtenerDatosItemApartadoEnCurso();
             const monActualItem = window.detectarMonedaItemApartadoActual();
-
-            if (info && info.precioUnitUSD > 0) {
-                const presUnit = window.obtenerPresentacionMultimoneda(info.precioUnitUSD, monActualItem);
-                if (lblAcord) lblAcord.innerText = `${presUnit.principal} (${presUnit.secundario})`;
-                if (lblRef) {
-                    if (Math.abs(info.precioUnitUSD - info.precioBaseUSD) > 0.005 && info.precioBaseUSD > 0) {
-                        const presNorm = window.obtenerPresentacionMultimoneda(info.precioBaseUSD, monActualItem);
-                        lblRef.innerText = `(Normal: ${presNorm.principal})`;
-                        lblRef.classList.remove('hidden');
-                    } else {
-                        lblRef.classList.add('hidden');
-                    }
-                }
-            } else {
-                if (lblAcord) lblAcord.innerText = monActualItem === 'COP' ? '0 COP' : (monActualItem === 'BS' ? '0,00 Bs' : '$0.00 USD');
-                if (lblRef) lblRef.classList.add('hidden');
-            }
+            const incluirBs = !!document.getElementById('apt-chk-incluir-bs')?.checked;
 
             const tieneLista = Array.isArray(window.carritoNuevoApartado) && window.carritoNuevoApartado.length > 0;
             let totalUSD = 0;
+            let totalOrig = 0;
             let monPrincipal = (document.getElementById('apt-select-moneda-abono')?.value || monActualItem || 'USD').toUpperCase();
 
             if (tieneLista) {
-                totalUSD = window.carritoNuevoApartado.reduce((acc, it) => acc + (Number(it.precioUnitUSD) * Number(it.cantidad)), 0);
                 monPrincipal = (window.carritoNuevoApartado[0].monedaOriginal || monPrincipal || 'USD').toUpperCase();
+                window.carritoNuevoApartado.forEach(it => {
+                    const c = Number(it.cantidad) || 0;
+                    totalUSD += (Number(it.precioUnitUSD) || 0) * c;
+                    totalOrig += window.obtenerMontoExactoItemEnMoneda(it, monPrincipal) * c;
+                });
             } else if (info && info.nombre && info.precioUnitUSD > 0) {
                 totalUSD = info.precioUnitUSD * info.cantidad;
                 monPrincipal = monActualItem;
+                totalOrig = window.obtenerMontoExactoItemEnMoneda({ precioUnitUSD: info.precioUnitUSD }, monPrincipal) * info.cantidad;
             }
 
             if (totalUSD <= 0) {
@@ -16843,16 +16890,25 @@ ${alertasStock.join('\n')}`);
                 return;
             }
 
-            const monAb = (document.getElementById('apt-select-moneda-abono')?.value || 'USD').toUpperCase();
+            const monAb = (document.getElementById('apt-select-moneda-abono')?.value || monPrincipal).toUpperCase();
             const abRaw = window.limpiarMontoManual(document.getElementById('apt-input-abono')?.value || 0);
             let abonoUSD = abRaw;
             if (monAb === 'COP') abonoUSD = window.calcularUSDDesdeCOP(abRaw);
             else if (monAb === 'BS') abonoUSD = window.calcularUSDDesdeBs(abRaw);
 
+            let abonoEnMonPrincipal = abRaw;
+            if (monAb !== monPrincipal) {
+                if (monPrincipal === 'COP') abonoEnMonPrincipal = Math.round(window.calcularPesosDesdeUSD(abonoUSD));
+                else if (monPrincipal === 'BS') abonoEnMonPrincipal = Number(window.calcularBsDesdeUSD(abonoUSD).toFixed(2));
+                else abonoEnMonPrincipal = Number(abonoUSD.toFixed(2));
+            }
+
             const saldoUSD = Math.max(0, totalUSD - abonoUSD);
-            const presTot = window.obtenerPresentacionMultimoneda(totalUSD, monPrincipal);
-            const presAbo = window.obtenerPresentacionMultimoneda(abonoUSD, monAb, abRaw > 0 ? abRaw : null);
-            const presSal = window.obtenerPresentacionMultimoneda(saldoUSD, monPrincipal);
+            const saldoOrig = Math.max(0, totalOrig - abonoEnMonPrincipal);
+
+            const presTot = window.formatearDocMultimonedaOpcionalBs(totalUSD, monPrincipal, incluirBs, totalOrig);
+            const presAbo = window.formatearDocMultimonedaOpcionalBs(abonoUSD, monAb, incluirBs, abRaw > 0 ? abRaw : 0);
+            const presSal = window.formatearDocMultimonedaOpcionalBs(saldoUSD, monPrincipal, incluirBs, saldoOrig);
 
             box.innerHTML = `
                 <div><strong>Total Apartado:</strong> <span class="text-slate-950 font-black">${presTot.principal}</span> <span class="text-slate-500 text-[9.5px]">(${presTot.secundario})</span></div>
@@ -16867,6 +16923,7 @@ ${alertasStock.join('\n')}`);
             const telefono = (document.getElementById('apt-input-telefono').value || '').trim();
             const dias = Math.max(1, parseInt(document.getElementById('apt-input-dias').value || '30', 10) || 30);
             const responsable = (document.getElementById('apt-input-responsable').value || '').trim().toUpperCase();
+            const incluirBs = !!document.getElementById('apt-chk-incluir-bs')?.checked;
 
             let itemsGuardar = Array.isArray(window.carritoNuevoApartado) ? [...window.carritoNuevoApartado] : [];
             if (itemsGuardar.length === 0) {
@@ -16876,16 +16933,17 @@ ${alertasStock.join('\n')}`);
                         alert(`⚠️ Cantidad inválida. Existencia disponible para apartar: ${info.stockDisp} ${info.unidad}.`);
                         return;
                     }
+                    const mIt = window.detectarMonedaItemApartadoActual();
                     itemsGuardar.push({
                         esServicio: !!info.esServicio,
                         esManual: !!info.esManual,
                         productoId: info.productoId,
                         nombre: info.nombre,
-                        unidad: info.unidad || 'UND',
+                        unidad: info.unidad === 'SRV' ? 'Und' : (info.unidad || 'UND'),
                         cantidad: Number(info.cantidad),
                         precioBaseUSD: Number(info.precioBaseUSD || info.precioUnitUSD) || 0,
                         precioUnitUSD: Number(info.precioUnitUSD) || 0,
-                        monedaOriginal: window.detectarMonedaItemApartadoActual()
+                        monedaOriginal: mIt
                     });
                 }
             }
@@ -16903,8 +16961,15 @@ ${alertasStock.join('\n')}`);
                 return;
             }
 
-            const totalUSD = Number(itemsGuardar.reduce((acc, it) => acc + (Number(it.precioUnitUSD) * Number(it.cantidad)), 0).toFixed(2));
             const monPrincipal = (itemsGuardar[0].monedaOriginal || document.getElementById('apt-select-moneda-abono')?.value || 'USD').toUpperCase();
+            itemsGuardar.forEach(it => {
+                if (it.unidad === 'SRV') it.unidad = 'Und';
+                if (it.precioUnitOrig === undefined) it.precioUnitOrig = window.obtenerMontoExactoItemEnMoneda(it, monPrincipal);
+                if (it.precioBaseOrig === undefined) it.precioBaseOrig = window.obtenerMontoBaseExactoItemEnMoneda(it, monPrincipal);
+            });
+
+            const totalOrig = itemsGuardar.reduce((acc, it) => acc + (Number(it.precioUnitOrig) * Number(it.cantidad)), 0);
+            const totalUSD = Number(itemsGuardar.reduce((acc, it) => acc + (Number(it.precioUnitUSD) * Number(it.cantidad)), 0).toFixed(2));
             const monAb = (document.getElementById('apt-select-moneda-abono')?.value || monPrincipal).toUpperCase();
             const abRaw = window.limpiarMontoManual(document.getElementById('apt-input-abono')?.value || 0);
             let abonoUSD = abRaw;
@@ -16912,6 +16977,14 @@ ${alertasStock.join('\n')}`);
             else if (monAb === 'BS') abonoUSD = window.calcularUSDDesdeBs(abRaw);
             abonoUSD = Math.min(totalUSD, Number(abonoUSD.toFixed(2)));
             const saldoUSD = Math.max(0, Number((totalUSD - abonoUSD).toFixed(2)));
+
+            let abonoEnMonPrincipal = abRaw;
+            if (monAb !== monPrincipal) {
+                if (monPrincipal === 'COP') abonoEnMonPrincipal = Math.round(window.calcularPesosDesdeUSD(abonoUSD));
+                else if (monPrincipal === 'BS') abonoEnMonPrincipal = Number(window.calcularBsDesdeUSD(abonoUSD).toFixed(2));
+                else abonoEnMonPrincipal = abonoUSD;
+            }
+            const saldoOrig = Math.max(0, totalOrig - abonoEnMonPrincipal);
 
             itemsGuardar.forEach(it => {
                 if (!it.esServicio && it.productoId) {
@@ -16942,11 +17015,15 @@ ${alertasStock.join('\n')}`);
                 cedula,
                 telefono,
                 monedaOriginal: monPrincipal,
+                incluirBs: incluirBs || (monPrincipal === 'BS'),
+                totalOriginal: totalOrig,
+                abonadoOriginal: abonoEnMonPrincipal,
+                saldoOriginal: saldoOrig,
                 esServicio: itemsGuardar.every(x => !!x.esServicio),
                 productoId: primerItem.productoId,
                 productoNombre: resumenNombre,
                 cantidad: itemsGuardar.length === 1 ? primerItem.cantidad : itemsGuardar.reduce((s, x) => s + Number(x.cantidad), 0),
-                unidad: itemsGuardar.length === 1 ? primerItem.unidad : 'ÍTEMS',
+                unidad: itemsGuardar.length === 1 ? primerItem.unidad : 'Und',
                 precioBaseUSD: primerItem.precioBaseUSD,
                 precioUnitUSD: primerItem.precioUnitUSD,
                 items: itemsGuardar,
@@ -17035,15 +17112,18 @@ ${alertasStock.join('\n')}`);
                     : (a.estado === 'COMPLETADO' ? `<span class="bg-emerald-100 text-emerald-800 px-2 py-0.5 rounded text-[9px] font-black">✅ COMPLETADO / ENTREGADO</span>` : `<span class="bg-slate-200 text-slate-700 px-2 py-0.5 rounded text-[9px] font-black">CANCELADO</span>`);
 
                 const mApt = window.obtenerMonedaPrincipalApartado(a);
-                const presTot = window.obtenerPresentacionMultimoneda(a.totalUSD, mApt);
-                const presAbo = window.obtenerPresentacionMultimoneda(a.abonadoUSD, mApt);
-                const presSal = window.obtenerPresentacionMultimoneda(a.saldoUSD, mApt);
+                const incBs = !!a.incluirBs || (mApt === 'BS');
+                const presTot = window.formatearDocMultimonedaOpcionalBs(a.totalUSD, mApt, incBs, a.totalOriginal ?? null);
+                const presAbo = window.formatearDocMultimonedaOpcionalBs(a.abonadoUSD, mApt, incBs, a.abonadoOriginal ?? null);
+                const presSal = window.formatearDocMultimonedaOpcionalBs(a.saldoUSD, mApt, incBs, a.saldoOriginal ?? null);
                 const its = window.obtenerItemsApartado(a);
 
                 const itemsDetalleHtml = its.map(it => {
                     const ico = it.esServicio ? '🛠️' : '📦';
-                    const pSub = window.obtenerPresentacionMultimoneda(Number(it.precioUnitUSD) * Number(it.cantidad), mApt);
-                    return `<span class="text-[10px] text-slate-700 block leading-snug break-words">${ico} <strong>${it.cantidad} ${window.escapeHTML(it.unidad)}</strong> × ${window.escapeHTML(it.nombre)} <span class="text-slate-500">(${pSub.principal})</span></span>`;
+                    const uEx = window.obtenerMontoExactoItemEnMoneda(it, mApt);
+                    const subEx = uEx * (Number(it.cantidad) || 1);
+                    const uniLbl = (!it.unidad || it.unidad === 'SRV') ? 'Und' : it.unidad;
+                    return `<span class="text-[10px] text-slate-700 block leading-snug break-words">${ico} <strong>${it.cantidad} ${window.escapeHTML(uniLbl)}</strong> × ${window.escapeHTML(it.nombre)} <span class="text-slate-500">(${window.formatearValorEnMonedaExacta(subEx, mApt)})</span></span>`;
                 }).join('');
 
                 return `
@@ -17082,7 +17162,8 @@ ${alertasStock.join('\n')}`);
             const apt = window.obtenerApartadosLocal().find(a => a.id === aptId);
             if (!apt || apt.estado !== 'ACTIVO') return;
             const mApt = window.obtenerMonedaPrincipalApartado(apt);
-            const presSal = window.obtenerPresentacionMultimoneda(apt.saldoUSD, mApt);
+            const incBs = !!apt.incluirBs || (mApt === 'BS');
+            const presSal = window.formatearDocMultimonedaOpcionalBs(apt.saldoUSD, mApt, incBs, apt.saldoOriginal ?? null);
             document.getElementById('abono-apt-id').value = apt.id;
             document.getElementById('abono-apt-monto').value = '';
             const selMon = document.getElementById('abono-apt-moneda');
@@ -17108,6 +17189,18 @@ ${alertasStock.join('\n')}`);
             let montoUSD = raw;
             if (mon === 'COP') montoUSD = window.calcularUSDDesdeCOP(raw);
             else if (mon === 'BS') montoUSD = window.calcularUSDDesdeBs(raw);
+
+            const mApt = window.obtenerMonedaPrincipalApartado(apt);
+            let abonoEnMonApt = raw;
+            if (mon !== mApt) {
+                if (mApt === 'COP') abonoEnMonApt = Math.round(window.calcularPesosDesdeUSD(montoUSD));
+                else if (mApt === 'BS') abonoEnMonApt = Number(window.calcularBsDesdeUSD(montoUSD).toFixed(2));
+                else abonoEnMonApt = Number(montoUSD.toFixed(2));
+            }
+            if (apt.totalOriginal !== undefined) {
+                apt.abonadoOriginal = (Number(apt.abonadoOriginal) || 0) + abonoEnMonApt;
+                apt.saldoOriginal = Math.max(0, Number(apt.totalOriginal) - apt.abonadoOriginal);
+            }
 
             apt.abonadoUSD = Number((Number(apt.abonadoUSD || 0) + montoUSD).toFixed(2));
             apt.saldoUSD = Math.max(0, Number((Number(apt.totalUSD) - apt.abonadoUSD).toFixed(2)));
@@ -17153,6 +17246,10 @@ ${alertasStock.join('\n')}`);
             const abonadoPrevioApt = Number(apt.abonadoUSD) || 0;
             apt.abonadoUSD = apt.totalUSD;
             apt.saldoUSD = 0;
+            if (apt.totalOriginal !== undefined) {
+                apt.abonadoOriginal = apt.totalOriginal;
+                apt.saldoOriginal = 0;
+            }
             apt.estado = 'COMPLETADO';
             apt.fechaEntregaMs = ahoraCierre;
             window.guardarApartadosLocal();
@@ -17173,7 +17270,7 @@ ${alertasStock.join('\n')}`);
                     precioBaseUSD: Number(it.precioBaseUSD || it.precioUnitUSD) || 0,
                     precioUSD: Number(it.precioUnitUSD) || 0,
                     cant: Number(it.cantidad) || 1,
-                    unidad: it.unidad || 'UND'
+                    unidad: (!it.unidad || it.unidad === 'SRV') ? 'Und' : it.unidad
                 };
             });
             window.guardarInventarioEnStorage();
@@ -17204,7 +17301,7 @@ ${alertasStock.join('\n')}`);
                 direccion: `Entrega Apartado ${apt.numero}`,
                 pago: `🔖 Cierre Apartado ${apt.numero}`,
                 monedaOriginal: mApt,
-                totalOriginal: mApt === 'COP' ? Math.round(window.calcularPesosDesdeUSD(apt.totalUSD, tasaCopMom)) : (mApt === 'BS' ? Number(window.calcularBsDesdeUSD(apt.totalUSD, tasaCopMom, factorBsMom).toFixed(2)) : apt.totalUSD),
+                totalOriginal: apt.totalOriginal ?? (mApt === 'COP' ? Math.round(window.calcularPesosDesdeUSD(apt.totalUSD, tasaCopMom)) : (mApt === 'BS' ? Number(window.calcularBsDesdeUSD(apt.totalUSD, tasaCopMom, factorBsMom).toFixed(2)) : apt.totalUSD)),
                 condicionVenta: 'CONTADO',
                 credito: null,
                 vueltoInfo: null,
@@ -17213,7 +17310,7 @@ ${alertasStock.join('\n')}`);
                 tasasMomento: {
                     tasaCOP: tasaCopMom,
                     factorParidadBs: factorBsMom,
-                    totalCOP: window.calcularPesosDesdeUSD(apt.totalUSD, tasaCopMom),
+                    totalCOP: apt.totalOriginal && mApt === 'COP' ? apt.totalOriginal : window.calcularPesosDesdeUSD(apt.totalUSD, tasaCopMom),
                     totalBs: window.calcularBsDesdeUSD(apt.totalUSD, tasaCopMom, factorBsMom)
                 },
                 fechaMs: ahoraCierre
@@ -17282,22 +17379,29 @@ ${alertasStock.join('\n')}`);
             const fechaStr = `${d.getDate().toString().padStart(2,'0')}/${(d.getMonth()+1).toString().padStart(2,'0')}/${d.getFullYear()}`;
             const venceStr = window.formatearFechaCortaDDMMYYYY(apt.fechaVenceMs || apt.fechaMs);
             const mApt = window.obtenerMonedaPrincipalApartado(apt);
+            const incBs = !!apt.incluirBs || (mApt === 'BS');
             const its = window.obtenerItemsApartado(apt);
 
-            const presTot = window.obtenerPresentacionMultimoneda(apt.totalUSD, mApt);
-            const presAbo = window.obtenerPresentacionMultimoneda(apt.abonadoUSD, mApt);
-            const presSal = window.obtenerPresentacionMultimoneda(apt.saldoUSD, mApt);
+            const presTot = window.formatearDocMultimonedaOpcionalBs(apt.totalUSD, mApt, incBs, apt.totalOriginal ?? null);
+            const presAbo = window.formatearDocMultimonedaOpcionalBs(apt.abonadoUSD, mApt, incBs, apt.abonadoOriginal ?? null);
+            const presSal = window.formatearDocMultimonedaOpcionalBs(apt.saldoUSD, mApt, incBs, apt.saldoOriginal ?? null);
 
             const filasItems = its.map(it => {
-                const pUnit = window.obtenerPresentacionMultimoneda(it.precioUnitUSD, mApt);
-                const pSub = window.obtenerPresentacionMultimoneda(Number(it.precioUnitUSD) * Number(it.cantidad), mApt);
+                const uEx = window.obtenerMontoExactoItemEnMoneda(it, mApt);
+                const bEx = window.obtenerMontoBaseExactoItemEnMoneda(it, mApt);
+                const subEx = uEx * (Number(it.cantidad) || 1);
+                const uniLbl = (!it.unidad || it.unidad === 'SRV') ? 'Und' : it.unidad;
+                const modNota = Math.abs(uEx - bEx) > 0.005
+                    ? `<div style="font-size: 7.5px;">Precio normal: ${window.formatearValorEnMonedaExacta(bEx, mApt)} • Acordado: ${window.formatearValorEnMonedaExacta(uEx, mApt)}</div>`
+                    : '';
                 return `
                     <div style="border-bottom: 1px dotted #000; padding: 2.5px 0;">
                         <div style="font-weight: 900;">${window.escapeHTML(it.nombre)}</div>
                         <div style="display: flex; justify-content: space-between; font-size: 8.5px;">
-                            <span>${it.cantidad} ${window.escapeHTML(it.unidad)} × ${pUnit.principal}</span>
-                            <strong>${pSub.principal}</strong>
+                            <span>${it.cantidad} ${window.escapeHTML(uniLbl)} × ${window.formatearValorEnMonedaExacta(uEx, mApt)}</span>
+                            <strong>${window.formatearValorEnMonedaExacta(subEx, mApt)}</strong>
                         </div>
+                        ${modNota}
                     </div>
                 `;
             }).join('');
@@ -17359,37 +17463,60 @@ ${alertasStock.join('\n')}`);
             const nomComercio = (window.clienteActivoSesion && window.clienteActivoSesion.nombre ? window.clienteActivoSesion.nombre : 'TUCOCEL C.A.').toUpperCase();
             const venceStr = window.formatearFechaCortaDDMMYYYY(apt.fechaVenceMs || apt.fechaMs);
             const mApt = window.obtenerMonedaPrincipalApartado(apt);
+            const incBs = !!apt.incluirBs || (mApt === 'BS');
             const its = window.obtenerItemsApartado(apt);
 
-            const presTot = window.obtenerPresentacionMultimoneda(apt.totalUSD, mApt);
-            const presAbo = window.obtenerPresentacionMultimoneda(apt.abonadoUSD, mApt);
-            const presSal = window.obtenerPresentacionMultimoneda(apt.saldoUSD, mApt);
+            const presTot = window.formatearDocMultimonedaOpcionalBs(apt.totalUSD, mApt, incBs, apt.totalOriginal ?? null);
+            const presAbo = window.formatearDocMultimonedaOpcionalBs(apt.abonadoUSD, mApt, incBs, apt.abonadoOriginal ?? null);
+            const presSal = window.formatearDocMultimonedaOpcionalBs(apt.saldoUSD, mApt, incBs, apt.saldoOriginal ?? null);
 
-            let msj = `🔖 *COMPROBANTE DE APARTADO ${apt.numero}*\n`;
-            msj += `🏪 *${nomComercio}*\n`;
-            msj += `👤 *Cliente:* ${apt.cliente}\n`;
-            msj += `━━━━━━━━━━━━━━━━━━━━━━\n`;
-            msj += `📋 *DETALLE DE PRODUCTOS / SERVICIOS:*\n`;
-            its.forEach((it, i) => {
-                const pUnit = window.obtenerPresentacionMultimoneda(it.precioUnitUSD, mApt);
-                const pSub = window.obtenerPresentacionMultimoneda(Number(it.precioUnitUSD) * Number(it.cantidad), mApt);
-                msj += `${i + 1}. *${it.nombre}*\n`;
-                msj += `   ${it.cantidad} ${it.unidad} × ${pUnit.principal} = *${pSub.principal}*\n`;
+            let msj = `🔖 *COMPROBANTE DE APARTADO ${apt.numero}*
+`;
+            msj += `🏪 *${nomComercio}*
+`;
+            msj += `👤 *Cliente:* ${apt.cliente}
+`;
+            msj += `━━━━━━━━━━━━━━━━━━━━━━
+`;
+            msj += `📋 *DETALLE DE PRODUCTOS / SERVICIOS:*
+`;
+            its.forEach(it => {
+                const uEx = window.obtenerMontoExactoItemEnMoneda(it, mApt);
+                const bEx = window.obtenerMontoBaseExactoItemEnMoneda(it, mApt);
+                const subEx = uEx * (Number(it.cantidad) || 1);
+                const uniLbl = (!it.unidad || it.unidad === 'SRV') ? 'Und' : it.unidad;
+                msj += `▪️ *${it.nombre}*
+`;
+                msj += `   ${it.cantidad} ${uniLbl} × ${window.formatearValorEnMonedaExacta(uEx, mApt)} = *${window.formatearValorEnMonedaExacta(subEx, mApt)}*
+`;
+                if (Math.abs(uEx - bEx) > 0.005) {
+                    msj += `   _(Precio normal: ${window.formatearValorEnMonedaExacta(bEx, mApt)} • Precio acordado: ${window.formatearValorEnMonedaExacta(uEx, mApt)})_
+`;
+                }
             });
-            msj += `━━━━━━━━━━━━━━━━━━━━━━\n`;
-            msj += `💰 *Total Apartado:* ${presTot.principal}\n`;
-            msj += `   _(${presTot.secundario})_\n`;
-            msj += `✅ *Abonado:* ${presAbo.principal}\n`;
-            msj += `⏳ *Saldo Pendiente:* ${presSal.principal}\n`;
-            msj += `   _(${presSal.secundario})_\n`;
-            msj += `📅 *Plazo / Entrega:* ${apt.diasPlazo} días (hasta el ${venceStr})\n`;
-            msj += `━━━━━━━━━━━━━━━━━━━━━━\n`;
+            msj += `━━━━━━━━━━━━━━━━━━━━━━
+`;
+            msj += `💰 *Total Apartado:* ${presTot.principal}
+`;
+            msj += `   _(${presTot.secundario})_
+`;
+            msj += `✅ *Abonado:* ${presAbo.principal}
+`;
+            msj += `⏳ *Saldo Pendiente:* ${presSal.principal}
+`;
+            msj += `   _(${presSal.secundario})_
+`;
+            msj += `━━━━━━━━━━━━━━━━━━━━━━
+`;
+            msj += `📅 *Plazo / Entrega:* ${apt.diasPlazo} días (hasta el ${venceStr})
+`;
+            msj += `━━━━━━━━━━━━━━━━━━━━━━
+`;
             msj += `*Sistema TCL Comercio Web*`;
 
             const tel = (apt.telefono && apt.telefono !== 'N/A') ? String(apt.telefono).replace(/[^0-9]/g, '') : '';
             window.despacharWhatsApp(tel, msj);
-        };
-    </script>
+        };    </script>
 
     <!-- MODAL PRECIO ESPECIAL POR PRODUCTO EN CAJA / PRESUPUESTO -->
     <div id="modal-editar-precio-item-pos" class="fixed inset-0 bg-slate-950/85 backdrop-blur-md z-[135] p-3 sm:p-4 flex items-center justify-center hidden no-print" onclick="if(event.target === this) document.getElementById('modal-editar-precio-item-pos').classList.add('hidden')">
@@ -18178,14 +18305,18 @@ ${alertasStock.join('\n')}`);
 
             <!-- PESTAÑA 1: NUEVO PRESUPUESTO -->
             <div id="sec-presupuesto-nuevo" class="p-3.5 sm:p-4 overflow-y-auto space-y-3 text-xs font-bold text-slate-800 no-scrollbar flex-grow">
-                <!-- 1. Moneda principal del presupuesto -->
-                <div class="bg-sky-50 border border-sky-200 rounded-2xl p-2.5 space-y-1.5">
+                <!-- 1. Moneda principal del presupuesto + opción Bs -->
+                <div class="bg-sky-50 border border-sky-200 rounded-2xl p-2.5 space-y-2">
                     <span class="text-[9.5px] text-sky-900 uppercase font-mono font-black block">1. ¿En qué moneda vas a cotizar este presupuesto?</span>
                     <div class="grid grid-cols-3 gap-1.5">
                         <button type="button" id="btn-pres-mon-COP" onclick="window.seleccionarMonedaPresupuesto('COP')" class="py-2 rounded-xl border border-slate-300 bg-white text-slate-700 font-black text-[11px]">🇨🇴 COP</button>
                         <button type="button" id="btn-pres-mon-USD" onclick="window.seleccionarMonedaPresupuesto('USD')" class="py-2 rounded-xl border border-blue-600 bg-blue-600 text-white font-black text-[11px] shadow-sm">💵 USD</button>
                         <button type="button" id="btn-pres-mon-BS" onclick="window.seleccionarMonedaPresupuesto('BS')" class="py-2 rounded-xl border border-slate-300 bg-white text-slate-700 font-black text-[11px]">🇻🇪 Bs</button>
                     </div>
+                    <label class="flex items-center justify-between gap-2 bg-white border border-sky-200 rounded-xl px-3 py-1.5 cursor-pointer select-none">
+                        <span class="text-[10px] font-black text-slate-700 uppercase">🇻🇪 Mostrar equivalencia en Bolívares (Bs)</span>
+                        <input type="checkbox" id="pres-chk-incluir-bs" checked onchange="window.recalcularPreviewPresupuesto()" class="w-4 h-4 accent-sky-600 rounded">
+                    </label>
                 </div>
 
                 <!-- 2. Datos del Cliente -->
@@ -18240,8 +18371,7 @@ ${alertasStock.join('\n')}`);
                             <div>
                                 <label class="text-[9px] text-indigo-800 uppercase block mb-0.5 font-black">Unidad</label>
                                 <select id="pres-input-man-unidad" class="input-clean font-bold text-xs">
-                                    <option value="UND">UND</option>
-                                    <option value="SRV">SRV</option>
+                                    <option value="Und">Und</option>
                                     <option value="KG">KG</option>
                                 </select>
                             </div>
@@ -18263,7 +18393,7 @@ ${alertasStock.join('\n')}`);
                     <div class="space-y-1.5 pt-1">
                         <span class="text-[9.5px] font-mono font-black uppercase text-slate-700 block">📋 Ítems Cotizados (<span id="badge-cnt-items-pres">0</span>):</span>
                         <div id="contenedor-items-presupuesto" class="space-y-1.5 max-h-40 overflow-y-auto no-scrollbar">
-                            <div class="text-[10px] text-slate-400 italic text-center py-2 bg-white rounded-xl border border-dashed border-slate-200">Agrega productos o servicios arriba.</div>
+                            <div class="text-[10px] text-slate-400 italic text-center py-2 bg-white rounded-xl border border-dashed border-slate-200">Toca "+ Add" en cualquier producto arriba para cotizar.</div>
                         </div>
                     </div>
                 </div>
@@ -18365,9 +18495,9 @@ ${alertasStock.join('\n')}`);
                     b.className = 'py-2 rounded-xl border border-slate-300 bg-white text-slate-700 font-black text-[11px]';
                 }
             });
-            const lblInv = document.getElementById('lbl-pres-precio-inv');
+            const chkBs = document.getElementById('pres-chk-incluir-bs');
+            if (chkBs && m === 'BS') chkBs.checked = true;
             const lblMan = document.getElementById('lbl-pres-precio-man');
-            if (lblInv) lblInv.innerText = `Precio Unitario (${m})`;
             if (lblMan) lblMan.innerText = `P. Unitario (${m}) *`;
             window.alCambiarProductoPresupuesto();
             window.renderizarCarritoPresupuesto();
@@ -18495,13 +18625,18 @@ ${alertasStock.join('\n')}`);
                 window.carritoPresupuestoNuevo[idx].cant = Number((Number(window.carritoPresupuestoNuevo[idx].cant) + 1).toFixed(3));
             } else {
                 const pfBase = window.obtenerPreciosFijosProducto(prod);
+                const mOrig = (prod.monedaOriginal || 'USD').toUpperCase();
+                const baseExactOrig = mOrig === 'COP' ? Math.round(pfBase.cop) : (mOrig === 'BS' ? Number(pfBase.bs.toFixed(2)) : Number(pfBase.usd.toFixed(2)));
                 window.carritoPresupuestoNuevo.push({
                     id: prod.id,
                     nombre: prod.nombre,
-                    unidad: prod.esServicio ? 'SRV' : (prod.unidad || 'UND'),
+                    unidad: prod.esServicio ? 'Und' : (prod.unidad || 'Und'),
                     cant: 1,
                     precioUSD: pfBase.usd,
                     precioBaseUSD: pfBase.usd,
+                    monedaOriginal: mOrig,
+                    precioUnitOrig: baseExactOrig,
+                    precioBaseOrig: baseExactOrig,
                     costoUSD: window.obtenerCostoFijoProductoUSD(prod)
                 });
             }
@@ -18514,7 +18649,8 @@ ${alertasStock.join('\n')}`);
             if (!Array.isArray(window.carritoPresupuestoNuevo)) window.carritoPresupuestoNuevo = [];
 
             const nom = (document.getElementById('pres-input-man-nombre')?.value || '').trim().toUpperCase();
-            const uni = document.getElementById('pres-input-man-unidad')?.value || 'UND';
+            const uniRaw = document.getElementById('pres-input-man-unidad')?.value || 'Und';
+            const uni = uniRaw === 'SRV' ? 'Und' : uniRaw;
             const cant = parseFloat(document.getElementById('pres-input-man-cant')?.value || '0') || 0;
             const pRaw = window.limpiarMontoManual(document.getElementById('pres-input-man-precio')?.value || 0);
             if (!nom || cant <= 0 || pRaw <= 0) {
@@ -18532,6 +18668,9 @@ ${alertasStock.join('\n')}`);
                 cant: cant,
                 precioUSD: pUSD,
                 precioBaseUSD: pUSD,
+                monedaOriginal: m,
+                precioUnitOrig: pRaw,
+                precioBaseOrig: pRaw,
                 costoUSD: 0
             });
             document.getElementById('pres-input-man-nombre').value = '';
@@ -18558,7 +18697,8 @@ ${alertasStock.join('\n')}`);
         window.editarCantDirectaPresupuesto = function(idx) {
             const it = (window.carritoPresupuestoNuevo || [])[idx];
             if (!it) return;
-            const resp = prompt(`Cantidad para "${it.nombre}" (${it.unidad}):`, String(it.cant));
+            const uniLbl = (!it.unidad || it.unidad === 'SRV') ? 'Und' : it.unidad;
+            const resp = prompt(`Cantidad para "${it.nombre}" (${uniLbl}):`, String(it.cant));
             if (resp === null) return;
             const val = parseFloat(resp.replace(',', '.'));
             if (!isNaN(val) && val > 0) {
@@ -18572,17 +18712,23 @@ ${alertasStock.join('\n')}`);
             const it = (window.carritoPresupuestoNuevo || [])[idx];
             if (!it) return;
             const m = window._presMonedaActual || 'USD';
+            const uEx = window.obtenerMontoExactoItemEnMoneda(it, m);
             const actualVal = m === 'COP'
-                ? window.formatearMiles(Math.round(window.calcularPesosDesdeUSD(it.precioUSD)))
-                : (m === 'BS' ? window.calcularBsDesdeUSD(it.precioUSD).toFixed(2).replace('.', ',') : it.precioUSD.toFixed(2).replace('.', ','));
-            const resp = prompt(`✏️ Ajustar precio unitario SOLO en este presupuesto (${m})\n${it.nombre}:`, actualVal);
+                ? window.formatearMiles(Math.round(uEx))
+                : uEx.toFixed(2).replace('.', ',');
+            const resp = prompt(`✏️ Ajustar precio unitario SOLO en este presupuesto (${m})
+${it.nombre}:`, actualVal);
             if (resp === null) return;
             const num = window.limpiarMontoManual(resp);
             if (num > 0) {
+                const baseAntes = window.obtenerMontoBaseExactoItemEnMoneda(it, m);
                 let nUSD = num;
                 if (m === 'COP') nUSD = window.calcularUSDDesdeCOP(num);
                 else if (m === 'BS') nUSD = window.calcularUSDDesdeBs(num);
                 it.precioUSD = nUSD;
+                it.monedaOriginal = m;
+                it.precioUnitOrig = num;
+                it.precioBaseOrig = baseAntes;
                 window.renderizarCarritoPresupuesto();
                 window.recalcularPreviewPresupuesto();
             }
@@ -18607,14 +18753,18 @@ ${alertasStock.join('\n')}`);
             }
             const m = window._presMonedaActual || 'USD';
             box.innerHTML = window.carritoPresupuestoNuevo.map((it, idx) => {
-                const pU = window.obtenerPresentacionMultimoneda(it.precioUSD, m);
-                const pS = window.obtenerPresentacionMultimoneda(it.precioUSD * it.cant, m);
+                const uEx = window.obtenerMontoExactoItemEnMoneda(it, m);
+                const bEx = window.obtenerMontoBaseExactoItemEnMoneda(it, m);
+                const subEx = uEx * (Number(it.cant) || 1);
+                const uniLbl = (!it.unidad || it.unidad === 'SRV') ? 'Und' : it.unidad;
+                const esModificado = Math.abs(uEx - bEx) > 0.005;
                 return `
                     <div class="bg-white border border-sky-200 rounded-xl px-2.5 py-2 space-y-1.5 font-mono text-[10px]">
                         <div class="flex items-start justify-between gap-2">
                             <div class="min-w-0 flex-1">
                                 <div class="font-black text-slate-900 uppercase leading-snug break-words">${window.escapeHTML(it.nombre)}</div>
-                                <div class="text-slate-600 mt-0.5">${it.cant} ${window.escapeHTML(it.unidad)} × <strong>${pU.principal}</strong> = <strong class="text-sky-700">${pS.principal}</strong></div>
+                                <div class="text-slate-600 mt-0.5">${it.cant} ${window.escapeHTML(uniLbl)} × <strong>${window.formatearValorEnMonedaExacta(uEx, m)}</strong> = <strong class="text-sky-700">${window.formatearValorEnMonedaExacta(subEx, m)}</strong></div>
+                                ${esModificado ? `<div class="text-[9px] text-amber-800 font-bold mt-0.5">Precio normal: ${window.formatearValorEnMonedaExacta(bEx, m)} • Acordado: ${window.formatearValorEnMonedaExacta(uEx, m)}</div>` : ''}
                             </div>
                             <button type="button" onclick="window.quitarItemPresupuesto(${idx})" class="bg-red-50 hover:bg-red-100 text-red-600 px-2 py-1 rounded-lg text-[10px] font-black shrink-0" title="Quitar">✕</button>
                         </div>
@@ -18637,7 +18787,10 @@ ${alertasStock.join('\n')}`);
             const box = document.getElementById('box-preview-resumen-presupuesto');
             if (!box) return;
             const m = window._presMonedaActual || 'USD';
-            const totalUSD = (window.carritoPresupuestoNuevo || []).reduce((acc, it) => acc + (Number(it.precioUSD) * Number(it.cant)), 0);
+            const incBs = !!document.getElementById('pres-chk-incluir-bs')?.checked;
+            const lista = window.carritoPresupuestoNuevo || [];
+            const totalUSD = lista.reduce((acc, it) => acc + (Number(it.precioUSD) * Number(it.cant)), 0);
+            const totalOrigExact = lista.reduce((acc, it) => acc + (window.obtenerMontoExactoItemEnMoneda(it, m) * Number(it.cant)), 0);
             const diasVal = Math.max(1, parseInt(document.getElementById('pres-input-validez-dias')?.value || '5', 10) || 5);
             const antPct = Math.max(0, Math.min(100, parseFloat(document.getElementById('pres-input-anticipo-pct')?.value || '0') || 0));
 
@@ -18645,15 +18798,16 @@ ${alertasStock.join('\n')}`);
                 box.innerHTML = `<span class="text-slate-400">Agrega al menos un ítem para calcular el total del presupuesto.</span>`;
                 return;
             }
-            const presTot = window.obtenerPresentacionMultimoneda(totalUSD, m);
+            const presTot = window.formatearDocMultimonedaOpcionalBs(totalUSD, m, incBs, totalOrigExact);
             const antUSD = totalUSD * (antPct / 100);
-            const presAnt = window.obtenerPresentacionMultimoneda(antUSD, m);
+            const antOrigExact = m === 'COP' ? Math.round(totalOrigExact * (antPct / 100)) : Number((totalOrigExact * (antPct / 100)).toFixed(2));
+            const presAnt = window.formatearDocMultimonedaOpcionalBs(antUSD, m, incBs, antOrigExact);
             const venceStr = window.formatearFechaCortaDDMMYYYY(Date.now() + (diasVal * 86400000));
 
             box.innerHTML = `
                 <div><strong>Total Presupuesto:</strong> <span class="text-slate-950 font-black">${presTot.principal}</span> <span class="text-slate-500 text-[9px]">(${presTot.secundario})</span></div>
                 ${antPct > 0 ? `<div class="text-emerald-700"><strong>Anticipo (${antPct}%):</strong> <span class="font-black">${presAnt.principal}</span> <span class="text-emerald-600/80 text-[9px]">(${presAnt.secundario})</span></div>` : ''}
-                <div class="text-amber-800 text-[9.5px]"><strong>Validez:</strong> ${diasVal} días (hasta el ${venceStr}). Luego de esa fecha debe consultar nuevamente el precio.</div>
+                <div class="border-t border-slate-200 pt-1 mt-1 text-amber-800 text-[9.5px]"><strong>Validez:</strong> ${diasVal} días (hasta el ${venceStr}). Luego de esa fecha debe consultar nuevamente el precio.</div>
             `;
         };
 
@@ -18669,9 +18823,23 @@ ${alertasStock.join('\n')}`);
             const diasValidez = Math.max(1, parseInt(document.getElementById('pres-input-validez-dias')?.value || '5', 10) || 5);
             const anticipoPct = Math.max(0, Math.min(100, parseFloat(document.getElementById('pres-input-anticipo-pct')?.value || '0') || 0));
             const notaExtra = (document.getElementById('pres-input-nota')?.value || '').trim();
-
-            const totalUSD = Number(window.carritoPresupuestoNuevo.reduce((acc, it) => acc + (Number(it.precioUSD) * Number(it.cant)), 0).toFixed(2));
             const mPres = window._presMonedaActual || 'USD';
+            const incluirBs = !!document.getElementById('pres-chk-incluir-bs')?.checked;
+
+            const itemsGuardar = window.carritoPresupuestoNuevo.map(it => {
+                const uEx = window.obtenerMontoExactoItemEnMoneda(it, mPres);
+                const bEx = window.obtenerMontoBaseExactoItemEnMoneda(it, mPres);
+                return {
+                    ...JSON.parse(JSON.stringify(it)),
+                    unidad: (!it.unidad || it.unidad === 'SRV') ? 'Und' : it.unidad,
+                    monedaOriginal: mPres,
+                    precioUnitOrig: uEx,
+                    precioBaseOrig: bEx
+                };
+            });
+
+            const totalOrigExact = itemsGuardar.reduce((acc, it) => acc + (Number(it.precioUnitOrig) * Number(it.cant)), 0);
+            const totalUSD = Number(itemsGuardar.reduce((acc, it) => acc + (Number(it.precioUSD) * Number(it.cant)), 0).toFixed(2));
             const ahora = Date.now();
             const numCot = 'PRES-' + ((window.dbCotizaciones || []).length + 1).toString().padStart(4, '0');
             const cajero = (document.getElementById('pos-input-cajero')?.value || window.cajeroActual || 'ADMIN').trim().toUpperCase();
@@ -18685,10 +18853,12 @@ ${alertasStock.join('\n')}`);
                 telefono,
                 direccion,
                 monedaOriginal: mPres,
+                incluirBs: incluirBs || (mPres === 'BS'),
+                totalOriginal: totalOrigExact,
                 diasValidez,
                 anticipoPct,
                 notaExtra,
-                items: JSON.parse(JSON.stringify(window.carritoPresupuestoNuevo)),
+                items: itemsGuardar,
                 totalUSD,
                 fechaMs: ahora
             };
@@ -18707,7 +18877,6 @@ ${alertasStock.join('\n')}`);
             const bCot = document.getElementById('badge-cnt-cotizaciones');
             if (bCot) bCot.innerText = window.dbCotizaciones.length;
 
-            // Limpiar formulario
             ['pres-input-cliente', 'pres-input-telefono', 'pres-input-cedula', 'pres-input-direccion', 'pres-input-nota'].forEach(id => {
                 const el = document.getElementById(id); if (el) el.value = '';
             });
@@ -18733,39 +18902,72 @@ ${alertasStock.join('\n')}`);
             if (!cot) return;
             const nomComercio = (window.clienteActivoSesion && window.clienteActivoSesion.nombre ? window.clienteActivoSesion.nombre : 'TUCOCEL C.A.').toUpperCase();
             const mCot = (cot.monedaOriginal || 'USD').toUpperCase();
-            const presTot = window.obtenerPresentacionMultimoneda(cot.totalUSD, mCot);
+            const incBs = !!cot.incluirBs || (mCot === 'BS');
 
-            let msj = `📋 *PRESUPUESTO / COTIZACIÓN ${cot.numero}*\n`;
-            msj += `🏪 *${nomComercio}*\n`;
-            msj += `👤 *Cliente:* ${cot.cliente}\n`;
-            msj += `━━━━━━━━━━━━━━━━━━━━━━\n`;
-            (cot.items || []).forEach((it, idx) => {
-                const pU = window.obtenerPresentacionMultimoneda(it.precioUSD, mCot);
-                const pSub = window.obtenerPresentacionMultimoneda(it.precioUSD * it.cant, mCot);
-                msj += `${idx + 1}. *${it.nombre}*\n`;
-                msj += `   ${it.cant} ${it.unidad || 'UND'} × ${pU.principal} = *${pSub.principal}*\n`;
+            const sumaItemsOrig = (cot.items || []).reduce((acc, it) => acc + (window.obtenerMontoExactoItemEnMoneda(it, mCot) * (Number(it.cant) || 1)), 0);
+            const totalOrigExact = (cot.totalOriginal !== undefined && cot.totalOriginal !== null && Number(cot.totalOriginal) > 0)
+                ? Number(cot.totalOriginal)
+                : (sumaItemsOrig > 0 ? sumaItemsOrig : (mCot === 'COP' ? Math.round(window.calcularPesosDesdeUSD(cot.totalUSD)) : (mCot === 'BS' ? Number(window.calcularBsDesdeUSD(cot.totalUSD).toFixed(2)) : Number(cot.totalUSD || 0))));
+            const presTot = window.formatearDocMultimonedaOpcionalBs(cot.totalUSD, mCot, incBs, totalOrigExact);
+
+            let msj = `📋 *PRESUPUESTO / COTIZACIÓN ${cot.numero}*
+`;
+            msj += `🏪 *${nomComercio}*
+`;
+            msj += `👤 *Cliente:* ${cot.cliente}
+`;
+            msj += `━━━━━━━━━━━━━━━━━━━━━━
+`;
+            (cot.items || []).forEach(it => {
+                const uEx = window.obtenerMontoExactoItemEnMoneda(it, mCot);
+                const bEx = window.obtenerMontoBaseExactoItemEnMoneda(it, mCot);
+                const subEx = uEx * (Number(it.cant) || 1);
+                const uniLbl = (!it.unidad || it.unidad === 'SRV') ? 'Und' : it.unidad;
+                msj += `▪️ *${it.nombre}*
+`;
+                msj += `   ${it.cant} ${uniLbl} × ${window.formatearValorEnMonedaExacta(uEx, mCot)} = *${window.formatearValorEnMonedaExacta(subEx, mCot)}*
+`;
+                if (Math.abs(uEx - bEx) > 0.005) {
+                    msj += `   _(Precio normal: ${window.formatearValorEnMonedaExacta(bEx, mCot)} • Precio acordado: ${window.formatearValorEnMonedaExacta(uEx, mCot)})_
+`;
+                }
             });
-            msj += `━━━━━━━━━━━━━━━━━━━━━━\n`;
-            msj += `💰 *TOTAL PRESUPUESTO:* ${presTot.principal}\n`;
-            msj += `   _(${presTot.secundario})_\n`;
+            msj += `━━━━━━━━━━━━━━━━━━━━━━
+`;
+            msj += `💰 *TOTAL PRESUPUESTO:* ${presTot.principal}
+`;
+            msj += `   _(${presTot.secundario})_
+`;
 
             const antPct = parseFloat(cot.anticipoPct || 0);
             if (antPct > 0) {
-                const pAnt = window.obtenerPresentacionMultimoneda(cot.totalUSD * (antPct / 100), mCot);
-                msj += `💳 *Anticipo requerido (${antPct}%):* ${pAnt.principal}\n`;
-                msj += `   _(${pAnt.secundario})_\n`;
+                const antUSD = cot.totalUSD * (antPct / 100);
+                const antOrigExact = mCot === 'COP' ? Math.round(totalOrigExact * (antPct / 100)) : Number((totalOrigExact * (antPct / 100)).toFixed(2));
+                const pAnt = window.formatearDocMultimonedaOpcionalBs(antUSD, mCot, incBs, antOrigExact);
+                msj += `💳 *Anticipo requerido (${antPct}%):* ${pAnt.principal}
+`;
+                msj += `   _(${pAnt.secundario})_
+`;
             }
 
             const diasVal = parseInt(cot.diasValidez || 0, 10);
+            if (diasVal > 0 || cot.notaExtra) {
+                msj += `━━━━━━━━━━━━━━━━━━━━━━
+`;
+            }
             if (diasVal > 0) {
                 const fechaVenceStr = window.formatearFechaCortaDDMMYYYY((cot.fechaMs || Date.now()) + (diasVal * 86400000));
-                msj += `⏳ *Validez:* Este presupuesto tiene validez de *${diasVal} días* (hasta el ${fechaVenceStr}). Después de esa fecha debe consultar nuevamente el precio.\n`;
+                msj += `⏳ *Validez:* Este presupuesto tiene validez de *${diasVal} días* (hasta el ${fechaVenceStr}). Después de esa fecha debe consultar nuevamente el precio.
+`;
             }
             if (cot.notaExtra) {
-                msj += `📝 *Nota:* ${cot.notaExtra}\n`;
+                msj += `📝 *Nota:* ${cot.notaExtra}
+`;
             }
-            msj += `━━━━━━━━━━━━━━━━━━━━━━\n`;
-            msj += `_Documento informativo (no descuenta mercancía)._\n*Sistema TCL Comercio Web*`;
+            msj += `━━━━━━━━━━━━━━━━━━━━━━
+`;
+            msj += `_Documento informativo (no descuenta mercancía)._
+*Sistema TCL Comercio Web*`;
 
             const tel = (cot.telefono && cot.telefono !== 'N/A') ? String(cot.telefono).replace(/[^0-9]/g, '') : '';
             window.despacharWhatsApp(tel, msj);
@@ -18807,7 +19009,11 @@ ${alertasStock.join('\n')}`);
 
             box.innerHTML = lista.map(c => {
                 const mCot = (c.monedaOriginal || 'USD').toUpperCase();
-                const presTot = window.obtenerPresentacionMultimoneda(c.totalUSD, mCot);
+                const incBs = !!c.incluirBs || (mCot === 'BS');
+                const totalOrigExact = (c.totalOriginal !== undefined && c.totalOriginal !== null)
+                    ? Number(c.totalOriginal)
+                    : (c.items || []).reduce((acc, it) => acc + (window.obtenerMontoExactoItemEnMoneda(it, mCot) * (Number(it.cant) || 1)), 0);
+                const presTot = window.formatearDocMultimonedaOpcionalBs(c.totalUSD, mCot, incBs, totalOrigExact);
                 const fechaStr = window.formatearFechaCortaDDMMYYYY(c.fechaMs);
                 const diasVal = parseInt(c.diasValidez || 0, 10);
                 const antPct = parseFloat(c.anticipoPct || 0);
