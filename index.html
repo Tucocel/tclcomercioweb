@@ -1957,9 +1957,9 @@
                         </p>
                     </div>
 
-                    <a href="https://api.whatsapp.com/send?phone=584247357549&text=Hola%20Tucocel%20C.A.,%20deseo%20activar%20mi%20suscripci%C3%B3n%20al%20TCL%20sistema%20Master" target="_blank" class="inline-flex items-center justify-center gap-2 bg-emerald-600 hover:bg-emerald-500 text-white font-black px-6 py-4 rounded-xl text-xs sm:text-sm uppercase tracking-wider shadow-lg transition-transform transform active:scale-95 w-full sm:w-auto">
+                    <button type="button" onclick="window.abrirModalSolicitarDemo7Dias()" class="inline-flex items-center justify-center gap-2 bg-emerald-600 hover:bg-emerald-500 text-white font-black px-6 py-4 rounded-xl text-xs sm:text-sm uppercase tracking-wider shadow-lg transition-transform transform active:scale-95 w-full sm:w-auto">
                         <i class="fa-brands fa-whatsapp text-lg"></i> ACTIVA TU PRUEBA O MEMBRESÍA HOY
-                    </a>
+                    </button>
                 </div>
             </section>
 
@@ -5762,8 +5762,12 @@ Tu nueva clave de acceso es: ${nuevaClave}`);
                 if (bbg) { bbg.classList.add('hidden'); bbg.style.removeProperty('display'); }
                 const lsm = document.getElementById('log-status-master'); if (lsm) lsm.innerText = '[SUCCESS] Sesión Máster autenticada. Caja Negra activa.';
                 window.recalcularTotalesYBadgesComercios();
-                if (typeof window.sincronizarClientesSaaSDesdeFirestore === 'function') window.sincronizarClientesSaaSDesdeFirestore();
+                if (typeof window.sincronizarClientesSaaSDesdeFirestore === 'function') await window.sincronizarClientesSaaSDesdeFirestore();
                 if (typeof window.iniciarListenerClientesMasterFirestore === 'function') window.iniciarListenerClientesMasterFirestore();
+                if (window._fichaPendientePorActivarSlug) {
+                    const slugParaAbrir = window._fichaPendientePorActivarSlug;
+                    await window.abrirFichaClientePorSlugEnMaster(slugParaAbrir);
+                }
                 return;
             }
 
@@ -8499,6 +8503,7 @@ Esta acción no devuelve stock.`)) {
                         nombre, responsable, wa, user, pass, passHash, slug: user, dias: diasFinales,
                         esDemo: esDemoFinal,
                         estatus: 'ACTIVO',
+                        pendienteActivacion: false,
                         fechaVencimiento: new Date(nuevoVencMs).toISOString(),
                         fechaVencimientoMs: nuevoVencMs,
                         ultimaRenovacionMs: ahoraRenovMs
@@ -10689,8 +10694,8 @@ $${(item.precioUSD * item.cant).toFixed(2)} USD
                             <span class="${esDemo ? 'bg-purple-100 text-purple-900 border-purple-300' : 'bg-blue-50 text-blue-700 border-blue-200'} border text-[8px] sm:text-[9px] font-black uppercase px-2 py-0.5 rounded-lg text-center break-words w-full">
                                 ${window.obtenerFormatoPlanText(c.dias)}
                             </span>
-                            <span class="${c.contratoAceptado ? 'bg-emerald-100 text-emerald-800 border-emerald-200' : 'bg-amber-100 text-amber-800 border-amber-200'} border text-[8px] sm:text-[8.5px] font-black uppercase px-2 py-0.5 rounded-md text-center break-words w-full">
-                                ${c.contratoAceptado ? '✓ FIRMADO' : '⏳ PENDIENTE'}
+                            <span class="${c.contratoAceptado ? 'bg-emerald-100 text-emerald-800 border-emerald-200' : (c.pendienteActivacion ? 'bg-amber-500 text-slate-950 border-amber-600 animate-pulse' : 'bg-amber-100 text-amber-800 border-amber-200')} border text-[8px] sm:text-[8.5px] font-black uppercase px-2 py-0.5 rounded-md text-center break-words w-full">
+                                ${c.contratoAceptado ? '✓ FIRMADO' : (c.pendienteActivacion ? '⏳ PENDIENTE ACTIVACIÓN' : '⏳ PENDIENTE')}
                             </span>
                         </div>
                     </div>
@@ -13898,11 +13903,146 @@ _Un respaldo de TUCOCEL C.A. & @PublionlineMK_`;
             }
         };
 
+        window._fichaPendientePorActivarSlug = '';
+
+        window.cerrarModalMembresiaYaActivada = function() {
+            const m = document.getElementById('modal-aviso-membresia-ya-activada');
+            if (m) m.classList.add('hidden');
+            try { window.history.replaceState({}, document.title, window.location.pathname); } catch (e) {}
+            window.activarVistaPrincipal('vista-login');
+        };
+
+        window.abrirFichaClientePorSlugEnMaster = async function(slugTarget) {
+            const slugLimpio = (slugTarget || '').trim().toLowerCase();
+            if (!slugLimpio || !window.esMasterLogueado) return;
+            window._fichaPendientePorActivarSlug = '';
+
+            if (typeof window.sincronizarClientesSaaSDesdeFirestore === 'function') {
+                try { await window.sincronizarClientesSaaSDesdeFirestore(); } catch (e) {}
+            }
+
+            let cli = (window.dbClientesSaaS || []).find(c =>
+                (c.slug && c.slug.toLowerCase() === slugLimpio) ||
+                (c.user && c.user.toLowerCase() === slugLimpio) ||
+                (c.id && c.id.toLowerCase() === slugLimpio)
+            );
+
+            if (!cli && window.dbNube) {
+                try {
+                    const snap = await window.dbNube.collection('comercios_saas').doc(slugLimpio).get();
+                    if (snap && snap.exists && snap.data()) {
+                        cli = snap.data();
+                        if (!cli.id) cli.id = snap.id;
+                        if (!window.dbClientesSaaS.some(x => x.id === cli.id)) {
+                            window.dbClientesSaaS.unshift(cli);
+                            window.guardarClientesEnStorage();
+                            window.recalcularTotalesYBadgesComercios();
+                        }
+                    }
+                } catch (e) {}
+            }
+
+            try { window.history.replaceState({}, document.title, window.location.pathname); } catch (e) {}
+
+            if (cli && cli.id) {
+                window.editarClienteDirectoDesdeModal(cli.id);
+            } else {
+                alert(`⚠️ No se encontró una ficha pendiente con el usuario "${slugLimpio}". Verifica en Base Clientes.`);
+            }
+        };
+
+        window.manejarEnlaceActivarFichaMaster = async function(slugTarget) {
+            const slugLimpio = (slugTarget || '').trim().toLowerCase();
+            if (!slugLimpio) return;
+
+            // Verificar si ya hay sesión Máster activa vigente (< 20 min)
+            const sesionStr = localStorage.getItem('tcl_sesion_persistente_2026');
+            const ultimoTs = window.getUltimaActividadTimestamp ? window.getUltimaActividadTimestamp() : 0;
+            const diffMin = ultimoTs > 0 ? ((Date.now() - ultimoTs) / (1000 * 60)) : 999;
+
+            if (sesionStr && diffMin < (window.limiteInactividadMinutos || 20)) {
+                try {
+                    const ses = JSON.parse(sesionStr);
+                    if (ses.tipo === 'MASTER') {
+                        window.esMasterLogueado = true;
+                        window.setUltimaActividadTimestamp();
+                        window.activarVistaPrincipal('vista-master-admin');
+                        const diagEl = document.getElementById('diagnostico-master-flotante');
+                        if (diagEl) { diagEl.classList.remove('hidden'); diagEl.style.removeProperty('display'); }
+                        const boxDesc = document.getElementById('box-controles-descarga-segura');
+                        if (boxDesc) boxDesc.classList.remove('hidden');
+                        window.recalcularTotalesYBadgesComercios();
+                        await window.abrirFichaClientePorSlugEnMaster(slugLimpio);
+                        return;
+                    }
+                } catch (e) {}
+            }
+
+            // No es Máster autenticado: consultar estado en Firestore para distinguir si ya fue activado o si requiere login Máster
+            let cliRemoto = (window.dbClientesSaaS || []).find(c =>
+                (c.slug && c.slug.toLowerCase() === slugLimpio) ||
+                (c.user && c.user.toLowerCase() === slugLimpio)
+            ) || null;
+
+            if (window.dbNube) {
+                try {
+                    const docSnap = await window.dbNube.collection('comercios_saas').doc(slugLimpio).get();
+                    if (docSnap && docSnap.exists && docSnap.data()) {
+                        cliRemoto = docSnap.data();
+                    }
+                } catch (e) {}
+            }
+
+            // Si el comercio existe y ya fue activado por el Máster (pendienteActivacion === false), mostrar aviso amigable al cliente curioso
+            if (cliRemoto && cliRemoto.pendienteActivacion === false) {
+                const lblDesc = document.getElementById('lbl-aviso-membresia-activada-desc');
+                if (lblDesc && cliRemoto.nombre) {
+                    lblDesc.innerHTML = `La membresía de <strong class="text-slate-900">${window.escapeHTML(cliRemoto.nombre.toUpperCase())}</strong> ya ha sido activada con éxito. Revisa los datos de acceso que te enviamos por WhatsApp o ingresa con tu usuario y contraseña.`;
+                }
+                window.activarVistaPrincipal('vista-login');
+                const mAct = document.getElementById('modal-aviso-membresia-ya-activada');
+                if (mAct) mAct.classList.remove('hidden');
+                return;
+            }
+
+            // Bloquear acceso directo: exigir autenticación exclusiva del Máster
+            window._fichaPendientePorActivarSlug = slugLimpio;
+            window.activarVistaPrincipal('vista-login');
+            const bannerMant = document.getElementById('banner-mantenimiento-vitrina');
+            if (bannerMant) {
+                bannerMant.classList.remove('hidden');
+                bannerMant.className = "bg-amber-50 border-2 border-amber-400 rounded-2xl p-3.5 space-y-1";
+                bannerMant.innerHTML = `
+                    <div class="flex items-center gap-2 text-amber-900 font-black text-xs uppercase tracking-wide">
+                        <i class="fa-solid fa-shield-halved text-amber-600"></i>
+                        <span>Acceso Exclusivo del Máster</span>
+                    </div>
+                    <p class="text-amber-900/90 text-xs leading-relaxed font-semibold">
+                        Este enlace de activación es único y exclusivo para el <strong>Máster del sistema</strong>. Inicia sesión con tus credenciales Máster para revisar y activar esta solicitud.
+                    </p>
+                `;
+            }
+            const usrInp = document.getElementById('login-user-field');
+            if (usrInp) usrInp.focus();
+        };
+
         window.abrirModalSolicitarDemo7Dias = function() {
             document.getElementById('modal-solicitar-demo-7dias').classList.remove('hidden');
         };
 
-        window.enviarSolicitudDemo7DiasWhatsApp = function() {
+        window.generarSlugLeadUnico = function(nombreNeg) {
+            let base = (nombreNeg || 'comercio')
+                .toLowerCase()
+                .normalize("NFD").replace(/[̀-ͯ]/g, "")
+                .replace(/[^a-z0-9]/g, '')
+                .slice(0, 22);
+            if (!base) base = 'comercio';
+            const existe = (window.dbClientesSaaS || []).some(c => (c.user && c.user.toLowerCase() === base) || (c.slug && c.slug.toLowerCase() === base));
+            if (!existe) return base;
+            return base + Math.floor(10 + Math.random() * 89);
+        };
+
+        window.enviarSolicitudDemo7DiasWhatsApp = async function() {
             const negocio = (document.getElementById('lead-demo-negocio').value || '').trim();
             const responsable = (document.getElementById('lead-demo-responsable').value || '').trim();
             const telefono = (document.getElementById('lead-demo-telefono').value || '').trim();
@@ -13917,28 +14057,85 @@ _Un respaldo de TUCOCEL C.A. & @PublionlineMK_`;
                 return;
             }
 
-            let msj = `🔔 *NUEVA SOLICITUD DE 7 DÍAS GRATIS DE PRUEBA* 🎁
+            const btnSub = document.querySelector('#modal-solicitar-demo-7dias button[type="submit"]');
+            if (btnSub) {
+                btnSub.disabled = true;
+                btnSub.innerHTML = '<i class="fa-solid fa-cloud-arrow-up animate-bounce mr-1"></i> PREPARANDO TU FICHA...';
+            }
 
-`;
-            msj += `🏪 *Negocio:* ${negocio.toUpperCase()}
-`;
-            msj += `👤 *Responsable:* ${responsable}
-`;
-            msj += `📞 *Teléfono / WA:* ${telefono}
-`;
-            msj += `📍 *Ubicación:* ${ubicacion}
-`;
-            msj += `📦 *Ramo:* ${ramo}
-`;
-            if (rif) msj += `🪪 *RIF:* ${rif.toUpperCase()}
-`;
-            if (direccion) msj += `🗺️ *Dirección:* ${direccion}
-`;
-            msj += `📣 *Nos conoció por:* ${origen}
+            const slugSugerido = window.generarSlugLeadUnico(negocio);
+            const passTemporal = '123456';
+            const passHashTemp = (typeof window.calcularHashSHA256 === 'function') ? await window.calcularHashSHA256(passTemporal) : '';
+            const ahoraMs = Date.now();
+            const vence7DiasMs = ahoraMs + (7 * 24 * 60 * 60 * 1000);
+            const dirCompleta = direccion ? `${ubicacion} — ${direccion}` : ubicacion;
 
-`;
-            msj += `🚀 *¡Hola Tucocel C.A.! Quiero activar mis 7 días gratis de prueba en TCL Comercio Web.*`;
+            const nuevoLeadCliente = {
+                id: 'cli_' + ahoraMs,
+                nombre: negocio.toUpperCase(),
+                responsable: responsable,
+                rif: rif ? rif.toUpperCase() : '',
+                cedulaKYC: rif ? rif.toUpperCase() : '',
+                wa: telefono,
+                direccion: dirCompleta,
+                direccionKYC: dirCompleta,
+                ramo: ramo,
+                origenLead: origen,
+                user: slugSugerido,
+                slug: slugSugerido,
+                pass: passTemporal,
+                passHash: passHashTemp,
+                dias: 7,
+                estatus: 'ACTIVO',
+                esDemo: true,
+                pendienteActivacion: true,
+                contratoAceptado: false,
+                fechaCreacion: ahoraMs,
+                fechaVencimiento: new Date(vence7DiasMs).toISOString(),
+                fechaVencimientoMs: vence7DiasMs,
+                tasas: { cop: window.tasasConfig.cop || 3600, paridadBs: window.tasasConfig.paridadBs || 3.3 }
+            };
 
+            if (!Array.isArray(window.dbClientesSaaS)) window.dbClientesSaaS = [];
+            window.dbClientesSaaS.unshift(nuevoLeadCliente);
+            if (typeof window.guardarClientesEnStorage === 'function') {
+                window.guardarClientesEnStorage();
+            }
+
+            if (window.dbNube) {
+                try {
+                    const keys = Array.from(new Set([nuevoLeadCliente.id, slugSugerido].filter(Boolean)));
+                    await Promise.all(keys.map(k =>
+                        window.dbNube.collection('comercios_saas').doc(k).set({ ...nuevoLeadCliente, _docId: k }, { merge: true })
+                    ));
+                } catch (eLeadFs) {
+                    console.warn("Aviso guardado lead demo en nube:", eLeadFs);
+                }
+            }
+
+            const baseUrl = window.location.href.split('?')[0].split('#')[0].startsWith('http')
+                ? window.location.href.split('?')[0].split('#')[0]
+                : 'https://tucocel.github.io/tclcomercioweb/';
+            const linkActivacionMaster = `${baseUrl}?activar_ficha=${slugSugerido}`;
+
+            let msj = `👋 *¡Hola Tucocel C.A.! Solicito mi prueba de 7 días gratis* 🎁\n\n`;
+            msj += `Mi nombre es *${responsable}*, representante de la empresa *${negocio.toUpperCase()}*, ubicada en *${ubicacion}*.\n\n`;
+            msj += `📋 *Mis datos registrados:*\n`;
+            if (rif) msj += `• 🪪 *RIF / CI:* ${rif.toUpperCase()}\n`;
+            msj += `• 📱 *WhatsApp:* ${telefono}\n`;
+            msj += `• 🏷️ *Ramo:* ${ramo}\n`;
+            if (direccion) msj += `• 📍 *Dirección:* ${direccion}\n`;
+            msj += `• 🔑 *Usuario sugerido:* ${slugSugerido}\n\n`;
+            msj += `👉 *Revisar y activar mi ficha aquí:*\n${linkActivacionMaster}\n\n`;
+            msj += `━━━━━━━━━━━━━━━━━━━━━━\n`;
+            msj += `🚀 *TCL Sistema Master*\n`;
+            msj += `Desarrollado por *TUCOCEL C.A.* • RIF: J-31378837-6\n`;
+            msj += `Agencia de Publicidad *@PublionlineMK*`;
+
+            if (btnSub) {
+                btnSub.disabled = false;
+                btnSub.innerHTML = '🎁 SOLICITAR MIS 7 DÍAS GRATIS';
+            }
             document.getElementById('modal-solicitar-demo-7dias').classList.add('hidden');
             // Enviar directo al WhatsApp del Máster (584247357549)
             window.despacharWhatsApp('584247357549', msj);
@@ -13947,7 +14144,7 @@ _Un respaldo de TUCOCEL C.A. & @PublionlineMK_`;
         // -------------------------------------------------------------
         // INICIALIZACIÓN AUTOMÁTICA DEL SISTEMA Y ENRUTADOR DE URL
         // -------------------------------------------------------------
-        window.TCL_APP_BUILD_ID = 'v2026.11.28.1';
+        window.TCL_APP_BUILD_ID = 'v2026.11.28.2';
 
         window.hayTrabajoEnCursoSinGuardar = function() {
             if (Array.isArray(window.carritoPOS) && window.carritoPOS.length > 0) return true;
@@ -14033,6 +14230,12 @@ _Un respaldo de TUCOCEL C.A. & @PublionlineMK_`;
                 if (typeof window.cargarTarifasSaasStorage === 'function') window.cargarTarifasSaasStorage();
     
                 const searchParams = new URLSearchParams(window.location.search);
+                const activarFichaSlug = (searchParams.get('activar_ficha') || '').trim().toLowerCase();
+                if (activarFichaSlug) {
+                    await window.manejarEnlaceActivarFichaMaster(activarFichaSlug);
+                    return;
+                }
+
                 const isPropuesta = searchParams.get('propuesta') === 'true' || 
                                     window.location.hash.includes('propuesta') || 
                                     window.location.href.includes('propuesta=true') || 
@@ -19460,6 +19663,24 @@ ${alertasStock.join('\n')}`);
             if (typeof cb === 'function') cb(!!incluirBs);
         };
     </script>
+
+    <!-- MODAL AVISO PÚBLICO CUANDO UN CLIENTE ABRE UN ENLACE YA ACTIVADO -->
+    <div id="modal-aviso-membresia-ya-activada" class="fixed inset-0 bg-slate-950/85 backdrop-blur-md z-[320] p-4 flex items-center justify-center hidden no-print">
+        <div class="bg-white border-2 border-emerald-300 w-full max-w-sm rounded-3xl overflow-hidden shadow-2xl p-6 text-center space-y-4">
+            <div class="w-16 h-16 bg-emerald-50 text-emerald-600 rounded-2xl flex items-center justify-center mx-auto text-3xl border border-emerald-200 shadow-sm">
+                <i class="fa-solid fa-circle-check"></i>
+            </div>
+            <div class="space-y-1.5">
+                <h3 class="font-black text-slate-900 text-base uppercase tracking-tight">Tu membresía ya ha sido activada con éxito</h3>
+                <p id="lbl-aviso-membresia-activada-desc" class="text-xs text-slate-600 font-medium leading-relaxed">
+                    Tu cuenta comercial ya se encuentra activa en nuestro sistema. Revisa los datos de acceso que te enviamos por WhatsApp o ingresa con tu usuario y contraseña.
+                </p>
+            </div>
+            <button type="button" onclick="window.cerrarModalMembresiaYaActivada()" class="btn-brand w-full py-3.5 text-xs shadow-md">
+                Ir a Iniciar Sesión 🔒
+            </button>
+        </div>
+    </div>
 </body>
 </html>
 
